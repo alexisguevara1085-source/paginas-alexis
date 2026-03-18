@@ -2,99 +2,222 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Ejercicios Ley de Signos</title>
+<title>Evaluación Ley de Signos</title>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #f4f4f4;
-    }
+body {
+    font-family: Arial;
+    text-align: center;
+    background-color: #f5f5f5;
+}
 
-    h1 {
-        margin-top: 20px;
-    }
+h1 {
+    font-size: 35px;
+}
 
-    #ejercicio {
-        font-size: 190px; /* Aproximadamente 5 cm */
-        margin: 40px;
-    }
+#contenedor {
+    margin-top: 30px;
+}
 
-    #respuesta {
-        font-size: 80px;
-        color: green;
-        margin-top: 20px;
-    }
+#ejercicio {
+    font-size: 100px;
+    margin: 30px;
+}
 
-    button {
-        font-size: 25px;
-        padding: 10px 20px;
-        margin: 10px;
-        cursor: pointer;
-    }
+input {
+    font-size: 25px;
+    padding: 10px;
+    text-align: center;
+}
+
+button {
+    font-size: 25px;
+    padding: 10px 20px;
+    margin: 10px;
+}
+
+#resultado {
+    font-size: 30px;
+    margin-top: 20px;
+}
+
+table {
+    margin: auto;
+    margin-top: 30px;
+    border-collapse: collapse;
+}
+
+td, th {
+    border: 1px solid black;
+    padding: 10px;
+}
 </style>
 </head>
 
 <body>
 
-<h1>Práctica Ley de Signos</h1>
+<h1>Evaluación Ley de Signos</h1>
 
-<div id="ejercicio">Presiona "Nuevo"</div>
-<div id="respuesta"></div>
+<div id="inicio">
+    <input type="text" id="nombre" placeholder="Escribe tu nombre">
+    <br><br>
+    <button onclick="iniciar()">Comenzar</button>
+</div>
 
-<button onclick="nuevoEjercicio()">Nuevo ejercicio</button>
-<button onclick="mostrarRespuesta()">Mostrar respuesta</button>
+<div id="contenedor" style="display:none;">
+    <div id="ejercicio"></div>
+    <input type="number" id="respuestaUsuario" placeholder="Tu respuesta">
+    <br>
+    <button onclick="verificar()">Responder</button>
+    <div id="resultado"></div>
+</div>
+
+<div id="final" style="display:none;">
+    <h2>Resultado final</h2>
+    <p id="resumen"></p>
+    <button onclick="reiniciar()">Nuevo intento</button>
+</div>
+
+<h2>Resultados de estudiantes</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Correctas</th>
+            <th>Incorrectas</th>
+        </tr>
+    </thead>
+    <tbody id="tablaResultados"></tbody>
+</table>
 
 <script>
+let nombre = "";
+let ejercicioActual = 0;
+let totalEjercicios = 15;
 let respuestaCorrecta = 0;
+let correctas = 0;
+let incorrectas = 0;
 
 function numeroAleatorio() {
-    return Math.floor(Math.random() * 20) - 10; // números entre -10 y 10
+    return Math.floor(Math.random() * 20) - 10;
 }
 
-function nuevoEjercicio() {
+function generarEjercicio() {
     let tipo = Math.floor(Math.random() * 3);
     let a = numeroAleatorio();
     let b = numeroAleatorio();
 
-    let ejercicioTexto = "";
+    let texto = "";
 
     if (tipo === 0) {
-        // SUMA O RESTA
-        let operador = Math.random() < 0.5 ? "+" : "-";
-        ejercicioTexto = `${a} ${operador} ${b}`;
-
-        if (operador === "+") {
-            respuestaCorrecta = a + b;
-        } else {
-            respuestaCorrecta = a - b;
-        }
+        let op = Math.random() < 0.5 ? "+" : "-";
+        texto = `${a} ${op} ${b}`;
+        respuestaCorrecta = op === "+" ? a + b : a - b;
 
     } else if (tipo === 1) {
-        // SIMPLIFICACIÓN DE SIGNOS
-        let signo1 = Math.random() < 0.5 ? "+" : "-";
-        let signo2 = Math.random() < 0.5 ? "+" : "-";
+        let s1 = Math.random() < 0.5 ? "+" : "-";
+        let s2 = Math.random() < 0.5 ? "+" : "-";
 
-        ejercicioTexto = `(${signo1}${Math.abs(a)}) - (${signo2}${Math.abs(b)})`;
+        texto = `(${s1}${Math.abs(a)}) - (${s2}${Math.abs(b)})`;
 
-        let valorA = signo1 === "+" ? Math.abs(a) : -Math.abs(a);
-        let valorB = signo2 === "+" ? Math.abs(b) : -Math.abs(b);
+        let valA = s1 === "+" ? Math.abs(a) : -Math.abs(a);
+        let valB = s2 === "+" ? Math.abs(b) : -Math.abs(b);
 
-        respuestaCorrecta = valorA - valorB;
+        respuestaCorrecta = valA - valB;
 
     } else {
-        // MULTIPLICACIÓN
-        ejercicioTexto = `${a} × ${b}`;
+        texto = `${a} × ${b}`;
         respuestaCorrecta = a * b;
     }
 
-    document.getElementById("ejercicio").innerText = ejercicioTexto;
-    document.getElementById("respuesta").innerText = "";
+    document.getElementById("ejercicio").innerText = texto;
 }
 
-function mostrarRespuesta() {
-    document.getElementById("respuesta").innerText = respuestaCorrecta;
+function iniciar() {
+    nombre = document.getElementById("nombre").value;
+
+    if (nombre === "") {
+        alert("Escribe tu nombre");
+        return;
+    }
+
+    document.getElementById("inicio").style.display = "none";
+    document.getElementById("contenedor").style.display = "block";
+
+    ejercicioActual = 0;
+    correctas = 0;
+    incorrectas = 0;
+
+    generarEjercicio();
 }
+
+function verificar() {
+    let respuesta = parseInt(document.getElementById("respuestaUsuario").value);
+
+    if (respuesta === respuestaCorrecta) {
+        correctas++;
+        document.getElementById("resultado").innerText = "✔️ Correcto";
+    } else {
+        incorrectas++;
+        document.getElementById("resultado").innerText = "❌ Incorrecto. Respuesta: " + respuestaCorrecta;
+    }
+
+    ejercicioActual++;
+    document.getElementById("respuestaUsuario").value = "";
+
+    if (ejercicioActual < totalEjercicios) {
+        setTimeout(() => {
+            document.getElementById("resultado").innerText = "";
+            generarEjercicio();
+        }, 1000);
+    } else {
+        finalizar();
+    }
+}
+
+function finalizar() {
+    document.getElementById("contenedor").style.display = "none";
+    document.getElementById("final").style.display = "block";
+
+    document.getElementById("resumen").innerText =
+        nombre + " → Correctas: " + correctas + " | Incorrectas: " + incorrectas;
+
+    guardarResultado();
+    mostrarTabla();
+}
+
+function guardarResultado() {
+    let datos = JSON.parse(localStorage.getItem("resultados")) || [];
+
+    datos.push({
+        nombre: nombre,
+        correctas: correctas,
+        incorrectas: incorrectas
+    });
+
+    localStorage.setItem("resultados", JSON.stringify(datos));
+}
+
+function mostrarTabla() {
+    let datos = JSON.parse(localStorage.getItem("resultados")) || [];
+    let tabla = document.getElementById("tablaResultados");
+    tabla.innerHTML = "";
+
+    datos.forEach(d => {
+        let fila = `<tr>
+            <td>${d.nombre}</td>
+            <td>${d.correctas}</td>
+            <td>${d.incorrectas}</td>
+        </tr>`;
+        tabla.innerHTML += fila;
+    });
+}
+
+function reiniciar() {
+    location.reload();
+}
+
+mostrarTabla();
 </script>
 
 </body>
