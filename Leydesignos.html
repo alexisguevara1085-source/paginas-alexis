@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Evaluación Ley de Signos</title>
+
+<style>
+body { font-family: Arial; text-align: center; }
+#ejercicio { font-size: 90px; margin: 30px; }
+input, button { font-size: 25px; padding: 10px; margin: 10px; }
+#resultado { font-size: 30px; }
+</style>
+</head>
+
+<body>
+
+<h1>Evaluación Ley de Signos</h1>
+
+<div id="inicio">
+<input type="text" id="nombre" placeholder="Tu nombre"><br>
+<button onclick="iniciar()">Comenzar</button>
+</div>
+
+<div id="test" style="display:none;">
+<div id="ejercicio"></div>
+<input type="number" id="resp" placeholder="Respuesta"><br>
+<button onclick="verificar()">Responder</button>
+<div id="resultado"></div>
+</div>
+
+<div id="final" style="display:none;">
+<h2 id="resumen"></h2>
+</div>
+
+<script>
+let nombre="";
+let actual=0;
+let total=15;
+let correcta=0;
+let bien=0;
+let mal=0;
+
+function rand(){ return Math.floor(Math.random()*20)-10; }
+
+function generar(){
+ let t=Math.floor(Math.random()*3);
+ let a=rand(), b=rand();
+
+ if(t===0){
+  let op=Math.random()<0.5?"+":"-";
+  document.getElementById("ejercicio").innerText=`${a} ${op} ${b}`;
+  correcta = op==="+"?a+b:a-b;
+ }
+ else if(t===1){
+  let s1=Math.random()<0.5?"+":"-";
+  let s2=Math.random()<0.5?"+":"-";
+  document.getElementById("ejercicio").innerText=`(${s1}${Math.abs(a)}) - (${s2}${Math.abs(b)})`;
+  let A = s1==="+"?Math.abs(a):-Math.abs(a);
+  let B = s2==="+"?Math.abs(b):-Math.abs(b);
+  correcta = A - B;
+ }
+ else{
+  document.getElementById("ejercicio").innerText=`${a} × ${b}`;
+  correcta = a*b;
+ }
+}
+
+function iniciar(){
+ nombre=document.getElementById("nombre").value;
+ if(nombre===""){ alert("Escribe tu nombre"); return; }
+
+ document.getElementById("inicio").style.display="none";
+ document.getElementById("test").style.display="block";
+
+ generar();
+}
+
+function verificar(){
+ let r=parseInt(document.getElementById("resp").value);
+
+ if(r===correcta){
+  bien++;
+  document.getElementById("resultado").innerText="✔️ Correcto";
+ }else{
+  mal++;
+  document.getElementById("resultado").innerText="❌ Incorrecto: "+correcta;
+ }
+
+ actual++;
+ document.getElementById("resp").value="";
+
+ if(actual<total){
+  setTimeout(()=>{
+   document.getElementById("resultado").innerText="";
+   generar();
+  },1000);
+ }else{
+  terminar();
+ }
+}
+
+function terminar(){
+ document.getElementById("test").style.display="none";
+ document.getElementById("final").style.display="block";
+
+ document.getElementById("resumen").innerText =
+ `${nombre} → ✔️ ${bien} | ❌ ${mal}`;
+
+ enviarDatos();
+}
+
+function enviarDatos(){
+
+ const url = "https://docs.google.com/forms/d/e/1FAIpQLSfzq7RI9PsQxOX1xE-r2e1LDgZTt5JcINt458a0-lBpEQLElQ/formResponse";
+
+ const data = new FormData();
+
+ // 🔥 YA CONFIGURADO SEGÚN TU FORMULARIO
+ data.append("entry.2005620554", nombre);
+ data.append("entry.1045781291", bien);
+ data.append("entry.1166974658", mal);
+
+ fetch(url,{
+  method:"POST",
+  mode:"no-cors",
+  body:data
+ });
+
+}
+</script>
+
+</body>
+</html>
