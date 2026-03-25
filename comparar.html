@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Quiz: Comparar y Ordenar Números</title>
+<title>Quiz de Números</title>
 
 <style>
 
@@ -18,23 +18,41 @@ height:100vh;
 
 .container{
 background:white;
-padding:30px;
+padding:25px;
 border-radius:20px;
 width:1100px;
 box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
-h2{
-text-align:center;
+.menu{
+display:flex;
+justify-content:center;
+gap:20px;
+margin-bottom:20px;
+}
+
+.menu button{
+padding:10px 25px;
+font-size:18px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:#eee;
+}
+
+.menu button:hover{
+background:#ddd;
 }
 
 .seccion{
-margin-top:25px;
-border-top:2px solid #eee;
-padding-top:20px;
+display:none;
 }
 
-/* REPRESENTACION 100 CUADRITOS */
+.activo{
+display:block;
+}
+
+/* CUADRO 100 */
 
 .caja100{
 width:140px;
@@ -43,30 +61,27 @@ display:grid;
 grid-template-columns:repeat(10,1fr);
 grid-template-rows:repeat(10,1fr);
 gap:1px;
-border:2px solid #333;
+border:2px solid black;
 margin:auto;
 }
 
-.celda{
-background:#eee;
-}
-
-.pintado{
-background:#3498db;
-}
+.celda{background:#eee;}
+.pintado{background:#3498db;}
 
 .numeroGrande{
-font-size:50px;
+font-size:45px;
 font-weight:bold;
 text-align:center;
 }
 
-.filaNumeros{
+.fila{
 display:flex;
 justify-content:center;
-gap:40px;
 align-items:center;
+gap:30px;
 }
+
+/* COMPARAR */
 
 .signoCaja{
 width:60px;
@@ -82,47 +97,45 @@ font-weight:bold;
 .botonesSigno{
 display:flex;
 justify-content:center;
-gap:20px;
+gap:15px;
 margin-top:15px;
 }
 
 .btnSigno{
 font-size:40px;
-padding:10px 25px;
-cursor:pointer;
-border-radius:10px;
+padding:10px 20px;
 border:none;
-background:#f1f1f1;
-}
-
-.btnSigno:hover{
-background:#ddd;
+border-radius:10px;
+cursor:pointer;
 }
 
 /* ORDENAR */
 
-.listaNumeros{
-display:flex;
-justify-content:center;
-gap:20px;
-margin-bottom:15px;
-font-size:35px;
-font-weight:bold;
+.lista{
+font-size:30px;
+text-align:center;
+margin-bottom:10px;
 }
 
-.casillasOrden{
+.casillas{
 display:flex;
 justify-content:center;
-gap:20px;
-margin-bottom:10px;
+align-items:center;
+gap:10px;
+margin-bottom:15px;
 }
 
 .casilla{
 width:70px;
 height:60px;
-border:3px solid #333;
 font-size:30px;
 text-align:center;
+border:3px solid black;
+}
+
+.signoOrden{
+font-size:30px;
+font-weight:bold;
 }
 
 .teclado{
@@ -133,9 +146,8 @@ justify-content:center;
 }
 
 .tecla{
-background:#f1f1f1;
+background:#eee;
 padding:15px;
-font-size:20px;
 text-align:center;
 border-radius:10px;
 cursor:pointer;
@@ -155,15 +167,18 @@ font-weight:bold;
 
 <div class="container">
 
-<h2>Quiz de Números</h2>
+<div class="menu">
+<button onclick="mostrar('comparar')">Comparar</button>
+<button onclick="mostrar('ordenar')">Ordenar</button>
+</div>
 
-<!-- PARTE 1 COMPARAR -->
+<!-- COMPARAR -->
 
-<div class="seccion">
+<div id="comparar" class="seccion activo">
 
-<h3>1️⃣ Comparar números</h3>
+<h2 style="text-align:center;">Comparar números</h2>
 
-<div class="filaNumeros">
+<div class="fila">
 
 <div>
 <div class="numeroGrande" id="numA"></div>
@@ -189,32 +204,56 @@ font-weight:bold;
 
 </div>
 
-<!-- PARTE 2 ORDENAR -->
+<!-- ORDENAR -->
 
-<div class="seccion">
+<div id="ordenar" class="seccion">
 
-<h3>2️⃣ Ordenar números</h3>
+<h2 style="text-align:center;">Ordenar números</h2>
 
-<div id="tipoOrden" style="text-align:center;font-size:22px;"></div>
+<div style="text-align:center;margin-bottom:10px;">
 
-<div class="listaNumeros" id="listaNumeros"></div>
+Cantidad:
+<select id="cantidad">
+<option>3</option>
+<option>4</option>
+<option>5</option>
+</select>
 
-<div class="casillasOrden" id="casillasOrden"></div>
+Orden:
+<select id="tipoOrden">
+<option value="asc">Menor → Mayor</option>
+<option value="desc">Mayor → Menor</option>
+</select>
+
+<button onclick="nuevoOrden()">Generar</button>
+
+</div>
+
+<div class="lista" id="listaNumeros"></div>
+
+<div class="casillas" id="casillasOrden"></div>
 
 <div class="teclado">
 
-<div class="tecla" onclick="agregarNum(1)">1</div>
-<div class="tecla" onclick="agregarNum(2)">2</div>
-<div class="tecla" onclick="agregarNum(3)">3</div>
-<div class="tecla" onclick="agregarNum(4)">4</div>
-<div class="tecla" onclick="agregarNum(5)">5</div>
-<div class="tecla" onclick="agregarNum(6)">6</div>
-<div class="tecla" onclick="agregarNum(7)">7</div>
-<div class="tecla" onclick="agregarNum(8)">8</div>
-<div class="tecla" onclick="agregarNum(9)">9</div>
-<div class="tecla" onclick="borrar()">⌫</div>
-<div class="tecla" onclick="agregarNum(0)">0</div>
+<div class="tecla" onclick="agregar(1)">1</div>
+<div class="tecla" onclick="agregar(2)">2</div>
+<div class="tecla" onclick="agregar(3)">3</div>
 
+<div class="tecla" onclick="agregar(4)">4</div>
+<div class="tecla" onclick="agregar(5)">5</div>
+<div class="tecla" onclick="agregar(6)">6</div>
+
+<div class="tecla" onclick="agregar(7)">7</div>
+<div class="tecla" onclick="agregar(8)">8</div>
+<div class="tecla" onclick="agregar(9)">9</div>
+
+<div class="tecla" onclick="borrar()">⌫</div>
+<div class="tecla" onclick="agregar(0)">0</div>
+
+</div>
+
+<div style="text-align:center;margin-top:10px;">
+<button onclick="verificarOrden()">Comprobar</button>
 </div>
 
 <div class="resultado" id="resultadoOrden"></div>
@@ -225,7 +264,16 @@ font-weight:bold;
 
 <script>
 
-/* GENERAR CUADRO 100 */
+/* MENU */
+
+function mostrar(id){
+
+document.querySelectorAll(".seccion").forEach(s=>s.classList.remove("activo"))
+document.getElementById(id).classList.add("activo")
+
+}
+
+/* CUADRO 100 */
 
 function dibujar100(num,id){
 
@@ -251,19 +299,8 @@ let a,b
 
 function nuevoComparar(){
 
-let tipo=Math.random()
-
-if(tipo<0.5){
-
-a=Math.floor(Math.random()*11)
-b=Math.floor(Math.random()*11)
-
-}else{
-
 a=Math.floor(Math.random()*100)
 b=Math.floor(Math.random()*100)
-
-}
 
 document.getElementById("numA").textContent=a
 document.getElementById("numB").textContent=b
@@ -304,35 +341,42 @@ document.getElementById("resultadoComparar").textContent="✘ Intenta otra vez"
 /* ORDENAR */
 
 let numeros=[]
-let orden=""
+let activo=null
 
 function nuevoOrden(){
 
+let n=parseInt(document.getElementById("cantidad").value)
+let cont=document.getElementById("casillasOrden")
+
 numeros=[]
+cont.innerHTML=""
 
-let cantidad=3+Math.floor(Math.random()*3)
+for(let i=0;i<n;i++){
 
-for(let i=0;i<cantidad;i++){
-
-numeros.push(Math.floor(Math.random()*100))
+let num=Math.floor(Math.random()*100)
+numeros.push(num)
 
 }
 
-orden=Math.random()<0.5?"asc":"desc"
-
-document.getElementById("tipoOrden").textContent=
-orden=="asc"?"Ordena de menor a mayor":"Ordena de mayor a menor"
-
 document.getElementById("listaNumeros").textContent=numeros.join(" , ")
 
-let cont=document.getElementById("casillasOrden")
-cont.innerHTML=""
+let orden=document.getElementById("tipoOrden").value
 
-for(let i=0;i<cantidad;i++){
+for(let i=0;i<n;i++){
 
 let input=document.createElement("input")
 input.className="casilla"
+input.onclick=()=>activo=input
 cont.appendChild(input)
+
+if(i<n-1){
+
+let signo=document.createElement("div")
+signo.className="signoOrden"
+signo.textContent=orden=="asc"?"<":">"
+cont.appendChild(signo)
+
+}
 
 }
 
@@ -340,19 +384,10 @@ document.getElementById("resultadoOrden").textContent=""
 
 }
 
-/* TECLADO */
-
-let activo=null
-
-document.addEventListener("click",e=>{
-if(e.target.classList.contains("casilla")) activo=e.target
-})
-
-function agregarNum(n){
+function agregar(n){
 
 if(!activo) return
 activo.value+=n
-verificarOrden()
 
 }
 
@@ -363,40 +398,35 @@ activo.value=activo.value.slice(0,-1)
 
 }
 
-/* VERIFICAR ORDEN */
-
 function verificarOrden(){
 
 let inputs=document.querySelectorAll(".casilla")
 
 let valores=[]
+inputs.forEach(i=>valores.push(parseInt(i.value)))
 
-inputs.forEach(i=>{
-valores.push(parseInt(i.value))
-})
+let orden=document.getElementById("tipoOrden").value
 
-if(valores.includes(NaN)) return
+let correcto=[...numeros]
 
-let copia=[...numeros]
+if(orden=="asc") correcto.sort((a,b)=>a-b)
+else correcto.sort((a,b)=>b-a)
 
-if(orden=="asc") copia.sort((a,b)=>a-b)
-else copia.sort((a,b)=>b-a)
-
-if(JSON.stringify(valores)==JSON.stringify(copia)){
+if(JSON.stringify(valores)==JSON.stringify(correcto)){
 
 document.getElementById("resultadoOrden").style.color="green"
 document.getElementById("resultadoOrden").textContent="✔ Correcto"
 
-setTimeout(nuevoOrden,1500)
+}else{
+
+document.getElementById("resultadoOrden").style.color="red"
+document.getElementById("resultadoOrden").textContent="✘ Revisa el orden"
 
 }
 
 }
-
-/* INICIAR */
 
 nuevoComparar()
-nuevoOrden()
 
 </script>
 
