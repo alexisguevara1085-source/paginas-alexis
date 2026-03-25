@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Descomposición en Decenas y Unidades</title>
+<title>Descomposición Decenas y Unidades</title>
 
 <style>
 
 body{
-font-family: Arial, Helvetica, sans-serif;
-background: linear-gradient(135deg,#4facfe,#00f2fe);
+font-family:Arial;
+background:linear-gradient(135deg,#4facfe,#00f2fe);
 display:flex;
 justify-content:center;
 align-items:center;
@@ -20,10 +20,10 @@ margin:0;
 background:white;
 padding:30px;
 border-radius:20px;
-width:700px;
+width:900px;
 box-shadow:0px 10px 25px rgba(0,0,0,0.2);
 display:flex;
-gap:20px;
+gap:30px;
 }
 
 .main{
@@ -32,14 +32,13 @@ text-align:center;
 }
 
 h1{
-color:#333;
+margin-top:0;
 }
 
 .numero{
-font-size:90px;
-font-weight:bold;
+font-size:80px;
 color:#ff6b6b;
-margin:20px;
+font-weight:bold;
 }
 
 input{
@@ -49,22 +48,40 @@ text-align:center;
 padding:10px;
 margin:10px;
 border-radius:10px;
-border:2px solid #ddd;
+border:2px solid #ccc;
 }
 
 button{
-padding:12px 20px;
+padding:10px 20px;
 font-size:20px;
 border:none;
 border-radius:10px;
 background:#4CAF50;
 color:white;
 cursor:pointer;
-margin-top:10px;
 }
 
 button:hover{
-background:#45a049;
+background:#3e8e41;
+}
+
+.teclado{
+display:grid;
+grid-template-columns:repeat(3,70px);
+gap:10px;
+}
+
+.tecla{
+background:#f1f1f1;
+padding:18px;
+font-size:22px;
+border-radius:10px;
+cursor:pointer;
+box-shadow:0px 3px 6px rgba(0,0,0,0.2);
+}
+
+.tecla:hover{
+background:#ddd;
 }
 
 .resultado{
@@ -73,25 +90,29 @@ margin-top:15px;
 font-weight:bold;
 }
 
-.teclado{
-display:grid;
-grid-template-columns:repeat(3,70px);
-gap:10px;
-align-content:center;
+/* BLOQUES BASE 10 */
+
+.bloques{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:6px;
+margin:15px 0;
+min-height:40px;
 }
 
-.tecla{
-background:#f1f1f1;
-border-radius:10px;
-font-size:22px;
-padding:15px;
-text-align:center;
-cursor:pointer;
-box-shadow:0px 3px 6px rgba(0,0,0,0.2);
+.decena{
+width:12px;
+height:60px;
+background:#3498db;
+border-radius:3px;
 }
 
-.tecla:hover{
-background:#ddd;
+.unidad{
+width:18px;
+height:18px;
+background:#f1c40f;
+border-radius:4px;
 }
 
 </style>
@@ -107,6 +128,11 @@ background:#ddd;
 
 <div class="numero" id="numero"></div>
 
+<h3>Representación del número</h3>
+<div class="bloques" id="bloquesNumero"></div>
+
+<hr>
+
 <div>
 
 <input id="decenas" placeholder="Decenas">
@@ -114,6 +140,9 @@ background:#ddd;
 <input id="unidades" placeholder="Unidades">
 
 </div>
+
+<h3>Tu representación</h3>
+<div class="bloques" id="bloquesEstudiante"></div>
 
 <button onclick="verificar()">Verificar</button>
 
@@ -137,7 +166,6 @@ background:#ddd;
 
 <div class="tecla" onclick="borrar()">⌫</div>
 <div class="tecla" onclick="agregar(0)">0</div>
-<div class="tecla" onclick="cambiar()">⇄</div>
 
 </div>
 
@@ -146,7 +174,13 @@ background:#ddd;
 <script>
 
 let numero;
-let activo="decenas";
+let campoActivo=null;
+
+const decenasInput=document.getElementById("decenas");
+const unidadesInput=document.getElementById("unidades");
+
+decenasInput.onclick=()=>campoActivo=decenasInput;
+unidadesInput.onclick=()=>campoActivo=unidadesInput;
 
 function nuevoNumero(){
 
@@ -154,57 +188,110 @@ numero=Math.floor(Math.random()*90)+10;
 
 document.getElementById("numero").textContent=numero;
 
-document.getElementById("decenas").value="";
-document.getElementById("unidades").value="";
+decenasInput.value="";
+unidadesInput.value="";
 document.getElementById("resultado").textContent="";
+
+dibujarNumero();
+dibujarEstudiante();
 
 }
 
 function agregar(n){
 
-let campo=document.getElementById(activo);
+if(!campoActivo) return;
 
-campo.value+=n;
+campoActivo.value+=n;
+
+dibujarEstudiante();
 
 }
 
 function borrar(){
 
-let campo=document.getElementById(activo);
+if(!campoActivo) return;
 
-campo.value=campo.value.slice(0,-1);
+campoActivo.value=campoActivo.value.slice(0,-1);
+
+dibujarEstudiante();
 
 }
 
-function cambiar(){
+function dibujarNumero(){
 
-if(activo==="decenas"){
-activo="unidades";
-}else{
-activo="decenas";
+let cont=document.getElementById("bloquesNumero");
+
+cont.innerHTML="";
+
+let d=Math.floor(numero/10);
+let u=numero%10;
+
+for(let i=0;i<d;i++){
+
+let barra=document.createElement("div");
+barra.className="decena";
+cont.appendChild(barra);
+
+}
+
+for(let i=0;i<u;i++){
+
+let cuad=document.createElement("div");
+cuad.className="unidad";
+cont.appendChild(cuad);
+
+}
+
+}
+
+function dibujarEstudiante(){
+
+let cont=document.getElementById("bloquesEstudiante");
+
+cont.innerHTML="";
+
+let d=parseInt(decenasInput.value)||0;
+let u=parseInt(unidadesInput.value)||0;
+
+let barras=d/10;
+
+for(let i=0;i<barras;i++){
+
+let barra=document.createElement("div");
+barra.className="decena";
+cont.appendChild(barra);
+
+}
+
+for(let i=0;i<u;i++){
+
+let cuad=document.createElement("div");
+cuad.className="unidad";
+cont.appendChild(cuad);
+
 }
 
 }
 
 function verificar(){
 
-let decenas=parseInt(document.getElementById("decenas").value);
-let unidades=parseInt(document.getElementById("unidades").value);
+let d=parseInt(decenasInput.value);
+let u=parseInt(unidadesInput.value);
 
-let d=Math.floor(numero/10)*10;
-let u=numero%10;
+let decenaCorrecta=Math.floor(numero/10)*10;
+let unidadCorrecta=numero%10;
 
-if(decenas===d && unidades===u){
+if(d===decenaCorrecta && u===unidadCorrecta){
 
 document.getElementById("resultado").style.color="green";
-document.getElementById("resultado").textContent="✔ ¡Correcto!";
+document.getElementById("resultado").textContent="✔ Correcto";
 
 setTimeout(nuevoNumero,1200);
 
 }else{
 
 document.getElementById("resultado").style.color="red";
-document.getElementById("resultado").textContent="✘ Intenta otra vez";
+document.getElementById("resultado").textContent="✘ Revisa las barras";
 
 }
 
