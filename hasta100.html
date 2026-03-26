@@ -39,14 +39,20 @@ cursor:pointer;
 .seccion{display:none;}
 .activo{display:block;}
 
-/* CUADROS */
 .fila{
 display:flex;
-justify-content:center;
 align-items:center;
+justify-content:center;
 gap:20px;
-margin-top:10px;
 }
+
+.numeroGrande{
+font-size:40px;
+font-weight:bold;
+text-align:center;
+}
+
+/* CUADRO 100 */
 
 .caja100{
 width:150px;
@@ -68,38 +74,56 @@ font-size:25px;
 text-align:center;
 }
 
+/* RECTA NUMERICA */
+
+.rectaContainer{
+text-align:center;
+margin-top:20px;
+}
+
+svg{
+width:900px;
+height:120px;
+}
+
+line{
+stroke:black;
+stroke-width:3;
+}
+
+.arc1{
+stroke:red;
+stroke-width:4;
+fill:none;
+}
+
+.arc2{
+stroke:blue;
+stroke-width:4;
+fill:none;
+}
+
 .resultado{
 text-align:center;
-margin-top:10px;
 font-weight:bold;
+margin-top:10px;
 }
 
-/* RECTA */
-
-.recta{
-display:flex;
-justify-content:space-between;
-margin:20px;
-}
-
-.azulTexto{color:#3498db;font-weight:bold;}
+/* TECLADO */
 
 .teclado{
-position:absolute;
-right:20px;
-top:50%;
-transform:translateY(-50%);
 display:grid;
 grid-template-columns:repeat(3,60px);
 gap:8px;
+margin-left:20px;
 }
 
 .tecla{
 background:#eee;
 padding:12px;
-text-align:center;
 border-radius:10px;
 cursor:pointer;
+text-align:center;
 }
 
 </style>
@@ -116,9 +140,10 @@ cursor:pointer;
 </div>
 
 <!-- SECCION 1 -->
+
 <div id="s1" class="seccion activo">
 
-<h3 style="text-align:center;">Completa hasta 100 (10 en 10)</h3>
+<div class="numeroGrande" id="num1"></div>
 
 <div class="fila">
 
@@ -130,7 +155,9 @@ cursor:pointer;
 
 <input id="r1">
 
-<div>= 100</div>
+<div>=100</div>
+
+<div class="teclado" id="tec1"></div>
 
 </div>
 
@@ -139,22 +166,37 @@ cursor:pointer;
 </div>
 
 <!-- SECCION 2 -->
+
 <div id="s2" class="seccion">
 
-<h3 style="text-align:center;">Recta numérica</h3>
+<div class="rectaContainer">
 
-<div class="recta" id="recta"></div>
+<svg id="recta"></svg>
 
-<div style="text-align:center;">
+</div>
 
-<span id="nBase"></span> + 
-<input id="corto"> + 
-<input id="largo"> = 100
+<div style="text-align:center;margin-top:10px;">
+
+<span id="base"></span> +
+
+<input id="salto1">
+
++
+
+<input id="salto2">
+
+= 100
 
 <br><br>
 
-Debe saltar: <input id="total">
+Debe saltar
 
+<input id="total">
+
+</div>
+
+<div style="text-align:center;margin-top:10px;">
+<button onclick="comprobarRecta()">Comprobar</button>
 </div>
 
 <div class="resultado" id="res2"></div>
@@ -162,9 +204,10 @@ Debe saltar: <input id="total">
 </div>
 
 <!-- SECCION 3 -->
+
 <div id="s3" class="seccion">
 
-<h3 style="text-align:center;">Completa hasta 100</h3>
+<div class="numeroGrande" id="num3"></div>
 
 <div class="fila">
 
@@ -176,7 +219,9 @@ Debe saltar: <input id="total">
 
 <input id="r3">
 
-<div>= 100</div>
+<div>=100</div>
+
+<div class="teclado" id="tec3"></div>
 
 </div>
 
@@ -186,49 +231,20 @@ Debe saltar: <input id="total">
 
 </div>
 
-<!-- TECLADO -->
-<div class="teclado">
-
-<div class="tecla" onclick="add(1)">1</div>
-<div class="tecla" onclick="add(2)">2</div>
-<div class="tecla" onclick="add(3)">3</div>
-<div class="tecla" onclick="add(4)">4</div>
-<div class="tecla" onclick="add(5)">5</div>
-<div class="tecla" onclick="add(6)">6</div>
-<div class="tecla" onclick="add(7)">7</div>
-<div class="tecla" onclick="add(8)">8</div>
-<div class="tecla" onclick="add(9)">9</div>
-<div class="tecla" onclick="del()">⌫</div>
-<div class="tecla" onclick="add(0)">0</div>
-
-</div>
-
 <script>
 
-let activo=null
-document.addEventListener("click",e=>{
-if(e.target.tagName==="INPUT") activo=e.target
-})
-
-function add(n){
-if(!activo) return
-activo.value+=n
-check()
-}
-
-function del(){
-if(!activo) return
-activo.value=activo.value.slice(0,-1)
-}
+/* MENU */
 
 function mostrar(id){
+
 document.querySelectorAll(".seccion").forEach(s=>s.classList.remove("activo"))
 document.getElementById(id).classList.add("activo")
+
 }
 
-/* DIBUJAR */
+/* DIBUJAR CUADRO */
 
-function draw(num,id,color){
+function draw(base,extra,id){
 
 let cont=document.getElementById(id)
 cont.innerHTML=""
@@ -238,79 +254,141 @@ for(let i=1;i<=100;i++){
 let c=document.createElement("div")
 c.className="celda"
 
-if(i<=num) c.classList.add(color)
+if(i<=base) c.classList.add("azul")
+else if(i<=base+extra) c.classList.add("verde")
 
 cont.appendChild(c)
 
 }
+
 }
 
 /* SECCION 1 */
+
 let n1
 
 function gen1(){
+
 n1=(Math.floor(Math.random()*9)+1)*10
-draw(n1,"g1","azul")
+
+document.getElementById("num1").textContent=n1
+
+draw(n1,0,"g1")
+draw(n1,0,"g1r")
+
 document.getElementById("r1").value=""
-draw(0,"g1r","verde")
+
 }
 
+document.getElementById("r1").addEventListener("input",()=>{
+
+let v=parseInt(r1.value)||0
+
+draw(n1,v,"g1r")
+
+if(v==100-n1){
+
+document.getElementById("res1").textContent="✔ Correcto"
+
+setTimeout(gen1,1200)
+
+}
+
+})
+
 /* SECCION 3 */
+
 let n3
 
 function gen3(){
+
 n3=Math.floor(Math.random()*100)
-draw(n3,"g3","azul")
-document.getElementById("r3").value=""
-draw(0,"g3r","verde")
+
+document.getElementById("num3").textContent=n3
+
+draw(n3,0,"g3")
+draw(n3,0,"g3r")
+
 }
 
-/* SECCION 2 */
-let n2, sup
+document.getElementById("r3").addEventListener("input",()=>{
 
-function gen2(){
+let v=parseInt(r3.value)||0
 
-n2=Math.floor(Math.random()*90)+1
-let inf=Math.floor(n2/10)*10
+draw(n3,v,"g3r")
+
+if(v==100-n3){
+
+document.getElementById("res3").textContent="✔ Correcto"
+
+setTimeout(gen3,1200)
+
+}
+
+})
+
+/* RECTA */
+
+let num, sup
+
+function genRecta(){
+
+num=Math.floor(Math.random()*90)+1
+
+let inf=Math.floor(num/10)*10
 sup=inf+10
 
-document.getElementById("recta").innerHTML=
-`0 --- <span class="azulTexto">${inf}</span> --- <span class="azulTexto">${sup}</span> --- 100 <br> ↑ ${n2}`
+document.getElementById("base").textContent=num
 
-document.getElementById("nBase").textContent=n2
+let svg=document.getElementById("recta")
+
+svg.innerHTML=`
+
+<line x1="50" y1="80" x2="850" y2="80"/>
+
+<text x="50" y="100">0</text>
+
+<text x="300" y="100" fill="blue">${inf}</text>
+
+<text x="400" y="100" fill="blue">${sup}</text>
+
+<text x="850" y="100">100</text>
+
+<circle cx="350" cy="80" r="6"/>
+
+<text x="340" y="60">${num}</text>
+
+<path class="arc1" d="M350 60 Q380 20 400 60"/>
+
+<path class="arc2" d="M400 60 Q650 -20 850 60"/>
+
+`
 
 }
 
-/* VALIDAR */
+function comprobarRecta(){
 
-function check(){
+let a=parseInt(salto1.value)
+let b=parseInt(salto2.value)
+let t=parseInt(total.value)
 
-let r=parseInt(document.getElementById("r1").value)
-if(r==100-n1){
-document.getElementById("res1").textContent="✔"
+if(a==(sup-num) && b==(100-sup) && t==(100-num)){
+
+document.getElementById("res2").textContent="✔ Correcto"
+
+setTimeout(genRecta,1200)
+
+}else{
+
+document.getElementById("res2").textContent="❌ Incorrecto"
+
+}
+
+}
+
 gen1()
-}
-
-let r3=parseInt(document.getElementById("r3").value)
-if(r3==100-n3){
-document.getElementById("res3").textContent="✔"
 gen3()
-}
-
-let a=parseInt(document.getElementById("corto").value)
-let b=parseInt(document.getElementById("largo").value)
-let t=parseInt(document.getElementById("total").value)
-
-if(a==(sup-n2) && b==(100-sup) && t==(100-n2)){
-document.getElementById("res2").textContent="✔"
-gen2()
-}
-
-}
-
-gen1()
-gen2()
-gen3()
+genRecta()
 
 </script>
 
