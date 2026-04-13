@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practica tus Tablas de Multiplicar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#bbf7d0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Animación para error */
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        /* Animación para correcto */
+        .pop-success {
+            animation: popSuccess 0.5s ease-out forwards;
+        }
+        @keyframes popSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #16a34a; }
+            100% { transform: scale(1); }
+        }
+
+        /* Transiciones suaves */
+        .btn-transition {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Ocultar barra de desplazamiento horizontal - Ya no es estrictamente necesario, pero mantiene limpio el estilo base */
+        ::-webkit-scrollbar {
+            height: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-6 px-4 text-gray-800">
+
+    <!-- Encabezado -->
+    <header class="text-center mb-6 w-full max-w-4xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-emerald-600 mb-2 drop-shadow-sm">
+            <i class="fa-solid fa-gamepad mr-2"></i> ¡Multiplica y Aprende!
+        </h1>
+        <p class="text-lg text-emerald-800">Diviértete practicando las tablas de multiplicar</p>
+    </header>
+
+    <!-- Navegación de Secciones -->
+    <nav class="flex flex-wrap justify-center gap-2 md:gap-4 w-full max-w-4xl mb-6">
+        <button onclick="changeSection(1)" id="btn-sec1" class="btn-transition flex-1 min-w-[140px] md:min-w-[150px] bg-emerald-500 text-white py-2 px-4 md:py-3 md:px-6 rounded-2xl shadow-md font-semibold text-base md:text-lg border-b-4 border-emerald-700 hover:bg-emerald-400 active:translate-y-1 active:border-b-0">
+            Sección 1<br><span class="text-xs md:text-sm font-normal">Básico (x0 al x10)</span>
+        </button>
+        <button onclick="changeSection(2)" id="btn-sec2" class="btn-transition flex-1 min-w-[140px] md:min-w-[150px] bg-sky-500 text-white py-2 px-4 md:py-3 md:px-6 rounded-2xl shadow-md font-semibold text-base md:text-lg border-b-4 border-sky-700 hover:bg-sky-400 active:translate-y-1 active:border-b-0 opacity-70">
+            Sección 2<br><span class="text-xs md:text-sm font-normal">Decenas (x0 al x100)</span>
+        </button>
+        <button onclick="changeSection(3)" id="btn-sec3" class="btn-transition flex-1 min-w-[140px] md:min-w-[150px] bg-purple-500 text-white py-2 px-4 md:py-3 md:px-6 rounded-2xl shadow-md font-semibold text-base md:text-lg border-b-4 border-purple-700 hover:bg-purple-400 active:translate-y-1 active:border-b-0 opacity-70">
+            Sección 3<br><span class="text-xs md:text-sm font-normal">Mixto Aleatorio</span>
+        </button>
+    </nav>
+
+    <!-- Área Principal de Juego -->
+    <main class="w-full max-w-4xl bg-white rounded-3xl shadow-xl border-4 border-emerald-100 overflow-hidden flex flex-col">
+        
+        <!-- Barra Horizontal: Selección de Tablas (Secciones 1 y 2) -->
+        <section id="table-selector-panel" class="bg-emerald-50 p-4 border-b-4 border-emerald-100 w-full transition-all duration-300">
+            <h2 class="text-base md:text-lg font-bold text-emerald-800 mb-3 text-center">
+                Elige las tablas a estudiar:
+            </h2>
+            <div id="table-buttons" class="flex flex-wrap justify-center gap-2">
+                <!-- Los botones del 0 al 12 se generan con JS, ahora más pequeños -->
+            </div>
+            <p id="selection-warning" class="text-red-500 text-sm text-center mt-2 hidden font-semibold">
+                ¡Debes seleccionar al menos una tabla!
+            </p>
+        </section>
+
+        <!-- Panel de Pizarra y Teclado -->
+        <section class="p-4 md:p-6 flex flex-col justify-between items-center bg-white relative w-full flex-1 min-h-[400px]">
+            
+            <!-- Etiqueta de sección actual -->
+            <div id="section-badge" class="absolute top-4 left-4 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs md:text-sm font-bold z-10">
+                Sección 1
+            </div>
+
+            <!-- Pizarra de la Multiplicación -->
+            <div class="flex-1 flex flex-col items-center justify-center w-full mt-8 md:mt-4">
+                
+                <div id="feedback-message" class="h-8 text-xl md:text-2xl font-bold mb-4 opacity-0 transition-opacity duration-300 text-center">
+                    <!-- Mensaje de correcto/incorrecto -->
+                </div>
+
+                <!-- La Operación -->
+                <div id="equation-container" class="flex items-center justify-center gap-2 md:gap-5 text-5xl md:text-7xl font-bold text-gray-700 w-full flex-wrap">
+                    <span id="operand1" class="text-blue-600">5</span>
+                    <span class="text-gray-400 text-4xl md:text-6xl">×</span>
+                    <span id="operand2" class="text-purple-600">4</span>
+                    <span class="text-gray-400">=</span>
+                    
+                    <!-- Caja de Respuesta -->
+                    <div id="answer-box" class="min-w-[100px] md:min-w-[130px] h-[60px] md:h-[80px] bg-gray-100 rounded-xl border-b-4 border-gray-400 flex items-center justify-center text-4xl md:text-6xl text-emerald-600 shadow-inner px-3 overflow-hidden">
+                        <!-- El usuario escribe aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teclado en Pantalla -->
+            <div class="w-full mt-8 md:mt-10">
+                <!-- Contenedor que usa flex-wrap para asegurar que todo encaje sin scrollbar -->
+                <div class="flex flex-wrap justify-center items-center gap-2 md:gap-3 w-full">
+                    
+                    <!-- Botones 0-9 (JS los inserta aquí, también envueltos para celular) -->
+                    <div id="keyboard-numbers" class="flex flex-wrap justify-center gap-2"></div>
+                    
+                    <!-- Contenedor para botones de acción -->
+                    <div class="flex flex-wrap justify-center gap-2 mt-1 md:mt-0">
+                        <!-- Botón Borrar -->
+                        <button onclick="handleDelete()" class="btn-transition bg-red-100 text-red-600 h-12 md:h-14 px-4 md:px-5 rounded-xl font-bold text-lg md:text-xl shadow-sm border-b-4 border-red-300 hover:bg-red-200 active:translate-y-1 active:border-b-0 flex items-center justify-center">
+                            <i class="fa-solid fa-delete-left mr-2"></i> Borrar
+                        </button>
+
+                        <!-- Botón Comprobar -->
+                        <button onclick="checkAnswer()" class="btn-transition bg-emerald-500 text-white h-12 md:h-14 px-4 md:px-5 rounded-xl font-bold text-lg md:text-xl shadow-sm border-b-4 border-emerald-700 hover:bg-emerald-400 active:translate-y-1 active:border-b-0 flex items-center justify-center">
+                            <i class="fa-solid fa-check mr-2"></i> Revisar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // --- ESTADO DE LA APLICACIÓN ---
+        let currentSection = 1;
+        let selectedTables = new Set([2, 3, 4, 5]); // Tablas seleccionadas por defecto
+        let currentQuestion = { op1: 0, op2: 0, answer: 0 };
+        let currentInput = "";
+
+        // --- REFERENCIAS AL DOM ---
+        const tableButtonsContainer = document.getElementById('table-buttons');
+        const operand1El = document.getElementById('operand1');
+        const operand2El = document.getElementById('operand2');
+        const answerBoxEl = document.getElementById('answer-box');
+        const feedbackMessageEl = document.getElementById('feedback-message');
+        const equationContainerEl = document.getElementById('equation-container');
+        const tableSelectorPanel = document.getElementById('table-selector-panel');
+        const sectionBadge = document.getElementById('section-badge');
+        const selectionWarning = document.getElementById('selection-warning');
+        const keyboardNumbersContainer = document.getElementById('keyboard-numbers');
+
+        // --- INICIALIZACIÓN ---
+        function init() {
+            renderTableSelector();
+            renderKeyboard();
+            changeSection(1);
+        }
+
+        // --- RENDERIZADO DE COMPONENTES ---
+
+        // Generar botones para seleccionar tablas (0 al 12) - Ahora más pequeños
+        function renderTableSelector() {
+            tableButtonsContainer.innerHTML = '';
+            for (let i = 0; i <= 12; i++) {
+                const btn = document.createElement('button');
+                const isSelected = selectedTables.has(i);
+                
+                // Botones más pequeños para que encajen mejor horizontalmente
+                btn.className = `btn-transition w-9 h-9 md:w-11 md:h-11 rounded-full font-bold text-base md:text-lg shadow-md border-b-[3px] flex items-center justify-center ${
+                    isSelected 
+                    ? 'bg-blue-500 text-white border-blue-700 hover:bg-blue-400' 
+                    : 'bg-white text-gray-500 border-gray-300 hover:bg-gray-100'
+                }`;
+                btn.innerText = i;
+                btn.onclick = () => toggleTable(i, btn);
+                tableButtonsContainer.appendChild(btn);
+            }
+        }
+
+        // Generar el teclado numérico (0 al 9) sin necesidad de scroll
+        function renderKeyboard() {
+            keyboardNumbersContainer.innerHTML = '';
+            for (let i = 0; i <= 9; i++) {
+                const btn = document.createElement('button');
+                // Botones del teclado adaptados
+                btn.className = "btn-transition bg-white text-gray-800 w-11 h-12 md:w-14 md:h-14 rounded-xl font-bold text-xl md:text-2xl shadow-sm border-b-4 border-gray-300 hover:bg-blue-50 hover:text-blue-600 active:translate-y-1 active:border-b-0 flex items-center justify-center";
+                btn.innerText = i;
+                btn.onclick = () => handleKeyPress(i.toString());
+                keyboardNumbersContainer.appendChild(btn);
+            }
+        }
+
+        // --- LÓGICA DE INTERACCIÓN ---
+
+        // Cambiar entre Secciones 1, 2 y 3
+        function changeSection(section) {
+            currentSection = section;
+            
+            // Actualizar UI de los botones de navegación
+            const themes = [
+                { id: 'btn-sec1', color: 'emerald', bg: 'bg-emerald-500', border: 'border-emerald-700' },
+                { id: 'btn-sec2', color: 'sky', bg: 'bg-sky-500', border: 'border-sky-700' },
+                { id: 'btn-sec3', color: 'purple', bg: 'bg-purple-500', border: 'border-purple-700' }
+            ];
+
+            themes.forEach((theme, index) => {
+                const btn = document.getElementById(theme.id);
+                if (index + 1 === section) {
+                    btn.classList.remove('opacity-70');
+                    btn.classList.add('opacity-100', 'scale-105');
+                    sectionBadge.className = `absolute top-4 left-4 px-3 py-1 rounded-full text-xs md:text-sm font-bold bg-${theme.color}-100 text-${theme.color}-800`;
+                    sectionBadge.innerText = `Sección ${section}`;
+                } else {
+                    btn.classList.remove('opacity-100', 'scale-105');
+                    btn.classList.add('opacity-70');
+                }
+            });
+
+            // Ocultar/Mostrar el panel de selección de tablas (ahora superior)
+            if (section === 3) {
+                tableSelectorPanel.classList.add('hidden');
+            } else {
+                tableSelectorPanel.classList.remove('hidden');
+            }
+
+            generateQuestion();
+        }
+
+        // Activar/Desactivar una tabla de multiplicar en Secciones 1 y 2
+        function toggleTable(num, btnElement) {
+            if (selectedTables.has(num)) {
+                // Prevenir que se quede sin ninguna tabla seleccionada
+                if (selectedTables.size <= 1) {
+                    selectionWarning.classList.remove('hidden');
+                    setTimeout(() => selectionWarning.classList.add('hidden'), 2000);
+                    return; 
+                }
+                selectedTables.delete(num);
+                btnElement.className = "btn-transition w-9 h-9 md:w-11 md:h-11 rounded-full font-bold text-base md:text-lg shadow-md border-b-[3px] flex items-center justify-center bg-white text-gray-500 border-gray-300 hover:bg-gray-100";
+            } else {
+                selectedTables.add(num);
+                btnElement.className = "btn-transition w-9 h-9 md:w-11 md:h-11 rounded-full font-bold text-base md:text-lg shadow-md border-b-[3px] flex items-center justify-center bg-blue-500 text-white border-blue-700 hover:bg-blue-400";
+                selectionWarning.classList.add('hidden');
+            }
+        }
+
+        // Generar una nueva pregunta basada en la sección actual
+        function generateQuestion() {
+            clearInput();
+            hideFeedback();
+            equationContainerEl.classList.remove('pop-success', 'shake');
+
+            let op1, op2;
+
+            if (currentSection === 1) {
+                // Sección 1: Tablas seleccionadas del 0 al 12. Multiplicadas por 0 al 10.
+                const tablesArray = Array.from(selectedTables);
+                op1 = tablesArray[Math.floor(Math.random() * tablesArray.length)];
+                op2 = Math.floor(Math.random() * 11); // 0 a 10
+
+            } else if (currentSection === 2) {
+                // Sección 2: Tablas seleccionadas del 0 al 12. Multiplicadas por múltiplos de 10 (0 a 100).
+                const tablesArray = Array.from(selectedTables);
+                op1 = tablesArray[Math.floor(Math.random() * tablesArray.length)];
+                op2 = Math.floor(Math.random() * 11) * 10; // 0, 10, 20... 100
+
+            } else if (currentSection === 3) {
+                // Sección 3: Aleatorio de cualquier tabla (0 al 12). 
+                // Multiplicado por (0 al 10) O (0, 10, 20... 100).
+                op1 = Math.floor(Math.random() * 13); // 0 a 12
+                const isMultipleOfTen = Math.random() > 0.5; // 50% de probabilidad
+                const baseMultiplier = Math.floor(Math.random() * 11); // 0 a 10
+                
+                op2 = isMultipleOfTen ? (baseMultiplier * 10) : baseMultiplier;
+            }
+
+            currentQuestion = {
+                op1: op1,
+                op2: op2,
+                answer: op1 * op2
+            };
+
+            // Mostrar en pantalla
+            operand1El.innerText = op1;
+            operand2El.innerText = op2;
+            
+            // Animación de entrada
+            operand1El.classList.add('pop-success');
+            operand2El.classList.add('pop-success');
+            setTimeout(() => {
+                operand1El.classList.remove('pop-success');
+                operand2El.classList.remove('pop-success');
+            }, 500);
+        }
+
+        // --- LÓGICA DEL TECLADO ---
+
+        function handleKeyPress(numStr) {
+            // Limitar a 4 dígitos (la respuesta máxima es 12 x 100 = 1200)
+            if (currentInput.length < 4) {
+                // Si es solo '0' y presiona otro número, reemplazamos el 0
+                if (currentInput === "0" && numStr !== "0") {
+                    currentInput = numStr;
+                } else if (currentInput === "0" && numStr === "0") {
+                    // Evitar múltiples ceros al inicio
+                    return;
+                } else {
+                    currentInput += numStr;
+                }
+                updateInputDisplay();
+            }
+        }
+
+        function handleDelete() {
+            if (currentInput.length > 0) {
+                currentInput = currentInput.slice(0, -1);
+                updateInputDisplay();
+            }
+        }
+
+        function clearInput() {
+            currentInput = "";
+            updateInputDisplay();
+        }
+
+        function updateInputDisplay() {
+            answerBoxEl.innerText = currentInput;
+        }
+
+        // --- COMPROBACIÓN Y FEEDBACK ---
+
+        function checkAnswer() {
+            if (currentInput === "") return;
+
+            const userAnswer = parseInt(currentInput);
+
+            if (userAnswer === currentQuestion.answer) {
+                // Correcto
+                showFeedback("¡Excelente! 🌟", "text-emerald-500");
+                equationContainerEl.classList.add('pop-success');
+                
+                // Generar nueva pregunta después de un breve momento
+                setTimeout(() => {
+                    generateQuestion();
+                }, 1200);
+
+            } else {
+                // Incorrecto
+                showFeedback("Intenta de nuevo ❌", "text-red-500");
+                equationContainerEl.classList.remove('shake');
+                void equationContainerEl.offsetWidth; // Forzar reflow para reiniciar animación
+                equationContainerEl.classList.add('shake');
+                
+                setTimeout(() => {
+                    clearInput();
+                    hideFeedback();
+                }, 1500);
+            }
+        }
+
+        function showFeedback(text, colorClass) {
+            feedbackMessageEl.innerText = text;
+            feedbackMessageEl.className = `h-8 text-xl md:text-2xl font-bold mb-4 transition-opacity duration-300 opacity-100 text-center ${colorClass}`;
+        }
+
+        function hideFeedback() {
+            feedbackMessageEl.classList.remove('opacity-100');
+            feedbackMessageEl.classList.add('opacity-0');
+        }
+
+        // Iniciar la app al cargar
+        window.onload = init;
+
+    </script>
+</body>
+</html>
