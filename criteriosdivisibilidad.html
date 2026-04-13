@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criterios de Divisibilidad</title>
+    <!-- Tailwind CSS para los estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide para los iconos -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
+    
+    <div id="app" class="max-w-4xl mx-auto">
+        <!-- El contenido se generará aquí mediante JavaScript -->
+    </div>
+
+    <script>
+        // --- CONSTANTES Y ESTADO GLOBAL ---
+        const ALL_RULES = [2, 3, 4, 5, 6, 7, 9, 10];
+
+        let state = {
+            activeTab: 'section1',
+            s1: {
+                selectedRules: [2, 3, 5, 7],
+                numDigits: 2,
+                currentNumber: null,
+                userAnswers: [],
+                feedback: null,
+                inputMode: 'random' // 'random' o 'manual'
+            },
+            s2: {
+                selectedRule: 5,
+                numDigits: 2,
+                currentNumber: null,
+                input1: '',
+                input2: '',
+                activeInput: 'input1',
+                isNotDivisible: false,
+                feedback: null
+            }
+        };
+
+        // --- FUNCIONES DE UTILIDAD MATEMÁTICA ---
+        const generateNumber = (digits) => {
+            const min = Math.pow(10, digits - 1);
+            const max = Math.pow(10, digits) - 1;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        };
+
+        const generateBiasedNumber = (digits, rules) => {
+            if (Math.random() < 0.5 && rules && rules.length > 0) {
+                const targetRule = rules[Math.floor(Math.random() * rules.length)];
+                const min = Math.pow(10, digits - 1);
+                const max = Math.pow(10, digits) - 1;
+                const minK = Math.ceil(min / targetRule);
+                const maxK = Math.floor(max / targetRule);
+                if (minK <= maxK) {
+                    const k = Math.floor(Math.random() * (maxK - minK + 1)) + minK;
+                    return k * targetRule;
+                }
+            }
+            return generateNumber(digits);
+        };
+
+        const checkDivisibility = (num, rule) => {
+            return num % rule === 0;
+        };
+
+        const getDigitSum = (num) => String(num).split('').reduce((acc, curr) => acc + parseInt(curr), 0);
+
+        const getExplanation = (num, rule, isDivisible) => {
+            const strNum = String(num);
+            const lastDigit = strNum.slice(-1);
+            const lastTwoDigits = strNum.slice(-2);
+            const sum = getDigitSum(num);
+            const status = isDivisible ? "✅ SÍ cumple." : "❌ NO cumple.";
+
+            switch (rule) {
+                case 2: return `${status} Termina en ${lastDigit}, y para ser divisible por 2 debe terminar en 0, 2, 4, 6 u 8 (número par).`;
+                case 3: return `${status} La suma de sus cifras (${strNum.split('').join(' + ')} = ${sum}) ${isDivisible ? 'es' : 'no es'} múltiplo de 3.`;
+                case 4:
+                    if (strNum.length < 2) return `${status} Es múltiplo de 4.`;
+                    return `${status} Sus dos últimas cifras son ${lastTwoDigits}, que ${isDivisible ? 'forman' : 'no forman'} un múltiplo de 4.`;
+                case 5: return `${status} Termina en ${lastDigit}, y para ser divisible por 5 debe terminar en 0 o 5.`;
+                case 6:
+                    const div2 = checkDivisibility(num, 2);
+                    const div3 = checkDivisibility(num, 3);
+                    if (isDivisible) return `${status} Es divisible por 2 (es par) y por 3 (sus cifras suman múltiplo de 3) a la vez.`;
+                    return `${status} Para ser divisible por 6, debe serlo por 2 y por 3. (Divisible por 2: ${div2 ? 'Sí' : 'No'}, Divisible por 3: ${div3 ? 'Sí' : 'No'}).`;
+                case 7: {
+                    let numInt = parseInt(num, 10);
+                    if (numInt < 10) return `${status} ${numInt} ${isDivisible ? 'es' : 'no es'} múltiplo de 7.`;
+                    let steps = [];
+                    let currentVal = numInt;
+                    
+                    while (currentVal >= 70 || (steps.length === 0 && currentVal > 9)) {
+                        let strVal = String(currentVal);
+                        let currentLast = parseInt(strVal.slice(-1), 10);
+                        let rest = parseInt(strVal.slice(0, -1) || "0", 10);
+                        let double = currentLast * 2;
+                        let nextVal = rest - double;
+                        steps.push(`Separamos el ${currentLast} y queda ${rest}. El doble de ${currentLast} es ${double}. Restamos: ${rest} - ${double} = ${nextVal}.`);
+                        currentVal = Math.abs(nextVal);
+                        if (currentVal === 0) break;
+                    }
+                    
+                    let finalMsg = isDivisible 
+                        ? `Como el resultado es ${currentVal} (o 0), que es múltiplo de 7, el número original SÍ es divisible por 7.` 
+                        : `Como el resultado es ${currentVal}, que no es múltiplo de 7, el número original NO es divisible por 7.`;
+                        
+                    return `${status}\nProceso paso a paso:\n` + steps.map(s => `• ${s}`).join('\n') + `\n• ${finalMsg}\n(Nota: Si al restar se obtiene un número negativo, el signo no importa).`;
+                }
+                case 9: return `${status} La suma de sus cifras (${strNum.split('').join(' + ')} = ${sum}) ${isDivisible ? 'es' : 'no es'} múltiplo de 9.`;
+                case 10: return `${status} Termina en ${lastDigit}, y para ser divisible por 10 debe terminar en 0.`;
+                default: return "";
+            }
+        };
+
+        // --- ACCIONES DE ESTADO ---
+        function setActiveTab(tab) {
+            state.activeTab = tab;
+            render();
+        }
+
+        // SECCIÓN 1: Acciones
+        function setS1NumDigits(num) { state.s1.numDigits = num; render(); }
+        
+        function toggleS1Rule(rule) {
+            if (state.s1.selectedRules.includes(rule)) {
+                state.s1.selectedRules = state.s1.selectedRules.filter(r => r !== rule);
+            } else {
+                state.s1.selectedRules.push(rule);
+                state.s1.selectedRules.sort((a,b) => a-b);
+            }
+            render();
+        }
+
+        function handleS1Generate() {
+            if (state.s1.selectedRules.length === 0) {
+                alert("Por favor, selecciona al menos un criterio para practicar.");
+                return;
+            }
+            state.s1.currentNumber = String(generateBiasedNumber(state.s1.numDigits, state.s1.selectedRules));
+            state.s1.userAnswers = [];
+            state.s1.feedback = null;
+            state.s1.inputMode = 'random';
+            render();
+        }
+
+        function handleS1ManualInput() {
+            if (state.s1.selectedRules.length === 0) {
+                alert("Por favor, selecciona al menos un criterio para practicar.");
+                return;
+            }
+            state.s1.currentNumber = "";
+            state.s1.userAnswers = [];
+            state.s1.feedback = null;
+            state.s1.inputMode = 'manual';
+            render();
+        }
+
+        function handleS1AddDigit(digit) {
+            if (state.s1.feedback) return;
+            const current = state.s1.currentNumber === null ? "" : state.s1.currentNumber;
+            if (current.length >= 8) return; 
+            state.s1.currentNumber = current + String(digit);
+            state.s1.userAnswers = [];
+            render();
+        }
+
+        function handleS1DeleteDigit() {
+            if (state.s1.feedback || !state.s1.currentNumber) return;
+            state.s1.currentNumber = state.s1.currentNumber.slice(0, -1);
+            state.s1.userAnswers = [];
+            render();
+        }
+
+        function toggleS1Answer(val) {
+            if (state.s1.feedback || !state.s1.currentNumber) return;
+            if (val === 'X') {
+                state.s1.userAnswers = state.s1.userAnswers.includes('X') ? [] : ['X'];
+            } else {
+                let newAnswers = state.s1.userAnswers.filter(a => a !== 'X');
+                if (newAnswers.includes(val)) {
+                    newAnswers = newAnswers.filter(a => a !== val);
+                } else {
+                    newAnswers.push(val);
+                }
+                state.s1.userAnswers = newAnswers;
+            }
+            render();
+        }
+
+        function handleS1Check() {
+            if (state.s1.userAnswers.length === 0 || !state.s1.currentNumber) return;
+            
+            const numInt = parseInt(state.s1.currentNumber, 10);
+            if (isNaN(numInt)) return;
+
+            const correctRules = state.s1.selectedRules.filter(rule => checkDivisibility(numInt, rule));
+            const shouldBeX = correctRules.length === 0;
+
+            let isCorrect = false;
+            let explanations = [];
+
+            if (shouldBeX) {
+                isCorrect = state.s1.userAnswers.length === 1 && state.s1.userAnswers[0] === 'X';
+                explanations.push({
+                    rule: 'X',
+                    text: `El número ${numInt} no cumple con ninguno de los criterios seleccionados (${state.s1.selectedRules.join(', ')}).`,
+                });
+                state.s1.selectedRules.forEach(rule => {
+                    explanations.push({ rule, text: getExplanation(numInt, rule, false) });
+                });
+            } else {
+                isCorrect = state.s1.userAnswers.length === correctRules.length && 
+                            state.s1.userAnswers.every(ans => correctRules.includes(ans)) && 
+                            !state.s1.userAnswers.includes('X');
+
+                state.s1.selectedRules.forEach(rule => {
+                    const isDivisible = checkDivisibility(numInt, rule);
+                    const userSelectedIt = state.s1.userAnswers.includes(rule);
+                    
+                    let statusText = "";
+                    if (isDivisible && userSelectedIt) statusText = "¡Bien identificado!";
+                    if (isDivisible && !userSelectedIt) statusText = "Te faltó seleccionar este.";
+                    if (!isDivisible && userSelectedIt) statusText = "Error, seleccionaste este pero no cumple.";
+                    
+                    explanations.push({
+                        rule,
+                        statusTitle: statusText,
+                        text: getExplanation(numInt, rule, isDivisible),
+                        isDivisible,
+                        userSelectedIt
+                    });
+                });
+            }
+
+            state.s1.feedback = { isCorrect, explanations };
+            render();
+        }
+
+        // SECCIÓN 2: Acciones
+        function setS2NumDigits(num) { state.s2.numDigits = num; render(); }
+        function setS2SelectedRule(rule) { state.s2.selectedRule = rule; render(); }
+
+        function handleS2Generate() {
+            state.s2.currentNumber = generateBiasedNumber(state.s2.numDigits, [state.s2.selectedRule]);
+            state.s2.input1 = '';
+            state.s2.input2 = '';
+            state.s2.activeInput = 'input1';
+            state.s2.isNotDivisible = false;
+            state.s2.feedback = null;
+            render();
+        }
+
+        function setS2ActiveInput(inputId) {
+            state.s2.activeInput = inputId;
+            render();
+            // Mantener el foco
+            setTimeout(() => document.getElementById(inputId).focus(), 0);
+        }
+
+        function handleS2NativeInput(id, val) {
+            if (state.s2.feedback !== null || state.s2.isNotDivisible) return;
+            if (id === 1) state.s2.input1 = val.substring(0, 5);
+            if (id === 2) state.s2.input2 = val.substring(0, 5);
+            // No hacemos render() para no perder el foco nativo mientras escriben
+        }
+
+        function handleS2AddDigit(digit) {
+            if (state.s2.feedback !== null || state.s2.isNotDivisible) return;
+            if (state.s2.activeInput === 'input1') {
+                if (state.s2.input1.length < 5) state.s2.input1 += String(digit);
+            } else {
+                if (state.s2.input2.length < 5) state.s2.input2 += String(digit);
+            }
+            render();
+        }
+
+        function handleS2DeleteDigit() {
+            if (state.s2.feedback !== null || state.s2.isNotDivisible) return;
+            if (state.s2.activeInput === 'input1') {
+                state.s2.input1 = state.s2.input1.slice(0, -1);
+            } else {
+                state.s2.input2 = state.s2.input2.slice(0, -1);
+            }
+            render();
+        }
+
+        function toggleS2NotDivisible() {
+            state.s2.isNotDivisible = !state.s2.isNotDivisible;
+            render();
+        }
+
+        function handleS2Check() {
+            const isActuallyDivisible = checkDivisibility(state.s2.currentNumber, state.s2.selectedRule);
+            let isCorrect = false;
+            let message = "";
+
+            if (state.s2.isNotDivisible) {
+                if (!isActuallyDivisible) {
+                    isCorrect = true;
+                    message = `¡Correcto! ${state.s2.currentNumber} NO es divisible por ${state.s2.selectedRule}.`;
+                } else {
+                    isCorrect = false;
+                    message = `Incorrecto. ${state.s2.currentNumber} SÍ es divisible por ${state.s2.selectedRule}. Intenta encontrar los factores.`;
+                }
+            } else {
+                const val1 = parseInt(state.s2.input1);
+                const val2 = parseInt(state.s2.input2);
+
+                if (isNaN(val1) || isNaN(val2)) {
+                    alert("Por favor, llena ambas casillas o marca la X.");
+                    return;
+                }
+
+                if (!isActuallyDivisible) {
+                    isCorrect = false;
+                    message = `Incorrecto. ${state.s2.currentNumber} no es divisible exactamente por ${state.s2.selectedRule}. Debiste marcar la X.`;
+                } else {
+                    if (val1 * val2 === state.s2.currentNumber && (val1 === state.s2.selectedRule || val2 === state.s2.selectedRule)) {
+                        isCorrect = true;
+                        message = `¡Excelente! ${val1} × ${val2} = ${state.s2.currentNumber}.`;
+                    } else if (val1 * val2 !== state.s2.currentNumber) {
+                        isCorrect = false;
+                        message = `La multiplicación ${val1} × ${val2} no da ${state.s2.currentNumber}. (Da ${val1 * val2})`;
+                    } else {
+                        isCorrect = false;
+                        message = `La multiplicación es correcta, pero recuerda que estás practicando el criterio del ${state.s2.selectedRule}. Uno de los números debe ser el ${state.s2.selectedRule}.`;
+                    }
+                }
+            }
+
+            state.s2.feedback = { 
+                isCorrect, 
+                message, 
+                explanation: getExplanation(state.s2.currentNumber, state.s2.selectedRule, isActuallyDivisible) 
+            };
+            render();
+        }
+
+
+        // --- RENDERIZADO HTML ---
+        function renderSection1() {
+            const { s1 } = state;
+            
+            // Render Num Digits Buttons
+            const digitBtns = [2, 3, 4].map(num => `
+                <button onclick="setS1NumDigits(${num})" class="flex-1 py-2 rounded-lg font-bold transition-colors ${s1.numDigits === num ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-100'}">
+                    ${num} cifras
+                </button>
+            `).join('');
+
+            // Render Rule Selection Buttons
+            const ruleBtns = ALL_RULES.map(rule => `
+                <button onclick="toggleS1Rule(${rule})" class="w-10 h-10 rounded-full font-bold flex items-center justify-center transition-colors ${s1.selectedRules.includes(rule) ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-300 hover:bg-slate-100'}">
+                    ${rule}
+                </button>
+            `).join('');
+
+            // Horizontal Keyboard
+            const keyboardHtml = s1.inputMode === 'manual' ? `
+                <div class="flex flex-wrap justify-center gap-2 mb-10 w-full max-w-lg">
+                    ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => `
+                        <button onclick="handleS1AddDigit(${num})" ${s1.feedback !== null ? 'disabled' : ''} class="flex-1 min-w-[40px] max-w-[50px] h-12 md:h-14 bg-indigo-50 text-indigo-800 font-black text-xl rounded-xl border-2 border-indigo-100 hover:bg-indigo-100 hover:border-indigo-300 transition-all shadow-sm focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                            ${num}
+                        </button>
+                    `).join('')}
+                    <button onclick="handleS1DeleteDigit()" ${s1.feedback !== null || (s1.currentNumber && s1.currentNumber.length === 0) ? 'disabled' : ''} class="px-4 h-12 md:h-14 bg-rose-50 text-rose-600 font-bold text-sm md:text-base rounded-xl border-2 border-rose-100 hover:bg-rose-100 hover:border-rose-300 transition-all shadow-sm flex items-center justify-center focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                        Borrar
+                    </button>
+                </div>
+            ` : '';
+
+            // Answer Buttons
+            const answerBtns = s1.selectedRules.map(rule => `
+                <button onclick="toggleS1Answer(${rule})" ${s1.feedback !== null || !s1.currentNumber ? 'disabled' : ''} class="w-14 h-14 md:w-16 md:h-16 text-xl md:text-2xl rounded-2xl font-black transition-all transform ${s1.userAnswers.includes(rule) ? 'bg-amber-400 text-amber-900 shadow-inner scale-95 border-4 border-amber-500' : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 shadow-sm'} ${(s1.feedback || !s1.currentNumber) ? 'opacity-50 cursor-not-allowed' : ''}">
+                    ${rule}
+                </button>
+            `).join('');
+
+            // Feedback Area
+            let feedbackHtml = '';
+            if (!s1.feedback) {
+                feedbackHtml = `
+                    <button onclick="handleS1Check()" ${(s1.userAnswers.length === 0 || !s1.currentNumber) ? 'disabled' : ''} class="px-10 py-4 rounded-full font-bold text-lg shadow-lg transition-all ${(s1.userAnswers.length > 0 && s1.currentNumber) ? 'bg-emerald-500 hover:bg-emerald-600 text-white hover:scale-105 active:scale-95' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+                        Comprobar Respuesta
+                    </button>
+                `;
+            } else {
+                feedbackHtml = `
+                    <div class="w-full mt-4 animate-in fade-in slide-in-from-bottom-4">
+                        <div class="p-6 rounded-2xl border-2 mb-6 text-center ${s1.feedback.isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'}">
+                            <h3 class="text-2xl font-black mb-2 ${s1.feedback.isCorrect ? 'text-emerald-600' : 'text-rose-600'}">
+                                ${s1.feedback.isCorrect ? '¡Excelente Trabajo!' : 'Ups, hay un error'}
+                            </h3>
+                            <p class="text-slate-700 font-medium">Revisa la retroalimentación abajo para aprender.</p>
+                        </div>
+                        <div class="space-y-3">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <i data-lucide="info" class="w-5 h-5 text-indigo-500"></i>
+                                Retroalimentación Detallada:
+                            </h4>
+                            ${s1.feedback.explanations.map(exp => `
+                                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                    ${exp.rule === 'X' 
+                                        ? `<p class="text-slate-700 font-medium">${exp.text}</p>`
+                                        : `
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="font-black text-lg w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700">${exp.rule}</span>
+                                            <span class="text-sm font-bold ${exp.userSelectedIt === exp.isDivisible ? 'text-emerald-600' : 'text-rose-600'}">${exp.statusTitle}</span>
+                                        </div>
+                                        <p class="text-slate-600 text-sm ml-10 leading-relaxed whitespace-pre-line">${exp.text}</p>
+                                        `
+                                    }
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
+                            <button onclick="handleS1Generate()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-md">
+                                <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Generar Otro al Azar
+                            </button>
+                            <button onclick="handleS1ManualInput()" class="w-full sm:w-auto bg-white text-indigo-600 border-2 border-indigo-200 hover:bg-indigo-50 px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm">
+                                <i data-lucide="hash" class="w-5 h-5"></i> Escribir Otro Número
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="flex flex-col h-full">
+                    <div class="bg-indigo-50 p-6 border-b border-indigo-100">
+                        <h2 class="font-bold text-indigo-900 mb-4 flex items-center gap-2">Paso 1: Configura tu entrenamiento</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-indigo-800 mb-2">¿Cuántas cifras tendrá el número?</label>
+                                <div class="flex gap-3">${digitBtns}</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-indigo-800 mb-2">Selecciona los criterios a estudiar:</label>
+                                <div class="flex flex-wrap gap-2">${ruleBtns}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
+                            <button onclick="handleS1Generate()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-md">
+                                <i data-lucide="play" class="w-5 h-5"></i> Generar al Azar
+                            </button>
+                            <button onclick="handleS1ManualInput()" class="w-full sm:w-auto bg-white text-indigo-600 border-2 border-indigo-200 hover:bg-indigo-50 px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-sm">
+                                <i data-lucide="hash" class="w-5 h-5"></i> Escribir mi Número
+                            </button>
+                        </div>
+                    </div>
+
+                    ${s1.currentNumber !== null ? `
+                    <div class="p-6 md:p-8 flex flex-col items-center">
+                        <div class="text-sm font-bold text-slate-400 mb-2 uppercase tracking-wider">Número a analizar</div>
+                        <div class="text-6xl md:text-8xl font-black text-slate-800 tracking-tight mb-4 min-h-[100px] flex items-center justify-center">
+                            ${s1.currentNumber || '<span class="text-slate-300">_</span>'}
+                        </div>
+                        
+                        ${keyboardHtml}
+
+                        <p class="text-slate-600 mb-4 font-medium">¿Qué criterios de divisibilidad cumple?</p>
+                        
+                        <div class="flex flex-wrap justify-center gap-3 mb-8 max-w-lg">
+                            ${answerBtns}
+                            <button onclick="toggleS1Answer('X')" ${s1.feedback !== null || !s1.currentNumber ? 'disabled' : ''} class="w-14 h-14 md:w-16 md:h-16 text-xl md:text-2xl rounded-2xl font-black transition-all transform flex items-center justify-center ${s1.userAnswers.includes('X') ? 'bg-rose-500 text-white shadow-inner scale-95 border-4 border-rose-600' : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-rose-400 hover:bg-rose-50 shadow-sm'} ${(s1.feedback || !s1.currentNumber) ? 'opacity-50 cursor-not-allowed' : ''}" title="No cumple ningún criterio seleccionado">
+                                <i data-lucide="x" class="stroke-[4px]"></i>
+                            </button>
+                        </div>
+                        
+                        ${feedbackHtml}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderSection2() {
+            const { s2 } = state;
+
+            // Render Num Digits Buttons
+            const digitBtns = [2, 3, 4].map(num => `
+                <button onclick="setS2NumDigits(${num})" class="flex-1 py-2 rounded-lg font-bold transition-colors ${s2.numDigits === num ? 'bg-emerald-600 text-white' : 'bg-white text-emerald-600 border border-emerald-200 hover:bg-emerald-100'}">
+                    ${num} cifras
+                </button>
+            `).join('');
+
+            // Render Single Rule Buttons
+            const ruleBtns = ALL_RULES.map(rule => `
+                <button onclick="setS2SelectedRule(${rule})" class="w-10 h-10 rounded-full font-bold flex items-center justify-center transition-all transform ${s2.selectedRule === rule ? 'bg-emerald-600 text-white shadow-md scale-110' : 'bg-white text-slate-500 border border-slate-300 hover:bg-slate-100'}">
+                    ${rule}
+                </button>
+            `).join('');
+
+            // Overlay de Feedback
+            const feedbackOverlay = s2.feedback ? `
+                <div class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 rounded-3xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 ${s2.feedback.isCorrect ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
+                        ${s2.feedback.isCorrect ? '<i data-lucide="check" class="w-10 h-10 stroke-[3px]"></i>' : '<i data-lucide="x" class="w-10 h-10 stroke-[3px]"></i>'}
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-black mb-2 ${s2.feedback.isCorrect ? 'text-emerald-700' : 'text-rose-700'}">
+                        ${s2.feedback.message}
+                    </h3>
+                    <p class="text-slate-600 font-medium mb-6 leading-relaxed max-w-md">
+                        ${s2.feedback.explanation.replace(/\n/g, '<br>')}
+                    </p>
+                    <button onclick="handleS2Generate()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-transform active:scale-95 shadow-md">
+                        Siguiente Número <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                    </button>
+                </div>
+            ` : '';
+
+            // Horizontal Keyboard for Section 2
+            const keyboardHtml = `
+                <div class="flex flex-wrap justify-center gap-2 mt-8 w-full transition-opacity ${s2.isNotDivisible ? 'opacity-30 pointer-events-none' : 'opacity-100'}">
+                    ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => `
+                        <button onclick="handleS2AddDigit(${num})" ${s2.feedback !== null ? 'disabled' : ''} class="flex-1 min-w-[40px] max-w-[50px] h-12 md:h-14 bg-emerald-50 text-emerald-800 font-black text-xl rounded-xl border-2 border-emerald-100 hover:bg-emerald-100 hover:border-emerald-300 transition-all shadow-sm focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                            ${num}
+                        </button>
+                    `).join('')}
+                    <button onclick="handleS2DeleteDigit()" ${s2.feedback !== null ? 'disabled' : ''} class="px-4 h-12 md:h-14 bg-slate-100 text-slate-600 font-bold text-sm md:text-base rounded-xl border-2 border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all shadow-sm flex items-center justify-center focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                        Borrar
+                    </button>
+                </div>
+            `;
+
+            return `
+                <div class="flex flex-col h-full bg-slate-50">
+                    <div class="bg-emerald-50 p-6 border-b border-emerald-100">
+                        <h2 class="font-bold text-emerald-900 mb-4 flex items-center gap-2">Paso 1: Configura tu desafío</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-emerald-800 mb-2">¿Cuántas cifras tendrá el número?</label>
+                                <div class="flex gap-3">${digitBtns}</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-emerald-800 mb-2">Selecciona UN criterio para evaluar:</label>
+                                <div class="flex flex-wrap gap-2">${ruleBtns}</div>
+                            </div>
+                        </div>
+                        <button onclick="handleS2Generate()" class="mt-6 w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform active:scale-95 mx-auto">
+                            <i data-lucide="play" class="w-5 h-5"></i> ${s2.currentNumber ? 'Generar Nuevo Número' : '¡Iniciar Desafío!'}
+                        </button>
+                    </div>
+
+                    ${s2.currentNumber ? `
+                    <div class="p-6 md:p-10 flex flex-col items-center bg-white">
+                        <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-1.5 rounded-full text-sm font-bold mb-6">
+                            <i data-lucide="target" class="w-4 h-4"></i> Evaluando Criterio del ${s2.selectedRule}
+                        </div>
+
+                        <div class="text-6xl md:text-8xl font-black text-slate-800 tracking-tight mb-10">
+                            ${s2.currentNumber}
+                        </div>
+
+                        <div class="w-full max-w-xl bg-slate-50 p-6 md:p-8 rounded-3xl border-2 border-slate-100 shadow-sm relative">
+                            ${feedbackOverlay}
+
+                            <p class="text-center text-slate-600 font-semibold mb-6">Si es divisible, encuentra la multiplicación. Si no lo es, marca la X.</p>
+
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+                                <div class="flex items-center gap-3 transition-opacity ${s2.isNotDivisible ? 'opacity-30 pointer-events-none' : 'opacity-100'}">
+                                    <input type="number" id="input1" value="${s2.input1}" oninput="handleS2NativeInput(1, this.value)" onfocus="setS2ActiveInput('input1')" placeholder="?" class="w-20 h-20 md:w-24 md:h-24 text-center text-3xl font-black text-emerald-700 bg-white border-4 rounded-2xl focus:outline-none transition-all ${s2.activeInput === 'input1' ? 'border-emerald-400 ring-4 ring-emerald-50' : 'border-emerald-100 hover:border-emerald-300'}">
+                                    <span class="text-3xl font-black text-slate-400">×</span>
+                                    <input type="number" id="input2" value="${s2.input2}" oninput="handleS2NativeInput(2, this.value)" onfocus="setS2ActiveInput('input2')" placeholder="?" class="w-20 h-20 md:w-24 md:h-24 text-center text-3xl font-black text-emerald-700 bg-white border-4 rounded-2xl focus:outline-none transition-all ${s2.activeInput === 'input2' ? 'border-emerald-400 ring-4 ring-emerald-50' : 'border-emerald-100 hover:border-emerald-300'}">
+                                </div>
+
+                                <span class="hidden md:block text-slate-300 font-black text-2xl">O</span>
+
+                                <button onclick="toggleS2NotDivisible()" class="flex flex-col items-center justify-center w-24 h-24 rounded-2xl border-4 font-black transition-all ${s2.isNotDivisible ? 'border-rose-500 bg-rose-500 text-white shadow-inner scale-95' : 'border-slate-200 bg-white text-slate-400 hover:border-rose-300 hover:text-rose-500'}">
+                                    <i data-lucide="x" class="w-9 h-9 stroke-[4px]"></i>
+                                    <span class="text-[10px] uppercase tracking-wider mt-1">No es</span>
+                                </button>
+                            </div>
+
+                            ${keyboardHtml}
+
+                            <div class="mt-8 flex justify-center">
+                                <button onclick="handleS2Check()" class="bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg transition-transform active:scale-95">
+                                    Comprobar Respuesta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <header class="mb-8 text-center">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-700 mb-2 flex items-center justify-center gap-3">
+                        <i data-lucide="calculator" class="w-10 h-10"></i> Maestro de Divisibilidad
+                    </h1>
+                    <p class="text-slate-600 text-lg">Entrena tu mente y descubre los secretos de los números</p>
+                </header>
+
+                <div class="flex flex-col sm:flex-row gap-2 mb-6 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+                    <button onclick="setActiveTab('section1')" class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all ${state.activeTab === 'section1' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}">
+                        <i data-lucide="list-checks" class="w-5 h-5"></i> Sección 1: Identificar Criterios
+                    </button>
+                    <button onclick="setActiveTab('section2')" class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all ${state.activeTab === 'section2' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100'}">
+                        <i data-lucide="target" class="w-5 h-5"></i> Sección 2: Encontrar el Factor
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+                    ${state.activeTab === 'section1' ? renderSection1() : renderSection2()}
+                </div>
+            `;
+            
+            // Re-inicializar iconos de Lucide
+            lucide.createIcons();
+        }
+
+        // --- INICIALIZACIÓN ---
+        render();
+
+    </script>
+</body>
+</html>
