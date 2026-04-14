@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Valor Numérico - Álgebra</title>
+    <style>
+        /* ================= ESTILOS GENERALES (Heredados del proyecto anterior) ================= */
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #818cf8;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --background: #F3F4F6;
+            --surface: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #3730a3);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        p.subtitle { font-size: 1rem; opacity: 0.9; }
+
+        /* ================= NAVEGACIÓN ================= */
+        nav {
+            display: flex;
+            background: var(--surface);
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.8rem 0.5rem;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-light);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* ================= CONTENEDORES ================= */
+        main {
+            flex: 1;
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        h2 { color: var(--primary); margin-bottom: 1rem; font-size: 1.4rem; }
+        h3 { color: var(--text-main); margin: 1rem 0 0.5rem; font-size: 1.2rem; }
+
+        /* ================= SECCIÓN 1: TEORÍA ================= */
+        .concept-box {
+            background: #e0e7ff;
+            border-left: 5px solid var(--primary);
+            padding: 1rem;
+            border-radius: 4px 8px 8px 4px;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .example-card {
+            background: #f8fafc;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .example-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .example-expr {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+
+        .example-val {
+            background: var(--warning);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .step-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .step-list li {
+            background: white;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-family: monospace;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-list li.final-result {
+            background: #d1fae5;
+            color: #065f46;
+            font-weight: bold;
+            border: 2px solid var(--secondary);
+        }
+
+        .highlight-sub {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        /* ================= INTERACTIVOS (Sec 2 y 3) ================= */
+        .big-term-display {
+            font-size: 3.5rem;
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: var(--radius);
+            border: 2px dashed var(--primary-light);
+            margin-bottom: 0.5rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: auto;
+            letter-spacing: -2px;
+        }
+
+        .vars-display {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            background: #fef3c7;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--warning);
+        }
+        
+        .big-term-display span, .big-term-display sup { display: inline-block; }
+
+        .instruction-box {
+            text-align: center;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .readonly-input {
+            width: 80%;
+            max-width: 250px;
+            padding: 1rem;
+            border: 3px solid var(--border);
+            border-radius: 12px;
+            font-size: 2rem;
+            font-weight: bold;
+            background: var(--surface);
+            color: var(--primary);
+            outline: none;
+            transition: border-color 0.2s;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .readonly-input:focus, .readonly-input.active-field {
+            border-color: var(--primary);
+            background: #eef2ff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+        }
+
+        /* TECLADO EN PANTALLA (Con botón Negativo) */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 0 auto 1.5rem auto;
+            background: #e5e7eb;
+            padding: 0.8rem;
+            border-radius: 16px;
+            max-width: 280px;
+        }
+
+        .key-btn {
+            background: var(--surface);
+            border: none;
+            padding: 1rem;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 3px 0 #d1d5db;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .key-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 0 #d1d5db;
+        }
+
+        .key-btn.btn-clear { background: #fca5a5; color: #7f1d1d; }
+        .key-btn.btn-minus { background: #e0e7ff; color: var(--primary); }
+        .key-btn.btn-zero { grid-column: span 1; }
+
+        /* BOTONES DE ACCIÓN */
+        .action-btns { display: flex; gap: 1rem; flex-direction: column; }
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:active { opacity: 0.8; transform: translateY(2px); }
+        .btn-check { background: var(--primary); }
+
+        @media (min-width: 600px) { .action-btns { flex-direction: row; } }
+
+        /* ================= MODAL DE RETROALIMENTACIÓN ================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 2.5rem 1.5rem;
+            border-radius: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            animation: popModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popModal {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon { font-size: 4.5rem; line-height: 1; margin-bottom: 1rem; }
+        .modal-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .modal-body {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .modal-body .step-math {
+            font-family: monospace;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .modal-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .modal-btn:active { transform: translateY(2px); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🔢 Valor Numérico</h1>
+        <p class="subtitle">Sustituye, calcula y descubre el resultado</p>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" onclick="switchTab('tab-teoria')">📖 Apuntes</button>
+        <button class="tab-btn" onclick="switchTab('tab-practica')">🎯 Práctica</button>
+        <button class="tab-btn" onclick="switchTab('tab-aplicacion')">🚀 Aplicación</button>
+    </nav>
+
+    <main>
+        <!-- ================= SECCIÓN 1: TEORÍA ================= -->
+        <section id="tab-teoria" class="section active">
+            <div class="card">
+                <h2>¿Qué es el Valor Numérico?</h2>
+                <div class="concept-box">
+                    👉 Consiste en <strong>sustituir</strong> (cambiar) las letras (variables) de una expresión por números específicos, y luego <strong>resolver las operaciones</strong> matemáticas resultantes.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="color: #4338ca;">✅ Ejemplo 1 (Básico)</h3>
+                <div class="example-card">
+                    <div class="example-header">
+                        <div class="example-expr">2n</div>
+                        <div class="example-val">Si n = 15</div>
+                    </div>
+                    <p><strong>Proceso:</strong> Reemplazamos la 'n' por un 15.</p>
+                    <ul class="step-list">
+                        <li>👉 2 × <span class="highlight-sub">(15)</span></li>
+                        <li class="final-result">Resultado = 30</li>
+                    </ul>
+                </div>
+
+                <h3 style="color: #047857;">✅ Ejemplo 2 (Intermedio)</h3>
+                <div class="example-card">
+                    <div class="example-header">
+                        <div class="example-expr">-4z + 9</div>
+                        <div class="example-val">Si z = 3</div>
+                    </div>
+                    <p><strong>Proceso:</strong></p>
+                    <ul class="step-list">
+                        <li>👉 -4<span class="highlight-sub">(3)</span> + 9</li>
+                        <li>👉 -12 + 9</li>
+                        <li class="final-result">Resultado = -3</li>
+                    </ul>
+                </div>
+
+                <h3 style="color: #b45309;">✅ Ejemplo 3 (Complejo)</h3>
+                <div class="example-card">
+                    <div class="example-header">
+                        <div class="example-expr">3x² - 2x + 5</div>
+                        <div class="example-val">Si x = 2</div>
+                    </div>
+                    <p><strong>Proceso:</strong> (Primero las potencias)</p>
+                    <ul class="step-list">
+                        <li>👉 3<span class="highlight-sub">(2)</span>² - 2<span class="highlight-sub">(2)</span> + 5</li>
+                        <li>👉 3(4) - 4 + 5</li>
+                        <li>👉 12 - 4 + 5</li>
+                        <li class="final-result">Resultado = 13</li>
+                    </ul>
+                </div>
+
+                <h3 style="color: #be185d;">✅ Ejemplo 4 (Varias variables)</h3>
+                <div class="example-card">
+                    <div class="example-header">
+                        <div class="example-expr">2a + 3b - ab</div>
+                        <div class="example-val">Si a = 2, b = 3</div>
+                    </div>
+                    <p><strong>Proceso:</strong></p>
+                    <ul class="step-list">
+                        <li>👉 2<span class="highlight-sub">(2)</span> + 3<span class="highlight-sub">(3)</span> - <span class="highlight-sub">(2)(3)</span></li>
+                        <li>👉 4 + 9 - 6</li>
+                        <li class="final-result">Resultado = 7</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN 2: PRÁCTICA ================= -->
+        <section id="tab-practica" class="section">
+            <div class="card">
+                <h2>Práctica Guiada</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Calcula mentalmente o en papel y escribe el resultado final.</p>
+                
+                <div class="big-term-display" id="p-expr">-5x + 3</div>
+                <div class="vars-display" id="p-vars">Si x = 3</div>
+
+                <div class="input-group">
+                    <label>Tu resultado final:</label>
+                    <input type="text" id="p-input" class="readonly-input active-field" readonly placeholder="?" onclick="setActiveField(this, 'p-keyboard')">
+                </div>
+
+                <!-- Teclado Práctica -->
+                <div class="keyboard" id="p-keyboard">
+                    <button class="key-btn" onclick="typeNumber('1')">1</button>
+                    <button class="key-btn" onclick="typeNumber('2')">2</button>
+                    <button class="key-btn" onclick="typeNumber('3')">3</button>
+                    <button class="key-btn" onclick="typeNumber('4')">4</button>
+                    <button class="key-btn" onclick="typeNumber('5')">5</button>
+                    <button class="key-btn" onclick="typeNumber('6')">6</button>
+                    <button class="key-btn" onclick="typeNumber('7')">7</button>
+                    <button class="key-btn" onclick="typeNumber('8')">8</button>
+                    <button class="key-btn" onclick="typeNumber('9')">9</button>
+                    <button class="key-btn btn-minus" onclick="typeNumber('-')">➖</button>
+                    <button class="key-btn btn-zero" onclick="typeNumber('0')">0</button>
+                    <button class="key-btn btn-clear" onclick="typeNumber('clear')">🧹</button>
+                </div>
+
+                <div class="action-btns">
+                    <button class="btn btn-check" onclick="checkPractice()">✅ Comprobar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN 3: APLICACIÓN ================= -->
+        <section id="tab-aplicacion" class="section">
+            <div class="card">
+                <h2>Aplicación Compleja</h2>
+                <div class="instruction-box">
+                    👉 Resuelve el procedimiento en tu cuaderno paso a paso y luego escribe el resultado final aquí.
+                </div>
+                
+                <div class="big-term-display" id="a-expr">x² + 2y - 3</div>
+                <div class="vars-display" id="a-vars">Si x = 2, y = 3</div>
+
+                <div class="input-group">
+                    <label>Resultado final de la operación:</label>
+                    <input type="text" id="a-input" class="readonly-input" readonly placeholder="?" onclick="setActiveField(this, 'a-keyboard')">
+                </div>
+
+                <!-- Teclado Aplicación -->
+                <div class="keyboard" id="a-keyboard" style="opacity: 0.5; pointer-events: none;">
+                    <button class="key-btn" onclick="typeNumber('1')">1</button>
+                    <button class="key-btn" onclick="typeNumber('2')">2</button>
+                    <button class="key-btn" onclick="typeNumber('3')">3</button>
+                    <button class="key-btn" onclick="typeNumber('4')">4</button>
+                    <button class="key-btn" onclick="typeNumber('5')">5</button>
+                    <button class="key-btn" onclick="typeNumber('6')">6</button>
+                    <button class="key-btn" onclick="typeNumber('7')">7</button>
+                    <button class="key-btn" onclick="typeNumber('8')">8</button>
+                    <button class="key-btn" onclick="typeNumber('9')">9</button>
+                    <button class="key-btn btn-minus" onclick="typeNumber('-')">➖</button>
+                    <button class="key-btn btn-zero" onclick="typeNumber('0')">0</button>
+                    <button class="key-btn btn-clear" onclick="typeNumber('clear')">🧹</button>
+                </div>
+
+                <div class="action-btns">
+                    <button class="btn btn-check" onclick="checkApplication()">✅ Comprobar Resultado</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= MODAL GLOBAL DE RETROALIMENTACIÓN ================= -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modal-icon" class="modal-icon">✅</div>
+            <div id="modal-title" class="modal-title">¡Título!</div>
+            <div id="modal-body" class="modal-body">Mensaje aquí.</div>
+            <button id="modal-btn-close" class="modal-btn">Corregir</button>
+        </div>
+    </div>
+
+    <script>
+        /* ================= ESTADO GLOBAL ================= */
+        let activeInput = null;
+        let currentPractice = null;
+        let currentApplication = null;
+
+        /* ================= NAVEGACIÓN ================= */
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            // Resetear teclados y activar el correspondiente
+            document.querySelectorAll('.keyboard').forEach(k => {
+                k.style.opacity = '0.5';
+                k.style.pointerEvents = 'none';
+            });
+            document.querySelectorAll('.readonly-input').forEach(i => i.classList.remove('active-field'));
+            activeInput = null;
+
+            if(tabId === 'tab-practica') {
+                if(!currentPractice) initPracticeApp();
+                setActiveField(document.getElementById('p-input'), 'p-keyboard');
+            }
+            if(tabId === 'tab-aplicacion') {
+                if(!currentApplication) initApplicationApp();
+                setActiveField(document.getElementById('a-input'), 'a-keyboard');
+            }
+        }
+
+        /* ================= MODAL LOGIC ================= */
+        function showModal(isCorrect, title, message, onSuccessAction = null) {
+            const overlay = document.getElementById('modal-overlay');
+            const icon = document.getElementById('modal-icon');
+            const titleEl = document.getElementById('modal-title');
+            const bodyEl = document.getElementById('modal-body');
+            const btnClose = document.getElementById('modal-btn-close');
+
+            titleEl.innerHTML = title;
+            bodyEl.innerHTML = message;
+            overlay.style.display = 'flex';
+
+            if (isCorrect) {
+                icon.innerHTML = '✅';
+                titleEl.style.color = '#065f46';
+                btnClose.style.display = 'none';
+                
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    if(onSuccessAction) onSuccessAction();
+                }, 3000); // 3 segundos para que lea la explicación
+            } else {
+                icon.innerHTML = '❌';
+                titleEl.style.color = '#991b1b';
+                btnClose.style.display = 'block';
+                btnClose.innerText = "Intentar de nuevo";
+                btnClose.onclick = () => {
+                    overlay.style.display = 'none';
+                };
+            }
+        }
+
+        /* ================= TECLADO VIRTUAL ================= */
+        function setActiveField(inputElement, keyboardId) {
+            document.querySelectorAll('.readonly-input').forEach(el => el.classList.remove('active-field'));
+            document.querySelectorAll('.keyboard').forEach(k => {
+                k.style.opacity = '0.5';
+                k.style.pointerEvents = 'none';
+            });
+
+            activeInput = inputElement;
+            inputElement.classList.add('active-field');
+
+            let keyboard = document.getElementById(keyboardId);
+            if(keyboard) {
+                keyboard.style.opacity = '1';
+                keyboard.style.pointerEvents = 'auto';
+            }
+        }
+
+        function typeNumber(val) {
+            if (!activeInput) return;
+            
+            if (val === 'clear') {
+                activeInput.value = '';
+            } else if (val === '-') {
+                // Lógica del signo negativo: poner o quitar al inicio
+                if (activeInput.value.startsWith('-')) {
+                    activeInput.value = activeInput.value.substring(1);
+                } else {
+                    activeInput.value = '-' + activeInput.value;
+                }
+            } else {
+                // Limitar longitud para evitar números gigantes (max 5 caracteres incluyendo el menos)
+                if(activeInput.value.replace('-', '').length < 4) {
+                    activeInput.value += val;
+                }
+            }
+        }
+
+        /* ================= GENERADORES MATEMÁTICOS ================= */
+        
+        // 🔹 SECCIÓN 2: PRÁCTICA (1 o 2 términos, 1 variable)
+        function initPracticeApp() {
+            const variables = ['x', 'a', 'm', 'y'];
+            let v = variables[Math.floor(Math.random() * variables.length)];
+            
+            // Valores entre -5 y 5 (evitamos 0 para que sea más dinámico)
+            let val = Math.floor(Math.random() * 10) - 5;
+            if(val === 0) val = 3; 
+
+            let c1 = Math.floor(Math.random() * 8) + 2; // 2 al 9
+            let isNegativeC1 = Math.random() > 0.5;
+            if(isNegativeC1) c1 = -c1;
+
+            let c2 = Math.floor(Math.random() * 9) + 1; // 1 al 9
+
+            let type = Math.floor(Math.random() * 3); // 0: cv, 1: cv + c, 2: cv - c
+            
+            let exprStr = "";
+            let result = 0;
+            let stepHtml = "";
+
+            if (type === 0) { // c1 * v
+                exprStr = `${c1}${v}`;
+                result = c1 * val;
+                stepHtml = `Sustituimos ${v} por ${val}:<br><span class="step-math">${c1}(${val}) = ${result}</span>`;
+            } else if (type === 1) { // c1 * v + c2
+                exprStr = `${c1}${v} + ${c2}`;
+                result = (c1 * val) + c2;
+                stepHtml = `Sustituimos ${v} por ${val}:<br><span class="step-math">${c1}(${val}) + ${c2}<br>= ${(c1*val)} + ${c2}<br>= ${result}</span>`;
+            } else { // c1 * v - c2
+                exprStr = `${c1}${v} - ${c2}`;
+                result = (c1 * val) - c2;
+                stepHtml = `Sustituimos ${v} por ${val}:<br><span class="step-math">${c1}(${val}) - ${c2}<br>= ${(c1*val)} - ${c2}<br>= ${result}</span>`;
+            }
+
+            currentPractice = { result: result.toString(), steps: stepHtml };
+
+            document.getElementById('p-expr').innerHTML = exprStr;
+            document.getElementById('p-vars').innerHTML = `Si ${v} = ${val}`;
+            document.getElementById('p-input').value = '';
+        }
+
+        function checkPractice() {
+            let uAns = document.getElementById('p-input').value;
+
+            if(uAns === "") {
+                showModal(false, 'Falta el resultado', 'Por favor usa el teclado para escribir tu respuesta.');
+                return;
+            }
+
+            if (uAns === currentPractice.result) {
+                showModal(true, '¡Perfecto! 🎉', 'El resultado es correcto.<br>' + currentPractice.steps, initPracticeApp);
+            } else {
+                showModal(false, '¡Ups! Algo falló', `El resultado correcto era <strong>${currentPractice.result}</strong>.<br><br>Mira el procedimiento:<br>${currentPractice.steps}`);
+            }
+        }
+
+
+        // 🔹 SECCIÓN 3: APLICACIÓN (2 a 4 términos, 2 variables)
+        function initApplicationApp() {
+            let type = Math.floor(Math.random() * 3); // 3 tipos de expresiones complejas
+            
+            let varSet = Math.random() > 0.5 ? {v1:'x', v2:'y'} : {v1:'a', v2:'b'};
+            let v1 = varSet.v1; let v2 = varSet.v2;
+
+            // Valores pequeños para que no necesiten calculadora (1 al 4, positivos o negativos)
+            let val1 = (Math.floor(Math.random() * 4) + 1) * (Math.random() > 0.5 ? 1 : -1);
+            let val2 = (Math.floor(Math.random() * 4) + 1) * (Math.random() > 0.5 ? 1 : -1);
+
+            let c1 = Math.floor(Math.random() * 4) + 2; // 2 al 5
+            let c2 = Math.floor(Math.random() * 4) + 2;
+
+            let exprStr = "";
+            let result = 0;
+            let stepHtml = "";
+
+            if (type === 0) { // c1*v1 + c2*v2
+                exprStr = `${c1}${v1} + ${c2}${v2}`;
+                result = (c1 * val1) + (c2 * val2);
+                stepHtml = `<span class="step-math">${c1}(${val1}) + ${c2}(${val2})<br>= ${(c1*val1)} + ${(c2*val2)}<br>= ${result}</span>`;
+            
+            } else if (type === 1) { // v1² + c1*v2 - c2
+                exprStr = `${v1}² + ${c1}${v2} - ${c2}`;
+                let v1Sq = val1 * val1;
+                result = v1Sq + (c1 * val2) - c2;
+                stepHtml = `<span class="step-math">(${val1})² + ${c1}(${val2}) - ${c2}<br>= ${v1Sq} + ${(c1*val2)} - ${c2}<br>= ${result}</span>`;
+            
+            } else { // c1*v1 + c2*v2 - v1*v2
+                exprStr = `${c1}${v1} + ${c2}${v2} - ${v1}${v2}`;
+                let mult = val1 * val2;
+                result = (c1 * val1) + (c2 * val2) - mult;
+                stepHtml = `<span class="step-math">${c1}(${val1}) + ${c2}(${val2}) - (${val1})(${val2})<br>= ${(c1*val1)} + ${(c2*val2)} - (${mult})<br>= ${result}</span>`;
+            }
+
+            currentApplication = { result: result.toString(), steps: stepHtml };
+
+            document.getElementById('a-expr').innerHTML = exprStr;
+            document.getElementById('a-vars').innerHTML = `Si ${v1} = ${val1}, ${v2} = ${val2}`;
+            document.getElementById('a-input').value = '';
+        }
+
+        function checkApplication() {
+            let uAns = document.getElementById('a-input').value;
+
+            if(uAns === "") {
+                showModal(false, 'Falta el resultado', 'Resuelve en tu cuaderno y escribe tu resultado.');
+                return;
+            }
+
+            if (uAns === currentApplication.result) {
+                showModal(true, '¡Excelente trabajo! 🏆', 'Tu procedimiento en el cuaderno debió ser así:<br>' + currentApplication.steps, initApplicationApp);
+            } else {
+                showModal(false, 'Revisa tu cuaderno 📝', `El resultado correcto era <strong>${currentApplication.result}</strong>.<br><br>Compara tus pasos con estos:<br>${currentApplication.steps}`);
+            }
+        }
+
+        // Inicializar al cargar (activa la primera pestaña visible interactiva en memoria)
+        window.onload = () => {
+            initPracticeApp();
+            initApplicationApp();
+        };
+    </script>
+</body>
+</html>
