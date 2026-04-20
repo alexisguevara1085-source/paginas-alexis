@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Potenciación - Álgebra</title>
+    <style>
+        /* ================= ESTILOS GENERALES ================= */
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #818cf8;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --background: #F3F4F6;
+            --surface: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #3730a3);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        p.subtitle { font-size: 1rem; opacity: 0.9; }
+
+        /* ================= NAVEGACIÓN ================= */
+        nav {
+            display: flex;
+            background: var(--surface);
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            overflow-x: auto;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 90px;
+            padding: 0.8rem 0.3rem;
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-light);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* ================= CONTENEDORES ================= */
+        main {
+            flex: 1;
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        h2 { color: var(--primary); margin-bottom: 1rem; font-size: 1.4rem; }
+        h3 { color: var(--text-main); margin: 1rem 0 0.5rem; font-size: 1.2rem; }
+
+        /* ================= SECCIÓN 1: TEORÍA ================= */
+        .concept-box {
+            background: #e0e7ff;
+            border-left: 5px solid var(--primary);
+            padding: 1rem;
+            border-radius: 4px 8px 8px 4px;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .term-breakdown {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8fafc;
+            border: 2px dashed var(--primary-light);
+            border-radius: var(--radius);
+            padding: 5.5rem 1rem 4rem 1rem;
+            margin: 1.5rem 0;
+            gap: 5px;
+        }
+
+        .term-part {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .math-text { font-size: 4rem; font-weight: bold; line-height: 1; color: var(--text-main); }
+        .math-text sup { font-size: 0.33em; vertical-align: super; margin-left: 2px; }
+
+        .part-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            position: absolute;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .label-top { bottom: 100%; margin-bottom: 5px; }
+        .label-bottom { top: 100%; margin-top: 5px; }
+
+        .text-primary { color: var(--primary); }
+        .text-warning { color: var(--warning); }
+        
+        .arrow { font-size: 1.8rem; display: block; line-height: 0.5; }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .example-item {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3rem;
+            border: 1px dashed #9ca3af;
+        }
+
+        .example-item strong { color: var(--primary); font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+
+        /* ================= PROPIEDADES (Sec 3) ================= */
+        .prop-card {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .prop-card:active { transform: scale(0.98); }
+        .prop-title { font-weight: bold; font-size: 1.1rem; color: #334155; margin-bottom: 0.5rem; }
+        .prop-formula {
+            background: #f0fdf4;
+            color: #166534;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 0.8rem;
+            border: 1px solid #bbf7d0;
+        }
+        .prop-example {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #475569;
+            background: #f8fafc;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+
+        /* ================= FRACCIONES Y EXPONENTES DE DIVISIÓN ================= */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 0.5rem;
+            line-height: 1.1;
+        }
+        .frac-top { border-bottom: 2px solid currentColor; padding: 0 0.2rem; }
+        .frac-bot { padding: 0 0.2rem; }
+
+        .exp-div {
+            font-size: 0.4em !important; /* Ajustado visualmente a 1/3 de la base */
+            position: relative;
+            top: -0.4em; /* Se eleva para no confundirse con un número de 2 cifras */
+            margin-left: 2px;
+        }
+
+        /* ================= INTERACTIVOS (Sec 2 y 4) ================= */
+        .mode-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .mode-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.8rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            border-color: var(--primary);
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .big-display {
+            font-size: 3rem;
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: var(--radius);
+            border: 2px dashed var(--primary-light);
+            margin-bottom: 1rem;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: -1px;
+            color: var(--text-main);
+            font-weight: bold;
+        }
+
+        .big-display sup {
+            font-size: 0.33em; /* Ajuste del exponente a 1/3 de la base */
+            vertical-align: super;
+            margin-left: 2px;
+        }
+
+        .instruction-box {
+            text-align: center;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* TIPOS DE INPUT */
+        .input-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Para alinear el exponente arriba */
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+        }
+
+        .readonly-input {
+            padding: 1rem;
+            border: 3px solid var(--border);
+            border-radius: 12px;
+            font-size: 2rem;
+            font-weight: bold;
+            background: var(--surface);
+            color: var(--primary);
+            outline: none;
+            transition: all 0.2s;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .readonly-input:focus, .readonly-input.active-field {
+            border-color: var(--primary);
+            background: #eef2ff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+        }
+
+        .input-normal { width: 60%; max-width: 200px; }
+        .input-expand { width: 90%; font-size: 1.5rem; letter-spacing: 2px; }
+        
+        .input-power-base { width: 80px; height: 80px; font-size: 3rem; }
+        .input-power-exp { width: 55px; height: 55px; font-size: 1rem; margin-top: -20px; margin-left: 5px; }
+
+        /* TECLADO EN PANTALLA */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 0 auto 1.5rem auto;
+            background: #e5e7eb;
+            padding: 0.8rem;
+            border-radius: 16px;
+            max-width: 280px;
+        }
+
+        .key-btn {
+            background: var(--surface);
+            border: none;
+            padding: 1rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 3px 0 #d1d5db;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key-btn:active { transform: translateY(3px); box-shadow: 0 0 0 #d1d5db; }
+        .key-btn.btn-clear { background: #fca5a5; color: #7f1d1d; }
+        .key-btn.btn-mul { background: #fef08a; color: #854d0e; font-size: 1.8rem; }
+        .key-btn.btn-zero { grid-column: span 1; }
+
+        /* BOTONES DE ACCIÓN */
+        .action-btns { display: flex; gap: 1rem; flex-direction: column; }
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:active { opacity: 0.8; transform: translateY(2px); }
+        .btn-check { background: var(--primary); }
+
+        @media (min-width: 600px) { .action-btns { flex-direction: row; } }
+
+        /* ================= MODAL GLOBAL ================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 2.5rem 1.5rem;
+            border-radius: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            animation: popModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popModal {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon { font-size: 4.5rem; line-height: 1; margin-bottom: 1rem; }
+        .modal-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .modal-body {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .modal-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .modal-btn:active { transform: translateY(2px); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🚀 Potenciación</h1>
+        <p class="subtitle">Multiplicación repetida y sus increíbles propiedades</p>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" onclick="switchTab('tab-teoria')">📖 Apuntes</button>
+        <button class="tab-btn" onclick="switchTab('tab-practica')">🎯 Potencias</button>
+        <button class="tab-btn" onclick="switchTab('tab-propiedades')">📚 Propied.</button>
+        <button class="tab-btn" onclick="switchTab('tab-prac-prop')">🚀 Práctica</button>
+    </nav>
+
+    <main>
+        <!-- ================= SECCIÓN 1: TEORÍA ================= -->
+        <section id="tab-teoria" class="section active">
+            <div class="card">
+                <h2>¿Qué es la Potenciación?</h2>
+                <div class="concept-box">
+                    👉 Es una forma abreviada de escribir una <strong>multiplicación repetida</strong> de un mismo número.
+                </div>
+                
+                <div class="term-breakdown" style="flex-wrap: wrap; gap: 1rem; padding: 4rem 1rem;">
+                    <!-- Grupo 1: Base y Exponente (Separados para que no se superpongan) -->
+                    <div style="display: flex; align-items: flex-start; margin-right: 10px;">
+                        <div class="term-part">
+                            <span class="math-text text-primary">2</span>
+                            <div class="part-label label-bottom text-primary" style="margin-top: 15px;">
+                                <span class="arrow" style="margin-bottom: 5px;">⬆</span>
+                                <span>Base</span>
+                            </div>
+                        </div>
+                        <div class="term-part" style="margin-left: 15px;">
+                            <span class="math-text text-warning"><sup>3</sup></span>
+                            <div class="part-label label-bottom text-warning" style="margin-top: 15px;">
+                                <span class="arrow" style="margin-bottom: 5px;">⬆</span>
+                                <span>Exponente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Igual y Repetición -->
+                    <span class="math-text" style="font-size: 2.5rem; color: #475569;">=</span>
+                    
+                    <div class="term-part">
+                        <span class="math-text" style="font-size: 2.5rem; color: #475569;">2 × 2 × 2</span>
+                        <div class="part-label label-bottom" style="margin-top: 15px; color: #64748b;">
+                            <span class="arrow" style="margin-bottom: 5px;">⬆</span>
+                            <span>3 veces el 2</span>
+                        </div>
+                    </div>
+
+                    <!-- Igual y Resultado (Potencia) -->
+                    <span class="math-text" style="font-size: 2.5rem; color: #475569;">=</span>
+                    
+                    <div class="term-part">
+                        <span class="math-text text-secondary" style="font-size: 3.5rem;">8</span>
+                        <div class="part-label label-bottom text-secondary" style="margin-top: 15px;">
+                            <span class="arrow" style="margin-bottom: 5px;">⬆</span>
+                            <span>Potencia</span>
+                        </div>
+                    </div>
+                </div>
+
+                <ul style="padding-left: 1.5rem; margin-bottom: 1.5rem; font-size: 1.1rem; margin-top: 2rem;">
+                    <li><strong>El exponente (3):</strong> Indica cuántas veces se repite el número.</li>
+                    <li><strong>La base (2):</strong> Es el número que se multiplica por sí mismo.</li>
+                    <li><strong>El resultado (8):</strong> Se llama <em>Potencia</em>.</li>
+                </ul>
+
+                <h3 style="color: #4338ca; border-top: 1px solid #e5e7eb; padding-top: 1rem;">¿Y al revés?</h3>
+                <p>Si tenemos: <strong>5 × 5 × 5 × 5</strong></p>
+                <p>Como el 5 se repite 4 veces, se representa como: <strong style="font-size: 1.5rem; color: var(--primary);">5⁴</strong></p>
+
+                <h3 style="margin-top: 1.5rem;">Más Ejemplos:</h3>
+                <div class="example-grid">
+                    <div class="example-item"><strong>3²</strong> 3 × 3 = 9</div>
+                    <div class="example-item"><strong>4³</strong> 4 × 4 × 4 = 64</div>
+                    <div class="example-item"><strong>10²</strong> 10 × 10 = 100</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN 2: PRÁCTICA DE POTENCIAS ================= -->
+        <section id="tab-practica" class="section">
+            <div class="card">
+                <h2>Generador de Potencias</h2>
+                
+                <div class="mode-selector">
+                    <button class="mode-btn active" id="btn-modo-a" onclick="setMode('A')">Cuadrados</button>
+                    <button class="mode-btn" id="btn-modo-b" onclick="setMode('B')">Cubos</button>
+                    <button class="mode-btn" id="btn-modo-c" onclick="setMode('C')">A la n</button>
+                </div>
+
+                <div class="instruction-box" id="p-instruction">Halla el resultado de la potencia.</div>
+                
+                <div class="big-display" id="p-display">7²</div>
+
+                <!-- CONTENEDOR DINÁMICO DE INPUT -->
+                <div class="input-container" id="p-input-container">
+                    <!-- Se inyecta por JS según el modo -->
+                </div>
+
+                <!-- TECLADO -->
+                <div class="keyboard" id="keyboard-p">
+                    <button class="key-btn" onclick="typeNumber('1')">1</button>
+                    <button class="key-btn" onclick="typeNumber('2')">2</button>
+                    <button class="key-btn" onclick="typeNumber('3')">3</button>
+                    <button class="key-btn" onclick="typeNumber('4')">4</button>
+                    <button class="key-btn" onclick="typeNumber('5')">5</button>
+                    <button class="key-btn" onclick="typeNumber('6')">6</button>
+                    <button class="key-btn" onclick="typeNumber('7')">7</button>
+                    <button class="key-btn" onclick="typeNumber('8')">8</button>
+                    <button class="key-btn" onclick="typeNumber('9')">9</button>
+                    <button class="key-btn btn-mul" onclick="typeNumber('×')">×</button>
+                    <button class="key-btn btn-zero" onclick="typeNumber('0')">0</button>
+                    <button class="key-btn btn-clear" onclick="typeNumber('clear')">🧹</button>
+                </div>
+
+                <div class="action-btns">
+                    <button class="btn btn-check" onclick="checkPractice()">✅ Comprobar</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN 3: APUNTES DE PROPIEDADES ================= -->
+        <section id="tab-propiedades" class="section">
+            <div class="card">
+                <h2>Propiedades de la Potenciación</h2>
+                <p style="margin-bottom: 1rem;">Estas "reglas mágicas" nos ayudan a resolver operaciones más rápido.</p>
+
+                <div class="prop-card">
+                    <div class="prop-title">1. Producto (Multiplicación) de igual base</div>
+                    <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Se deja la misma base y se <strong>suman</strong> los exponentes.</p>
+                    <div class="prop-formula">a<sup style="font-size:0.6em">m</sup> × a<sup style="font-size:0.6em">n</sup> = a<sup style="font-size:0.6em">m+n</sup></div>
+                    <div class="prop-example">Ejemplo: 2³ × 2² = <strong>2⁵</strong></div>
+                </div>
+
+                <div class="prop-card">
+                    <div class="prop-title">2. Potencia de una potencia</div>
+                    <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Se deja la base y se <strong>multiplican</strong> los exponentes.</p>
+                    <div class="prop-formula">(a<sup style="font-size:0.6em">m</sup>)<sup style="font-size:0.6em">n</sup> = a<sup style="font-size:0.6em">m×n</sup></div>
+                    <div class="prop-example">Ejemplo: (3²)⁴ = <strong>3⁸</strong></div>
+                </div>
+
+                <div class="prop-card">
+                    <div class="prop-title">3. Cociente (División) de igual base</div>
+                    <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Se deja la base y se <strong>restan</strong> los exponentes.</p>
+                    <div class="prop-formula" style="display: flex; flex-direction: column; gap: 10px; padding: 1.2rem;">
+                        <div>a<sup style="font-size:0.6em">m</sup> ÷ a<sup style="font-size:0.6em">n</sup> = a<sup style="font-size:0.6em">m-n</sup></div>
+                        <div style="font-size: 1.1rem; color: #166534; border-top: 1px dashed #bbf7d0; padding-top: 10px;">
+                            También en forma de fracción:
+                            <div style="display: flex; align-items: center; justify-content: center; margin-top: 5px; font-size: 1.3rem;">
+                                <span class="frac"><span class="frac-top">a<sup style="font-size:0.6em">m</sup></span><span class="frac-bot">a<sup style="font-size:0.6em">n</sup></span></span> 
+                                <span> = a<sup style="font-size:0.6em">m-n</sup></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="prop-example">
+                        Ejemplo: 5⁶ ÷ 5² = <strong>5⁴</strong>
+                        <br><br>
+                        En fracción:
+                        <span class="frac" style="font-size: 1.2rem; color: #000;">
+                            <span class="frac-top">5<sup class="exp-div">6</sup></span>
+                            <span class="frac-bot">5<sup class="exp-div">2</sup></span>
+                        </span>
+                        = <strong>5⁴</strong>
+                    </div>
+                </div>
+
+                <div class="prop-card">
+                    <div class="prop-title">4. Exponente Cero</div>
+                    <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Todo número elevado a cero es igual a 1.</p>
+                    <div class="prop-formula">a⁰ = 1</div>
+                    <div class="prop-example">Ejemplo: 9⁰ = <strong>1</strong></div>
+                </div>
+
+                <div class="prop-card">
+                    <div class="prop-title">5. Exponente Uno</div>
+                    <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Todo número elevado a uno es igual a sí mismo.</p>
+                    <div class="prop-formula">a¹ = a</div>
+                    <div class="prop-example">Ejemplo: 7¹ = <strong>7</strong></div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN 4: PRÁCTICA DE PROPIEDADES ================= -->
+        <section id="tab-prac-prop" class="section">
+            <div class="card">
+                <h2>Practica las Propiedades</h2>
+                <div class="instruction-box">
+                    👉 Aplica la propiedad correcta y escribe el resultado.
+                </div>
+                
+                <div class="big-display" id="pp-display">2³ × 2⁵</div>
+
+                <!-- CONTENEDOR DINÁMICO -->
+                <div class="input-container" id="pp-input-container">
+                    <!-- Se inyecta por JS -->
+                </div>
+
+                <!-- TECLADO -->
+                <div class="keyboard" id="keyboard-pp">
+                    <button class="key-btn" onclick="typeNumber('1')">1</button>
+                    <button class="key-btn" onclick="typeNumber('2')">2</button>
+                    <button class="key-btn" onclick="typeNumber('3')">3</button>
+                    <button class="key-btn" onclick="typeNumber('4')">4</button>
+                    <button class="key-btn" onclick="typeNumber('5')">5</button>
+                    <button class="key-btn" onclick="typeNumber('6')">6</button>
+                    <button class="key-btn" onclick="typeNumber('7')">7</button>
+                    <button class="key-btn" onclick="typeNumber('8')">8</button>
+                    <button class="key-btn" onclick="typeNumber('9')">9</button>
+                    <button class="key-btn btn-mul" style="opacity: 0.3; pointer-events:none;">×</button>
+                    <button class="key-btn btn-zero" onclick="typeNumber('0')">0</button>
+                    <button class="key-btn btn-clear" onclick="typeNumber('clear')">🧹</button>
+                </div>
+
+                <div class="action-btns">
+                    <button class="btn btn-check" onclick="checkPropPractice()">✅ Comprobar</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= MODAL GLOBAL DE RETROALIMENTACIÓN ================= -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modal-icon" class="modal-icon">✅</div>
+            <div id="modal-title" class="modal-title">¡Título!</div>
+            <div id="modal-body" class="modal-body">Mensaje aquí.</div>
+            <button id="modal-btn-close" class="modal-btn">Corregir</button>
+        </div>
+    </div>
+
+    <script>
+        /* ================= ESTADO GLOBAL ================= */
+        let activeInput = null;
+        let activeMode = 'A';
+        let currentPractice = null;
+        let currentPropPractice = null;
+
+        /* ================= NAVEGACIÓN Y TABS ================= */
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            activeInput = null;
+
+            if(tabId === 'tab-practica') {
+                if(!currentPractice) setMode('A');
+                else refocusInput('p-input-container');
+            }
+            if(tabId === 'tab-prac-prop') {
+                if(!currentPropPractice) initPropPractice();
+                else refocusInput('pp-input-container');
+            }
+        }
+
+        /* ================= MODAL LOGIC ================= */
+        function showModal(isCorrect, title, message, onSuccessAction = null) {
+            const overlay = document.getElementById('modal-overlay');
+            const icon = document.getElementById('modal-icon');
+            const titleEl = document.getElementById('modal-title');
+            const bodyEl = document.getElementById('modal-body');
+            const btnClose = document.getElementById('modal-btn-close');
+
+            titleEl.innerHTML = title;
+            bodyEl.innerHTML = message;
+            overlay.style.display = 'flex';
+
+            if (isCorrect) {
+                icon.innerHTML = '✅';
+                titleEl.style.color = '#065f46';
+                btnClose.style.display = 'none';
+                
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    if(onSuccessAction) onSuccessAction();
+                }, 2500); 
+            } else {
+                icon.innerHTML = '❌';
+                titleEl.style.color = '#991b1b';
+                btnClose.style.display = 'block';
+                btnClose.innerText = "Intentar de nuevo";
+                btnClose.onclick = () => { overlay.style.display = 'none'; };
+            }
+        }
+
+        /* ================= TECLADO Y ENTRADAS ================= */
+        function setActiveField(inputElement) {
+            document.querySelectorAll('.readonly-input').forEach(el => el.classList.remove('active-field'));
+            activeInput = inputElement;
+            if(inputElement) inputElement.classList.add('active-field');
+        }
+
+        function typeNumber(val) {
+            if (!activeInput) return;
+            
+            if (val === 'clear') {
+                activeInput.value = '';
+            } else {
+                // Límite de caracteres dependiendo de la clase del input
+                let limit = 4;
+                if(activeInput.classList.contains('input-expand')) limit = 20;
+                else if(activeInput.classList.contains('input-power-exp')) limit = 2;
+
+                if(activeInput.value.length < limit) {
+                    activeInput.value += val;
+                }
+            }
+        }
+
+        function refocusInput(containerId) {
+            let container = document.getElementById(containerId);
+            let firstInput = container.querySelector('.readonly-input');
+            if(firstInput) setActiveField(firstInput);
+        }
+
+        /* ================= SECCIÓN 2: LÓGICA DE PRÁCTICA ================= */
+        function setMode(mode) {
+            activeMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-modo-${mode.toLowerCase()}`).classList.add('active');
+            generatePractice();
+        }
+
+        function generatePractice() {
+            let base, exp, display, expected, type;
+            let container = document.getElementById('p-input-container');
+            let inst = document.getElementById('p-instruction');
+
+            if (activeMode === 'A') { // Cuadrados
+                base = Math.floor(Math.random() * 12) + 1;
+                exp = 2;
+                display = `${base}²`;
+                expected = (base * base).toString();
+                inst.innerHTML = `👉 ¿Cuánto es el resultado numérico?`;
+                container.innerHTML = `<input type="text" id="p-ans" class="readonly-input input-normal" readonly placeholder="?" onclick="setActiveField(this)">`;
+                type = 'numeric';
+            } 
+            else if (activeMode === 'B') { // Cubos
+                base = Math.floor(Math.random() * 12) + 1;
+                exp = 3;
+                display = `${base}³`;
+                expected = (base * base * base).toString();
+                inst.innerHTML = `👉 ¿Cuánto es el resultado numérico?`;
+                container.innerHTML = `<input type="text" id="p-ans" class="readonly-input input-normal" readonly placeholder="?" onclick="setActiveField(this)">`;
+                type = 'numeric';
+            } 
+            else if (activeMode === 'C') { // A la n (Alterna entre 2 tipos)
+                base = Math.floor(Math.random() * 9) + 2; // 2 al 10
+                exp = Math.floor(Math.random() * 4) + 3; // 3 al 6
+                
+                let isType1 = Math.random() > 0.5; // True = expandir, False = comprimir
+                
+                if (isType1) {
+                    display = `${base}<sup>${exp}</sup>`;
+                    // Crear cadena "bx...xb"
+                    let arr = Array(exp).fill(base);
+                    expected = arr.join('×'); 
+                    inst.innerHTML = `👉 Escríbelo como multiplicación repetida`;
+                    container.innerHTML = `<input type="text" id="p-ans" class="readonly-input input-expand" readonly placeholder="... × ..." onclick="setActiveField(this)">`;
+                    type = 'expand';
+                } else {
+                    let arr = Array(exp).fill(base);
+                    display = arr.join(' × ');
+                    expected = { b: base.toString(), e: exp.toString() };
+                    inst.innerHTML = `👉 Escríbelo en forma de potencia`;
+                    container.innerHTML = `
+                        <input type="text" id="p-ans-b" class="readonly-input input-power-base" readonly placeholder="Base" onclick="setActiveField(this)">
+                        <input type="text" id="p-ans-e" class="readonly-input input-power-exp" readonly placeholder="Exp" onclick="setActiveField(this)">
+                    `;
+                    type = 'compress';
+                }
+            }
+
+            document.getElementById('p-display').innerHTML = display;
+            currentPractice = { expected, type, display, base, exp };
+            refocusInput('p-input-container');
+        }
+
+        function checkPractice() {
+            let isCorrect = false;
+            let errorMsg = "";
+
+            if (currentPractice.type === 'numeric' || currentPractice.type === 'expand') {
+                let ans = document.getElementById('p-ans').value;
+                if(ans === "") { showModal(false, 'Falta la respuesta', 'Por favor usa el teclado para escribir tu respuesta.'); return; }
+                
+                if (ans === currentPractice.expected) {
+                    isCorrect = true;
+                } else {
+                    if(currentPractice.type === 'numeric') {
+                        let op = Array(currentPractice.exp).fill(currentPractice.base).join(' × ');
+                        errorMsg = `El resultado correcto de <strong>${currentPractice.display}</strong> es:<br><br><span style="font-size:1.3rem;">${op} = <strong>${currentPractice.expected}</strong></span>`;
+                    } else {
+                        errorMsg = `Recuerda: la base se multiplica por sí misma las veces que diga el exponente.<br><br>Lo correcto es:<br><span style="font-size:1.5rem; color:var(--primary); font-weight:bold;">${currentPractice.expected}</span>`;
+                    }
+                }
+            } 
+            else if (currentPractice.type === 'compress') {
+                let uB = document.getElementById('p-ans-b').value;
+                let uE = document.getElementById('p-ans-e').value;
+                
+                if(uB === "" || uE === "") { showModal(false, 'Campos vacíos', 'Llena tanto la base como el exponente.'); return; }
+
+                if (uB === currentPractice.expected.b && uE === currentPractice.expected.e) {
+                    isCorrect = true;
+                } else {
+                    errorMsg = `El número que se repite es <strong>${currentPractice.expected.b}</strong> (la base) y se repite <strong>${currentPractice.expected.e}</strong> veces (el exponente).<br><br>La respuesta correcta es: <strong>${currentPractice.expected.b}<sup>${currentPractice.expected.e}</sup></strong>`;
+                }
+            }
+
+            if (isCorrect) {
+                showModal(true, '¡Excelente! 🎉', 'Tu respuesta es totalmente correcta.', generatePractice);
+            } else {
+                showModal(false, '¡Ups! Revisemos', errorMsg);
+            }
+        }
+
+        /* ================= SECCIÓN 4: LÓGICA DE PROPIEDADES ================= */
+        function initPropPractice() {
+            let propType = Math.floor(Math.random() * 5); // 0 al 4
+            let b = Math.floor(Math.random() * 8) + 2; // base 2 al 9
+            let display = "";
+            let expected = {};
+            let type = ""; // 'power' (requiere base y exp) o 'single' (requiere 1 resultado)
+            let explanation = "";
+
+            if (propType === 0) { // Producto
+                let e1 = Math.floor(Math.random() * 4) + 2;
+                let e2 = Math.floor(Math.random() * 4) + 2;
+                display = `${b}<sup>${e1}</sup> × ${b}<sup>${e2}</sup>`;
+                expected = { base: b.toString(), exp: (e1 + e2).toString() };
+                type = 'power';
+                explanation = `Al multiplicar potencias de igual base, se suman los exponentes: <strong>${e1} + ${e2} = ${e1+e2}</strong>`;
+            } 
+            else if (propType === 1) { // Potencia de potencia
+                let e1 = Math.floor(Math.random() * 3) + 2;
+                let e2 = Math.floor(Math.random() * 3) + 2;
+                display = `(${b}<sup>${e1}</sup>)<sup>${e2}</sup>`;
+                expected = { base: b.toString(), exp: (e1 * e2).toString() };
+                type = 'power';
+                explanation = `En potencia de una potencia, se multiplican los exponentes: <strong>${e1} × ${e2} = ${e1*e2}</strong>`;
+            }
+            else if (propType === 2) { // Cociente
+                let e1 = Math.floor(Math.random() * 5) + 5; // 5 al 9 (Garantiza que siempre sea mayor)
+                let e2 = Math.floor(Math.random() * 3) + 2; // 2 al 4
+                
+                // Alternar visualización entre símbolo de división y fracción
+                if (Math.random() > 0.5) {
+                    display = `
+                    <span class="frac">
+                        <span class="frac-top">${b}<sup class="exp-div">${e1}</sup></span>
+                        <span class="frac-bot">${b}<sup class="exp-div">${e2}</sup></span>
+                    </span>`;
+                } else {
+                    display = `${b}<sup class="exp-div">${e1}</sup> ÷ ${b}<sup class="exp-div">${e2}</sup>`;
+                }
+                
+                expected = { base: b.toString(), exp: (e1 - e2).toString() };
+                type = 'power';
+                explanation = `Al dividir potencias de igual base, se restan los exponentes: <strong>${e1} - ${e2} = ${e1-e2}</strong>`;
+            }
+            else if (propType === 3) { // Exponente 0
+                b = Math.floor(Math.random() * 50) + 5; // Base más grande para despistar
+                display = `${b}⁰`;
+                expected = { result: "1" };
+                type = 'single';
+                explanation = `Recuerda: ¡Todo número elevado a cero siempre es igual a <strong>1</strong>!`;
+            }
+            else if (propType === 4) { // Exponente 1
+                b = Math.floor(Math.random() * 50) + 5;
+                display = `${b}¹`;
+                expected = { result: b.toString() };
+                type = 'single';
+                explanation = `Recuerda: Todo número elevado a uno es igual a <strong>sí mismo</strong>.`;
+            }
+
+            document.getElementById('pp-display').innerHTML = display;
+            let container = document.getElementById('pp-input-container');
+
+            if (type === 'power') {
+                container.innerHTML = `
+                    <input type="text" id="pp-ans-b" class="readonly-input input-power-base" readonly placeholder="Base" onclick="setActiveField(this)">
+                    <input type="text" id="pp-ans-e" class="readonly-input input-power-exp" readonly placeholder="Exp" onclick="setActiveField(this)">
+                `;
+            } else {
+                container.innerHTML = `<input type="text" id="pp-ans-s" class="readonly-input input-normal" readonly placeholder="?" onclick="setActiveField(this)">`;
+            }
+
+            currentPropPractice = { expected, type, explanation, display };
+            refocusInput('pp-input-container');
+        }
+
+        function checkPropPractice() {
+            let isCorrect = false;
+            let errorMsg = "";
+
+            if (currentPropPractice.type === 'power') {
+                let uB = document.getElementById('pp-ans-b').value;
+                let uE = document.getElementById('pp-ans-e').value;
+                
+                if(uB === "" || uE === "") { showModal(false, 'Campos vacíos', 'Completa la base y el exponente.'); return; }
+
+                if(uB === currentPropPractice.expected.base && uE === currentPropPractice.expected.exp) {
+                    isCorrect = true;
+                } else {
+                    errorMsg = `${currentPropPractice.explanation}<br><br>La respuesta correcta es: <strong>${currentPropPractice.expected.base}<sup>${currentPropPractice.expected.exp}</sup></strong>`;
+                }
+            } else {
+                let uS = document.getElementById('pp-ans-s').value;
+                if(uS === "") { showModal(false, 'Campo vacío', 'Escribe tu respuesta final.'); return; }
+
+                if(uS === currentPropPractice.expected.result) {
+                    isCorrect = true;
+                } else {
+                    errorMsg = `${currentPropPractice.explanation}<br><br>La respuesta correcta es: <strong>${currentPropPractice.expected.result}</strong>`;
+                }
+            }
+
+            if (isCorrect) {
+                showModal(true, '¡Perfecto! 🏆', currentPropPractice.explanation, initPropPractice);
+            } else {
+                showModal(false, 'Revisemos la regla 📝', errorMsg);
+            }
+        }
+
+        // Iniciar la primera pestaña de práctica
+        window.onload = () => {
+            setMode('A');
+            initPropPractice();
+        };
+    </script>
+</body>
+</html>
