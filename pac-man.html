@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pac-Math: ¡Aprende Multiplicando!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #111;
+            --text-color: #fff;
+            --pacman-color: #FFFF00;
+            --ghost-blue: #00FFFF;
+            --accent-color: #FF00FF;
+            --board-border: #0000FF;
+            --btn-bg: #333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Press Start 2P', cursive;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            touch-action: none; /* Prevenir scroll y zoom en móviles */
+        }
+
+        /* Pantalla para obligar rotación en móviles verticales */
+        #rotate-msg {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000;
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+
+        @media screen and (orientation: portrait) and (max-width: 768px) {
+            #main-wrapper { display: none !important; }
+            #rotate-msg { display: flex; }
+        }
+
+        #main-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            gap: 20px;
+        }
+
+        /* Controles Móviles (Cruceta dividida) */
+        .mobile-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 5;
+        }
+
+        .dpad-btn {
+            background-color: var(--btn-bg);
+            border: 3px solid var(--board-border);
+            color: white;
+            font-size: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            box-shadow: 0 4px 0 #000;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dpad-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #game-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #000;
+            padding: 10px;
+            border: 4px solid var(--board-border);
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--board-border);
+            max-height: 95vh;
+        }
+
+        /* Panel superior */
+        #hud {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+
+        .hud-item { color: #fff; }
+        .hud-item span { color: var(--pacman-color); }
+
+        /* Lienzo del juego - Escala dinámica según pantalla */
+        canvas {
+            background-color: #000;
+            image-rendering: pixelated;
+            border: 2px solid #222;
+            height: 60vh; /* Se adapta a la altura */
+            width: 60vh;
+            max-width: 456px;
+            max-height: 456px;
+            object-fit: contain;
+        }
+
+        /* Panel inferior (Matemáticas) */
+        #math-panel {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #fff;
+            background-color: #222;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 2px solid var(--accent-color);
+            text-align: center;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        #math-question {
+            color: var(--pacman-color);
+            font-size: 16px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* Pantallas superpuestas */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .hidden { display: none !important; }
+
+        .btn {
+            background-color: var(--pacman-color);
+            color: #000;
+            font-family: 'Press Start 2P', cursive;
+            padding: 15px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: transform 0.1s;
+        }
+        .btn:hover { transform: scale(1.1); background-color: #fff; }
+
+        #game-over-title { color: #FF0000; font-size: 28px; margin-bottom: 20px; }
+        
+        /* Contenedor de opciones de matemáticas */
+        #options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px 10px;
+            text-align: left;
+            margin: 15px 0;
+            background: #222;
+            padding: 15px;
+            border: 2px solid var(--board-border);
+            border-radius: 8px;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+
+        #options-container label {
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ddd;
+        }
+
+        #options-container input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: var(--pacman-color);
+        }
+
+        .feedback {
+            position: absolute;
+            font-size: 16px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 5;
+            text-shadow: 2px 2px #000;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-30px); }
+        }
+
+        /* En pantallas de escritorio ocultamos los botones táctiles para no estorbar */
+        @media screen and (min-width: 1024px) {
+            .mobile-controls { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="rotate-msg">
+        <h2>⚠️ Gira tu celular</h2>
+        <p>Para tener la mejor experiencia y poder controlar el juego,<br><br><b>Por favor coloca tu dispositivo en horizontal.</b></p>
+    </div>
+
+    <div id="main-wrapper">
+        
+        <!-- Controles Izquierdos -->
+        <div id="controls-left" class="mobile-controls">
+            <button class="dpad-btn" id="btn-up">⬆️</button>
+            <button class="dpad-btn" id="btn-down">⬇️</button>
+        </div>
+
+        <!-- Zona Central del Juego -->
+        <div id="game-center">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 5px;">
+                <h1 style="font-size: 18px; color: var(--pacman-color); margin: 0;">PAC-MATH</h1>
+                <button id="menu-btn" class="btn" style="margin: 0; padding: 8px 12px; font-size: 10px; background-color: #555; color: white;">MENÚ</button>
+            </div>
+            
+            <div id="hud">
+                <div class="hud-item">Ptos: <span id="score-val">0</span></div>
+                <div class="hud-item">Retos: <span id="probs-val">0/3</span></div>
+                <div class="hud-item">Nivel: <span id="level-val">1</span></div>
+                <div class="hud-item">Vidas: <span id="lives-val">2</span></div>
+            </div>
+
+            <canvas id="gameCanvas" width="456" height="456"></canvas>
+
+            <div id="math-panel">
+                Misión Actual:
+                <span id="math-question">...</span>
+            </div>
+        </div>
+
+        <!-- Controles Derechos -->
+        <div id="controls-right" class="mobile-controls">
+            <button class="dpad-btn" id="btn-left">⬅️</button>
+            <button class="dpad-btn" id="btn-right">➡️</button>
+        </div>
+
+    </div>
+
+    <!-- Pantalla de Inicio -->
+    <div id="start-screen" class="overlay">
+        <h2 style="color: var(--pacman-color); margin-bottom: 5px;">PAC-MATH</h2>
+        <p style="font-size: 10px; margin: 5px;">Elige los retos a practicar:</p>
+        
+        <div id="options-container">
+            <label><input type="checkbox" value="sum" checked> Sumas</label>
+            <label><input type="checkbox" value="sub" checked> Restas</label>
+            <label><input type="checkbox" value="mult" checked> Multiplicar</label>
+            <label><input type="checkbox" value="pow" checked> Potencias</label>
+            <label><input type="checkbox" value="decomp" checked> Descomponer</label>
+            <label><input type="checkbox" value="combined" checked> Combinadas</label>
+        </div>
+
+        <p style="font-size: 8px; margin: 5px; color: #aaa;">¡Resuelve mínimo 3 problemas para avanzar de nivel!</p>
+        <button class="btn" id="start-btn">JUGAR</button>
+    </div>
+
+    <!-- Pantalla de Game Over -->
+    <div id="game-over-screen" class="overlay hidden">
+        <h2 id="game-over-title">FIN DEL JUEGO</h2>
+        <p>Puntaje Final: <span id="final-score" style="color: var(--pacman-color);">0</span></p>
+        <button class="btn" id="restart-btn">REINTENTAR</button>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURACIÓN INICIAL Y VARIABLES ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const tileSize = 24; 
+        const rows = 19;
+        const cols = 19;
+
+        // UI
+        const scoreEl = document.getElementById('score-val');
+        const levelEl = document.getElementById('level-val');
+        const livesEl = document.getElementById('lives-val');
+        const probsEl = document.getElementById('probs-val');
+        const mathQuestionEl = document.getElementById('math-question');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const menuBtn = document.getElementById('menu-btn');
+
+        let score = 0;
+        let lives = 2; 
+        let level = 1;
+        let problemsSolved = 0;
+        let isPlaying = false;
+        let animationId;
+        
+        let currentProblem = {};
+        let activeAnswers = [];
+        let powerTimer = 0;
+        let selectedTypes = []; // Almacenará los tipos de operaciones elegidas
+
+        // --- 2. SISTEMA DE AUDIO ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, vol=0.1) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const Sound = {
+            eatDot: () => playTone(800, 'square', 0.1, 0.05),
+            correct: () => {
+                playTone(400, 'square', 0.1, 0.1);
+                setTimeout(() => playTone(600, 'square', 0.1, 0.1), 100);
+                setTimeout(() => playTone(800, 'square', 0.2, 0.1), 200);
+            },
+            wrong: () => {
+                playTone(150, 'sawtooth', 0.3, 0.2);
+                setTimeout(() => playTone(100, 'sawtooth', 0.4, 0.2), 200);
+            },
+            eatGhost: () => playTone(1200, 'sine', 0.3, 0.1),
+            gameOver: () => playTone(200, 'triangle', 0.6)
+        };
+
+        // --- 3. MAPA DEL JUEGO ---
+        const initialMap = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,0,1],
+            [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],
+            [1,1,1,1,0,1,1,1,2,1,2,1,1,1,0,1,1,1,1],
+            [2,2,2,1,0,1,2,2,2,2,2,2,2,1,0,1,2,2,2],
+            [1,1,1,1,0,1,2,1,1,2,1,1,2,1,0,1,1,1,1],
+            [2,2,2,2,0,2,2,1,2,2,2,1,2,2,0,2,2,2,2],
+            [1,1,1,1,0,1,2,1,1,1,1,1,2,1,0,1,1,1,1],
+            [2,2,2,1,0,1,2,2,2,2,2,2,2,1,0,1,2,2,2],
+            [1,1,1,1,0,1,2,1,1,1,1,1,2,1,0,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,1],
+            [1,0,0,1,0,0,0,0,0,2,0,0,0,0,0,1,0,0,1],
+            [1,1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1],
+            [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        let map = [];
+        let totalDots = 0;
+
+        function cloneMap() {
+            map = [];
+            totalDots = 0;
+            for (let i = 0; i < initialMap.length; i++) {
+                let row = [...initialMap[i]];
+                map.push(row);
+                for(let j = 0; j < row.length; j++) if(row[j] === 0) totalDots++;
+            }
+        }
+
+        // --- 4. CLASES ENTIDADES ---
+        class Pacman {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = 9 * tileSize + tileSize/2;
+                this.y = 15 * tileSize + tileSize/2;
+                this.vx = 0; this.vy = 0;
+                this.nextVx = 0; this.nextVy = 0;
+                this.speed = 2;
+                this.radius = tileSize/2 - 2;
+                this.mouthOpen = 0; this.mouthDir = 1;
+            }
+            draw() {
+                this.mouthOpen += 0.1 * this.mouthDir;
+                if(this.mouthOpen >= 0.5 || this.mouthOpen <= 0) this.mouthDir *= -1;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                if(this.vx > 0) ctx.rotate(0);
+                else if(this.vx < 0) ctx.rotate(Math.PI);
+                else if(this.vy > 0) ctx.rotate(Math.PI/2);
+                else if(this.vy < 0) ctx.rotate(-Math.PI/2);
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, this.mouthOpen * Math.PI, (2 - this.mouthOpen) * Math.PI);
+                ctx.lineTo(0, 0); ctx.fillStyle = "yellow"; ctx.fill(); ctx.closePath();
+                ctx.restore();
+            }
+            update() {
+                if (this.x % tileSize === tileSize/2 && this.y % tileSize === tileSize/2) {
+                    let col = Math.floor(this.x / tileSize);
+                    let row = Math.floor(this.y / tileSize);
+                    if (this.nextVx !== 0 || this.nextVy !== 0) {
+                        let nRow = row + this.nextVy, nCol = col + this.nextVx;
+                        if(map[nRow] && map[nRow][nCol] !== 1) { this.vx = this.nextVx; this.vy = this.nextVy; }
+                    }
+                    let fRow = row + this.vy, fCol = col + this.vx;
+                    if(map[fRow] && map[fRow][fCol] === 1) { this.vx = 0; this.vy = 0; }
+                }
+                if(this.x < 0) this.x = canvas.width;
+                if(this.x > canvas.width) this.x = 0;
+                this.x += this.vx * this.speed;
+                this.y += this.vy * this.speed;
+                this.eatDot();
+                this.checkAnswers();
+            }
+            eatDot() {
+                let col = Math.floor(this.x / tileSize), row = Math.floor(this.y / tileSize);
+                if(map[row] && map[row][col] === 0) {
+                    map[row][col] = 2; 
+                    score += 10; totalDots--;
+                    Sound.eatDot(); updateHUD();
+                    checkLevelCompletion();
+                }
+            }
+            checkAnswers() {
+                for(let i = activeAnswers.length - 1; i >= 0; i--) {
+                    let ans = activeAnswers[i];
+                    let dx = this.x - (ans.col * tileSize + tileSize/2);
+                    let dy = this.y - (ans.row * tileSize + tileSize/2);
+                    if(Math.sqrt(dx*dx + dy*dy) < this.radius + 8) {
+                        if(ans.isCorrect) {
+                            score += 100;
+                            problemsSolved++;
+                            powerTimer = 300;
+                            Sound.correct();
+                            showFeedback(this.x, this.y, "+100! PODER!", "#00FF00");
+                            updateHUD();
+                            activeAnswers = [];
+                            if(!checkLevelCompletion()) {
+                                generateMathProblem();
+                                spawnAnswers();
+                            }
+                        } else {
+                            lives--; Sound.wrong();
+                            showFeedback(this.x, this.y, "¡ERROR!", "#FF0000");
+                            updateHUD();
+                            if(lives <= 0) gameOver();
+                            else resetPositions(false);
+                        }
+                    }
+                }
+            }
+        }
+
+        class Ghost {
+            constructor(color, startX, startY) {
+                this.color = color;
+                this.startX = startX; this.startY = startY;
+                this.reset();
+            }
+            reset() {
+                this.x = this.startX * tileSize + tileSize/2;
+                this.y = this.startY * tileSize + tileSize/2;
+                this.vx = 0; this.vy = -1;
+                
+                // Lógica de Velocidad Progresiva
+                if (level <= 2) this.speed = 0.8; // Muy lento 
+                else if (level <= 5) this.speed = 1.2; // Medio
+                else this.speed = 1.5 + ((level - 5) * 0.15); // Rápido +
+                if(this.speed > 2.8) this.speed = 2.8; // Límite max
+            }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y);
+                let drawColor = this.color;
+                if (powerTimer > 0) drawColor = (powerTimer < 60 && powerTimer % 10 < 5) ? "#FFFFFF" : "#00FFFF";
+                ctx.fillStyle = drawColor;
+                ctx.beginPath();
+                ctx.arc(0, 0, tileSize/2 - 2, Math.PI, 0); 
+                ctx.lineTo(tileSize/2 - 2, tileSize/2 - 2); 
+                ctx.lineTo(tileSize/4, tileSize/2 - 4); ctx.lineTo(0, tileSize/2 - 2);
+                ctx.lineTo(-tileSize/4, tileSize/2 - 4); ctx.lineTo(-tileSize/2 + 2, tileSize/2 - 2);
+                ctx.closePath(); ctx.fill();
+                ctx.fillStyle = "white";
+                ctx.beginPath(); ctx.arc(-4, -2, 3, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(4, -2, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = powerTimer > 0 ? "orange" : "blue";
+                ctx.beginPath(); ctx.arc(-4 + this.vx, -2 + this.vy, 1.5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(4 + this.vx, -2 + this.vy, 1.5, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            }
+            update() {
+                if (this.x % tileSize === tileSize/2 && this.y % tileSize === tileSize/2) {
+                    let col = Math.floor(this.x / tileSize), row = Math.floor(this.y / tileSize);
+                    let possibleMoves = [];
+                    let dirs = [{x:1, y:0}, {x:-1, y:0}, {x:0, y:1}, {x:0, y:-1}];
+                    for(let d of dirs) {
+                        if(d.x === -this.vx && d.y === -this.vy && (this.vx !== 0 || this.vy !== 0)) continue;
+                        let nRow = row + d.y, nCol = col + d.x;
+                        if(map[nRow] && map[nRow][nCol] !== 1) possibleMoves.push(d);
+                    }
+                    if(possibleMoves.length > 0) {
+                        let move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                        this.vx = move.x; this.vy = move.y;
+                    } else { this.vx *= -1; this.vy *= -1; }
+                }
+                if(this.x < 0) this.x = canvas.width;
+                if(this.x > canvas.width) this.x = 0;
+                this.x += this.vx * this.speed;
+                this.y += this.vy * this.speed;
+
+                let dx = this.x - pacman.x, dy = this.y - pacman.y;
+                if(Math.sqrt(dx*dx + dy*dy) < tileSize - 4) {
+                    if (powerTimer > 0) {
+                        score += 50; Sound.eatGhost();
+                        showFeedback(this.x, this.y, "+50", "#00FFFF");
+                        updateHUD(); this.reset();
+                    } else {
+                        lives--; Sound.wrong(); updateHUD();
+                        if(lives <= 0) gameOver(); else resetPositions(false);
+                    }
+                }
+            }
+        }
+
+        // --- 5. SISTEMA MATEMÁTICO COMPLETO ---
+        function generateMathProblem() {
+            // Se elige aleatoriamente entre las categorías que el jugador seleccionó al inicio
+            const type = selectedTypes[Math.floor(Math.random() * selectedTypes.length)];
+            
+            let qText = "";
+            let correctVal = 0;
+            let wrongsList = [];
+
+            if (type === 'sum') {
+                let a = Math.floor(Math.random() * 10) + 1; // 1-10
+                let b = Math.floor(Math.random() * 10) + 1;
+                qText = `${a} + ${b} = ?`;
+                correctVal = a + b;
+                wrongsList = [correctVal+1, correctVal-1, correctVal+2, Math.abs(a-b), correctVal+10];
+            } 
+            else if (type === 'sub') {
+                let a = Math.floor(Math.random() * 10) + 1;
+                let b = Math.floor(Math.random() * 10) + 1;
+                if(b > a) { let temp = a; a = b; b = temp; } // Siempre positiva
+                qText = `${a} - ${b} = ?`;
+                correctVal = a - b;
+                wrongsList = [correctVal+1, Math.max(0, correctVal-1), a+b, correctVal+2];
+            } 
+            else if (type === 'mult') {
+                let a = Math.floor(Math.random() * 10) + 2; // 2 al 11
+                let b = Math.floor(Math.random() * 12);     // 0 al 11
+                qText = `${a} × ${b} = ?`;
+                correctVal = a * b;
+                wrongsList = [a*(b+1), a*Math.max(0, b-1), (a+1)*b, correctVal+1, correctVal+2];
+            } 
+            else if (type === 'pow') {
+                let a = Math.floor(Math.random() * 11) + 2; // 2 al 12
+                qText = `${a}² = ?`;
+                correctVal = a * a;
+                wrongsList = [(a+1)*(a+1), a*2, (a-1)*(a-1), correctVal+10];
+            } 
+            else if (type === 'decomp') {
+                let tens = (Math.floor(Math.random() * 9) + 1) * 10;
+                let ones = Math.floor(Math.random() * 9) + 1;
+                qText = `${tens} + ${ones} = ?`;
+                correctVal = tens + ones;
+                wrongsList = [tens + ones + 10, tens + ones + 1, (tens/10) + (ones*10), tens - ones];
+            } 
+            else if (type === 'combined') {
+                // Generar operaciones combinadas simples
+                let opType = Math.floor(Math.random() * 3);
+                if (opType === 0) { 
+                    // a × b + c
+                    let a = Math.floor(Math.random() * 5) + 2;
+                    let b = Math.floor(Math.random() * 5) + 2;
+                    let c = Math.floor(Math.random() * 10) + 1;
+                    qText = `${a} × ${b} + ${c} = ?`;
+                    correctVal = a * b + c;
+                    wrongsList = [a*(b+c), a*b-c, correctVal+1, correctVal+2];
+                } else if (opType === 1) { 
+                    // a + b × c
+                    let a = Math.floor(Math.random() * 10) + 1;
+                    let b = Math.floor(Math.random() * 5) + 2;
+                    let c = Math.floor(Math.random() * 5) + 2;
+                    qText = `${a} + ${b} × ${c} = ?`;
+                    correctVal = a + b * c;
+                    wrongsList = [(a+b)*c, a+b+c, correctVal+2, Math.abs(correctVal-2)];
+                } else { 
+                    // (a + b) × c
+                    let a = Math.floor(Math.random() * 5) + 1;
+                    let b = Math.floor(Math.random() * 5) + 1;
+                    let c = Math.floor(Math.random() * 5) + 2;
+                    qText = `(${a} + ${b}) × ${c} = ?`;
+                    correctVal = (a + b) * c;
+                    wrongsList = [a+b*c, a*c+b, correctVal+2, Math.abs(correctVal-2)];
+                }
+            }
+
+            // Filtrar y asegurar errores únicos y positivos
+            wrongsList = [...new Set(wrongsList)].filter(w => w !== correctVal && w >= 0);
+            wrongsList.sort(() => Math.random() - 0.5); // Desordenar
+            
+            // Llenar por si faltan
+            while(wrongsList.length < 3) {
+                let r = correctVal + Math.floor(Math.random() * 10) + 1;
+                if(!wrongsList.includes(r)) wrongsList.push(r);
+            }
+
+            currentProblem = {
+                text: qText,
+                correct: correctVal,
+                wrongs: wrongsList.slice(0, 3)
+            };
+            mathQuestionEl.innerText = qText;
+        }
+
+        function spawnAnswers() {
+            activeAnswers = [];
+            let answers = [currentProblem.correct, ...currentProblem.wrongs];
+            answers.sort(() => Math.random() - 0.5);
+
+            let validSpots = [];
+            for (let r = 2; r < rows - 2; r++) {
+                for (let c = 2; c < cols - 2; c++) {
+                    if (map[r][c] !== 1 && !(r > 7 && r < 12 && c > 7 && c < 12)) {
+                        validSpots.push({r, c});
+                    }
+                }
+            }
+
+            for(let i=0; i<4; i++) {
+                let spotIndex, spot, dist;
+                do {
+                    spotIndex = Math.floor(Math.random() * validSpots.length);
+                    spot = validSpots[spotIndex];
+                    let pxCol = Math.floor(pacman.x/tileSize);
+                    let pxRow = Math.floor(pacman.y/tileSize);
+                    dist = Math.abs(spot.r - pxRow) + Math.abs(spot.c - pxCol);
+                } while(dist < 5); 
+                validSpots.splice(spotIndex, 1);
+                
+                activeAnswers.push({ value: answers[i], row: spot.r, col: spot.c, isCorrect: answers[i] === currentProblem.correct });
+            }
+        }
+
+        // --- 6. LOGICA PRINCIPAL ---
+        let pacman;
+        let ghosts = [];
+
+        function initGame() {
+            cloneMap();
+            pacman = new Pacman();
+            score = 0; lives = 2; level = 1; problemsSolved = 0; powerTimer = 0;
+            resetPositions(true); // Genera fantasmas según nivel
+            updateHUD();
+            generateMathProblem();
+            spawnAnswers();
+        }
+
+        function resetPositions(isLevelUp = false) {
+            pacman.reset();
+            
+            if (isLevelUp) {
+                let numGhosts = level >= 6 ? 3 : 2; // En nivel 6+ se añade el 3ro
+                ghosts = [
+                    new Ghost("#FF0000", 9, 8), // Blinky
+                    new Ghost("#FFB8FF", 8, 9)  // Pinky
+                ];
+                if(numGhosts >= 3) ghosts.push(new Ghost("#00FFFF", 10, 9)); // Inky
+            } else {
+                ghosts.forEach(g => g.reset());
+            }
+            
+            activeAnswers = [];
+            if(!isLevelUp) spawnAnswers();
+        }
+
+        function checkLevelCompletion() {
+            // Ambas condiciones obligatorias: sin puntos Y mínimo 3 problemas
+            if (totalDots <= 0 && problemsSolved >= 3) {
+                levelUp();
+                return true;
+            }
+            return false;
+        }
+
+        function levelUp() {
+            level++; score += 500; problemsSolved = 0;
+            cloneMap();
+            resetPositions(true);
+            updateHUD();
+            showFeedback(canvas.width/2, canvas.height/2, "¡NIVEL SUPERADO!", "#FFFF00");
+            generateMathProblem();
+            spawnAnswers();
+        }
+
+        function updateHUD() {
+            scoreEl.innerText = score;
+            livesEl.innerText = lives;
+            levelEl.innerText = level;
+            let pStr = problemsSolved >= 3 ? "¡LISTO!" : `${problemsSolved}/3`;
+            probsEl.innerText = pStr;
+        }
+
+        function drawMap() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    let tile = map[r][c];
+                    if (tile === 1) {
+                        ctx.fillStyle = "#000088";
+                        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                        ctx.fillStyle = "#0000FF";
+                        ctx.fillRect(c * tileSize + 2, r * tileSize + 2, tileSize - 4, tileSize - 4);
+                    } else if (tile === 0) {
+                        ctx.fillStyle = "#FFB8AE";
+                        ctx.beginPath();
+                        ctx.arc(c * tileSize + tileSize/2, r * tileSize + tileSize/2, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        function drawAnswers() {
+            for (let ans of activeAnswers) {
+                let x = ans.col * tileSize + tileSize/2;
+                let y = ans.row * tileSize + tileSize/2;
+                ctx.fillStyle = (Date.now() % 500 < 250) ? "#FF00FF" : "#00FF00";
+                ctx.beginPath(); ctx.arc(x, y, tileSize/2 + 2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#FFF"; ctx.font = "11px 'Press Start 2P'";
+                ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.fillText(ans.value, x, y);
+            }
+        }
+
+        function showFeedback(x, y, text, color) {
+            const fb = document.createElement('div');
+            fb.className = 'feedback'; fb.innerText = text; fb.style.color = color;
+            // Calcular posicion sobre el canvas
+            const rect = canvas.getBoundingClientRect();
+            let scaleX = rect.width / canvas.width;
+            let scaleY = rect.height / canvas.height;
+            fb.style.left = (rect.left + (x * scaleX) - 20) + 'px';
+            fb.style.top = (rect.top + (y * scaleY) - 20) + 'px';
+            document.body.appendChild(fb);
+            setTimeout(() => fb.remove(), 1000);
+        }
+
+        function gameLoop() {
+            if (!isPlaying) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(powerTimer > 0) powerTimer--;
+
+            drawMap(); drawAnswers();
+            pacman.update(); pacman.draw();
+            ghosts.forEach(g => { g.update(); g.draw(); });
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            // Leer las categorías seleccionadas por el usuario
+            const checkboxes = document.querySelectorAll('#options-container input[type="checkbox"]');
+            selectedTypes = [];
+            checkboxes.forEach(cb => {
+                if(cb.checked) selectedTypes.push(cb.value);
+            });
+
+            // Si el usuario desmarcó todas, forzamos a que juegue al menos con sumas
+            if(selectedTypes.length === 0) {
+                selectedTypes = ['sum'];
+                document.querySelector('input[value="sum"]').checked = true;
+            }
+
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            initGame(); isPlaying = true;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            gameLoop();
+        }
+
+        function gameOver() {
+            isPlaying = false; cancelAnimationFrame(animationId);
+            Sound.gameOver();
+            document.getElementById('final-score').innerText = score;
+            gameOverScreen.classList.remove('hidden');
+        }
+
+        function goToMenu() {
+            isPlaying = false; 
+            cancelAnimationFrame(animationId);
+            startScreen.classList.remove('hidden');
+            gameOverScreen.classList.add('hidden');
+        }
+
+        // --- 7. CONTROLES TÁCTILES Y TECLADO ---
+        function setDir(vx, vy) {
+            if(!isPlaying) return;
+            pacman.nextVx = vx; pacman.nextVy = vy;
+        }
+
+        // Eventos Táctiles para celular
+        document.getElementById('btn-up').addEventListener('touchstart', (e) => { e.preventDefault(); setDir(0, -1); });
+        document.getElementById('btn-down').addEventListener('touchstart', (e) => { e.preventDefault(); setDir(0, 1); });
+        document.getElementById('btn-left').addEventListener('touchstart', (e) => { e.preventDefault(); setDir(-1, 0); });
+        document.getElementById('btn-right').addEventListener('touchstart', (e) => { e.preventDefault(); setDir(1, 0); });
+        
+        // Mismos eventos para probar con mouse en PC
+        document.getElementById('btn-up').addEventListener('mousedown', () => setDir(0, -1));
+        document.getElementById('btn-down').addEventListener('mousedown', () => setDir(0, 1));
+        document.getElementById('btn-left').addEventListener('mousedown', () => setDir(-1, 0));
+        document.getElementById('btn-right').addEventListener('mousedown', () => setDir(1, 0));
+
+        // Teclado clásico
+        window.addEventListener('keydown', (e) => {
+            if(!isPlaying) return;
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': setDir(0, -1); break;
+                case 'ArrowDown': case 's': case 'S': setDir(0, 1); break;
+                case 'ArrowLeft': case 'a': case 'A': setDir(-1, 0); break;
+                case 'ArrowRight': case 'd': case 'D': setDir(1, 0); break;
+            }
+        });
+
+        // Prevenir comportamiento de arrastrar y scroll default en movil
+        document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+        menuBtn.addEventListener('click', goToMenu);
+
+        cloneMap(); drawMap();
+    </script>
+</body>
+</html>
