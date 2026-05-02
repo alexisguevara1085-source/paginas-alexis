@@ -6,7 +6,7 @@
     <title>Math Arcade: Nubes de Números</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;900&display=swap');
 
         :root {
             --sky-top: #a1c4fd;
@@ -18,7 +18,7 @@
             margin: 0;
             overflow: hidden;
             background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
-            touch-action: none; /* Evitar scroll nativo y zoom en móviles */
+            touch-action: none;
             user-select: none;
             -webkit-user-select: none;
         }
@@ -48,12 +48,8 @@
             background: rgba(255, 255, 255, 0.7);
             border-radius: 50%;
         }
-        .cloud::before {
-            width: 60px; height: 60px; top: -30px; left: 20px;
-        }
-        .cloud::after {
-            width: 40px; height: 40px; top: -15px; left: 70px;
-        }
+        .cloud::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .cloud::after { width: 40px; height: 40px; top: -15px; left: 70px; }
 
         @keyframes float-clouds {
             from { transform: translateX(110vw); }
@@ -71,9 +67,10 @@
             width: 100%;
             height: 100%;
             z-index: 10;
+            pointer-events: auto;
+            touch-action: none;
         }
 
-        /* HUD y UI */
         .ui-layer {
             position: absolute;
             z-index: 20;
@@ -81,9 +78,7 @@
             pointer-events: none;
         }
         
-        .clickable {
-            pointer-events: auto;
-        }
+        .clickable { pointer-events: auto; }
 
         .screen-shake {
             animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
@@ -97,27 +92,21 @@
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.65);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 2px solid rgba(255, 255, 255, 0.9);
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
 
-        /* Animaciones base de botones */
-        .btn-hover {
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .btn-hover:active {
-            transform: scale(0.95);
-        }
+        .btn-hover { transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-hover:active { transform: scale(0.92); }
 
         .heart {
             color: #ff4d4f;
             text-shadow: 0 0 5px rgba(255,0,0,0.5);
             transition: transform 0.3s;
         }
-        
         .heart.lost {
             color: #cbd5e1;
             text-shadow: none;
@@ -134,27 +123,15 @@
             transition: transform 0.2s;
         }
 
-        .bounce {
-            animation: bounce 0.4s ease;
-        }
-
+        .bounce { animation: bounce 0.4s ease; }
         @keyframes bounce {
             0%, 100% { transform: scale(1) translateX(-50%); }
             50% { transform: scale(1.1) translateX(-45%); }
         }
         
-        /* Personalizar barra de scroll menú */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
     </style>
 </head>
 <body class="text-gray-800">
@@ -166,15 +143,17 @@
         <div class="cloud cloud3"></div>
     </div>
 
+    <!-- CANVAS PRINCIPAL -->
+    <canvas id="gameCanvas" class="clickable"></canvas>
+
     <!-- Menú Principal -->
     <div id="menu-screen" class="ui-layer clickable h-full flex flex-col items-center justify-center bg-white/40 backdrop-blur-md transition-opacity duration-500">
         <div class="glass-panel p-6 md:p-8 rounded-3xl max-w-xl w-[95%] max-h-[95vh] overflow-y-auto custom-scrollbar text-center flex flex-col">
-            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2 drop-shadow-sm">Math Arcade</h1>
+            <h1 class="text-4xl md:text-5xl font-black text-blue-600 mb-2 drop-shadow-sm tracking-tight">Math Arcade</h1>
             <p class="text-gray-600 mb-6 font-medium">Selecciona las operaciones que deseas practicar:</p>
             
             <!-- Grid de Checkboxes -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                <!-- Sumas -->
                 <label class="cursor-pointer relative btn-hover">
                     <input type="checkbox" value="sumas" class="mode-checkbox peer sr-only" checked>
                     <div class="p-3 rounded-2xl font-bold border-4 border-white/70 bg-white/50 shadow-sm peer-checked:border-emerald-400 peer-checked:bg-emerald-100/90 text-gray-500 peer-checked:text-emerald-800 transition-all text-left flex items-center gap-3">
@@ -184,7 +163,6 @@
                         <span class="text-base md:text-lg">Sumas (+)</span>
                     </div>
                 </label>
-                <!-- Restas -->
                 <label class="cursor-pointer relative btn-hover">
                     <input type="checkbox" value="restas" class="mode-checkbox peer sr-only" checked>
                     <div class="p-3 rounded-2xl font-bold border-4 border-white/70 bg-white/50 shadow-sm peer-checked:border-rose-400 peer-checked:bg-rose-100/90 text-gray-500 peer-checked:text-rose-800 transition-all text-left flex items-center gap-3">
@@ -194,7 +172,6 @@
                         <span class="text-base md:text-lg">Restas (-)</span>
                     </div>
                 </label>
-                <!-- Multiplicación -->
                 <label class="cursor-pointer relative btn-hover">
                     <input type="checkbox" value="multiplicacion" class="mode-checkbox peer sr-only" checked>
                     <div class="p-3 rounded-2xl font-bold border-4 border-white/70 bg-white/50 shadow-sm peer-checked:border-amber-400 peer-checked:bg-amber-100/90 text-gray-500 peer-checked:text-amber-800 transition-all text-left flex items-center gap-3">
@@ -204,7 +181,6 @@
                         <span class="text-base md:text-lg">Multiplicación (×)</span>
                     </div>
                 </label>
-                <!-- Dos Cifras -->
                 <label class="cursor-pointer relative btn-hover">
                     <input type="checkbox" value="doscifras" class="mode-checkbox peer sr-only" checked>
                     <div class="p-3 rounded-2xl font-bold border-4 border-white/70 bg-white/50 shadow-sm peer-checked:border-blue-400 peer-checked:bg-blue-100/90 text-gray-500 peer-checked:text-blue-800 transition-all text-left flex items-center gap-3">
@@ -214,7 +190,6 @@
                         <span class="text-base md:text-lg">Dos Cifras</span>
                     </div>
                 </label>
-                <!-- Potencias -->
                 <label class="cursor-pointer relative btn-hover">
                     <input type="checkbox" value="cuadrados" class="mode-checkbox peer sr-only">
                     <div class="p-3 rounded-2xl font-bold border-4 border-white/70 bg-white/50 shadow-sm peer-checked:border-purple-400 peer-checked:bg-purple-100/90 text-gray-500 peer-checked:text-purple-800 transition-all text-left flex items-center gap-3">
@@ -224,7 +199,6 @@
                         <span class="text-base md:text-lg">Potencias (x²)</span>
                     </div>
                 </label>
-                <!-- Descomponer -->
                 <label class="cursor-pointer relative btn-hover">
                     <input type="checkbox" value="descomponer" class="mode-checkbox peer sr-only">
                     <div class="p-3 rounded-2xl font-bold border-4 border-white/70 bg-white/50 shadow-sm peer-checked:border-teal-400 peer-checked:bg-teal-100/90 text-gray-500 peer-checked:text-teal-800 transition-all text-left flex items-center gap-3">
@@ -241,41 +215,53 @@
             <button onclick="startSelectedGame()" class="w-full btn-hover bg-gradient-to-b from-blue-400 to-blue-600 text-white py-4 rounded-2xl font-bold text-2xl shadow-lg shadow-blue-300/50 border-b-4 border-blue-700">
                 ¡COMENZAR JUEGO!
             </button>
-            <p class="text-sm text-gray-500 mt-4 font-medium">Toca la figura gigante con la respuesta correcta. ¡Tienes 2 vidas!</p>
+            <p class="text-sm text-gray-500 mt-4 font-medium">Toca la figura correcta. ¡Busca bien, puede que no sea la primera en caer!</p>
         </div>
     </div>
 
     <!-- UI del Juego -->
     <div id="game-ui" class="ui-layer h-full hidden flex-col justify-between">
-        <!-- Top HUD -->
-        <div class="glass-panel mx-4 mt-4 p-3 md:p-4 rounded-2xl flex justify-between items-center">
-            <div class="flex items-center space-x-6">
-                <div class="text-lg md:text-xl font-bold text-gray-700">Nivel <span id="level-display" class="text-blue-600 text-2xl">1</span></div>
-                <div class="text-lg md:text-xl font-bold text-gray-700">Puntos <span id="score-display" class="text-emerald-600 text-2xl">0</span></div>
+        
+        <!-- Top HUD Mejorado y Responsivo -->
+        <div class="glass-panel mx-2 md:mx-4 mt-2 md:mt-4 p-2 md:p-3 rounded-2xl flex flex-wrap justify-between items-center gap-2 md:gap-4 clickable">
+            <!-- Bloque Izquierdo: Botón Menú, Nivel, Puntos -->
+            <div class="flex items-center gap-3 md:gap-6 w-full md:w-auto justify-between md:justify-start">
+                <button onclick="returnToMenu()" class="btn-hover bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 md:py-2 rounded-xl font-bold text-sm md:text-base border-b-2 md:border-b-4 border-slate-400 transition-colors">
+                    ⬅ MENÚ
+                </button>
+                <div class="text-sm md:text-xl font-bold text-gray-700">Nivel <span id="level-display" class="text-blue-600 text-lg md:text-2xl">1</span></div>
+                <div class="text-sm md:text-xl font-bold text-gray-700">Puntos <span id="score-display" class="text-emerald-600 text-lg md:text-2xl">0</span></div>
             </div>
-            <div class="flex text-3xl md:text-4xl space-x-1" id="lives-display">
-                <span class="heart" id="life-1">❤️</span>
-                <span class="heart" id="life-2">❤️</span>
+
+            <!-- Bloque Derecho: Panel de Estadísticas y Vidas -->
+            <div class="flex items-center justify-between w-full md:w-auto gap-4">
+                <div class="flex flex-col md:flex-row gap-1 md:gap-3 text-xs md:text-sm font-bold bg-white/50 p-1 md:p-2 rounded-xl border border-white/80">
+                    <div class="text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-md">✔ Correctas: <span id="correct-display">0</span></div>
+                    <div class="text-rose-700 bg-rose-100/80 px-2 py-0.5 rounded-md">✖ Incorrectas: <span id="incorrect-display">0</span></div>
+                </div>
+                <div class="flex text-2xl md:text-3xl space-x-1" id="lives-display">
+                    <span class="heart">❤️</span>
+                    <span class="heart">❤️</span>
+                </div>
             </div>
         </div>
-
-        <!-- Canvas Principal -->
-        <canvas id="gameCanvas"></canvas>
 
         <!-- Bottom Challenge -->
         <div id="challenge-panel" class="glass-panel px-10 py-4 rounded-3xl text-center mb-6">
             <div class="text-sm md:text-base font-bold text-gray-500 uppercase tracking-widest mb-1">RETO ACTUAL</div>
-            <div id="challenge-text" class="text-5xl md:text-6xl font-bold text-gray-900 tracking-tight drop-shadow-sm">--</div>
+            <div id="challenge-text" class="text-5xl md:text-6xl font-black text-gray-900 tracking-tight drop-shadow-sm">--</div>
             <div id="challenge-subtext" class="text-base md:text-lg text-blue-600 font-bold hidden mt-1">Toca el primer número</div>
         </div>
     </div>
 
     <!-- Pantalla Game Over -->
-    <div id="game-over-screen" class="ui-layer clickable h-full hidden flex-col items-center justify-center bg-black/60 backdrop-blur-md transition-opacity duration-500 z-50">
+    <div id="game-over-screen" class="ui-layer clickable h-full hidden flex-col items-center justify-center bg-black/70 backdrop-blur-md transition-opacity duration-500 z-50">
         <div class="glass-panel p-8 rounded-3xl max-w-sm w-[90%] text-center bg-white/95">
-            <h2 class="text-5xl font-bold text-red-500 mb-2 drop-shadow-sm">¡Game Over!</h2>
-            <p class="text-gray-600 mb-4 text-lg font-medium">Te quedaste sin vidas.</p>
-            <div class="text-6xl font-black text-emerald-500 mb-8 drop-shadow-md" id="final-score">0</div>
+            <h2 class="text-5xl font-black text-red-500 mb-2 drop-shadow-sm">¡Game Over!</h2>
+            <p class="text-gray-600 mb-4 text-lg font-medium">Fin del juego. ¡Sigue practicando!</p>
+            <div class="text-6xl font-black text-emerald-500 mb-2 drop-shadow-md" id="final-score">0</div>
+            <p class="text-sm text-gray-500 font-bold mb-6">Nivel alcanzado: <span id="final-level">1</span></p>
+            
             <div class="space-y-4">
                 <button onclick="restartMode()" class="w-full btn-hover bg-blue-500 text-white py-4 rounded-xl font-bold text-xl border-b-4 border-blue-700">Jugar de Nuevo</button>
                 <button onclick="goMenu()" class="w-full btn-hover bg-gray-200 text-gray-700 py-4 rounded-xl font-bold text-xl border-b-4 border-gray-400">Menú Principal</button>
@@ -284,9 +270,7 @@
     </div>
 
     <script>
-        /**
-         * LÓGICA DE AUDIO (Sintetizador sin assets externos)
-         */
+        /** LÓGICA DE AUDIO (Sintetizador sin assets externos) */
         const AudioEngine = {
             ctx: null,
             init() {
@@ -294,9 +278,7 @@
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     this.ctx = new AudioContext();
                 }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
             },
             playTone(freq, type, duration, vol = 0.1) {
                 if (!this.ctx) return;
@@ -339,9 +321,7 @@
             }
         };
 
-        /**
-         * LÓGICA DEL JUEGO Y CANVAS
-         */
+        /** LÓGICA DEL JUEGO Y CANVAS */
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let gameLoopId;
@@ -350,10 +330,12 @@
         const SHAPES = ['circle', 'square', 'triangle', 'star'];
 
         let gameState = {
-            modes: [], // Array de modos seleccionados
+            modes: [],
             lives: 2,
             score: 0,
             level: 1,
+            correctAnswers: 0,    // NUEVO ESTADÍSTICO
+            incorrectAnswers: 0,  // NUEVO ESTADÍSTICO
             challengesCompleted: 0,
             active: false,
             currentChallenge: null,
@@ -362,7 +344,9 @@
             spawnTimer: 0,
             spawnRate: 2000,
             baseSpeed: 1,
-            selectedNumber: null
+            selectedNumber: null,
+            challengeId: 0,
+            wrongSpawnsSinceCorrect: 0 // Controla cuantas figuras malas han caído
         };
 
         function resizeCanvas() {
@@ -405,7 +389,17 @@
         };
 
         function generateChallenge() {
-            // Escoger un modo al azar de la lista de modos activados por el jugador
+            gameState.challengeId = Date.now();
+            gameState.wrongSpawnsSinceCorrect = 0; // Reiniciar contador de distracciones
+            gameState.selectedNumber = null;
+
+            if (gameState.figures.length > 0) {
+                gameState.figures.forEach(f => spawnParticles(f.x, f.y, f.color));
+                gameState.figures = [];
+            }
+            
+            gameState.spawnTimer = gameState.spawnRate;
+
             const randomMode = gameState.modes[Math.floor(Math.random() * gameState.modes.length)];
             gameState.currentChallenge = MathLogic[randomMode]();
             
@@ -420,7 +414,6 @@
             panel.classList.add('bounce');
 
             if (gameState.currentChallenge.type === 'decompose') {
-                gameState.selectedNumber = null;
                 subText.classList.remove('hidden');
                 subText.innerText = "Toca el primer número";
                 subText.className = "text-base md:text-lg text-blue-600 font-bold mt-1";
@@ -429,12 +422,22 @@
             }
         }
 
-        function createFigure(forceCorrect = false, forceLife = false) {
+        // Modificada para ubicar en carriles y evitar que se solapen si caen varias a la vez
+        function createFigure(forceCorrect = false, forceLife = false, spawnIndex = 0, totalSpawning = 1) {
             const width = window.innerWidth;
-            // MEJORA 1: Figuras gigantes y altamente visibles (rango 80px a 120px)
-            const size = Math.random() * 40 + 80; 
-            const x = Math.random() * (width - size * 2) + size;
-            let y = -size;
+            const size = Math.random() * 30 + 70; // 70px - 100px para que quepan varias
+            
+            // Asignación de X en base a carriles para distribución equilibrada
+            const segmentWidth = width / totalSpawning;
+            const minX = spawnIndex * segmentWidth + size;
+            const maxX = (spawnIndex + 1) * segmentWidth - size;
+            let x = Math.random() * (width - size * 2) + size; // fallback
+            
+            if (maxX > minX) {
+                x = Math.random() * (maxX - minX) + minX;
+            }
+            
+            let y = -size - (Math.random() * 60); // Escalonamiento vertical leve
             
             let value, isCorrect = false, isLife = false;
 
@@ -443,11 +446,8 @@
                 value = 'VIDA';
             } else if (gameState.currentChallenge.type === 'decompose') {
                 const target = gameState.currentChallenge.answer;
-                if (forceCorrect) {
-                    value = Math.floor(Math.random() * (target - 1)) + 1;
-                } else {
-                    value = Math.floor(Math.random() * (target + 5));
-                }
+                if (forceCorrect) value = Math.floor(Math.random() * (target - 1)) + 1;
+                else value = Math.floor(Math.random() * (target + 5));
             } else {
                 if (forceCorrect) {
                     value = gameState.currentChallenge.answer;
@@ -456,7 +456,6 @@
                     let target = gameState.currentChallenge.answer;
                     let offset = Math.floor(Math.random() * 10) + 1;
                     value = Math.random() > 0.5 ? target + offset : target - offset;
-                    // Prevenir números negativos
                     if (value < 0) value = 0;
                     if (value === target) value += 1;
                 }
@@ -464,6 +463,7 @@
 
             gameState.figures.push({
                 id: Math.random().toString(36).substr(2, 9),
+                challengeId: gameState.challengeId,
                 x, y,
                 size,
                 type: isLife ? 'heart' : SHAPES[Math.floor(Math.random() * SHAPES.length)],
@@ -492,33 +492,26 @@
 
         function drawShape(ctx, type, x, y, size) {
             ctx.beginPath();
-            if (type === 'circle') {
-                ctx.arc(x, y, size/2, 0, Math.PI * 2);
-            } else if (type === 'square') {
-                ctx.roundRect(x - size/2, y - size/2, size, size, 16);
-            } else if (type === 'triangle') {
+            if (type === 'circle') ctx.arc(x, y, size/2, 0, Math.PI * 2);
+            else if (type === 'square') ctx.roundRect(x - size/2, y - size/2, size, size, 16);
+            else if (type === 'triangle') {
                 ctx.moveTo(x, y - size/2);
                 ctx.lineTo(x + size/2, y + size/2);
                 ctx.lineTo(x - size/2, y + size/2);
                 ctx.closePath();
             } else if (type === 'star') {
-                const spikes = 5;
-                const outerRadius = size / 2;
-                const innerRadius = size / 4;
+                const spikes = 5, outerRadius = size / 2, innerRadius = size / 4;
                 for (let i = 0; i < spikes * 2; i++) {
                     const radius = i % 2 === 0 ? outerRadius : innerRadius;
                     const angle = (i * Math.PI) / spikes;
                     const posX = x + Math.cos(angle - Math.PI/2) * radius;
                     const posY = y + Math.sin(angle - Math.PI/2) * radius;
-                    if (i === 0) ctx.moveTo(posX, posY);
-                    else ctx.lineTo(posX, posY);
+                    if (i === 0) ctx.moveTo(posX, posY); else ctx.lineTo(posX, posY);
                 }
                 ctx.closePath();
-            } else if (type === 'heart') {
-                ctx.arc(x, y, size/2, 0, Math.PI*2);
-            }
-            ctx.fill();
+            } else if (type === 'heart') ctx.arc(x, y, size/2, 0, Math.PI*2);
             
+            ctx.fill();
             ctx.lineWidth = 5;
             ctx.strokeStyle = 'rgba(255,255,255,0.8)';
             ctx.stroke();
@@ -529,28 +522,47 @@
 
             const width = window.innerWidth;
             const height = window.innerHeight;
-
             ctx.clearRect(0, 0, width, height);
 
             gameState.spawnTimer += 16;
             if (gameState.spawnTimer > gameState.spawnRate) {
                 gameState.spawnTimer = 0;
                 
-                if (Math.random() < 0.03 && gameState.lives < 3) {
-                    createFigure(false, true);
-                } else {
-                    let hasCorrect = false;
-                    if (gameState.currentChallenge.type === 'normal') {
-                        hasCorrect = gameState.figures.some(f => f.isCorrect);
-                    } else if (gameState.currentChallenge.type === 'decompose') {
-                        hasCorrect = gameState.figures.length > 2;
+                // SISTEMA DE CAÍDA MÚLTIPLE BASADO EN NIVEL
+                // Nivel 1: cae 1. Nivel 2-3: caen hasta 2. Nivel 4-5: caen hasta 3.
+                let maxSpawns = Math.min(4, 1 + Math.floor(gameState.level / 2));
+                let spawnCount = Math.floor(Math.random() * maxSpawns) + 1;
+                
+                let hasCorrect = gameState.figures.some(f => f.isCorrect && f.challengeId === gameState.challengeId);
+                let correctSpawnedThisTick = false;
+
+                for (let i = 0; i < spawnCount; i++) {
+                    // Vida extra (muy rara)
+                    if (Math.random() < 0.02 && gameState.lives < 3) {
+                        createFigure(false, true, i, spawnCount);
+                        continue;
                     }
 
-                    if (!hasCorrect || Math.random() < 0.3) {
-                        createFigure(true);
+                    let forceCorrect = false;
+
+                    if (gameState.currentChallenge.type === 'decompose') {
+                        hasCorrect = gameState.figures.filter(f => f.challengeId === gameState.challengeId).length > 2;
+                        if (!hasCorrect || Math.random() < 0.35) forceCorrect = true;
                     } else {
-                        createFigure(false);
+                        // ALEATORIEDAD REAL: La respuesta correcta no es obligatoria de inmediato
+                        if (!hasCorrect && !correctSpawnedThisTick) {
+                            // Si han salido 3 o más tandas sin la respuesta, forzarla para que el jugador no desespere
+                            if (Math.random() < 0.3 || gameState.wrongSpawnsSinceCorrect >= 3) {
+                                forceCorrect = true;
+                                correctSpawnedThisTick = true;
+                                gameState.wrongSpawnsSinceCorrect = 0;
+                            } else {
+                                gameState.wrongSpawnsSinceCorrect++;
+                            }
+                        }
                     }
+
+                    createFigure(forceCorrect, false, i, spawnCount);
                 }
             }
 
@@ -566,7 +578,6 @@
                 ctx.shadowColor = 'rgba(0,0,0,0.15)';
                 ctx.shadowBlur = 15;
                 ctx.shadowOffsetY = 8;
-
                 ctx.fillStyle = fig.color;
                 
                 if (fig.isLife) {
@@ -584,8 +595,6 @@
                 
                 ctx.shadowColor = 'transparent';
                 ctx.fillStyle = fig.isLife ? '#ffffff' : 'rgba(0,0,0,0.8)';
-                
-                // MEJORA 1: Texto más grande, grueso y visible
                 let fontSize = fig.isLife ? fig.size * 0.28 : fig.size * 0.45;
                 ctx.font = `900 ${fontSize}px Fredoka, sans-serif`;
                 ctx.textAlign = 'center';
@@ -595,49 +604,52 @@
                 ctx.restore();
 
                 if (fig.y - fig.size > height) {
-                    if (fig.isCorrect && gameState.currentChallenge.type === 'normal') {
-                        loseLife();
-                        generateChallenge();
-                    }
+                    let wasCorrect = fig.isCorrect;
+                    let isNormalType = gameState.currentChallenge.type === 'normal';
+                    
                     gameState.figures.splice(i, 1);
+
+                    // Penalización por dejar caer la respuesta correcta del reto actual
+                    if (wasCorrect && isNormalType && fig.challengeId === gameState.challengeId) {
+                        loseLife();
+                        if (gameState.lives > 0) {
+                            generateChallenge(); 
+                            break; 
+                        }
+                    }
                 }
             }
 
             for (let i = gameState.particles.length - 1; i >= 0; i--) {
                 let p = gameState.particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.025;
-                
-                if (p.life <= 0) {
-                    gameState.particles.splice(i, 1);
-                    continue;
-                }
-
+                p.x += p.vx; p.y += p.vy; p.life -= 0.025;
+                if (p.life <= 0) { gameState.particles.splice(i, 1); continue; }
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life;
-                ctx.fill();
-                ctx.globalAlpha = 1;
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fill(); ctx.globalAlpha = 1;
             }
 
             gameLoopId = requestAnimationFrame(updateAndDraw);
         }
 
-        /** * MEJORA 2: Sistema de Detección de Entrada Unificado (Mouse + Táctil)
-         * Se utiliza 'pointerdown' que funciona perfectamente y rápido en ambas plataformas.
-         */
-        function handleInput(x, y) {
+        /** SISTEMA EXACTO DE DETECCIÓN MULTIPLATAFORMA */
+        function processInteraction(clientX, clientY) {
             if (!gameState.active) return;
             AudioEngine.init();
 
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = (canvas.width / window.devicePixelRatio) / rect.width;
+            const scaleY = (canvas.height / window.devicePixelRatio) / rect.height;
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
+
             for (let i = gameState.figures.length - 1; i >= 0; i--) {
                 let fig = gameState.figures[i];
+                
+                if (fig.challengeId !== gameState.challengeId && !fig.isLife) continue;
+
                 let dist = Math.hypot(fig.x - x, fig.y - y);
                 
-                // MEJORA 2: Margen de clic mucho más grande (+30px extras de Hitbox)
-                // Esto facilita enormemente hacer clic mientras se mueven.
                 if (dist < (fig.size / 2) + 35) { 
                     
                     if (fig.isLife) {
@@ -648,11 +660,8 @@
                     }
 
                     if (gameState.currentChallenge.type === 'normal') {
-                        if (fig.isCorrect) {
-                            handleCorrectAnswer(fig);
-                        } else {
-                            handleWrongAnswer(fig);
-                        }
+                        if (fig.isCorrect) handleCorrectAnswer(fig);
+                        else handleWrongAnswer(fig);
                     } else if (gameState.currentChallenge.type === 'decompose') {
                         handleDecomposeLogic(fig);
                     }
@@ -662,12 +671,18 @@
             }
         }
 
-        // Evento Pointer unificado: reemplaza mousedown y touchstart y evita solapamientos.
-        canvas.addEventListener('pointerdown', (e) => {
-            e.preventDefault(); // Evita emulación doble en móviles
-            handleInput(e.clientX, e.clientY);
-        }, { passive: false });
-        // Evitar el menú contextual en pulsaciones largas móviles
+        let lastEventTime = 0;
+        function handleUnifiedInput(e, clientX, clientY) {
+            e.preventDefault(); 
+            const now = Date.now();
+            if (now - lastEventTime < 30) return; 
+            lastEventTime = now;
+            processInteraction(clientX, clientY);
+        }
+
+        canvas.addEventListener('pointerdown', (e) => handleUnifiedInput(e, e.clientX, e.clientY), { passive: false });
+        canvas.addEventListener('touchstart', (e) => { if (e.touches.length > 0) handleUnifiedInput(e, e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+        canvas.addEventListener('mousedown', (e) => handleUnifiedInput(e, e.clientX, e.clientY), { passive: false });
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
         function handleCorrectAnswer(fig) {
@@ -675,6 +690,7 @@
             spawnParticles(fig.x, fig.y, fig.color);
             gameState.figures = gameState.figures.filter(f => f.id !== fig.id);
             
+            gameState.correctAnswers++; // STAT
             gameState.score += 10 * gameState.level;
             gameState.challengesCompleted++;
             
@@ -696,7 +712,7 @@
             if (!gameState.selectedNumber) {
                 gameState.selectedNumber = fig;
                 AudioEngine.playTone(600, 'sine', 0.1, 0.1);
-                subText.innerText = `Seleccionado: ${fig.value} + ? = ${gameState.currentChallenge.answer}`;
+                subText.innerText = `Elegido: ${fig.value} + ? = ${gameState.currentChallenge.answer}`;
                 subText.className = "text-base md:text-lg text-emerald-600 font-bold mt-1";
             } else {
                 if (gameState.selectedNumber.id === fig.id) return;
@@ -708,6 +724,7 @@
                     spawnParticles(fig.x, fig.y, fig.color);
                     
                     gameState.figures = gameState.figures.filter(f => f.id !== fig.id && f.id !== gameState.selectedNumber.id);
+                    gameState.correctAnswers++; // STAT
                     gameState.score += 20 * gameState.level;
                     gameState.challengesCompleted++;
                     
@@ -725,16 +742,14 @@
 
         function loseLife() {
             gameState.lives--;
+            gameState.incorrectAnswers++; // STAT
             updateHUD();
             
             document.body.classList.add('screen-shake');
             setTimeout(() => document.body.classList.remove('screen-shake'), 300);
 
-            if (gameState.lives <= 0) {
-                gameOver();
-            } else {
-                AudioEngine.playWrong();
-            }
+            if (gameState.lives <= 0) gameOver();
+            else AudioEngine.playWrong();
         }
 
         function gainLife() {
@@ -749,13 +764,14 @@
             }
         }
 
+        // NUEVO SISTEMA DE NIVELES MÁS RÁPIDO Y DESAFIANTE
         function checkLevelUp() {
-            if (gameState.challengesCompleted >= 3) {
+            if (gameState.challengesCompleted >= 2) { // Sube de nivel cada 2 correctas
                 gameState.challengesCompleted = 0;
                 gameState.level++;
                 
-                gameState.baseSpeed += 0.35;
-                gameState.spawnRate = Math.max(500, gameState.spawnRate - 150);
+                gameState.baseSpeed += 0.4; // Aumenta velocidad más agresivamente
+                gameState.spawnRate = Math.max(600, gameState.spawnRate - 120); // Caída más seguida
                 
                 const lvlDisp = document.getElementById('level-display');
                 lvlDisp.classList.add('bounce');
@@ -767,19 +783,20 @@
             document.getElementById('score-display').innerText = gameState.score;
             document.getElementById('level-display').innerText = gameState.level;
             
+            // Actualizar Estadísticas
+            document.getElementById('correct-display').innerText = gameState.correctAnswers;
+            document.getElementById('incorrect-display').innerText = gameState.incorrectAnswers;
+
+            // Actualizar Corazones
             const livesDiv = document.getElementById('lives-display');
             livesDiv.innerHTML = '';
             for(let i=0; i<2; i++) {
-                if(i < gameState.lives) {
-                    livesDiv.innerHTML += `<span class="heart bounce">❤️</span>`;
-                } else {
-                    livesDiv.innerHTML += `<span class="heart lost">🖤</span>`;
-                }
+                if(i < gameState.lives) livesDiv.innerHTML += `<span class="heart bounce">❤️</span>`;
+                else livesDiv.innerHTML += `<span class="heart lost">🖤</span>`;
             }
         }
 
-        /** * MEJORA 3 y 4: Menú Checkboxes Dinámico 
-         */
+        /** FLUJO DE MENÚS Y PANTALLAS */
         function startSelectedGame() {
             const checkboxes = document.querySelectorAll('.mode-checkbox:checked');
             const selectedModes = Array.from(checkboxes).map(cb => cb.value);
@@ -789,7 +806,6 @@
                 return;
             }
             document.getElementById('menu-warning').classList.add('hidden');
-            
             startGame(selectedModes);
         }
 
@@ -801,6 +817,8 @@
                 lives: 2,
                 score: 0,
                 level: 1,
+                correctAnswers: 0,
+                incorrectAnswers: 0,
                 challengesCompleted: 0,
                 active: true,
                 currentChallenge: null,
@@ -809,7 +827,9 @@
                 spawnTimer: 0,
                 spawnRate: 2000,
                 baseSpeed: 1,
-                selectedNumber: null
+                selectedNumber: null,
+                challengeId: 0,
+                wrongSpawnsSinceCorrect: 0
             };
 
             document.getElementById('menu-screen').classList.add('hidden');
@@ -836,15 +856,27 @@
             goScreen.classList.add('flex');
             
             document.getElementById('final-score').innerText = gameState.score;
+            document.getElementById('final-level').innerText = gameState.level;
         }
 
         function restartMode() {
-            startGame(gameState.modes); // Reinicia con los modos seleccionados previamente
+            startGame(gameState.modes);
         }
 
         function goMenu() {
             document.getElementById('game-over-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.remove('flex');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            document.getElementById('menu-screen').classList.add('flex');
+        }
+
+        // Nueva función para regresar al menú en medio de una partida
+        function returnToMenu() {
+            gameState.active = false;
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            
+            document.getElementById('game-ui').classList.add('hidden');
+            document.getElementById('game-ui').classList.remove('flex');
             
             document.getElementById('menu-screen').classList.remove('hidden');
             document.getElementById('menu-screen').classList.add('flex');
