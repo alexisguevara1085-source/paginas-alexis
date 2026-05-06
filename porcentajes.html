@@ -1,0 +1,378 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { 
+  Calculator, 
+  BrainCircuit, 
+  Percent, 
+  ShoppingBag, 
+  Settings, 
+  CheckCircle2, 
+  XCircle, 
+  Clock, 
+  Trophy, 
+  AlertTriangle,
+  ArrowRight
+} from 'lucide-react';
+
+const SECTIONS = [
+  { id: 1, title: 'El 10% de todo', icon: <Percent size={20} /> },
+  { id: 2, title: 'Múltiplos de 10%', icon: <Calculator size={20} /> },
+  { id: 3, title: 'Cualquier Porcentaje', icon: <BrainCircuit size={20} /> },
+  { id: 4, title: 'Problemas Reales', icon: <ShoppingBag size={20} /> }
+];
+
+export default function App() {
+  const [currentSection, setCurrentSection] = useState(1);
+  const [digitCount, setDigitCount] = useState(2);
+  const [score, setScore] = useState({ correct: 0, incorrect: 0 });
+  const [time, setTime] = useState(0);
+  const [question, setQuestion] = useState(null);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [feedback, setFeedback] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+
+  // Temporizador
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  // Generador de números según las cifras seleccionadas
+  const generateNumber = (digits) => {
+    const min = Math.pow(10, digits - 1);
+    const max = Math.pow(10, digits) - 1;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  // Generar preguntas dependiendo de la sección
+  const generateQuestion = useCallback(() => {
+    let p, n, text, answer, context;
+    
+    // Limpiar estado
+    setUserAnswer('');
+    setFeedback(null);
+
+    switch (currentSection) {
+      case 1:
+        // Sección 1: Siempre el 10%
+        p = 10;
+        // Para empezar fácil, generamos números que terminen en 0, luego cualquier número
+        n = Math.random() > 0.5 ? generateNumber(digitCount) : generateNumber(digitCount - 1) * 10;
+        if(n === 0) n = 10; // Evitar ceros
+        answer = parseFloat((n * 0.1).toFixed(2));
+        text = `¿Cuál es el 10% de ${n}?`;
+        break;
+
+      case 2:
+        // Sección 2: Múltiplos de 10 (20%, 30%, ... 90%)
+        p = Math.floor(Math.random() * 8 + 2) * 10; // 20 a 90
+        n = generateNumber(digitCount);
+        answer = parseFloat(((p / 100) * n).toFixed(2));
+        text = `¿Cuál es el ${p}% de ${n}?`;
+        break;
+
+      case 3:
+        // Sección 3: Cualquier porcentaje
+        p = Math.floor(Math.random() * 99) + 1;
+        n = generateNumber(digitCount);
+        answer = parseFloat(((p / 100) * n).toFixed(2));
+        text = `¿Cuál es el ${p}% de ${n}?`;
+        break;
+
+      case 4:
+        // Sección 4: Problemas aplicados
+        const problems = [
+          {
+            gen: () => {
+              const pp = Math.floor(Math.random() * 10 + 1) * 5; // 5%, 10%, 15%...
+              const nn = generateNumber(3) * 100; // Precios grandes
+              return { p: pp, n: nn, t: `En una tienda hay un descuento del ${pp}% en una computadora que cuesta $${nn}. ¿De cuánto dinero es el descuento en pesos?` };
+            }
+          },
+          {
+            gen: () => {
+              const pp = Math.floor(Math.random() * 90) + 10;
+              const nn = generateNumber(3);
+              return { p: pp, n: nn, t: `Si el ${pp}% de un terreno de ${nn} metros cuadrados se usará para sembrar maíz, ¿cuántos metros cuadrados se sembrarán?` };
+            }
+          },
+          {
+            gen: () => {
+              const pp = Math.floor(Math.random() * 4 + 1) * 20; // 20, 40, 60, 80
+              const nn = generateNumber(2) * 10;
+              return { p: pp, n: nn, t: `Un tanque de agua de ${nn} litros está lleno al ${pp}%. ¿Cuántos litros de agua contiene actualmente?` };
+            }
+          },
+          {
+            gen: () => {
+              const pp = Math.floor(Math.random() * 15 + 1); // Porcentajes bajos
+              const nn = generateNumber(4);
+              return { p: pp, n: nn, t: `De una producción de ${nn} bombillas, el ${pp}% salieron defectuosas. ¿Cuántas bombillas defectuosas hay?` };
+            }
+          }
+        ];
+        
+        const selectedProblem = problems[Math.floor(Math.random() * problems.length)].gen();
+        p = selectedProblem.p;
+        n = selectedProblem.n;
+        text = selectedProblem.t;
+        answer = parseFloat(((p / 100) * n).toFixed(2));
+        break;
+        
+      default:
+        break;
+    }
+
+    setQuestion({ p, n, text, answer });
+  }, [currentSection, digitCount]);
+
+  useEffect(() => {
+    generateQuestion();
+  }, [generateQuestion]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!userAnswer) return;
+
+    // Normalizar respuesta (cambiar coma por punto para decimales)
+    const parsedAnswer = parseFloat(userAnswer.replace(',', '.'));
+    const isCorrect = parsedAnswer === question.answer;
+
+    let feedbackMessage = '';
+
+    if (isCorrect) {
+      setScore(prev => ({ ...prev, correct: prev.correct + 1 }));
+      feedbackMessage = `¡Excelente! El ${question.p}% de ${question.n} es exactamente ${question.answer}.`;
+    } else {
+      setScore(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
+      
+      // Lógica de retroalimentación inteligente basada en la sección
+      const diezPorciento = parseFloat((question.n * 0.1).toFixed(2));
+      
+      switch (currentSection) {
+        case 1:
+          feedbackMessage = `Recuerda: Para sacar el 10% de cualquier número, solo debes dividirlo entre 10 (mover la coma un espacio a la izquierda). El 10% de ${question.n} es ${question.answer}.`;
+          break;
+        case 2:
+          const multiplicador = question.p / 10;
+          feedbackMessage = `¡Piénsalo así! Primero saca el 10% de ${question.n}, que es ${diezPorciento}. Como te piden el ${question.p}%, solo debes multiplicar ese ${diezPorciento} por ${multiplicador}. Así: ${diezPorciento} x ${multiplicador} = ${question.answer}.`;
+          break;
+        case 3:
+        case 4:
+          feedbackMessage = `Estrategia: El 10% de ${question.n} es ${diezPorciento}. El 1% sería ${parseFloat((question.n * 0.01).toFixed(2))}. Usando estas bases, el ${question.p}% exacto es ${question.answer}.`;
+          break;
+        default:
+          feedbackMessage = `La respuesta correcta era ${question.answer}.`;
+      }
+    }
+
+    setFeedback({ isCorrect, message: feedbackMessage });
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && feedback) {
+      generateQuestion();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+      {/* Header / Dashboard */}
+      <header className="bg-indigo-600 text-white p-4 shadow-md sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto flex flex-wrap justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="bg-white text-indigo-600 p-2 rounded-full">
+              <Percent size={24} className="font-bold" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight">Maestro de Porcentajes</h1>
+          </div>
+          
+          <div className="flex items-center gap-6 text-sm font-medium bg-indigo-700/50 px-4 py-2 rounded-xl">
+            <div className="flex items-center gap-2">
+              <Clock size={18} className="text-indigo-200" />
+              <span className="tabular-nums">{formatTime(time)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-green-300">
+              <Trophy size={18} />
+              <span>{score.correct} Aciertos</span>
+            </div>
+            <div className="flex items-center gap-2 text-red-300">
+              <AlertTriangle size={18} />
+              <span>{score.incorrect} Fallos</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto p-4 py-8">
+        
+        {/* Navegación de Secciones */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {SECTIONS.map((sec) => (
+            <button
+              key={sec.id}
+              onClick={() => setCurrentSection(sec.id)}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-200 border-2 ${
+                currentSection === sec.id 
+                  ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm scale-105' 
+                  : 'bg-white border-slate-200 text-slate-500 hover:border-indigo-300 hover:bg-slate-50'
+              }`}
+            >
+              <div className="mb-2">{sec.icon}</div>
+              <span className="text-sm font-semibold text-center leading-tight">{sec.title}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Panel de Configuración (solo visible si lo abren) */}
+        <div className="mb-6 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <button 
+            onClick={() => setShowSettings(!showSettings)}
+            className="w-full flex items-center justify-between p-4 bg-slate-100 hover:bg-slate-200 transition-colors"
+          >
+            <div className="flex items-center gap-2 font-medium text-slate-700">
+              <Settings size={18} />
+              <span>Configuración del Nivel</span>
+            </div>
+            <span className="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">
+              {digitCount} cifras
+            </span>
+          </button>
+          
+          {showSettings && (
+            <div className="p-6 border-t border-slate-200 bg-white">
+              <label className="block text-sm font-medium text-slate-700 mb-4">
+                Elige la cantidad de cifras para los números base (dificultad):
+              </label>
+              <div className="flex gap-3 flex-wrap">
+                {[2, 3, 4, 5, 6].map(num => (
+                  <button
+                    key={num}
+                    onClick={() => {
+                      setDigitCount(num);
+                      setShowSettings(false); // Autoclose
+                    }}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                      digitCount === num 
+                        ? 'bg-indigo-600 text-white shadow-md' 
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {num} {num === 1 ? 'cifra' : 'cifras'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Área de Juego */}
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 relative overflow-hidden">
+          {/* Decorative background circle */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+          
+          <div className="relative z-10 max-w-2xl mx-auto text-center">
+            
+            <h2 className="text-slate-500 font-semibold mb-2 uppercase tracking-wider text-sm">
+              Nivel {currentSection}: {SECTIONS.find(s => s.id === currentSection)?.title}
+            </h2>
+            
+            {question && (
+              <div className="min-h-[120px] flex items-center justify-center mb-8">
+                <p className="text-3xl md:text-4xl font-bold text-slate-800 leading-tight">
+                  {question.text}
+                </p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+              <div className="relative flex items-center justify-center mb-6">
+                <input
+                  type="number"
+                  step="any"
+                  disabled={feedback !== null}
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Escribe tu respuesta aquí..."
+                  className={`w-full text-center text-2xl font-bold p-4 rounded-xl border-4 outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    feedback 
+                      ? feedback.isCorrect 
+                        ? 'border-green-400 bg-green-50 text-green-800' 
+                        : 'border-red-400 bg-red-50 text-red-800'
+                      : 'border-indigo-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100'
+                  }`}
+                  autoFocus
+                />
+              </div>
+
+              {!feedback ? (
+                <button
+                  type="submit"
+                  disabled={!userAnswer}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                >
+                  Comprobar <ArrowRight size={24} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={generateQuestion}
+                  className={`w-full font-bold text-lg py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                    feedback.isCorrect 
+                      ? 'bg-green-500 hover:bg-green-600 shadow-green-200 text-white' 
+                      : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 text-white'
+                  }`}
+                  autoFocus
+                >
+                  Siguiente Ejercicio <ArrowRight size={24} />
+                </button>
+              )}
+            </form>
+
+            {/* Caja de Retroalimentación */}
+            {feedback && (
+              <div className={`mt-8 p-6 rounded-2xl text-left border ${
+                feedback.isCorrect 
+                  ? 'bg-green-50 border-green-200 text-green-900' 
+                  : 'bg-red-50 border-red-200 text-red-900'
+              } animate-in fade-in slide-in-from-bottom-4 duration-300`}>
+                <div className="flex items-start gap-4">
+                  <div className="mt-1">
+                    {feedback.isCorrect ? (
+                      <CheckCircle2 className="text-green-500" size={28} />
+                    ) : (
+                      <XCircle className="text-red-500" size={28} />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className={`font-bold text-lg mb-1 ${feedback.isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+                      {feedback.isCorrect ? '¡Muy bien!' : '¡Incorrecto!'}
+                    </h3>
+                    <p className="text-base leading-relaxed opacity-90">
+                      {feedback.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+          </div>
+        </div>
+        
+        {/* Tip Educativo */}
+        <div className="mt-8 text-center text-slate-500 text-sm max-w-2xl mx-auto">
+          <p>💡 <strong>Regla de oro:</strong> Si alguna vez dudas con un porcentaje, ¡saca el 10% primero! Solo tienes que correr el punto decimal un espacio hacia la izquierda. A partir de ahí, ¡todo es más fácil!</p>
+        </div>
+
+      </main>
+    </div>
+  );
+}
