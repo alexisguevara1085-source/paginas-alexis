@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maestro de Porcentajes</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Animación personalizada para el feedback */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: slideUpFade 0.3s ease-out forwards;
+        }
+        /* Ocultar flechas del input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
+
+    <!-- Header / Dashboard -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <div class="bg-white text-indigo-600 p-2 rounded-full">
+                    <i data-lucide="percent" class="w-6 h-6 font-bold"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">Maestro de Porcentajes</h1>
+            </div>
+            
+            <div class="flex items-center gap-6 text-sm font-medium bg-indigo-700/50 px-4 py-2 rounded-xl">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-indigo-200"></i>
+                    <span id="time-display" class="tabular-nums">00:00</span>
+                </div>
+                <div class="flex items-center gap-2 text-green-300">
+                    <i data-lucide="trophy" class="w-4 h-4"></i>
+                    <span id="score-correct">0 Aciertos</span>
+                </div>
+                <div class="flex items-center gap-2 text-red-300">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    <span id="score-incorrect">0 Fallos</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 py-8">
+        
+        <!-- Navegación de Secciones -->
+        <div id="sections-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <!-- Los botones se generan por JS -->
+        </div>
+
+        <!-- Panel de Configuración -->
+        <div class="mb-6 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <button id="settings-toggle" class="w-full flex items-center justify-between p-4 bg-slate-100 hover:bg-slate-200 transition-colors">
+                <div class="flex items-center gap-2 font-medium text-slate-700">
+                    <i data-lucide="settings" class="w-[18px] h-[18px]"></i>
+                    <span>Configuración del Nivel</span>
+                </div>
+                <span id="settings-badge" class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">
+                    2 cifras
+                </span>
+            </button>
+            
+            <div id="settings-panel" class="hidden p-6 border-t border-slate-200 bg-white">
+                <label class="block text-sm font-medium text-slate-700 mb-4">
+                    Elige la cantidad de cifras para los números base (dificultad):
+                </label>
+                <div id="digits-container" class="flex gap-3 flex-wrap">
+                    <!-- Botones de cifras se generan por JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Juego -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 relative overflow-hidden">
+            <!-- Decorative background circle -->
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+            
+            <div class="relative z-10 max-w-2xl mx-auto text-center">
+                
+                <h2 id="level-title" class="text-slate-500 font-semibold mb-2 uppercase tracking-wider text-sm">
+                    Nivel 1: El 10% de todo
+                </h2>
+                
+                <div class="min-h-[120px] flex items-center justify-center mb-8">
+                    <p id="question-text" class="text-3xl md:text-4xl font-bold text-slate-800 leading-tight">
+                        Cargando...
+                    </p>
+                </div>
+
+                <form id="game-form" class="max-w-md mx-auto">
+                    <div class="relative flex items-center justify-center mb-6">
+                        <input
+                            type="number"
+                            step="any"
+                            id="answer-input"
+                            placeholder="Escribe tu respuesta aquí..."
+                            class="w-full text-center text-2xl font-bold p-4 rounded-xl border-4 outline-none transition-all duration-200 border-indigo-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            autofocus
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="submit-btn"
+                        disabled
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    >
+                        <span id="submit-text">Comprobar</span> <i data-lucide="arrow-right"></i>
+                    </button>
+                </form>
+
+                <!-- Caja de Retroalimentación -->
+                <div id="feedback-box" class="hidden mt-8 p-6 rounded-2xl text-left border animate-fade-in">
+                    <div class="flex items-start gap-4">
+                        <div id="feedback-icon-container" class="mt-1">
+                            <!-- Icono dinámico -->
+                        </div>
+                        <div>
+                            <h3 id="feedback-title" class="font-bold text-lg mb-1"></h3>
+                            <p id="feedback-message" class="text-base leading-relaxed opacity-90"></p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Tip Educativo -->
+        <div class="mt-8 text-center text-slate-500 text-sm max-w-2xl mx-auto">
+            <p>💡 <strong>Regla de oro:</strong> Si alguna vez dudas con un porcentaje, ¡saca el 10% primero! Solo tienes que correr el punto decimal un espacio hacia la izquierda. A partir de ahí, ¡todo es más fácil!</p>
+        </div>
+
+    </main>
+
+    <script>
+        // --- ESTADO DE LA APLICACIÓN ---
+        const state = {
+            currentSection: 1,
+            digitCount: 2,
+            score: { correct: 0, incorrect: 0 },
+            time: 0,
+            question: null,
+            feedback: null,
+            showSettings: false
+        };
+
+        const SECTIONS = [
+            { id: 1, title: 'El 10% de todo', icon: 'percent' },
+            { id: 2, title: 'Múltiplos de 10%', icon: 'calculator' },
+            { id: 3, title: 'Cualquier Porcentaje', icon: 'brain-circuit' },
+            { id: 4, title: 'Problemas Reales', icon: 'shopping-bag' }
+        ];
+
+        // --- ELEMENTOS DEL DOM ---
+        const dom = {
+            timeDisplay: document.getElementById('time-display'),
+            scoreCorrect: document.getElementById('score-correct'),
+            scoreIncorrect: document.getElementById('score-incorrect'),
+            sectionsContainer: document.getElementById('sections-container'),
+            settingsToggle: document.getElementById('settings-toggle'),
+            settingsPanel: document.getElementById('settings-panel'),
+            settingsBadge: document.getElementById('settings-badge'),
+            digitsContainer: document.getElementById('digits-container'),
+            levelTitle: document.getElementById('level-title'),
+            questionText: document.getElementById('question-text'),
+            gameForm: document.getElementById('game-form'),
+            answerInput: document.getElementById('answer-input'),
+            submitBtn: document.getElementById('submit-btn'),
+            submitText: document.getElementById('submit-text'),
+            feedbackBox: document.getElementById('feedback-box'),
+            feedbackIconContainer: document.getElementById('feedback-icon-container'),
+            feedbackTitle: document.getElementById('feedback-title'),
+            feedbackMessage: document.getElementById('feedback-message')
+        };
+
+        // --- TEMPORIZADOR ---
+        setInterval(() => {
+            state.time++;
+            const m = Math.floor(state.time / 60).toString().padStart(2, '0');
+            const s = (state.time % 60).toString().padStart(2, '0');
+            dom.timeDisplay.innerText = `${m}:${s}`;
+        }, 1000);
+
+        // --- FUNCIONES DE LÓGICA ---
+        const generateNumber = (digits) => {
+            const min = Math.pow(10, digits - 1);
+            const max = Math.pow(10, digits) - 1;
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        };
+
+        const generateQuestion = () => {
+            let p, n, text, answer;
+            state.feedback = null;
+            dom.answerInput.value = '';
+            
+            switch (state.currentSection) {
+                case 1:
+                    p = 10;
+                    n = Math.random() > 0.5 ? generateNumber(state.digitCount) : generateNumber(state.digitCount - 1) * 10;
+                    if(n === 0) n = 10;
+                    answer = parseFloat((n * 0.1).toFixed(2));
+                    text = `¿Cuál es el 10% de ${n}?`;
+                    break;
+                case 2:
+                    p = Math.floor(Math.random() * 8 + 2) * 10; // 20 a 90
+                    n = generateNumber(state.digitCount);
+                    answer = parseFloat(((p / 100) * n).toFixed(2));
+                    text = `¿Cuál es el ${p}% de ${n}?`;
+                    break;
+                case 3:
+                    p = Math.floor(Math.random() * 99) + 1;
+                    n = generateNumber(state.digitCount);
+                    answer = parseFloat(((p / 100) * n).toFixed(2));
+                    text = `¿Cuál es el ${p}% de ${n}?`;
+                    break;
+                case 4:
+                    const problems = [
+                        () => {
+                            const pp = Math.floor(Math.random() * 10 + 1) * 5;
+                            const nn = generateNumber(3) * 100;
+                            return { p: pp, n: nn, t: `En una tienda hay un descuento del ${pp}% en una computadora que cuesta $${nn}. ¿De cuánto dinero es el descuento en pesos?` };
+                        },
+                        () => {
+                            const pp = Math.floor(Math.random() * 90) + 10;
+                            const nn = generateNumber(3);
+                            return { p: pp, n: nn, t: `Si el ${pp}% de un terreno de ${nn} metros cuadrados se usará para sembrar maíz, ¿cuántos metros cuadrados se sembrarán?` };
+                        },
+                        () => {
+                            const pp = Math.floor(Math.random() * 4 + 1) * 20;
+                            const nn = generateNumber(2) * 10;
+                            return { p: pp, n: nn, t: `Un tanque de agua de ${nn} litros está lleno al ${pp}%. ¿Cuántos litros de agua contiene actualmente?` };
+                        },
+                        () => {
+                            const pp = Math.floor(Math.random() * 15 + 1);
+                            const nn = generateNumber(4);
+                            return { p: pp, n: nn, t: `De una producción de ${nn} bombillas, el ${pp}% salieron defectuosas. ¿Cuántas bombillas defectuosas hay?` };
+                        }
+                    ];
+                    const selectedProblem = problems[Math.floor(Math.random() * problems.length)]();
+                    p = selectedProblem.p;
+                    n = selectedProblem.n;
+                    text = selectedProblem.t;
+                    answer = parseFloat(((p / 100) * n).toFixed(2));
+                    break;
+            }
+
+            state.question = { p, n, text, answer };
+            updateUI();
+            dom.answerInput.focus();
+        };
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            
+            // Si ya hay feedback, el botón actúa como "Siguiente"
+            if (state.feedback) {
+                generateQuestion();
+                return;
+            }
+
+            const userAnswer = dom.answerInput.value;
+            if (!userAnswer) return;
+
+            const parsedAnswer = parseFloat(userAnswer.replace(',', '.'));
+            const isCorrect = parsedAnswer === state.question.answer;
+            let feedbackMessage = '';
+
+            if (isCorrect) {
+                state.score.correct++;
+                feedbackMessage = `¡Excelente! El ${state.question.p}% de ${state.question.n} es exactamente ${state.question.answer}.`;
+            } else {
+                state.score.incorrect++;
+                const diezPorciento = parseFloat((state.question.n * 0.1).toFixed(2));
+                
+                switch (state.currentSection) {
+                    case 1:
+                        feedbackMessage = `Recuerda: Para sacar el 10% de cualquier número, solo debes dividirlo entre 10 (mover la coma un espacio a la izquierda). El 10% de ${state.question.n} es ${state.question.answer}.`;
+                        break;
+                    case 2:
+                        const multiplicador = state.question.p / 10;
+                        feedbackMessage = `¡Piénsalo así! Primero saca el 10% de ${state.question.n}, que es ${diezPorciento}. Como te piden el ${state.question.p}%, solo debes multiplicar ese ${diezPorciento} por ${multiplicador}. Así: ${diezPorciento} x ${multiplicador} = ${state.question.answer}.`;
+                        break;
+                    case 3:
+                    case 4:
+                        feedbackMessage = `Estrategia: El 10% de ${state.question.n} es ${diezPorciento}. El 1% sería ${parseFloat((state.question.n * 0.01).toFixed(2))}. Usando estas bases, el ${state.question.p}% exacto es ${state.question.answer}.`;
+                        break;
+                }
+            }
+
+            state.feedback = { isCorrect, message: feedbackMessage };
+            updateUI();
+            dom.submitBtn.focus(); // Enfocar el botón para dar "Enter" rápido
+        };
+
+        // --- ACTUALIZACIÓN DE INTERFAZ (Render) ---
+        const updateUI = () => {
+            // Header Stats
+            dom.scoreCorrect.innerText = `${state.score.correct} Aciertos`;
+            dom.scoreIncorrect.innerText = `${state.score.incorrect} Fallos`;
+
+            // Navegación Secciones
+            dom.sectionsContainer.innerHTML = SECTIONS.map(sec => `
+                <button
+                    onclick="changeSection(${sec.id})"
+                    class="flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-200 border-2 ${
+                        state.currentSection === sec.id 
+                            ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm scale-105' 
+                            : 'bg-white border-slate-200 text-slate-500 hover:border-indigo-300 hover:bg-slate-50'
+                    }"
+                >
+                    <div class="mb-2"><i data-lucide="${sec.icon}" class="w-5 h-5"></i></div>
+                    <span class="text-sm font-semibold text-center leading-tight">${sec.title}</span>
+                </button>
+            `).join('');
+
+            // Settings Config
+            dom.settingsBadge.innerText = `${state.digitCount} cifra${state.digitCount > 1 ? 's' : ''}`;
+            dom.settingsPanel.className = state.showSettings ? 'p-6 border-t border-slate-200 bg-white block' : 'hidden';
+            
+            dom.digitsContainer.innerHTML = [2, 3, 4, 5, 6].map(num => `
+                <button
+                    onclick="changeDigits(${num})"
+                    class="px-4 py-2 rounded-lg font-semibold transition-colors ${
+                        state.digitCount === num 
+                            ? 'bg-indigo-600 text-white shadow-md' 
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }"
+                >
+                    ${num} cifra${num > 1 ? 's' : ''}
+                </button>
+            `).join('');
+
+            // Question Area
+            const currentSecObj = SECTIONS.find(s => s.id === state.currentSection);
+            dom.levelTitle.innerText = `Nivel ${currentSecObj.id}: ${currentSecObj.title}`;
+            
+            if (state.question) {
+                dom.questionText.innerText = state.question.text;
+            }
+
+            // Input state
+            dom.answerInput.disabled = state.feedback !== null;
+            if(state.feedback === null) dom.submitBtn.disabled = dom.answerInput.value === '';
+
+            // Input / Button Styling based on feedback
+            if (state.feedback) {
+                dom.answerInput.className = `w-full text-center text-2xl font-bold p-4 rounded-xl border-4 outline-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    state.feedback.isCorrect 
+                        ? 'border-green-400 bg-green-50 text-green-800' 
+                        : 'border-red-400 bg-red-50 text-red-800'
+                }`;
+                
+                dom.submitBtn.className = `w-full font-bold text-lg py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                    state.feedback.isCorrect 
+                        ? 'bg-green-500 hover:bg-green-600 shadow-green-200 text-white' 
+                        : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 text-white'
+                }`;
+                dom.submitBtn.disabled = false;
+                dom.submitText.innerText = "Siguiente Ejercicio";
+
+                // Feedback Box Content
+                dom.feedbackBox.className = `mt-8 p-6 rounded-2xl text-left border animate-fade-in block ${
+                    state.feedback.isCorrect 
+                        ? 'bg-green-50 border-green-200 text-green-900' 
+                        : 'bg-red-50 border-red-200 text-red-900'
+                }`;
+                
+                dom.feedbackIconContainer.innerHTML = state.feedback.isCorrect 
+                    ? `<i data-lucide="check-circle-2" class="text-green-500 w-7 h-7"></i>`
+                    : `<i data-lucide="x-circle" class="text-red-500 w-7 h-7"></i>`;
+                
+                dom.feedbackTitle.innerText = state.feedback.isCorrect ? '¡Muy bien!' : '¡Incorrecto!';
+                dom.feedbackTitle.className = `font-bold text-lg mb-1 ${state.feedback.isCorrect ? 'text-green-700' : 'text-red-700'}`;
+                dom.feedbackMessage.innerText = state.feedback.message;
+                
+            } else {
+                dom.answerInput.className = "w-full text-center text-2xl font-bold p-4 rounded-xl border-4 outline-none transition-all duration-200 border-indigo-100 bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed";
+                dom.submitBtn.className = "w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2";
+                dom.submitText.innerText = "Comprobar";
+                dom.feedbackBox.className = "hidden";
+            }
+
+            // Re-renderizar iconos dinámicos
+            lucide.createIcons();
+        };
+
+        // --- LISTENERS EXTERNOS Y GLOBALES ---
+        dom.gameForm.addEventListener('submit', handleSubmit);
+        
+        dom.answerInput.addEventListener('input', () => {
+            dom.submitBtn.disabled = dom.answerInput.value === '';
+        });
+
+        dom.settingsToggle.addEventListener('click', () => {
+            state.showSettings = !state.showSettings;
+            updateUI();
+        });
+
+        // Funciones expuestas al scope global para los botones
+        window.changeSection = (id) => {
+            state.currentSection = id;
+            generateQuestion();
+        };
+
+        window.changeDigits = (num) => {
+            state.digitCount = num;
+            state.showSettings = false;
+            generateQuestion();
+        };
+
+        // --- INICIALIZACIÓN ---
+        lucide.createIcons();
+        generateQuestion();
+
+    </script>
+</body>
+</html>
