@@ -1,10 +1,8 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portal Matemático Alexis</title>
 
 <style>
@@ -37,7 +35,6 @@ header h1{
 
 header p{
     font-size:1.1rem;
-    opacity:0.95;
 }
 
 /* NAV */
@@ -52,7 +49,7 @@ nav{
 
 nav button{
     border:none;
-    padding:14px 25px;
+    padding:14px 24px;
     border-radius:12px;
     cursor:pointer;
     font-size:1rem;
@@ -63,8 +60,8 @@ nav button{
 }
 
 nav button:hover{
-    transform:translateY(-3px);
     background:#1d4ed8;
+    transform:translateY(-3px);
 }
 
 /* SECCIONES */
@@ -80,7 +77,7 @@ nav button:hover{
 
 .section-title{
     font-size:2rem;
-    margin-bottom:25px;
+    margin-bottom:30px;
     color:#1e3a8a;
 }
 
@@ -91,18 +88,27 @@ nav button:hover{
 }
 
 .grade-title{
-    font-size:1.4rem;
+    font-size:1.5rem;
     margin-bottom:20px;
     color:#2563eb;
     border-left:6px solid #2563eb;
     padding-left:12px;
 }
 
+/* SUBTITULOS */
+
+.subcategory{
+    margin-top:25px;
+    margin-bottom:15px;
+    color:#1e40af;
+    font-size:1.2rem;
+}
+
 /* CARDS */
 
 .cards{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
     gap:20px;
 }
 
@@ -124,15 +130,15 @@ nav button:hover{
 }
 
 .card p{
-    margin-bottom:10px;
     line-height:1.5;
+    margin-bottom:10px;
 }
 
 .tag{
     display:inline-block;
+    padding:6px 10px;
     background:#dbeafe;
     color:#1d4ed8;
-    padding:6px 10px;
     border-radius:8px;
     font-size:0.85rem;
     margin-bottom:12px;
@@ -142,13 +148,12 @@ nav button:hover{
 .card a{
     display:inline-block;
     margin-top:10px;
-    text-decoration:none;
     background:#2563eb;
     color:white;
-    padding:10px 16px;
+    text-decoration:none;
+    padding:10px 15px;
     border-radius:10px;
     font-weight:bold;
-    transition:0.3s;
 }
 
 .card a:hover{
@@ -158,12 +163,14 @@ nav button:hover{
 /* FOOTER */
 
 footer{
-    text-align:center;
-    padding:30px;
     background:#1e3a8a;
     color:white;
-    margin-top:40px;
+    text-align:center;
+    padding:30px;
+    margin-top:50px;
 }
+
+/* RESPONSIVE */
 
 @media(max-width:600px){
 
@@ -188,7 +195,7 @@ footer{
 
 <header>
     <h1>📘 Portal Matemático Alexis</h1>
-    <p>Biblioteca interactiva de actividades matemáticas</p>
+    <p>Biblioteca interactiva de matemáticas</p>
 </header>
 
 <nav>
@@ -197,302 +204,480 @@ footer{
     <button onclick="showSection('interactivo')">🎮 Interactivo</button>
 </nav>
 
-<!-- ================= PRIMARIA ================= -->
+<!-- ======================= PRIMARIA ======================= -->
 
 <section id="primaria" class="section active">
 
-    <h2 class="section-title">📘 Primaria</h2>
+<h2 class="section-title">📘 Primaria</h2>
 
-    <!-- GRADO 1 -->
+<!-- GRADO 1 -->
 
-    <div class="grade-block">
+<div class="grade-block">
 
-        <h3 class="grade-title">Grado 1</h3>
+<h3 class="grade-title">Grado 1</h3>
 
-        <div class="cards">
+<h4 class="subcategory">📚 Aplicaciones de repaso</h4>
 
-            <div class="card">
-                <span class="tag">Juego</span>
-                <h3>2 y 3 cifras</h3>
-                <p>Repaso de números de dos y tres cifras con base 10 y representación.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/2y3cifras.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="cards">
 
-            <div class="card">
-                <span class="tag">Visual</span>
-                <h3>Cálculo mental 1 a 10</h3>
-                <p>Sumar la cantidad representada por dos dados.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/calculomental1a10.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>2 y 3 cifras</h3>
+<p>Repaso de números de dos y tres cifras con base 10.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/2y3cifras.html" target="_blank">Abrir</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Visual</span>
-                <h3>Descomposición 1 a 10</h3>
-                <p>Descomposición de números de una cifra en dos sumandos.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/descomposicion1a10.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Comparar números</h3>
+<p>Comparar cantidades y ordenar números.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/comparar.html" target="_blank">Abrir</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Visual</span>
-                <h3>Números dos cifras</h3>
-                <p>Representación visual de números de dos cifras en base 10.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/numerosdoscifras.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Descomposición 1 a 10</h3>
+<p>Descomponer un número de una cifra en dos sumandos.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/descomposicion1a10.html" target="_blank">Abrir</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Ejercicios</span>
-                <h3>Comparar números</h3>
-                <p>Comparar cantidades y ordenar números.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/comparar.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Números dos cifras</h3>
+<p>Representación visual de números de dos cifras en base 10.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/numerosdoscifras.html" target="_blank">Abrir</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Cálculo mental</span>
-                <h3>Cálculo mental 10</h3>
-                <p>Encontrar cuánto falta para llegar al número 10.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/calculomental10.html" target="_blank">Abrir actividad</a>
-            </div>
+</div>
 
-        </div>
+<h4 class="subcategory">🎮 Juegos y cálculo mental</h4>
 
-    </div>
+<div class="cards">
 
-    <!-- GRADO 2 -->
+<div class="card">
+<span class="tag">Cálculo mental</span>
+<h3>Cálculo mental 10</h3>
+<p>Encontrar cuánto falta para llegar al 10.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/calculomental10.html" target="_blank">Abrir</a>
+</div>
 
-    <div class="grade-block">
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego de conteo - Jumping Chicks</h3>
+<p>Saltar al valor indicado correctamente.</p>
+<a href="https://www.arcademics.com/games/jumping-chicks" target="_blank">Abrir juego</a>
+</div>
 
-        <h3 class="grade-title">Grado 2</h3>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego de conteo - Koala Karts</h3>
+<p>Carreras dando el valor correcto de una cifra.</p>
+<a href="https://www.arcademics.com/games/koala-karts" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="cards">
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego de suma - Alien Addition</h3>
+<p>Destruir naves alienígenas resolviendo sumas.</p>
+<a href="https://www.arcademics.com/games/alien" target="_blank">Abrir juego</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Visual</span>
-                <h3>Base 10</h3>
-                <p>Representación visual de tablas de multiplicar en filas y columnas.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/representacion-filas-columnas-veces.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego de suma - Jet Ski</h3>
+<p>Carrera de motos acuáticas resolviendo sumas.</p>
+<a href="https://www.arcademics.com/games/jet-ski" target="_blank">Abrir juego</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Interactivo</span>
-                <h3>Tablas</h3>
-                <p>Generador interactivo de tablas de multiplicar.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/tablas.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego de suma - Skateboard Pups</h3>
+<p>Competencia de patinetas resolviendo sumas.</p>
+<a href="https://www.arcademics.com/games/skateboard-pups" target="_blank">Abrir juego</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Visual</span>
-                <h3>Hasta 100</h3>
-                <p>Repaso de cuánto falta para llegar al 100.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/hasta100.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego de suma - Tugboat Addition</h3>
+<p>Competencia de barcos resolviendo sumas.</p>
+<a href="https://www.arcademics.com/games/tugboat-addition" target="_blank">Abrir juego</a>
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
+
+<!-- GRADO 2 -->
+
+<div class="grade-block">
+
+<h3 class="grade-title">Grado 2</h3>
+
+<h4 class="subcategory">📚 Aplicaciones de repaso</h4>
+
+<div class="cards">
+
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Base 10</h3>
+<p>Representación visual de multiplicaciones en filas y columnas.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/representacion-filas-columnas-veces.html" target="_blank">Abrir</a>
+</div>
+
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Hasta 100</h3>
+<p>Repaso de cálculo mental hasta 100.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/hasta100.html" target="_blank">Abrir</a>
+</div>
+
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Tablas</h3>
+<p>Generador interactivo de tablas de multiplicar.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/tablas.html" target="_blank">Abrir</a>
+</div>
+
+</div>
+
+<h4 class="subcategory">🎮 Juegos</h4>
+
+<div class="cards">
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego de composición numérica - Kitten Match</h3>
+<p>Componer números de dos cifras.</p>
+<a href="https://www.arcademics.com/games/kitten-match" target="_blank">Abrir juego</a>
+</div>
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego tablas de multiplicar - Grand Prix</h3>
+<p>Carreras de carros resolviendo multiplicaciones.</p>
+<a href="https://www.arcademics.com/games/grand-prix" target="_blank">Abrir juego</a>
+</div>
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego tablas de multiplicar - Meteor</h3>
+<p>Destruir meteoritos resolviendo multiplicaciones.</p>
+<a href="https://www.arcademics.com/games/meteor" target="_blank">Abrir juego</a>
+</div>
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego tablas de multiplicar - Penguin Jump</h3>
+<p>Saltar al resultado correcto de la multiplicación.</p>
+<a href="https://www.arcademics.com/games/penguin-jump" target="_blank">Abrir juego</a>
+</div>
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego tablas de multiplicar - Swimming Otters</h3>
+<p>Encontrar el factor correcto para completar multiplicaciones.</p>
+<a href="https://www.arcademics.com/games/swimming-otters" target="_blank">Abrir juego</a>
+</div>
+
+</div>
+
+</div>
+
+<!-- GRADO 5 -->
+
+<div class="grade-block">
+
+<h3 class="grade-title">Grado 5</h3>
+
+<h4 class="subcategory">🎮 Juegos</h4>
+
+<div class="cards">
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego ecuaciones simples - Four Wheel Fracas</h3>
+<p>Encontrar mentalmente el valor de una ecuación simple.</p>
+<a href="https://www.arcademics.com/games/four-wheel-fracas" target="_blank">Abrir juego</a>
+</div>
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego representación de fracciones - Pizza Pandas</h3>
+<p>Buscar la fracción correcta.</p>
+<a href="https://www.arcademics.com/games/pizza-pandas" target="_blank">Abrir juego</a>
+</div>
+
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego multiplicación de fracciones - Snow Sprint</h3>
+<p>Carrera resolviendo multiplicaciones de fracciones.</p>
+<a href="https://www.arcademics.com/games/snow-sprint" target="_blank">Abrir juego</a>
+</div>
+
+</div>
+
+</div>
 
 </section>
 
-<!-- ================= SECUNDARIA ================= -->
+<!-- ======================= SECUNDARIA ======================= -->
 
 <section id="secundaria" class="section">
 
-    <h2 class="section-title">📗 Secundaria</h2>
+<h2 class="section-title">📗 Secundaria</h2>
 
-    <!-- GRADO 6 -->
+<!-- GRADO 6 -->
 
-    <div class="grade-block">
+<div class="grade-block">
 
-        <h3 class="grade-title">Grado 6</h3>
+<h3 class="grade-title">Grado 6</h3>
 
-        <div class="cards">
+<h4 class="subcategory">📚 Aplicaciones de repaso</h4>
 
-            <div class="card">
-                <span class="tag">Ejercicios</span>
-                <h3>Criterios de divisibilidad</h3>
-                <p>Identificar criterios de divisibilidad y factores.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/criteriosdivisibilidad.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="cards">
 
-            <div class="card">
-                <span class="tag">Exploración</span>
-                <h3>Factores</h3>
-                <p>Identificar números primos y factorización.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/factores.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Criterios de divisibilidad</h3>
+<p>Repaso de divisibilidad y factores.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/criteriosdivisibilidad.html" target="_blank">Abrir</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Interactivo</span>
-                <h3>Potenciación y propiedades</h3>
-                <p>Repaso de potencias y propiedades básicas.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/potenciacionpropiedades.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Factores</h3>
+<p>Identificación de números primos y factorización.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/factores.html" target="_blank">Abrir</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Ejercicios</span>
-                <h3>Ley de signos</h3>
-                <p>Operaciones básicas con números enteros.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/leydesignos.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Ley de signos</h3>
+<p>Repaso de operaciones con enteros.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/leydesignos.html" target="_blank">Abrir</a>
+</div>
 
-        </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Potenciación y propiedades</h3>
+<p>Repaso de potencias y propiedades.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/potenciacionpropiedades.html" target="_blank">Abrir</a>
+</div>
 
-    </div>
+</div>
 
-    <!-- GRADO 7 -->
+<h4 class="subcategory">🎮 Juegos</h4>
 
-    <div class="grade-block">
+<div class="cards">
 
-        <h3 class="grade-title">Grado 7</h3>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego fracciones - Speedway</h3>
+<p>Suma y resta de fracciones homogéneas simplificando.</p>
+<a href="https://www.arcademics.com/games/speedway" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="cards">
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego potenciación - Otter Rush</h3>
+<p>Buscar base o exponente correcto.</p>
+<a href="https://www.arcademics.com/games/otter-rush" target="_blank">Abrir juego</a>
+</div>
 
-            <div class="card">
-                <span class="tag">Ejercicios</span>
-                <h3>Números enteros</h3>
-                <p>Operaciones de suma, resta y multiplicación de enteros.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/enteros.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego caída</h3>
+<p>Juego clásico de caída de resultados.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/juegocaida.html" target="_blank">Abrir juego</a>
+</div>
 
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Pac-Man matemático</h3>
+<p>Repaso de operaciones básicas.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/pac-man.html" target="_blank">Abrir juego</a>
+</div>
 
-    </div>
+</div>
 
-    <!-- GRADO 8 -->
+</div>
 
-    <div class="grade-block">
+<!-- GRADO 7 -->
 
-        <h3 class="grade-title">Grado 8</h3>
+<div class="grade-block">
 
-        <div class="cards">
+<h3 class="grade-title">Grado 7</h3>
 
-            <div class="card">
-                <span class="tag">Interactivo</span>
-                <h3>Expresiones algebraicas</h3>
-                <p>Concepto y partes de expresiones algebraicas.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/expresiones.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="cards">
 
-            <div class="card">
-                <span class="tag">Interactivo</span>
-                <h3>Valor numérico</h3>
-                <p>Encontrar el valor numérico de expresiones algebraicas.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/valornumerico.html" target="_blank">Abrir actividad</a>
-            </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Números enteros</h3>
+<p>Operaciones con enteros.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/enteros.html" target="_blank">Abrir</a>
+</div>
 
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego enteros - Integer Warp</h3>
+<p>Carrera espacial con multiplicación de enteros.</p>
+<a href="https://www.arcademics.com/games/integer-warp" target="_blank">Abrir juego</a>
+</div>
 
-    </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego enteros - Orbit Integers</h3>
+<p>Suma y resta de enteros en carreras espaciales.</p>
+<a href="https://www.arcademics.com/games/orbit-integers" target="_blank">Abrir juego</a>
+</div>
 
-    <!-- GRADO 9 -->
+</div>
 
-    <div class="grade-block">
+</div>
 
-        <h3 class="grade-title">Grado 9</h3>
+<!-- GRADO 8 -->
 
-        <div class="cards">
+<div class="grade-block">
 
-            <div class="card">
-                <span class="tag">Ejercicios</span>
-                <h3>Aprendo porcentajes</h3>
-                <p>Ejercicios de cálculo mental de porcentajes.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/aprendoporcentajes.html" target="_blank">Abrir actividad</a>
-            </div>
+<h3 class="grade-title">Grado 8</h3>
 
-        </div>
+<div class="cards">
 
-    </div>
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Expresiones algebraicas</h3>
+<p>Partes y términos de expresiones algebraicas.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/expresiones.html" target="_blank">Abrir</a>
+</div>
 
-    <!-- GRADO 10 -->
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Valor numérico</h3>
+<p>Encontrar el valor numérico de expresiones.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/valornumerico.html" target="_blank">Abrir</a>
+</div>
 
-    <div class="grade-block">
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego álgebra - Jumping Aliens</h3>
+<p>Saltar al resultado correcto de expresiones algebraicas.</p>
+<a href="https://www.arcademics.com/games/jumping-aliens" target="_blank">Abrir juego</a>
+</div>
 
-        <h3 class="grade-title">Grado 10</h3>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego lancha términos</h3>
+<p>Competencia matemática de términos semejantes.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/juegolanchaterminos8.html" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="cards">
+</div>
 
-            <div class="card">
-                <span class="tag">Visual</span>
-                <h3>Razones trigonométricas</h3>
-                <p>Identificación de funciones trigonométricas.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/razones10.html" target="_blank">Abrir actividad</a>
-            </div>
+</div>
 
-            <div class="card">
-                <span class="tag">Visual</span>
-                <h3>Seno y coseno</h3>
-                <p>Gráficas de seno y coseno con círculo unitario.</p>
-                <a href="http://alexisguevara1085-source.github.io/paginas-alexis/senocoseno10.html" target="_blank">Abrir actividad</a>
-            </div>
+<!-- GRADO 9 -->
 
-        </div>
+<div class="grade-block">
 
-    </div>
+<h3 class="grade-title">Grado 9</h3>
+
+<div class="cards">
+
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Aprendo porcentajes</h3>
+<p>Cálculo mental de porcentajes.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/aprendoporcentajes.html" target="_blank">Abrir</a>
+</div>
+
+</div>
+
+</div>
+
+<!-- GRADO 10 -->
+
+<div class="grade-block">
+
+<h3 class="grade-title">Grado 10</h3>
+
+<div class="cards">
+
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Razones trigonométricas</h3>
+<p>Identificación de funciones trigonométricas.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/razones10.html" target="_blank">Abrir</a>
+</div>
+
+<div class="card">
+<span class="tag">Aplicación</span>
+<h3>Seno y coseno</h3>
+<p>Gráficas del seno y coseno.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/senocoseno10.html" target="_blank">Abrir</a>
+</div>
+
+</div>
+
+</div>
 
 </section>
 
-<!-- ================= INTERACTIVO ================= -->
+<!-- ======================= INTERACTIVO ======================= -->
 
 <section id="interactivo" class="section">
 
-    <h2 class="section-title">🎮 Interactivo</h2>
+<h2 class="section-title">🎮 Juegos interactivos</h2>
 
-    <div class="cards">
+<div class="cards">
 
-        <div class="card">
-            <span class="tag">Juego</span>
-            <h3>Juego caída</h3>
-            <p>Juego clásico de caída de resultados matemáticos.</p>
-            <a href="http://alexisguevara1085-source.github.io/paginas-alexis/juegocaida.html" target="_blank">Abrir juego</a>
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Pac-Man matemático</h3>
+<p>Repaso matemático estilo Pac-Man.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/pac-man.html" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="card">
-            <span class="tag">Juego</span>
-            <h3>Pac-Man matemático</h3>
-            <p>Juego estilo Pac-Man para repasar operaciones.</p>
-            <a href="http://alexisguevara1085-source.github.io/paginas-alexis/pac-man.html" target="_blank">Abrir juego</a>
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego caída</h3>
+<p>Juego clásico de caída de resultados.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/juegocaida.html" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="card">
-            <span class="tag">Juego</span>
-            <h3>Juego lancha términos</h3>
-            <p>Competencia matemática de términos semejantes.</p>
-            <a href="http://alexisguevara1085-source.github.io/paginas-alexis/juegolanchaterminos8.html" target="_blank">Abrir juego</a>
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Juego lancha términos</h3>
+<p>Competencia matemática de términos semejantes.</p>
+<a href="http://alexisguevara1085-source.github.io/paginas-alexis/juegolanchaterminos8.html" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="card">
-            <span class="tag">Arcademics</span>
-            <h3>Jumping Chicks</h3>
-            <p>Juego de conteo donde el estudiante debe saltar al valor indicado.</p>
-            <a href="https://www.arcademics.com/games/jumping-chicks" target="_blank">Abrir juego</a>
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Jumping Chicks</h3>
+<p>Juego de conteo.</p>
+<a href="https://www.arcademics.com/games/jumping-chicks" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="card">
-            <span class="tag">Arcademics</span>
-            <h3>Koala Karts</h3>
-            <p>Carreras matemáticas identificando valores de una cifra.</p>
-            <a href="https://www.arcademics.com/games/koala-karts" target="_blank">Abrir juego</a>
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Grand Prix</h3>
+<p>Juego de tablas de multiplicar.</p>
+<a href="https://www.arcademics.com/games/grand-prix" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="card">
-            <span class="tag">Cálculo mental</span>
-            <h3>Cálculo mental 10</h3>
-            <p>Repaso rápido para llegar al número 10.</p>
-            <a href="http://alexisguevara1085-source.github.io/paginas-alexis/calculomental10.html" target="_blank">Abrir actividad</a>
-        </div>
+<div class="card">
+<span class="tag">Juego</span>
+<h3>Jumping Aliens</h3>
+<p>Juego de álgebra interactiva.</p>
+<a href="https://www.arcademics.com/games/jumping-aliens" target="_blank">Abrir juego</a>
+</div>
 
-        <div class="card">
-            <span class="tag">Cálculo mental</span>
-            <h3>Hasta 100</h3>
-            <p>Repaso de cálculo mental hasta 100.</p>
-            <a href="http://alexisguevara1085-source.github.io/paginas-alexis/hasta100.html" target="_blank">Abrir actividad</a>
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 <footer>
-    © 2026 Portal Matemático Alexis
+© 2026 Portal Matemático Alexis
 </footer>
 
 <script>
@@ -512,4 +697,3 @@ function showSection(sectionId){
 
 </body>
 </html>
-```
