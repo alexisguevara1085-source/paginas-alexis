@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aventura de Números - Descomposición</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B6B',
+                        secondary: '#4ECDC4',
+                        accent: '#FFE66D',
+                        darkBg: '#1A202C',
+                        darkCard: '#2D3748'
+                    },
+                    fontFamily: {
+                        sans: ['"Comic Sans MS"', '"Chalkboard SE"', '"Marker Felt"', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'bubbly': '0 8px 0 rgba(0,0,0,0.2)',
+                        'bubbly-active': '0 2px 0 rgba(0,0,0,0.2)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados y animaciones */
+        body {
+            touch-action: none; /* Prevenir scroll al arrastrar en móviles */
+            overflow: hidden;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            transition: background 0.3s ease;
+        }
+        .dark body {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        }
+        
+        .bubbly-btn {
+            transition: all 0.1s ease;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+        }
+        .bubbly-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+        }
+
+        .draggable-item {
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.2));
+            transition: transform 0.2s, filter 0.2s;
+            z-index: 10;
+        }
+        .draggable-item:active, .draggable-item.dragging {
+            cursor: grabbing;
+            transform: scale(1.2);
+            filter: drop-shadow(0px 8px 4px rgba(0,0,0,0.3));
+            z-index: 50;
+        }
+
+        .drop-zone {
+            transition: all 0.3s ease;
+            border: 4px dashed #cbd5e1;
+        }
+        .drop-zone.active {
+            background-color: rgba(78, 205, 196, 0.2);
+            border-color: #4ECDC4;
+            transform: scale(1.02);
+        }
+        .dark .drop-zone { border-color: #4a5568; }
+        .dark .drop-zone.active { border-color: #4ECDC4; }
+
+        @keyframes bounce-in {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-bounce-in {
+            animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Input activo parpadeante */
+        .input-active {
+            border: 4px solid #FF6B6B;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+            animation: pulse-border 1.5s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+        }
+
+        /* Confeti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            z-index: 100;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); }
+        }
+
+        /* Ocultar scrollbars pero mantener funcionalidad si es necesario */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col text-gray-800 dark:text-white font-sans text-lg selection:bg-transparent">
+
+    <!-- PANTALLA 1: INICIO -->
+    <div id="screen-login" class="absolute inset-0 flex flex-col items-center justify-center p-4 z-20 transition-opacity duration-500 bg-white/80 dark:bg-gray-900/90 backdrop-blur-sm">
+        <div class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-2xl max-w-xl w-full text-center border-8 border-secondary transform animate-bounce-in">
+            <h1 class="text-4xl md:text-5xl font-bold text-primary mb-6 drop-shadow-md animate-float">
+                🚀 Aventura de Números 🌟
+            </h1>
+            
+            <p class="mb-4 text-xl font-bold text-gray-600 dark:text-gray-300">¿Cómo te llamas, explorador?</p>
+            <input type="text" id="player-name" placeholder="Escribe tu nombre completo..." maxlength="40" 
+                class="w-full p-4 rounded-2xl border-4 border-gray-200 text-2xl text-center mb-6 focus:border-secondary focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-colors">
+            
+            <p class="mb-4 text-xl font-bold text-gray-600 dark:text-gray-300">Elige tu Avatar:</p>
+            <div class="flex justify-center gap-4 mb-8 flex-wrap" id="avatar-container">
+                <!-- Avatares generados por JS -->
+            </div>
+
+            <button onclick="app.goToNumberSelection()" class="w-full bg-primary hover:bg-red-500 text-white font-bold py-4 px-8 rounded-2xl text-3xl bubbly-btn">
+                ¡Comenzar! 🎮
+            </button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: SELECCIÓN DE NÚMEROS -->
+    <div id="screen-select" class="absolute inset-0 hidden flex-col items-center justify-center p-4 z-20 bg-white/90 dark:bg-gray-900/95 backdrop-blur-sm">
+        <div class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-2xl max-w-2xl w-full text-center border-8 border-accent transform animate-bounce-in">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary mb-6">¿Qué números quieres practicar? 🤔</h2>
+            <p class="text-lg mb-6 dark:text-gray-300">Selecciona al menos un número (1 al 10)</p>
+            
+            <div class="grid grid-cols-5 gap-4 mb-8" id="number-checkboxes">
+                <!-- Checkboxes generados por JS -->
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+                <button onclick="app.showScreen('login')" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-4 px-4 rounded-2xl text-xl md:text-2xl bubbly-btn min-w-[120px]">
+                    ⬅️ Volver
+                </button>
+                <button onclick="app.startGame(1)" class="flex-1 bg-secondary hover:bg-teal-400 text-white font-bold py-4 px-4 rounded-2xl text-xl md:text-2xl bubbly-btn min-w-[150px]">
+                    👐 Repartir
+                </button>
+                <button onclick="app.startGame(2)" class="flex-1 bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 px-4 rounded-2xl text-xl md:text-2xl bubbly-btn min-w-[150px]">
+                    ➕ Sumar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 3: JUEGO -->
+    <div id="screen-game" class="hidden flex-col h-full w-full">
+        
+        <!-- BARRA SUPERIOR -->
+        <header class="bg-white/90 dark:bg-darkCard/90 backdrop-blur-md shadow-md p-2 md:p-4 flex justify-between items-center z-10 shrink-0">
+            <div class="flex items-center gap-2 md:gap-4">
+                <div id="ui-avatar" class="text-3xl md:text-5xl bg-gray-100 dark:bg-gray-700 rounded-full p-2">👦</div>
+                <div>
+                    <h2 id="ui-name" class="font-bold text-xl md:text-2xl text-primary truncate max-w-[150px] md:max-w-[300px]">Nombre</h2>
+                    <div class="flex items-center gap-1 text-sm md:text-base dark:text-gray-300 font-bold">
+                        ⏱️ <span id="ui-time">00:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 md:gap-6 text-center">
+                <div class="bg-green-100 dark:bg-green-900/50 p-2 rounded-xl border-2 border-green-400 min-w-[60px] md:min-w-[80px]">
+                    <div class="text-xl md:text-2xl">✅</div>
+                    <div id="ui-correct" class="font-bold text-green-600 dark:text-green-400">0</div>
+                </div>
+                <div class="bg-red-100 dark:bg-red-900/50 p-2 rounded-xl border-2 border-red-400 min-w-[60px] md:min-w-[80px]">
+                    <div class="text-xl md:text-2xl">❌</div>
+                    <div id="ui-incorrect" class="font-bold text-red-600 dark:text-red-400">0</div>
+                </div>
+                <button onclick="app.backToMenu()" class="p-2 md:p-3 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:hover:bg-blue-800 rounded-xl bubbly-btn text-xl" title="Volver al Menú">
+                    🏠
+                </button>
+                <button onclick="app.toggleDarkMode()" class="p-2 md:p-3 bg-gray-200 dark:bg-gray-700 rounded-xl bubbly-btn text-xl">
+                    🌓
+                </button>
+            </div>
+        </header>
+
+        <!-- ÁREA CENTRAL DE JUEGO -->
+        <main class="flex-1 relative flex flex-col items-center justify-start p-2 overflow-hidden w-full max-w-5xl mx-auto">
+            
+            <!-- Título del Ejercicio -->
+            <div id="exercise-header" class="text-center mb-2 mt-2">
+                <h3 id="exercise-title" class="text-2xl md:text-4xl font-bold text-gray-800 dark:text-white drop-shadow-sm">
+                    ¡Reparte los objetos!
+                </h3>
+                <div id="target-number-display" class="text-5xl md:text-7xl font-bold text-primary my-2 animate-bounce-in drop-shadow-md">
+                    7
+                </div>
+            </div>
+
+            <!-- ZONA DE FIGURAS Y CAJAS -->
+            <div class="w-full flex-1 flex flex-col relative select-none">
+                
+                <!-- Piscina inicial de figuras (Sección 1) -->
+                <div id="pool-zone" class="h-24 md:h-32 bg-white/50 dark:bg-gray-800/50 rounded-3xl border-4 border-dashed border-gray-300 dark:border-gray-600 mb-4 relative flex items-center justify-center flex-wrap gap-2 p-2">
+                    <!-- Elementos generados por JS -->
+                </div>
+
+                <!-- Cajas de descomposición -->
+                <div class="flex w-full gap-4 flex-1 mb-4">
+                    <!-- Grupo 1 -->
+                    <div class="flex-1 flex flex-col items-center">
+                        <div id="zone-1" class="drop-zone w-full flex-1 bg-white dark:bg-darkCard rounded-3xl shadow-lg relative p-2 flex flex-wrap content-start gap-2 overflow-hidden">
+                            <!-- Elementos caen aquí -->
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span class="text-2xl font-bold dark:text-white" id="label-val1">Cantidad:</span>
+                            <div id="input-val1" onclick="app.setActiveInput('val1')" class="w-16 h-16 md:w-20 md:h-20 bg-white dark:bg-gray-700 rounded-2xl border-4 border-gray-300 dark:border-gray-500 text-3xl md:text-4xl font-bold flex items-center justify-center cursor-pointer transition-all input-active">
+                                ?
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Operador visual para Sección 2 -->
+                    <div id="operator-plus" class="hidden flex-col justify-center items-center font-bold text-5xl text-gray-400">
+                        +
+                    </div>
+
+                    <!-- Grupo 2 -->
+                    <div class="flex-1 flex flex-col items-center">
+                        <div id="zone-2" class="drop-zone w-full flex-1 bg-white dark:bg-darkCard rounded-3xl shadow-lg relative p-2 flex flex-wrap content-start gap-2 overflow-hidden">
+                            <!-- Elementos caen aquí -->
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span class="text-2xl font-bold dark:text-white" id="label-val2">Cantidad:</span>
+                            <div id="input-val2" onclick="app.setActiveInput('val2')" class="w-16 h-16 md:w-20 md:h-20 bg-white dark:bg-gray-700 rounded-2xl border-4 border-gray-300 dark:border-gray-500 text-3xl md:text-4xl font-bold flex items-center justify-center cursor-pointer transition-all">
+                                ?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Input (Solo visible en Sección 2) -->
+                <div id="total-container" class="hidden justify-center items-center gap-4 mb-4">
+                    <span class="text-4xl font-bold dark:text-white">=</span>
+                    <div id="input-total" onclick="app.setActiveInput('valTotal')" class="w-20 h-20 bg-accent text-gray-800 rounded-2xl border-4 border-yellow-500 text-4xl font-bold flex items-center justify-center cursor-pointer transition-all">
+                        ?
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- TECLADO NUMÉRICO Y CONTROLES -->
+        <footer class="bg-white/95 dark:bg-darkCard/95 border-t-4 border-gray-200 dark:border-gray-700 p-2 md:p-4 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.1)] z-10">
+            <div class="max-w-4xl mx-auto flex flex-col gap-2">
+                <!-- Fila de números -->
+                <div class="flex justify-between gap-1 md:gap-2">
+                    <!-- Generado por JS -->
+                    <script>
+                        for(let i=0; i<=9; i++) {
+                            document.write(`<button onclick="app.typeNumber(${i})" class="flex-1 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:hover:bg-blue-800 dark:text-white text-blue-800 font-bold text-2xl md:text-4xl py-2 md:py-4 rounded-xl border-b-4 border-blue-300 dark:border-blue-700 active:border-b-0 active:translate-y-1 transition-all">${i}</button>`);
+                        }
+                    </script>
+                    <button onclick="app.typeNumber(10)" class="flex-1 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:hover:bg-blue-800 dark:text-white text-blue-800 font-bold text-2xl md:text-4xl py-2 md:py-4 rounded-xl border-b-4 border-blue-300 dark:border-blue-700 active:border-b-0 active:translate-y-1 transition-all">10</button>
+                </div>
+                
+                <!-- Controles -->
+                <div class="flex justify-between gap-2 mt-2">
+                    <button onclick="app.deleteNumber()" class="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-gray-800 font-bold text-xl py-3 rounded-xl border-b-4 border-gray-400 bubbly-btn">
+                        ⬅️ Borrar
+                    </button>
+                    <button onclick="app.checkAnswer()" class="flex-[2] bg-green-400 hover:bg-green-500 text-white font-bold text-2xl py-3 rounded-xl border-b-4 border-green-600 bubbly-btn shadow-lg">
+                        ✅ ¡Comprobar!
+                    </button>
+                    <button onclick="app.nextProblem()" class="flex-1 bg-secondary hover:bg-teal-500 text-white font-bold text-xl py-3 rounded-xl border-b-4 border-teal-600 bubbly-btn">
+                        🔄 Siguiente
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL FEEDBACK -->
+    <div id="modal-feedback" class="fixed inset-0 hidden items-center justify-center z-50 bg-black/50 backdrop-blur-sm transition-opacity">
+        <div id="modal-content" class="bg-white dark:bg-darkCard p-8 rounded-3xl shadow-2xl max-w-md w-full text-center transform scale-0 transition-transform duration-300 border-8">
+            <div id="modal-icon" class="text-7xl mb-4">✨</div>
+            <h2 id="modal-title" class="text-4xl font-bold mb-4">¡Excelente!</h2>
+            <p id="modal-message" class="text-xl mb-6 dark:text-gray-300">¡Lo hiciste muy bien!</p>
+            <button onclick="app.closeModal()" class="w-full bg-primary hover:bg-red-500 text-white font-bold py-4 px-8 rounded-2xl text-2xl bubbly-btn">
+                Continuar 👍
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- MOTOR DE AUDIO SINTETIZADO (OFFLINE) ---
+        const audioSystem = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            },
+            playTone(freq, type, duration, vol=0.1) {
+                if(!this.ctx) this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+            playSuccess() {
+                this.playTone(440, 'sine', 0.1, 0.2); // A4
+                setTimeout(() => this.playTone(554.37, 'sine', 0.1, 0.2), 100); // C#5
+                setTimeout(() => this.playTone(659.25, 'sine', 0.3, 0.2), 200); // E5
+            },
+            playError() {
+                this.playTone(300, 'sawtooth', 0.2, 0.1);
+                setTimeout(() => this.playTone(250, 'sawtooth', 0.3, 0.1), 150);
+            },
+            playPop() {
+                this.playTone(800, 'sine', 0.05, 0.05);
+            }
+        };
+
+        // --- SISTEMA DE CONFETI ---
+        function shootConfetti() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#3B82F6', '#10B981', '#8B5CF6'];
+            for(let i=0; i<50; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti rounded-full md:rounded-none md:w-3 md:h-3';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                conf.style.animationDelay = (Math.random() * 0.5) + 's';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 4000);
+            }
+        }
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        const state = {
+            studentName: '',
+            avatar: '👦',
+            selectedNumbers: [],
+            timeElapsed: 0,
+            timerInterval: null,
+            correctCount: 0,
+            incorrectCount: 0,
+            
+            // Lógica del juego actual
+            gameMode: 1, // 1: Repartir, 2: Sumar
+            currentSection: 1, // 1: Manipular (Arrastrar), 2: Inversa (Suma)
+            targetNumber: 0,
+            themeEmoji: '🍎',
+            itemsData: [], // { id, zone: 'pool'|'zone1'|'zone2' }
+            
+            // Teclado
+            inputs: { val1: '', val2: '', valTotal: '' },
+            activeInput: 'val1',
+
+            // Drag & Drop Punteros
+            draggingElement: null,
+            dragOffset: { x: 0, y: 0 }
+        };
+
+        const EMOJIS = ['🍎', '🚗', '⭐', '⛵', '⚽', '🐶', '🌻', '🚀', '🎈', '🧸'];
+        const AVATARS = ['👦', '👧', '🧑', '👨‍🚀', '🦸‍♀️', '🦸‍♂️', '🧙‍♀️', '🧙‍♂️', '🧚', '🧜‍♂️'];
+
+        const app = {
+            init() {
+                this.renderAvatars();
+                this.renderNumberSelector();
+                
+                // Configurar eventos globales de arrastre
+                document.addEventListener('pointermove', this.handlePointerMove.bind(this));
+                document.addEventListener('pointerup', this.handlePointerUp.bind(this));
+                document.addEventListener('pointercancel', this.handlePointerUp.bind(this));
+            },
+
+            showScreen(screenId) {
+                ['screen-login', 'screen-select', 'screen-game'].forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                    document.getElementById(id).classList.remove('flex');
+                });
+                const screen = document.getElementById(screenId);
+                screen.classList.remove('hidden');
+                screen.classList.add('flex');
+            },
+
+            toggleDarkMode() {
+                document.documentElement.classList.toggle('dark');
+            },
+
+            // PANTALLA 1: Login
+            renderAvatars() {
+                const container = document.getElementById('avatar-container');
+                container.innerHTML = AVATARS.map(emoji => `
+                    <button onclick="app.selectAvatar(this, '${emoji}')" class="text-4xl p-2 rounded-2xl border-4 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700 transition-all avatar-btn">
+                        ${emoji}
+                    </button>
+                `).join('');
+                // Seleccionar el primero por defecto
+                this.selectAvatar(container.children[0], AVATARS[0]);
+            },
+
+            selectAvatar(btn, emoji) {
+                document.querySelectorAll('.avatar-btn').forEach(b => {
+                    b.classList.remove('border-primary', 'bg-red-50', 'dark:bg-red-900/30');
+                    b.classList.add('border-transparent');
+                });
+                btn.classList.remove('border-transparent');
+                btn.classList.add('border-primary', 'bg-red-50', 'dark:bg-red-900/30');
+                state.avatar = emoji;
+                audioSystem.playPop();
+            },
+
+            goToNumberSelection() {
+                const nameInput = document.getElementById('player-name').value.trim();
+                if(nameInput.length < 2) {
+                    this.showModal('¡Ups!', 'Por favor, escribe tu nombre para comenzar.', '🤔', 'border-yellow-400', 'text-yellow-500');
+                    return;
+                }
+                state.studentName = nameInput;
+                audioSystem.init(); // Inicializa audio en la primera interacción
+                audioSystem.playPop();
+                this.showScreen('screen-select');
+            },
+
+            // PANTALLA 2: Selección de Números
+            renderNumberSelector() {
+                const container = document.getElementById('number-checkboxes');
+                let html = '';
+                for(let i=1; i<=10; i++) {
+                    html += `
+                        <label class="flex flex-col items-center justify-center p-2 cursor-pointer bg-gray-50 dark:bg-gray-800 rounded-xl border-4 border-gray-200 dark:border-gray-700 hover:border-secondary transition-colors group">
+                            <input type="checkbox" value="${i}" onchange="app.toggleNumber(${i}, this)" class="hidden">
+                            <span class="w-8 h-8 md:w-10 md:h-10 rounded bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-500 flex items-center justify-center text-2xl mb-2 text-transparent group-[.selected]:text-secondary group-[.selected]:border-secondary transition-all">✔</span>
+                            <span class="text-2xl font-bold dark:text-white">${i}</span>
+                        </label>
+                    `;
+                }
+                container.innerHTML = html;
+            },
+
+            toggleNumber(num, checkboxElement) {
+                const label = checkboxElement.closest('label');
+                if(checkboxElement.checked) {
+                    if(!state.selectedNumbers.includes(num)) state.selectedNumbers.push(num);
+                    label.classList.add('selected', 'border-secondary', 'bg-teal-50', 'dark:bg-teal-900/30');
+                } else {
+                    state.selectedNumbers = state.selectedNumbers.filter(n => n !== num);
+                    label.classList.remove('selected', 'border-secondary', 'bg-teal-50', 'dark:bg-teal-900/30');
+                }
+                audioSystem.playPop();
+            },
+
+            startGame(mode) {
+                if(state.selectedNumbers.length === 0) {
+                    this.showModal('Espera', '¡Debes elegir al menos un número para jugar!', '👆', 'border-yellow-400', 'text-yellow-500');
+                    return;
+                }
+                
+                state.gameMode = mode; // Guarda si el niño quiere Repartir o Sumar
+                
+                // Set UI
+                document.getElementById('ui-name').innerText = state.studentName;
+                document.getElementById('ui-avatar').innerText = state.avatar;
+                
+                this.showScreen('screen-game');
+                this.startTimer();
+                this.generateProblem();
+            },
+
+            backToMenu() {
+                // Permite volver a la pantalla de selección sin perder el nombre
+                clearInterval(state.timerInterval);
+                this.showScreen('screen-select');
+                audioSystem.playPop();
+            },
+
+            // LÓGICA DEL JUEGO
+            startTimer() {
+                clearInterval(state.timerInterval);
+                state.timerInterval = setInterval(() => {
+                    state.timeElapsed++;
+                    const m = Math.floor(state.timeElapsed / 60).toString().padStart(2, '0');
+                    const s = (state.timeElapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('ui-time').innerText = `${m}:${s}`;
+                }, 1000);
+            },
+
+            generateProblem() {
+                // Seleccionar número aleatorio de los permitidos
+                state.targetNumber = state.selectedNumbers[Math.floor(Math.random() * state.selectedNumbers.length)];
+                state.themeEmoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+                
+                // Usar el modo que eligió el usuario en el menú principal
+                state.currentSection = state.gameMode;
+
+                // Resetear Inputs
+                state.inputs = { val1: '', val2: '', valTotal: '' };
+                this.updateInputsUI();
+                this.setActiveInput('val1');
+
+                const header = document.getElementById('exercise-title');
+                const targetDisplay = document.getElementById('target-number-display');
+                const poolZone = document.getElementById('pool-zone');
+                const opPlus = document.getElementById('operator-plus');
+                const totalContainer = document.getElementById('total-container');
+                const label1 = document.getElementById('label-val1');
+                const label2 = document.getElementById('label-val2');
+
+                // Animar número central
+                targetDisplay.classList.remove('animate-bounce-in');
+                void targetDisplay.offsetWidth; // trigger reflow
+                targetDisplay.classList.add('animate-bounce-in');
+                targetDisplay.innerText = state.targetNumber;
+
+                // Limpiar zonas DOM
+                document.getElementById('zone-1').innerHTML = '';
+                document.getElementById('zone-2').innerHTML = '';
+                poolZone.innerHTML = '';
+                state.itemsData = [];
+
+                if(state.currentSection === 1) {
+                    // SECCIÓN 1: Manipulación
+                    header.innerText = "¡Reparte los objetos como quieras!";
+                    poolZone.style.display = 'flex';
+                    opPlus.classList.add('hidden');
+                    opPlus.classList.remove('flex');
+                    totalContainer.classList.add('hidden');
+                    totalContainer.classList.remove('flex');
+                    label1.innerText = "¿Cuántos hay?";
+                    label2.innerText = "¿Cuántos hay?";
+
+                    // Generar items en el pool (usaremos DOM puro en lugar de absoluto para la vista inicial, 
+                    // y al agarrarlos se vuelven absolutos)
+                    for(let i=0; i<state.targetNumber; i++) {
+                        const item = this.createDraggableItem(i, 'pool');
+                        poolZone.appendChild(item);
+                        state.itemsData.push({ id: `item-${i}`, zone: 'pool', element: item });
+                    }
+                } else {
+                    // SECCIÓN 2: Inversa (Suma)
+                    header.innerText = "¡Cuenta y suma los grupos!";
+                    poolZone.style.display = 'none';
+                    opPlus.classList.remove('hidden');
+                    opPlus.classList.add('flex');
+                    totalContainer.classList.remove('hidden');
+                    totalContainer.classList.add('flex');
+                    label1.innerText = "Grupo 1:";
+                    label2.innerText = "Grupo 2:";
+
+                    // Distribuir aleatoriamente
+                    let part1 = Math.floor(Math.random() * (state.targetNumber + 1));
+                    let part2 = state.targetNumber - part1;
+
+                    for(let i=0; i<part1; i++) {
+                        const item = this.createStaticItem();
+                        document.getElementById('zone-1').appendChild(item);
+                    }
+                    for(let i=0; i<part2; i++) {
+                        const item = this.createStaticItem();
+                        document.getElementById('zone-2').appendChild(item);
+                    }
+                }
+            },
+
+            createDraggableItem(index, initialZone) {
+                const el = document.createElement('div');
+                el.className = 'draggable-item text-4xl md:text-5xl';
+                el.id = `item-${index}`;
+                el.innerText = state.themeEmoji;
+                // Inicialmente position static en el flexbox
+                el.style.position = 'relative'; 
+                
+                // Eventos
+                el.addEventListener('pointerdown', this.handlePointerDown.bind(this));
+                return el;
+            },
+
+            createStaticItem() {
+                const el = document.createElement('div');
+                el.className = 'text-4xl md:text-5xl animate-bounce-in';
+                el.innerText = state.themeEmoji;
+                return el;
+            },
+
+            handlePointerDown(e) {
+                if(state.currentSection !== 1) return; // Solo arrastrable en Sec 1
+                
+                const el = e.currentTarget;
+                el.setPointerCapture(e.pointerId);
+                
+                // Calcular offsets
+                const rect = el.getBoundingClientRect();
+                state.dragOffset = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+                
+                // Convertir a absolute para arrastrar libremente
+                el.style.position = 'fixed';
+                el.style.left = (e.clientX - state.dragOffset.x) + 'px';
+                el.style.top = (e.clientY - state.dragOffset.y) + 'px';
+                el.style.width = rect.width + 'px';
+                el.style.height = rect.height + 'px';
+                
+                // Mover al body para evitar recortes de overflow temporalmente
+                document.body.appendChild(el);
+                
+                el.classList.add('dragging');
+                state.draggingElement = el;
+                audioSystem.playPop();
+            },
+
+            handlePointerMove(e) {
+                if(!state.draggingElement) return;
+                e.preventDefault(); // Evita scroll en táctil
+                
+                const el = state.draggingElement;
+                el.style.left = (e.clientX - state.dragOffset.x) + 'px';
+                el.style.top = (e.clientY - state.dragOffset.y) + 'px';
+
+                // Resaltar zona destino
+                this.checkDropZones(e.clientX, e.clientY);
+            },
+
+            handlePointerUp(e) {
+                if(!state.draggingElement) return;
+                
+                const el = state.draggingElement;
+                el.classList.remove('dragging');
+                el.releasePointerCapture(e.pointerId);
+                
+                // Determinar en qué zona cayó
+                const targetZoneId = this.checkDropZones(e.clientX, e.clientY, true);
+                
+                // Revertir a relative y agregar al DOM contenedor correspondiente
+                el.style.position = 'relative';
+                el.style.left = '0';
+                el.style.top = '0';
+                el.style.width = 'auto';
+                el.style.height = 'auto';
+
+                const targetContainer = document.getElementById(targetZoneId);
+                targetContainer.appendChild(el);
+
+                // Actualizar estado de items
+                const itemData = state.itemsData.find(i => i.id === el.id);
+                if(itemData) itemData.zone = targetZoneId;
+
+                // Limpiar resaltados
+                document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('active'));
+                
+                state.draggingElement = null;
+                audioSystem.playPop();
+            },
+
+            checkDropZones(x, y, isDrop = false) {
+                const zones = [
+                    { id: 'zone-1', el: document.getElementById('zone-1') },
+                    { id: 'zone-2', el: document.getElementById('zone-2') },
+                    { id: 'pool-zone', el: document.getElementById('pool-zone') }
+                ];
+
+                let activeZone = 'pool-zone'; // Default
+
+                zones.forEach(zone => {
+                    const rect = zone.el.getBoundingClientRect();
+                    // Chequeo simple de colisión de bounding box
+                    if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                        if(!isDrop) zone.el.classList.add('active');
+                        activeZone = zone.id;
+                    } else {
+                        if(!isDrop) zone.el.classList.remove('active');
+                    }
+                });
+
+                return activeZone;
+            },
+
+            setActiveInput(inputId) {
+                state.activeInput = inputId;
+                document.querySelectorAll('[id^="input-"]').forEach(el => el.classList.remove('input-active'));
+                document.getElementById(`input-${inputId}`).classList.add('input-active');
+            },
+
+            typeNumber(num) {
+                // Simplemente reemplazamos el valor actual por el número digitado.
+                // Así si digitan "4" y luego "5", se cambia por "5" automáticamente.
+                // Si oprimen el botón "10", se pone el "10" completo.
+                state.inputs[state.activeInput] = num.toString();
+                this.updateInputsUI();
+                audioSystem.playPop();
+            },
+
+            deleteNumber() {
+                state.inputs[state.activeInput] = '';
+                this.updateInputsUI();
+                audioSystem.playPop();
+            },
+
+            updateInputsUI() {
+                document.getElementById('input-val1').innerText = state.inputs.val1 === '' ? '?' : state.inputs.val1;
+                document.getElementById('input-val2').innerText = state.inputs.val2 === '' ? '?' : state.inputs.val2;
+                if(state.currentSection === 2) {
+                    document.getElementById('input-total').innerText = state.inputs.valTotal === '' ? '?' : state.inputs.valTotal;
+                }
+            },
+
+            checkAnswer() {
+                let isCorrect = false;
+                let errorMessage = "";
+
+                const v1 = parseInt(state.inputs.val1);
+                const v2 = parseInt(state.inputs.val2);
+                
+                if(isNaN(v1) || isNaN(v2)) {
+                    this.showModal('Cuidado', '¡Debes escribir los números en las casillas!', '✏️', 'border-yellow-400', 'text-yellow-500');
+                    return;
+                }
+
+                if(state.currentSection === 1) {
+                    // Validar modo arrastrar
+                    // 1. Verificamos que no queden elementos en el pool
+                    const itemsInPool = state.itemsData.filter(i => i.zone === 'pool-zone').length;
+                    if(itemsInPool > 0) {
+                        this.showModal('Cuidado', '¡Aún quedan figuras sin repartir!', '🧐', 'border-yellow-400', 'text-yellow-500');
+                        return;
+                    }
+
+                    // 2. Verificamos que lo escrito coincida con lo físico
+                    const countZone1 = state.itemsData.filter(i => i.zone === 'zone-1').length;
+                    const countZone2 = state.itemsData.filter(i => i.zone === 'zone-2').length;
+
+                    if(v1 !== countZone1 || v2 !== countZone2) {
+                        errorMessage = "Los números que escribiste no coinciden con las figuras en las cajas. ¡Cuenta bien!";
+                    } else if (v1 + v2 !== state.targetNumber) {
+                        errorMessage = `La suma no es ${state.targetNumber}. Faltan o sobran figuras.`; // No debería pasar si vació el pool pero por seguridad
+                    } else {
+                        isCorrect = true;
+                    }
+
+                } else {
+                    // Validar modo inverso (Suma visual)
+                    const vt = parseInt(state.inputs.valTotal);
+                    if(isNaN(vt)) {
+                        this.showModal('Cuidado', '¡Falta escribir el total!', '✏️', 'border-yellow-400', 'text-yellow-500');
+                        return;
+                    }
+
+                    const countZone1 = document.getElementById('zone-1').children.length;
+                    const countZone2 = document.getElementById('zone-2').children.length;
+
+                    if(v1 !== countZone1) {
+                        errorMessage = "El número del Grupo 1 no es correcto.";
+                    } else if(v2 !== countZone2) {
+                        errorMessage = "El número del Grupo 2 no es correcto.";
+                    } else if (vt !== state.targetNumber || v1 + v2 !== vt) {
+                        errorMessage = "La suma total no es correcta.";
+                    } else {
+                        isCorrect = true;
+                    }
+                }
+
+                if(isCorrect) {
+                    state.correctCount++;
+                    document.getElementById('ui-correct').innerText = state.correctCount;
+                    audioSystem.playSuccess();
+                    shootConfetti();
+                    
+                    const congrats = ['¡Excelente!', '¡Genial!', '¡Maravilloso!', '¡Perfecto!', '¡Súper!'];
+                    const msgs = ['Lo hiciste muy bien.', 'Eres muy inteligente.', 'Sigue así campeón/a.'];
+                    const title = congrats[Math.floor(Math.random()*congrats.length)];
+                    const msg = msgs[Math.floor(Math.random()*msgs.length)];
+                    
+                    this.showModal(title, msg, '⭐', 'border-green-400', 'text-green-500', true);
+                } else {
+                    state.incorrectCount++;
+                    document.getElementById('ui-incorrect').innerText = state.incorrectCount;
+                    audioSystem.playError();
+                    this.showModal('Intenta otra vez', errorMessage, '🤔', 'border-red-400', 'text-red-500');
+                }
+            },
+
+            nextProblem() {
+                // Generar otro sin importar si resolvió este (saltar)
+                this.generateProblem();
+                audioSystem.playPop();
+            },
+
+            // Modales
+            showModal(title, message, icon, borderClass, textClass, isSuccess = false) {
+                const modal = document.getElementById('modal-feedback');
+                const content = document.getElementById('modal-content');
+                
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-title').className = `text-4xl font-bold mb-4 ${textClass}`;
+                document.getElementById('modal-message').innerText = message;
+                document.getElementById('modal-icon').innerText = icon;
+                
+                content.className = `bg-white dark:bg-darkCard p-8 rounded-3xl shadow-2xl max-w-md w-full text-center transform scale-0 transition-transform duration-300 border-8 ${borderClass}`;
+                
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // Animar entrada
+                setTimeout(() => {
+                    content.classList.remove('scale-0');
+                    content.classList.add('scale-100');
+                }, 10);
+
+                // Si es éxito, al cerrar el modal genera nuevo problema
+                modal.dataset.success = isSuccess ? 'true' : 'false';
+            },
+
+            closeModal() {
+                const modal = document.getElementById('modal-feedback');
+                const content = document.getElementById('modal-content');
+                
+                content.classList.remove('scale-100');
+                content.classList.add('scale-0');
+                
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    if(modal.dataset.success === 'true') {
+                        this.generateProblem();
+                    }
+                }, 300);
+                audioSystem.playPop();
+            }
+        };
+
+        // Iniciar App al cargar
+        window.onload = () => {
+            app.init();
+        };
+
+    </script>
+</body>
+</html>
