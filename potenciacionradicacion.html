@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mundo Matemático Visual - Potencias y Raíces</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            light: '#38bdf8',
+                            DEFAULT: '#0ea5e9',
+                            dark: '#0284c7',
+                        },
+                        success: '#22c55e',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f0f9ff;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .btn-3d {
+            transition: transform 0.1s, border-width 0.1s, margin-top 0.1s;
+            border-bottom-width: 4px;
+        }
+        .btn-3d:active, .btn-3d:disabled {
+            transform: translateY(4px);
+            border-bottom-width: 0px;
+            margin-bottom: 4px;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        /* Cuadrícula visual de potencias */
+        .grid-container {
+            display: grid;
+            width: 100%;
+            max-width: 240px; 
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+            background-color: #e2e8f0;
+            padding: 4px;
+            border-radius: 8px;
+            gap: 2px;
+        }
+        @media (min-width: 768px) {
+            .grid-container { max-width: 320px; }
+        }
+
+        .grid-cell {
+            background-color: white;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+        .grid-cell.active {
+            background-color: #38bdf8;
+            transform: scale(0.9);
+            box-shadow: 0 1px 3px rgba(0,165,233,0.4);
+        }
+
+        /* Tachar elementos (División) */
+        .strike-through {
+            position: relative;
+            color: #94a3b8 !important;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .strike-through::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -10%;
+            width: 120%;
+            height: 4px;
+            background-color: #ef4444;
+            transform: rotate(-15deg);
+            animation: drawStrike 0.3s ease-out forwards;
+        }
+        @keyframes drawStrike {
+            from { width: 0; }
+            to { width: 120%; }
+        }
+
+        /* Elemento seleccionado para tachar */
+        .pending-cross {
+            box-shadow: 0 0 0 4px #f59e0b;
+            transform: scale(1.1);
+            background-color: #fef3c7 !important;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            z-index: 100;
+        }
+
+        /* Fracciones reales */
+        .math-fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 0.5rem;
+        }
+        .math-fraction > .numerator {
+            border-bottom: 3px solid #334155;
+            padding: 0 0.5rem 0.1rem 0.5rem;
+            width: 100%;
+            text-align: center;
+        }
+        .math-fraction > .denominator {
+            padding: 0.1rem 0.5rem 0 0.5rem;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen text-slate-800 flex flex-col items-center justify-center bg-slate-200 p-0 sm:p-4 overflow-hidden">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div id="app-container" class="w-full h-full sm:h-[95vh] sm:max-h-[850px] max-w-lg bg-white sm:rounded-3xl shadow-xl flex flex-col relative overflow-hidden">
+        
+        <!-- PANTALLA DE INICIO -->
+        <div id="screen-start" class="flex-1 flex flex-col items-center justify-center p-6 animate-pop overflow-y-auto">
+            <div class="text-center mb-6">
+                <div class="text-5xl mb-2 animate-bounce">🚀</div>
+                <h1 class="text-4xl font-black text-brand-dark mb-1 leading-tight">Mundo Visual</h1>
+                <p class="text-lg text-slate-500 font-bold">Potencias y Raíces</p>
+            </div>
+
+            <div class="w-full space-y-4">
+                <input type="text" id="player-name" placeholder="Tu Nombre..." class="w-full p-4 rounded-xl border-2 border-slate-200 text-lg font-bold focus:border-brand focus:outline-none transition-colors text-center text-slate-700">
+                
+                <select id="player-grade" class="w-full p-4 rounded-xl border-2 border-slate-200 text-lg font-bold focus:border-brand focus:outline-none transition-colors text-center text-slate-700 appearance-none bg-white">
+                    <option value="" disabled selected>Selecciona tu grado...</option>
+                    <option value="1">Grado 1</option>
+                    <option value="2">Grado 2</option>
+                    <option value="3">Grado 3</option>
+                    <option value="4">Grado 4</option>
+                    <option value="5">Grado 5</option>
+                    <option value="6">Grado 6</option>
+                    <option value="7">Grado 7</option>
+                    <option value="8">Grado 8</option>
+                    <option value="9">Grado 9</option>
+                    <option value="10">Grado 10</option>
+                    <option value="11">Grado 11</option>
+                </select>
+
+                <div class="pt-2 space-y-3">
+                    <p class="text-center font-bold text-slate-400 uppercase tracking-wider text-xs mb-1">Elige tu misión</p>
+                    <button onclick="Game.start('potencias')" class="btn-3d w-full bg-blue-500 border-blue-700 text-white p-4 rounded-xl font-black text-lg flex justify-between items-center">
+                        <span>1. Potenciación Visual</span> <i class="fas fa-th-large"></i>
+                    </button>
+                    <button onclick="Game.start('raices')" class="btn-3d w-full bg-green-500 border-green-700 text-white p-4 rounded-xl font-black text-lg flex justify-between items-center">
+                        <span>2. Radicación Visual</span> <i class="fas fa-square-root-variable"></i>
+                    </button>
+                    <button onclick="Game.start('propiedades')" class="btn-3d w-full bg-purple-500 border-purple-700 text-white p-4 rounded-xl font-black text-lg flex justify-between items-center">
+                        <span>3. Propiedades Mágicas</span> <i class="fas fa-magic"></i>
+                    </button>
+                    <button onclick="Game.start('combinado')" class="btn-3d w-full bg-yellow-500 border-yellow-700 text-white p-4 rounded-xl font-black text-lg flex justify-between items-center">
+                        <span>4. Reto Combinado</span> <i class="fas fa-trophy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div id="screen-game" class="flex-1 flex-col hidden h-full">
+            <!-- Barra Superior HUD -->
+            <div class="bg-slate-50 p-3 flex justify-between items-center border-b-2 border-slate-200 shadow-sm z-10 relative">
+                
+                <!-- Toast de notificaciones rápidas -->
+                <div id="toast-msg" class="absolute top-16 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50 text-center w-[90%] sm:w-auto">
+                    Mensaje
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="Game.quit()" class="bg-slate-200 text-slate-600 hover:bg-slate-300 w-10 h-10 rounded-full flex items-center justify-center text-xl transition-colors btn-3d pb-1">
+                        <i class="fas fa-home"></i>
+                    </button>
+                    <div class="flex flex-col hidden sm:flex">
+                        <span id="hud-name" class="font-bold text-slate-700 leading-tight text-sm truncate max-w-[80px]">Estudiante</span>
+                        <span id="hud-level" class="text-[10px] font-black text-brand uppercase">Nivel 1</span>
+                    </div>
+                </div>
+                
+                <div class="flex-1 mx-3">
+                    <div class="h-3 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-brand transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 text-lg font-black">
+                    <div class="flex items-center gap-1 text-warning">
+                        <i class="fas fa-star text-sm"></i> <span id="hud-score">0</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-danger">
+                        <i class="fas fa-fire text-sm"></i> <span id="hud-streak">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Pregunta Principal -->
+            <div class="flex-1 flex flex-col relative overflow-hidden">
+                
+                <!-- Feedback Overlay -->
+                <div id="feedback-overlay" class="absolute inset-0 z-50 hidden flex-col items-center justify-center bg-white/95 backdrop-blur-sm transition-opacity px-4 text-center">
+                    <div id="feedback-icon" class="text-7xl mb-2 animate-pop"></div>
+                    <h2 id="feedback-title" class="text-4xl font-black mb-2 animate-pop"></h2>
+                    <p id="feedback-message" class="text-xl font-bold text-slate-500 mb-6 animate-pop"></p>
+                    <button id="feedback-btn" onclick="Game.executeFeedbackAction()" class="btn-3d bg-brand border-brand-dark text-white px-8 py-4 rounded-xl font-black text-xl animate-pop w-full max-w-xs">
+                        Continuar <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Contenedor Dinámico -->
+                <div class="flex-1 overflow-y-auto w-full">
+                    <div id="question-container" class="flex flex-col items-center p-4 w-full min-h-full justify-between space-y-4">
+                        
+                        <!-- Instrucción -->
+                        <h2 id="q-instruction" class="text-xl sm:text-2xl font-bold text-slate-600 text-center px-2"></h2>
+                        
+                        <!-- Área Visual Interactiva -->
+                        <div id="q-visual-area" class="w-full flex-1 flex flex-col justify-center items-center relative px-2 py-4">
+                            <!-- Aquí se inyectan figuras -->
+                        </div>
+
+                        <!-- Área de Controles -->
+                        <div id="q-controls-area" class="w-full bg-white sm:bg-slate-50 p-4 sm:p-6 rounded-t-3xl sm:rounded-2xl border-t-2 sm:border-2 border-slate-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sm:shadow-none flex flex-col items-center gap-3">
+                            <!-- Aquí se inyectan inputs/botones -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE RESULTADOS -->
+        <div id="screen-results" class="flex-1 flex flex-col items-center justify-center p-6 hidden text-center overflow-y-auto">
+            <h1 class="text-4xl sm:text-5xl font-black text-brand-dark mb-4">¡Reto Superado!</h1>
+            <div class="flex gap-4 justify-center mb-6">
+                <i class="fas fa-medal text-5xl text-warning animate-pop" style="animation-delay: 0.1s"></i>
+                <i class="fas fa-trophy text-6xl text-brand animate-pop" style="animation-delay: 0.3s"></i>
+                <i class="fas fa-medal text-5xl text-warning animate-pop" style="animation-delay: 0.5s"></i>
+            </div>
+            
+            <div class="bg-slate-50 p-6 rounded-3xl w-full max-w-sm mb-6 border-2 border-slate-100 shadow-sm space-y-3">
+                <div class="flex justify-between items-center text-xl font-bold text-slate-600">
+                    <span>Puntaje:</span>
+                    <span id="final-score" class="text-brand">0</span>
+                </div>
+                <div class="flex justify-between items-center text-lg font-bold text-slate-600">
+                    <span>Correctas:</span>
+                    <span id="final-correct" class="text-success">0</span>
+                </div>
+                <div class="flex justify-between items-center text-lg font-bold text-slate-600">
+                    <span>Racha Máxima:</span>
+                    <span id="final-streak" class="text-danger">0 🔥</span>
+                </div>
+            </div>
+
+            <button onclick="Game.resetToHome()" class="btn-3d bg-brand border-brand-dark text-white px-8 py-4 rounded-xl font-black text-xl w-full max-w-xs">
+                <i class="fas fa-home mr-2"></i> Volver al Menú
+            </button>
+        </div>
+    </div>
+
+    <!-- AUDIO SINTETIZADO -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, duration, vol=0.1) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const Sound = {
+            correct: () => {
+                playTone(523.25, 'sine', 0.1, 0.15); 
+                setTimeout(() => playTone(659.25, 'sine', 0.15, 0.15), 100); 
+                setTimeout(() => playTone(783.99, 'sine', 0.2, 0.15), 200); 
+            },
+            wrong: () => {
+                playTone(300, 'triangle', 0.2, 0.1);
+                setTimeout(() => playTone(250, 'triangle', 0.3, 0.1), 150);
+            },
+            pop: () => playTone(800, 'sine', 0.05, 0.05),
+            click: () => playTone(600, 'square', 0.03, 0.02)
+        };
+    </script>
+
+    <!-- LÓGICA DEL JUEGO -->
+    <script>
+        const Game = {
+            state: {
+                name: '',
+                grade: '',
+                mode: '',
+                score: 0,
+                streak: 0,
+                maxStreak: 0,
+                correct: 0,
+                totalQuestions: 10,
+                currentQIndex: 0,
+                currentData: null,
+                feedbackAction: null
+            },
+
+            // --- NAVEGACIÓN ---
+            start(mode) {
+                const nameInput = document.getElementById('player-name').value.trim();
+                const gradeInput = document.getElementById('player-grade').value;
+
+                if(!nameInput) { this.shakeElement(document.getElementById('player-name')); return; }
+                if(!gradeInput) { this.shakeElement(document.getElementById('player-grade')); return; }
+
+                Sound.pop();
+                
+                this.state = {
+                    name: nameInput,
+                    grade: gradeInput,
+                    mode: mode,
+                    score: 0,
+                    streak: 0,
+                    maxStreak: 0,
+                    correct: 0,
+                    totalQuestions: 10,
+                    currentQIndex: 0,
+                    currentData: null,
+                    feedbackAction: null
+                };
+
+                document.getElementById('hud-name').textContent = this.state.name;
+                this.updateHUD();
+                
+                this.switchScreen('screen-game');
+                this.nextQuestion();
+            },
+
+            quit() {
+                Sound.click();
+                this.resetToHome(); // Retorno directo sin confirmación molesta
+            },
+
+            resetToHome() {
+                this.switchScreen('screen-start');
+            },
+
+            endGame() {
+                document.getElementById('final-score').textContent = this.state.score;
+                document.getElementById('final-correct').textContent = `${this.state.correct} / ${this.state.totalQuestions}`;
+                document.getElementById('final-streak').textContent = `${this.state.maxStreak} 🔥`;
+                this.switchScreen('screen-results');
+                Sound.correct();
+                this.launchConfetti();
+            },
+
+            switchScreen(screenId) {
+                ['screen-start', 'screen-game', 'screen-results'].forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+                document.getElementById(screenId).classList.remove('hidden');
+                if(screenId === 'screen-game') {
+                    document.getElementById('screen-game').classList.add('flex');
+                }
+            },
+
+            updateHUD() {
+                document.getElementById('hud-score').textContent = this.state.score;
+                document.getElementById('hud-streak').textContent = this.state.streak;
+                document.getElementById('hud-level').textContent = `Nivel ${Math.floor(this.state.currentQIndex/3) + 1}`;
+                const progress = (this.state.currentQIndex / this.state.totalQuestions) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+            },
+
+            showToast(msg) {
+                const toast = document.getElementById('toast-msg');
+                toast.textContent = msg;
+                toast.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 3000);
+            },
+
+            // --- GESTIÓN DINÁMICA DEL FEEDBACK ---
+            showFeedback(type, title, message, btnText, callback) {
+                const overlay = document.getElementById('feedback-overlay');
+                const icon = document.getElementById('feedback-icon');
+                const titleEl = document.getElementById('feedback-title');
+                const msgEl = document.getElementById('feedback-message');
+                const btn = document.getElementById('feedback-btn');
+
+                overlay.classList.remove('hidden');
+                overlay.className = `absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity px-6 text-center ${type === 'success' ? 'text-success' : 'text-danger'}`;
+
+                if (type === 'success') {
+                    Sound.correct();
+                    this.state.score += 100 + (this.state.streak * 10);
+                    this.state.streak++;
+                    this.state.correct++;
+                    if(this.state.streak > this.state.maxStreak) this.state.maxStreak = this.state.streak;
+                    
+                    icon.innerHTML = '🌟';
+                    titleEl.textContent = title;
+                    if (this.state.streak > 2) titleEl.textContent = `¡Racha x${this.state.streak}! 🔥`;
+                } else {
+                    Sound.wrong();
+                    this.state.streak = 0;
+                    icon.innerHTML = '🤔';
+                    titleEl.textContent = title;
+                }
+
+                msgEl.textContent = message;
+                btn.innerHTML = `${btnText} <i class="fas fa-arrow-right ml-2"></i>`;
+                this.state.feedbackAction = callback;
+                this.updateHUD();
+            },
+
+            executeFeedbackAction() {
+                if (this.state.feedbackAction) {
+                    this.state.feedbackAction();
+                } else {
+                    this.nextQuestion();
+                }
+            },
+
+            hideFeedbackOverlay() {
+                document.getElementById('feedback-overlay').classList.add('hidden');
+            },
+
+            nextQuestion() {
+                this.hideFeedbackOverlay();
+                
+                if (this.state.currentQIndex >= this.state.totalQuestions) {
+                    this.endGame();
+                    return;
+                }
+
+                this.state.currentQIndex++;
+                this.updateHUD();
+                
+                document.getElementById('q-visual-area').innerHTML = '';
+                document.getElementById('q-controls-area').innerHTML = '';
+
+                let activeMode = this.state.mode;
+                if (activeMode === 'combinado') {
+                    const modes = ['potencias', 'raices', 'propiedades'];
+                    activeMode = modes[Math.floor(Math.random() * modes.length)];
+                }
+
+                if (activeMode === 'potencias') this.renderPotencias();
+                else if (activeMode === 'raices') this.renderRaices();
+                else if (activeMode === 'propiedades') this.renderPropiedades();
+            },
+
+            // ==========================================
+            // MODO 1: POTENCIACIÓN
+            // ==========================================
+            renderPotencias() {
+                const subMode = Math.random() > 0.4 ? 'construir' : 'adivinar';
+                const base = Math.floor(Math.random() * 11) + 2; // 2 al 12
+                
+                this.state.currentData = { answer: base, mode: subMode };
+
+                if (subMode === 'construir') {
+                    document.getElementById('q-instruction').innerHTML = `Construye el cuadrado perfecto para: <span class="text-3xl font-black text-brand block sm:inline mt-1">${base}²</span>`;
+                    
+                    const gridContainer = document.createElement('div');
+                    gridContainer.id = "interactive-grid";
+                    gridContainer.className = "grid-container";
+                    gridContainer.style.gridTemplateColumns = `repeat(12, 1fr)`;
+                    
+                    for(let i=0; i<144; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = "grid-cell";
+                        cell.dataset.row = Math.floor(i / 12);
+                        cell.dataset.col = i % 12;
+                        gridContainer.appendChild(cell);
+                    }
+                    document.getElementById('q-visual-area').appendChild(gridContainer);
+
+                    document.getElementById('q-controls-area').innerHTML = `
+                        <div class="flex w-full justify-around mb-2">
+                            <div class="flex flex-col items-center w-1/2">
+                                <label class="font-bold text-brand text-sm">Filas: <span id="val-rows" class="text-lg">0</span></label>
+                                <input type="range" id="slider-rows" min="0" max="12" value="0" class="w-24 sm:w-32 accent-brand" oninput="Game.updateGrid()">
+                            </div>
+                            <div class="flex flex-col items-center w-1/2">
+                                <label class="font-bold text-brand text-sm">Cols: <span id="val-cols" class="text-lg">0</span></label>
+                                <input type="range" id="slider-cols" min="0" max="12" value="0" class="w-24 sm:w-32 accent-brand" oninput="Game.updateGrid()">
+                            </div>
+                        </div>
+                        <button onclick="Game.checkPotenciaConstruir()" class="btn-3d w-full bg-success border-green-700 text-white py-3 rounded-xl font-black text-lg">
+                            Comprobar
+                        </button>
+                    `;
+                } else {
+                    document.getElementById('q-instruction').innerHTML = `¿Qué potencia representa esta figura?`;
+                    
+                    const visualSize = base > 9 ? 'max-w-[200px]' : 'max-w-[150px]';
+                    const gridContainer = document.createElement('div');
+                    gridContainer.className = `grid bg-brand-light p-1 sm:p-2 rounded-lg shadow-sm w-full ${visualSize} aspect-square mx-auto gap-0.5`;
+                    gridContainer.style.gridTemplateColumns = `repeat(${base}, 1fr)`;
+                    
+                    for(let i=0; i<base*base; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = "bg-white w-full h-full rounded-[2px]";
+                        gridContainer.appendChild(cell);
+                    }
+                    document.getElementById('q-visual-area').appendChild(gridContainer);
+
+                    document.getElementById('q-controls-area').innerHTML = `
+                        <div class="flex items-end gap-1 text-3xl font-black text-slate-700 mb-2">
+                            <input type="number" id="input-base" class="w-20 p-2 text-center border-4 border-slate-200 rounded-xl focus:border-brand outline-none" placeholder="?">
+                            <span class="mb-4 text-brand">²</span>
+                        </div>
+                        <button onclick="Game.checkPotenciaAdivinar()" class="btn-3d w-full bg-success border-green-700 text-white py-3 rounded-xl font-black text-lg">
+                            Responder
+                        </button>
+                    `;
+                }
+            },
+
+            updateGrid() {
+                const rows = parseInt(document.getElementById('slider-rows').value);
+                const cols = parseInt(document.getElementById('slider-cols').value);
+                document.getElementById('val-rows').textContent = rows;
+                document.getElementById('val-cols').textContent = cols;
+                Sound.click();
+
+                const cells = document.querySelectorAll('#interactive-grid .grid-cell');
+                cells.forEach(cell => {
+                    const r = parseInt(cell.dataset.row);
+                    const c = parseInt(cell.dataset.col);
+                    if (r < rows && c < cols) {
+                        cell.classList.add('active');
+                    } else {
+                        cell.classList.remove('active');
+                    }
+                });
+            },
+
+            checkPotenciaConstruir() {
+                const rows = parseInt(document.getElementById('slider-rows').value);
+                const cols = parseInt(document.getElementById('slider-cols').value);
+                const target = this.state.currentData.answer;
+                
+                if (rows === target && cols === target) {
+                    this.showFeedback('success', '¡Excelente!', `¡Exacto! ${target} × ${target} = ${target*target}. ¡Es un cuadrado perfecto!`, 'Continuar', () => this.nextQuestion());
+                } else {
+                    this.showFeedback('error', 'Casi...', `Construiste uno de ${rows}×${cols}. El cuadrado perfecto de ${target}² debía tener ${target} filas y ${target} columnas.`, 'Siguiente', () => this.nextQuestion());
+                }
+            },
+
+            checkPotenciaAdivinar() {
+                const val = document.getElementById('input-base').value;
+                if(!val) return;
+                const answer = parseInt(val);
+                const target = this.state.currentData.answer;
+
+                if (answer === target) {
+                    this.showFeedback('success', '¡Excelente!', `¡Muy bien! Hay ${target} lados, por lo tanto es ${target}².`, 'Continuar', () => this.nextQuestion());
+                } else {
+                    this.showFeedback('error', 'Casi...', `¡Cuenta bien un lado! Es un cuadrado de ${target}×${target}, así que la base era ${target}.`, 'Siguiente', () => this.nextQuestion());
+                }
+            },
+
+            // ==========================================
+            // MODO 2: RADICACIÓN
+            // ==========================================
+            renderRaices() {
+                const target = Math.floor(Math.random() * 11) + 2; // 2 al 12
+                const area = target * target;
+                this.state.currentData = { answer: target, area: area };
+
+                document.getElementById('q-instruction').innerHTML = `¿Cuánto mide un lado si el área total es <span class="text-3xl font-black text-yellow-600 block mt-1">√${area}</span>?`;
+                
+                const square = document.createElement('div');
+                square.id = "root-square";
+                square.className = "w-40 h-40 sm:w-48 sm:h-48 bg-yellow-300 border-4 border-yellow-500 rounded-xl flex items-center justify-center shadow-md relative overflow-hidden transition-all";
+                square.innerHTML = `<span id="area-text" class="text-2xl font-black text-yellow-800 z-10 bg-white/70 px-3 py-1 rounded-lg">Área = ${area}</span>`;
+                
+                document.getElementById('q-visual-area').appendChild(square);
+
+                document.getElementById('q-controls-area').innerHTML = `
+                    <div class="flex items-center gap-3 text-xl font-black text-slate-700 mb-2">
+                        <span>Lado = </span>
+                        <input type="number" id="input-root" class="w-24 p-2 text-center border-4 border-slate-200 rounded-xl focus:border-yellow-500 outline-none" placeholder="?">
+                    </div>
+                    <button onclick="Game.checkRaiz()" id="btn-raiz" class="btn-3d w-full bg-success border-green-700 text-white py-3 rounded-xl font-black text-lg">
+                        Comprobar
+                    </button>
+                `;
+            },
+
+            checkRaiz() {
+                const val = document.getElementById('input-root').value;
+                if(!val) return;
+                
+                const answer = parseInt(val);
+                const target = this.state.currentData.answer;
+                
+                if (answer === target) {
+                    this.showRaizExplanation();
+                    setTimeout(() => {
+                        this.showFeedback('success', '¡Excelente!', `¡Perfecto! Un área de ${this.state.currentData.area} se divide en ${target} filas de ${target}. √${this.state.currentData.area} = ${target}`, 'Continuar', () => this.nextQuestion());
+                    }, 1500);
+                } else {
+                    // Si se equivoca, mostrar mensaje, y AL CERRAR el mensaje, mostrar la explicación en pantalla
+                    this.showFeedback('error', '¡Error!', `Revisa bien tu respuesta. Te voy a mostrar por qué la respuesta era ${target}.`, 'Ver Explicación', () => {
+                        this.hideFeedbackOverlay();
+                        this.showRaizExplanation();
+                        document.getElementById('q-instruction').innerHTML = `¡Mira! ${this.state.currentData.area} cuadritos forman un cuadrado de <span class="text-brand font-black">${target} por ${target}</span>.`;
+                        document.getElementById('q-controls-area').innerHTML = `
+                            <button onclick="Game.nextQuestion()" class="btn-3d w-full bg-brand border-brand-dark text-white py-3 rounded-xl font-black text-lg">
+                                Entendido <i class="fas fa-check ml-1"></i>
+                            </button>
+                        `;
+                    });
+                }
+            },
+
+            showRaizExplanation() {
+                const target = this.state.currentData.answer;
+                const square = document.getElementById('root-square');
+                document.getElementById('area-text').style.display = 'none';
+                
+                square.classList.remove('flex', 'items-center', 'justify-center');
+                square.classList.add('grid');
+                square.style.gridTemplateColumns = `repeat(${target}, 1fr)`;
+                square.style.gridTemplateRows = `repeat(${target}, 1fr)`;
+                
+                for(let i=0; i<target*target; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = "border-[0.5px] border-yellow-600/40 bg-yellow-400";
+                    square.appendChild(cell);
+                }
+                
+                const sideLabel = document.createElement('div');
+                sideLabel.className = "absolute bottom-1 right-1 bg-white px-2 py-0.5 rounded font-black text-brand text-sm shadow";
+                sideLabel.textContent = `Lado: ${target}`;
+                square.appendChild(sideLabel);
+
+                Sound.pop();
+            },
+
+            // ==========================================
+            // MODO 3: PROPIEDADES (100% Manipulativo)
+            // ==========================================
+            renderPropiedades() {
+                const type = Math.random() > 0.5 ? 'multiplicacion' : 'division';
+                const basesValidas = ['2','3','4','5','6','🍎','⚽','🚗','⭐','🐻'];
+                const base = basesValidas[Math.floor(Math.random() * basesValidas.length)];
+
+                if (type === 'multiplicacion') {
+                    const exp1 = Math.floor(Math.random() * 3) + 2; // 2 a 4
+                    const exp2 = Math.floor(Math.random() * 3) + 1; // 1 a 3
+                    const totalNeeded = exp1 + exp2;
+                    this.state.currentData = { answer: totalNeeded, type, base, added: 0, totalNeeded, exp1, exp2 };
+
+                    document.getElementById('q-instruction').innerHTML = `Construye visualmente la multiplicación:`;
+                    
+                    let layoutHTML = `
+                        <div class="flex flex-col w-full gap-4 items-center h-full">
+                            
+                            <!-- Fórmula Matemática a la izquierda y Visual a la derecha -->
+                            <div class="flex w-full items-center justify-between sm:justify-center gap-2 sm:gap-6 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                <div class="text-xl sm:text-2xl font-black text-brand-dark whitespace-nowrap">
+                                    ${base}<sup>${exp1}</sup> × ${base}<sup>${exp2}</sup> =
+                                </div>
+                                <div class="text-xl font-black text-purple-600">
+                                    ${base} <sup class="bg-slate-100 px-2 py-1 rounded border border-slate-300 text-slate-700">?</sup>
+                                </div>
+                            </div>
+                            
+                            <!-- Lienzo de Trabajo Blanco -->
+                            <div class="flex-1 w-full bg-white border-2 border-dashed border-slate-300 rounded-xl p-4 flex flex-wrap content-start justify-center gap-2 text-2xl sm:text-3xl min-h-[120px]" id="prop-canvas">
+                                <!-- Elementos se agregarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('q-visual-area').innerHTML = layoutHTML;
+
+                    document.getElementById('q-controls-area').innerHTML = `
+                        <div class="flex gap-2 w-full mb-3">
+                            <button onclick="Game.addPropertyMultiplication()" class="btn-3d flex-1 bg-purple-500 border-purple-700 text-white py-3 rounded-xl font-black text-sm sm:text-lg">
+                                <i class="fas fa-plus mr-1"></i> Agregar ${base}
+                            </button>
+                            <button onclick="Game.removePropertyMultiplication()" class="btn-3d bg-slate-400 border-slate-600 text-white py-3 px-4 rounded-xl font-black text-sm sm:text-lg">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2 text-lg sm:text-xl font-black text-slate-700 w-full justify-center">
+                            <span>Resultado final = ${base} elevado a:</span>
+                            <input type="number" id="input-prop" class="w-16 p-2 text-center border-4 border-slate-200 rounded-lg focus:border-brand outline-none" placeholder="?">
+                        </div>
+                        <button onclick="Game.checkPropiedad()" class="btn-3d w-full bg-success border-green-700 text-white py-3 rounded-xl font-black text-lg mt-3">
+                            Comprobar Respuesta
+                        </button>
+                    `;
+                } else {
+                    // División interactiva visual
+                    const expTop = Math.floor(Math.random() * 3) + 3; // 3 a 5
+                    const expBot = Math.floor(Math.random() * 2) + 1; // 1 a 2
+                    const resultExp = expTop - expBot;
+                    
+                    this.state.currentData = { 
+                        answer: resultExp, type, base, expTop, expBot, 
+                        crossedItems: { top: [], bot: [] }, 
+                        pendingZone: null, pendingIndex: null,
+                        maxCrosses: expBot
+                    };
+
+                    document.getElementById('q-instruction').innerHTML = `Tacha manualmente: una figura de arriba y una de abajo al mismo tiempo.`;
+                    
+                    let layoutHTML = `
+                        <div class="flex flex-col sm:flex-row w-full items-center justify-center gap-2 sm:gap-6 mt-4">
+                            
+                            <!-- Fracción Matemática Original -->
+                            <div class="math-fraction text-2xl font-black text-brand-dark">
+                                <span class="numerator">${base}<sup>${expTop}</sup></span>
+                                <span class="denominator">${base}<sup>${expBot}</sup></span>
+                            </div>
+                            
+                            <span class="text-3xl font-black text-slate-400">=</span>
+                            
+                            <!-- Representación Visual Fraccionaria (Interactiva) -->
+                            <div class="flex flex-col items-center bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm w-full sm:w-auto">
+                                <div id="prop-top" class="flex flex-wrap justify-center gap-2 w-full">`;
+                                    for(let i=0; i<expTop; i++) {
+                                        layoutHTML += `<div class="emoji-item transition-all bg-slate-100 p-2 rounded-lg min-w-[40px] text-center shadow-sm cursor-pointer text-2xl select-none" onclick="Game.handleCrossClick('top', ${i})">${base}</div>`;
+                                    }
+                    layoutHTML += `</div>
+                                <div class="w-11/12 max-w-[250px] h-[3px] bg-slate-700 my-3 rounded-full"></div>
+                                <div id="prop-bot" class="flex flex-wrap justify-center gap-2 w-full">`;
+                                    for(let i=0; i<expBot; i++) {
+                                        layoutHTML += `<div class="emoji-item transition-all bg-slate-100 p-2 rounded-lg min-w-[40px] text-center shadow-sm cursor-pointer text-2xl select-none" onclick="Game.handleCrossClick('bot', ${i})">${base}</div>`;
+                                    }
+                    layoutHTML += `</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('q-visual-area').innerHTML = layoutHTML;
+
+                    document.getElementById('q-controls-area').innerHTML = `
+                        <p class="text-sm font-bold text-slate-500 mb-2">Toca las figuras para simplificar (tacha una de arriba y una de abajo).</p>
+                        <div class="flex items-center gap-2 text-lg sm:text-xl font-black text-slate-700 w-full justify-center">
+                            <span>Resultado final = ${base} elevado a:</span>
+                            <input type="number" id="input-prop" class="w-16 p-2 text-center border-4 border-slate-200 rounded-lg focus:border-brand outline-none" placeholder="?">
+                        </div>
+                        <button onclick="Game.checkPropiedad()" class="btn-3d w-full bg-success border-green-700 text-white py-3 rounded-xl font-black text-lg mt-4">
+                            Comprobar Respuesta
+                        </button>
+                    `;
+                }
+            },
+
+            // Lógica Multiplicación Visual
+            addPropertyMultiplication() {
+                this.state.currentData.added++;
+                Sound.click();
+                this.renderMultiplicationCanvas();
+            },
+            
+            removePropertyMultiplication() {
+                if(this.state.currentData.added > 0) {
+                    this.state.currentData.added--;
+                    Sound.click();
+                    this.renderMultiplicationCanvas();
+                }
+            },
+
+            renderMultiplicationCanvas() {
+                const canvas = document.getElementById('prop-canvas');
+                const data = this.state.currentData;
+                let html = '';
+                for(let i=0; i<data.added; i++) {
+                    html += `<span class="bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 shadow-sm animate-pop">${data.base}</span>`;
+                    if (i < data.added - 1) {
+                        html += `<span class="text-slate-400 font-bold self-center animate-pop">×</span>`;
+                    }
+                }
+                canvas.innerHTML = html;
+            },
+
+            // Lógica División Interactiva
+            handleCrossClick(zone, index) {
+                const data = this.state.currentData;
+                
+                if (data.crossedItems[zone].includes(index)) return; // Ya está tachado
+
+                if (data.pendingZone === zone) {
+                    if (data.pendingIndex === index) {
+                        // Deseleccionar si se toca el mismo
+                        data.pendingZone = null;
+                        data.pendingIndex = null;
+                        Sound.click();
+                    } else {
+                        // Error pedagógico: quiere tachar dos del mismo lado
+                        this.showToast(`¡Tienes que tachar una figura de ${zone === 'top' ? 'abajo' : 'arriba'} ahora!`);
+                        Sound.wrong();
+                    }
+                } else if (data.pendingZone === null) {
+                    // Seleccionar el primero
+                    data.pendingZone = zone;
+                    data.pendingIndex = index;
+                    Sound.click();
+                } else {
+                    // ¡Pareja encontrada! (uno arriba, uno abajo)
+                    data.crossedItems[zone].push(index);
+                    data.crossedItems[data.pendingZone].push(data.pendingIndex);
+                    data.pendingZone = null;
+                    data.pendingIndex = null;
+                    Sound.pop();
+                }
+                
+                this.updateDivisionVisuals();
+            },
+
+            updateDivisionVisuals() {
+                const data = this.state.currentData;
+                const topItems = document.querySelectorAll('#prop-top .emoji-item');
+                const botItems = document.querySelectorAll('#prop-bot .emoji-item');
+
+                // Resetear estilos visuales
+                topItems.forEach((el, i) => {
+                    el.className = "emoji-item transition-all bg-slate-100 p-2 rounded-lg min-w-[40px] text-center shadow-sm cursor-pointer text-2xl select-none";
+                    if(data.crossedItems.top.includes(i)) el.classList.add('strike-through');
+                    if(data.pendingZone === 'top' && data.pendingIndex === i) el.classList.add('pending-cross');
+                });
+
+                botItems.forEach((el, i) => {
+                    el.className = "emoji-item transition-all bg-slate-100 p-2 rounded-lg min-w-[40px] text-center shadow-sm cursor-pointer text-2xl select-none";
+                    if(data.crossedItems.bot.includes(i)) el.classList.add('strike-through');
+                    if(data.pendingZone === 'bot' && data.pendingIndex === i) el.classList.add('pending-cross');
+                });
+            },
+
+            checkPropiedad() {
+                const val = document.getElementById('input-prop').value;
+                if(!val) {
+                    this.shakeElement(document.getElementById('input-prop'));
+                    return;
+                }
+                const answer = parseInt(val);
+                const target = this.state.currentData.answer;
+                const data = this.state.currentData;
+                
+                if (data.type === 'multiplicacion') {
+                    if (data.added !== data.totalNeeded) {
+                        this.showFeedback('error', '¡Cuenta bien!', `Agregaste visualmente ${data.added} figuras, pero en total debían ser ${data.totalNeeded} (${data.exp1} + ${data.exp2}).`, 'Intentar de nuevo', () => this.hideFeedbackOverlay());
+                        return;
+                    }
+                    if (answer === target) {
+                        this.showFeedback('success', '¡Excelente!', `¡Exacto! Al multiplicar bases iguales, agrupamos sumando los exponentes. El resultado es ${target}.`, 'Continuar', () => this.nextQuestion());
+                    } else {
+                        this.showFeedback('error', 'Casi...', `Agregaste las bases correctamente, pero el exponente final debe ser el total de figuras (${target}).`, 'Siguiente', () => this.nextQuestion());
+                    }
+                } else {
+                    // Division
+                    if (data.crossedItems.bot.length !== data.maxCrosses) {
+                         this.showFeedback('error', '¡Falta tachar!', `Aún puedes tachar más parejas arriba y abajo antes de poner el resultado.`, 'Entendido', () => this.hideFeedbackOverlay());
+                         return;
+                    }
+
+                    if (answer === target) {
+                        this.showFeedback('success', '¡Excelente!', `¡Muy bien! Al tachar las bases repetidas (restar exponentes), nos quedaron exactamente ${target} figuras sin tachar.`, 'Continuar', () => this.nextQuestion());
+                    } else {
+                        this.showFeedback('error', 'Revisa', `Tachaste muy bien, pero cuenta cuántas figuras sobraron arriba sin tachar. La respuesta era ${target}.`, 'Siguiente', () => this.nextQuestion());
+                    }
+                }
+            },
+
+            // --- UTILIDADES ---
+            shakeElement(element) {
+                element.classList.remove('animate-shake', 'border-danger');
+                void element.offsetWidth;
+                element.classList.add('animate-shake', 'border-danger');
+                setTimeout(() => element.classList.remove('border-danger'), 500);
+            },
+
+            launchConfetti() {
+                const colors = ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#a855f7'];
+                for(let i=0; i<50; i++) {
+                    const conf = document.createElement('div');
+                    conf.className = 'confetti';
+                    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    conf.style.left = Math.random() * 100 + 'vw';
+                    conf.style.top = '-10px';
+                    conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    
+                    document.body.appendChild(conf);
+
+                    const duration = Math.random() * 2 + 2;
+                    const delay = Math.random() * 0.5;
+                    
+                    conf.animate([
+                        { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+                        { transform: `translate3d(${Math.random()*200 - 100}px, 100vh, 0) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                    ], {
+                        duration: duration * 1000,
+                        delay: delay * 1000,
+                        easing: 'cubic-bezier(.37,0,.63,1)',
+                        fill: 'forwards'
+                    });
+
+                    setTimeout(() => conf.remove(), (duration + delay) * 1000);
+                }
+            }
+        };
+    </script>
+</body>
+</html>
