@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrigoApp - Misión Trigonometría</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Iconos Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            /* Colores de Lados basados en las imágenes de referencia */
+            --color-opuesto: #ef4444; /* Rojo */
+            --color-adyacente: #3b82f6; /* Azul */
+            --color-hipotenusa: #10b981; /* Verde */
+            --color-angulo: #f97316; /* Naranja para el arco y grados */
+            
+            /* Tema Claro */
+            --bg-body: #e2e8f0; /* slate-200 */
+            --bg-app: #ffffff; /* blanco */
+            --bg-panel: #f8fafc; /* slate-50 */
+            --text-main: #1e293b; /* slate-800 */
+            --text-muted: #64748b; /* slate-500 */
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            overflow: hidden; /* Prevenir scroll en móviles */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            touch-action: manipulation;
+        }
+
+        /* Contenedor principal estilo App */
+        #app-container {
+            width: 100%;
+            max-width: 500px; 
+            height: 100%;
+            max-height: 950px;
+            background-color: var(--bg-app);
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        @media (min-width: 501px) {
+            #app-container {
+                height: 95vh;
+                border-radius: 24px;
+                border: 6px solid #cbd5e1;
+            }
+        }
+
+        /* Pantallas */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            padding: 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Botones */
+        .btn-game {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            font-weight: 800;
+            border-radius: 14px;
+            padding: 14px 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0 #3730a3;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-game:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #3730a3;
+        }
+        .btn-game:disabled {
+            background: #cbd5e1;
+            box-shadow: 0 5px 0 #94a3b8;
+            color: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.8;
+        }
+
+        .btn-func {
+            font-size: 1.1rem;
+            padding: 15px 5px;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .btn-sin { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 5px 0 #991b1b; }
+        .btn-cos { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 5px 0 #1e40af; }
+        .btn-tan { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 5px 0 #92400e; }
+
+        /* Contenedor SVG */
+        #svg-container {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #ffffff;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            position: relative;
+            margin-bottom: 15px;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            overflow: visible;
+        }
+
+        #labels-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Textos sobre el SVG */
+        .svg-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-weight: 900;
+            font-size: 1.4rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 4px 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            pointer-events: none;
+            border: 2px solid transparent;
+            z-index: 10;
+        }
+
+        .svg-angle-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-weight: 900;
+            font-size: 1.3rem;
+            color: var(--color-angulo); /* Naranja para los ángulos */
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .color-opuesto { color: var(--color-opuesto); border-color: rgba(239, 68, 68, 0.2); }
+        .color-adyacente { color: var(--color-adyacente); border-color: rgba(59, 130, 246, 0.2); }
+        .color-hipotenusa { color: var(--color-hipotenusa); border-color: rgba(16, 185, 129, 0.2); }
+        .color-incognita { color: #000; font-size: 1.6rem; border-color: #fbbf24; background: #fffbeb; }
+        .color-neutral { color: #1e293b; border-color: rgba(30, 41, 59, 0.2); }
+        .color-incognita-bn { color: #000; font-size: 1.6rem; border-color: #64748b; background: #f1f5f9; }
+
+        /* Fórmulas Header */
+        .formulas-panel {
+            background: var(--bg-panel);
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        
+        .formula {
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin-left: 5px;
+            font-weight: 900;
+        }
+        .frac > span:first-child { border-bottom: 3px solid var(--text-main); padding: 0 4px; }
+        .frac > span:last-child { padding: 0 4px; }
+
+        /* Inputs de respuesta */
+        .answer-box {
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 15px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .answer-box.visible { display: flex; }
+
+        .input-frac {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .input-frac input {
+            width: 90px;
+            text-align: center;
+            background: white;
+            border: 3px solid #cbd5e1;
+            color: var(--text-main);
+            border-radius: 10px;
+            padding: 8px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .input-frac input:focus { outline: none; border-color: #3b82f6; }
+        .divider { width: 110px; height: 4px; background: var(--text-main); margin: 10px 0; border-radius: 2px; }
+
+        /* Animaciones */
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+
+        /* Modal Overlay */
+        #modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 50;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9);
+            transition: transform 0.2s;
+        }
+        #modal-overlay.active { display: flex; }
+        #modal-overlay.active .modal-content { transform: scale(1); }
+
+        /* Utilidades */
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- TOP BAR (Oculta al inicio) -->
+        <header id="top-bar" class="hidden glass p-3 border-b border-slate-200 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center gap-2">
+                <button onclick="navTo('main-menu')" class="text-slate-500 hover:text-slate-800 p-2 rounded-lg bg-slate-100">
+                    <i class="ph-fill ph-house text-xl"></i>
+                </button>
+                <div class="text-xs leading-tight">
+                    <div id="tb-name" class="font-bold text-slate-800 max-w-[100px] truncate">Estudiante</div>
+                    <div id="tb-grade" class="text-slate-500 font-semibold">10°</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 text-sm font-black">
+                <div class="flex items-center gap-1 text-emerald-500">
+                    <i class="ph-bold ph-check text-lg"></i> <span id="tb-correct">0</span>
+                </div>
+                <div class="flex items-center gap-1 text-red-500">
+                    <i class="ph-bold ph-x text-lg"></i> <span id="tb-incorrect">0</span>
+                </div>
+                <div class="flex items-center gap-1 text-blue-500 w-16 justify-end">
+                    <i class="ph-bold ph-clock text-lg"></i> <span id="tb-time">00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- PANTALLA DE INICIO -->
+        <div id="start-screen" class="screen active justify-center items-center text-center">
+            <div class="mb-8">
+                <div class="w-28 h-28 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12 shadow-xl shadow-blue-500/30">
+                    <i class="ph-fill ph-triangle text-6xl text-white"></i>
+                </div>
+                <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-500">TrigoApp</h1>
+                <p class="text-slate-500 mt-2 font-bold tracking-wide uppercase text-sm">Misión Trigonometría</p>
+            </div>
+
+            <div class="w-full max-w-sm space-y-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-xl">
+                <div>
+                    <label class="block text-left text-sm font-bold text-slate-700 mb-2">Tu Nombre</label>
+                    <input type="text" id="input-name" placeholder="Ej. Carlos" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 text-slate-800 font-bold focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-left text-sm font-bold text-slate-700 mb-2">Grado</label>
+                    <select id="input-grade" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3 text-slate-800 font-bold focus:outline-none focus:border-blue-500 transition-colors appearance-none">
+                        <option value="10°">Grado Décimo (10°)</option>
+                        <option value="11°">Grado Once (11°)</option>
+                    </select>
+                </div>
+                <button onclick="startGame()" class="btn-game w-full text-lg py-4 mt-4 shadow-blue-500/50">
+                    Comenzar <i class="ph-bold ph-rocket-launch ml-2"></i>
+                </button>
+            </div>
+
+            <div class="mt-8 flex gap-6">
+                <button onclick="showHelp()" class="text-slate-400 hover:text-slate-700 flex flex-col items-center gap-1 font-bold transition-colors">
+                    <i class="ph-fill ph-question text-3xl"></i> <span class="text-xs">Ayuda</span>
+                </button>
+                <button onclick="toggleFullscreen()" class="text-slate-400 hover:text-slate-700 flex flex-col items-center gap-1 font-bold transition-colors">
+                    <i class="ph-fill ph-corners-out text-3xl"></i> <span class="text-xs">Pantalla Completa</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- MENÚ PRINCIPAL -->
+        <div id="main-menu" class="screen justify-center">
+            <h2 class="text-3xl font-black text-center mb-2 text-slate-800">Elige tu Misión</h2>
+            <p class="text-slate-500 text-center mb-10 text-sm font-bold">Aprende a identificar lados y razones</p>
+
+            <div class="space-y-5 w-full max-w-sm mx-auto">
+                <button onclick="startSection(1)" class="w-full bg-white hover:bg-slate-50 border-2 border-blue-200 hover:border-blue-500 rounded-3xl p-5 text-left transition-all flex items-center gap-4 group shadow-lg shadow-slate-200/50">
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                        <i class="ph-fill ph-ruler text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-xl text-slate-800">Usando Lados</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-semibold">Halla la función teniendo 2 lados conocidos.</p>
+                    </div>
+                </button>
+
+                <button onclick="startSection(2)" class="w-full bg-white hover:bg-slate-50 border-2 border-emerald-200 hover:border-emerald-500 rounded-3xl p-5 text-left transition-all flex items-center gap-4 group shadow-lg shadow-slate-200/50">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                        <i class="ph-fill ph-angle text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-xl text-slate-800">Usando Ángulos</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-semibold">Halla la función teniendo un ángulo.</p>
+                    </div>
+                </button>
+
+                <button onclick="startSection(3)" class="w-full bg-white hover:bg-slate-50 border-2 border-purple-200 hover:border-purple-500 rounded-3xl p-5 text-left transition-all flex items-center gap-4 group shadow-lg shadow-slate-200/50">
+                    <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
+                        <i class="ph-bold ph-shuffle text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-xl text-slate-800">Variado</h3>
+                        <p class="text-xs text-slate-500 mt-1 font-semibold">Mezcla aleatoria de lados y ángulos.</p>
+                    </div>
+                </button>
+
+                <button onclick="startSection(4)" class="w-full bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-400 rounded-3xl p-5 text-left transition-all flex items-center gap-4 group shadow-lg shadow-slate-200/50">
+                    <div class="w-14 h-14 bg-slate-700 rounded-2xl flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                        <i class="ph-fill ph-graduation-cap text-3xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-xl text-white">Modo Experto</h3>
+                        <p class="text-xs text-slate-300 mt-1 font-semibold">Sin colores. Solo el ángulo resalta. ¡Demuestra tu nivel!</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div id="game-screen" class="screen">
+            
+            <!-- Panel de Fórmulas SIEMPRE VISIBLE -->
+            <div class="formulas-panel">
+                <div class="formula">
+                    <div class="font-black text-slate-800">Sen(α) = <div class="frac"><span class="text-red-500">CO</span><span class="text-emerald-500">H</span></div></div>
+                </div>
+                <div class="formula border-l-2 border-r-2 border-slate-200 px-4">
+                    <div class="font-black text-slate-800">Cos(α) = <div class="frac"><span class="text-blue-500">CA</span><span class="text-emerald-500">H</span></div></div>
+                </div>
+                <div class="formula">
+                    <div class="font-black text-slate-800">Tan(α) = <div class="frac"><span class="text-red-500">CO</span><span class="text-blue-500">CA</span></div></div>
+                </div>
+            </div>
+            
+            <!-- Instrucción Dinámica -->
+            <h3 id="game-instruction" class="text-center font-bold text-lg mb-3 text-slate-700 bg-white py-3 px-2 rounded-xl border-2 border-slate-200 shadow-sm">
+                Identifica qué función usar para encontrar <span id="target-var" class="text-emerald-500 font-black">X</span>
+            </h3>
+
+            <!-- Contenedor del Triángulo -->
+            <div id="svg-container">
+                <svg id="triangle-svg" viewBox="0 0 350 350">
+                    <!-- Geometría renderizada por JS -->
+                </svg>
+                <!-- Textos en HTML posicionados sobre el SVG para evitar rotación -->
+                <div id="labels-container"></div>
+            </div>
+
+            <!-- Botones de Funciones -->
+            <div class="flex justify-between mt-2 gap-2" id="function-buttons">
+                <button class="btn-game btn-func btn-sin" onclick="selectFunction('sen')">SENO</button>
+                <button class="btn-game btn-func btn-cos" onclick="selectFunction('cos')">COSENO</button>
+                <button class="btn-game btn-func btn-tan" onclick="selectFunction('tan')">TANGENTE</button>
+            </div>
+
+            <!-- Caja de Respuesta (Aparece tras elegir función) -->
+            <div id="answer-box" class="answer-box">
+                <div class="text-sm font-black mb-4 text-slate-600 uppercase tracking-wide" id="answer-title">Completa la razón para <span class="text-slate-900 text-lg ml-1" id="selected-func-name">Seno(θ)</span></div>
+                
+                <div class="input-frac">
+                    <input type="text" id="input-num" placeholder="Num." autocomplete="off">
+                    <div class="divider"></div>
+                    <input type="text" id="input-den" placeholder="Den." autocomplete="off">
+                </div>
+
+                <div class="w-full flex gap-3 mt-2">
+                    <button class="btn-game bg-slate-400 hover:bg-slate-500 shadow-[0_5px_0_#94a3b8] flex-1 py-3" onclick="resetSelection()">Cambiar</button>
+                    <button class="btn-game bg-emerald-500 hover:bg-emerald-600 !shadow-[0_5px_0_#047857] flex-[2] py-3 text-lg" onclick="checkAnswer()">Verificar <i class="ph-bold ph-check-circle ml-1"></i></button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MODAL DE FEEDBACK / AYUDA -->
+        <div id="modal-overlay">
+            <div class="modal-content" id="modal-card">
+                <div id="modal-icon" class="text-7xl mb-4 flex justify-center"></div>
+                <h2 id="modal-title" class="text-3xl font-black mb-3"></h2>
+                <p id="modal-message" class="text-slate-600 mb-8 text-base font-semibold leading-relaxed"></p>
+                <button id="modal-btn" onclick="closeModal()" class="btn-game w-full py-4 text-lg"></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* --- ESTADO GLOBAL --- */
+        const gameState = {
+            user: { name: '', grade: '' },
+            stats: { correct: 0, incorrect: 0 },
+            timer: { seconds: 0, interval: null },
+            currentSection: 1, 
+            problem: null, 
+            selectedFunc: null 
+        };
+
+        // Ternas pitagóricas 
+        const triples = [
+            { a: 3, b: 4, c: 5 }, { a: 5, b: 12, c: 13 }, { a: 8, b: 15, c: 17 },
+            { a: 6, b: 8, c: 10 }, { a: 9, b: 12, c: 15 }
+        ];
+
+        /* --- MOTOR DE AUDIO --- */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let actx;
+
+        function initAudio() {
+            if (!actx) actx = new AudioContext();
+            if (actx.state === 'suspended') actx.resume();
+        }
+
+        function playSound(type) {
+            if (!actx) initAudio();
+            const osc = actx.createOscillator();
+            const gain = actx.createGain();
+            osc.connect(gain);
+            gain.connect(actx.destination);
+
+            const now = actx.currentTime;
+            if (type === 'success') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'click') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            }
+        }
+
+        /* --- NAVEGACIÓN Y FLUJO --- */
+        function navTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            if (screenId === 'start-screen') {
+                document.getElementById('top-bar').classList.add('hidden');
+                stopTimer();
+            } else {
+                document.getElementById('top-bar').classList.remove('hidden');
+            }
+            playSound('click');
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('input-name').value.trim();
+            if (!nameInput) {
+                showModal('Atención', 'Por favor, ingresa tu nombre para continuar.', 'warning', 'Entendido');
+                return;
+            }
+            initAudio(); 
+            gameState.user.name = nameInput;
+            gameState.user.grade = document.getElementById('input-grade').value;
+            
+            document.getElementById('tb-name').textContent = gameState.user.name;
+            document.getElementById('tb-grade').textContent = gameState.user.grade;
+            
+            gameState.stats.correct = 0;
+            gameState.stats.incorrect = 0;
+            updateStats();
+            
+            navTo('main-menu');
+        }
+
+        function startSection(section) {
+            gameState.currentSection = section;
+            startTimer();
+            navTo('game-screen');
+            generateProblem();
+        }
+
+        function updateStats() {
+            document.getElementById('tb-correct').textContent = gameState.stats.correct;
+            document.getElementById('tb-incorrect').textContent = gameState.stats.incorrect;
+        }
+
+        function startTimer() {
+            stopTimer();
+            gameState.timer.seconds = 0;
+            updateTimerDisplay();
+            gameState.timer.interval = setInterval(() => {
+                gameState.timer.seconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (gameState.timer.interval) clearInterval(gameState.timer.interval);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(gameState.timer.seconds / 60).toString().padStart(2, '0');
+            const s = (gameState.timer.seconds % 60).toString().padStart(2, '0');
+            document.getElementById('tb-time').textContent = `${m}:${s}`;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        /* --- MOTOR GEOMÉTRICO (SVG) MEJORADO --- */
+        function renderTriangle(config) {
+            const svg = document.getElementById('triangle-svg');
+            const labelsContainer = document.getElementById('labels-container');
+            svg.innerHTML = ''; labelsContainer.innerHTML = '';
+
+            // 1. Escalar el triángulo para que ocupe gran parte del viewBox (350x350)
+            const viewBoxSize = 350;
+            const maxSide = Math.max(config.sideA, config.sideB, config.sideC);
+            // Hacer el triángulo más grande (antes 210, ahora 250)
+            const scale = 250 / maxSide; 
+            
+            const a = config.sideA * scale; 
+            const b = config.sideB * scale;
+
+            // 2. Generar rotación aleatoria
+            const rotations = [0, 90, 180, 270, 30, -30, 45, 135];
+            const angleDeg = rotations[Math.floor(Math.random() * rotations.length)];
+            const angleRad = angleDeg * Math.PI / 180;
+
+            // 3. Rotar triángulo base alrededor de (0,0)
+            const rotate = (x, y) => {
+                return {
+                    x: x * Math.cos(angleRad) - y * Math.sin(angleRad),
+                    y: x * Math.sin(angleRad) + y * Math.cos(angleRad)
+                };
+            };
+
+            let ptA = rotate(0, b);
+            let ptB = rotate(0, 0); // Ángulo Recto
+            let ptC = rotate(a, 0);
+
+            // 4. Calcular Bounding Box para Centrar perfectamente en 300x300
+            const minX = Math.min(ptA.x, ptB.x, ptC.x);
+            const maxX = Math.max(ptA.x, ptB.x, ptC.x);
+            const minY = Math.min(ptA.y, ptB.y, ptC.y);
+            const maxY = Math.max(ptA.y, ptB.y, ptC.y);
+            
+            const offsetX = (viewBoxSize / 2) - ((minX + maxX) / 2);
+            const offsetY = (viewBoxSize / 2) - ((minY + maxY) / 2);
+
+            // Aplicar offset a los puntos finales
+            ptA = { x: ptA.x + offsetX, y: ptA.y + offsetY };
+            ptB = { x: ptB.x + offsetX, y: ptB.y + offsetY };
+            ptC = { x: ptC.x + offsetX, y: ptC.y + offsetY };
+
+            // Dibujar fondo del triángulo suave
+            const pathBg = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            pathBg.setAttribute("d", `M ${ptA.x} ${ptA.y} L ${ptB.x} ${ptB.y} L ${ptC.x} ${ptC.y} Z`);
+            pathBg.setAttribute("fill", "#f1f5f9"); 
+            pathBg.setAttribute("stroke", "#cbd5e1");
+            pathBg.setAttribute("stroke-width", "3");
+            pathBg.setAttribute("stroke-linejoin", "round");
+            svg.appendChild(pathBg);
+
+            // Identificar lados y vértices clave
+            let targetPt, adjLine, oppLine, hypLine;
+            if (config.targetAngle === 'A') {
+                targetPt = ptA; 
+                oppLine = {p1: ptB, p2: ptC}; // Cateto Opuesto a A
+                adjLine = {p1: ptA, p2: ptB}; // Cateto Adyacente a A
+            } else {
+                targetPt = ptC; 
+                oppLine = {p1: ptA, p2: ptB}; // Cateto Opuesto a C
+                adjLine = {p1: ptB, p2: ptC}; // Cateto Adyacente a C
+            }
+            hypLine = {p1: ptA, p2: ptC}; // Hipotenusa siempre frente a B
+
+            // Dibujar marcador de ángulo recto en ptB (cuadrito)
+            const rightSize = 20;
+            // Vectores unitarios desde ptB hacia ptA y ptC
+            const vBAx = ptA.x - ptB.x, vBAy = ptA.y - ptB.y;
+            const lenBA = Math.sqrt(vBAx*vBAx + vBAy*vBAy);
+            const uBA = {x: vBAx/lenBA, y: vBAy/lenBA};
+
+            const vBCx = ptC.x - ptB.x, vBCy = ptC.y - ptB.y;
+            const lenBC = Math.sqrt(vBCx*vBCx + vBCy*vBCy);
+            const uBC = {x: vBCx/lenBC, y: vBCy/lenBC};
+
+            const ptR1 = {x: ptB.x + uBA.x*rightSize, y: ptB.y + uBA.y*rightSize};
+            const ptR2 = {x: ptB.x + uBA.x*rightSize + uBC.x*rightSize, y: ptB.y + uBA.y*rightSize + uBC.y*rightSize};
+            const ptR3 = {x: ptB.x + uBC.x*rightSize, y: ptB.y + uBC.y*rightSize};
+
+            const rightPath = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            rightPath.setAttribute("points", `${ptB.x},${ptB.y} ${ptR1.x},${ptR1.y} ${ptR2.x},${ptR2.y} ${ptR3.x},${ptR3.y}`);
+            rightPath.setAttribute("fill", config.noColor ? "rgba(100, 116, 139, 0.1)" : "rgba(239, 68, 68, 0.1)");
+            rightPath.setAttribute("stroke", config.noColor ? "#64748b" : "#ef4444"); // Gris en Experto, Rojo normal
+            rightPath.setAttribute("stroke-width", "3");
+            rightPath.setAttribute("stroke-linejoin", "round");
+            svg.appendChild(rightPath);
+
+            // DIBUJAR LADOS CON COLORES (O EN BLANCO Y NEGRO)
+            const drawLine = (line, colorHex) => {
+                const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                l.setAttribute("x1", line.p1.x); l.setAttribute("y1", line.p1.y);
+                l.setAttribute("x2", line.p2.x); l.setAttribute("y2", line.p2.y);
+                l.setAttribute("stroke", colorHex);
+                l.setAttribute("stroke-width", "4.5"); // Grosor más delgado
+                l.setAttribute("stroke-linecap", "round");
+                svg.appendChild(l);
+            };
+
+            const colorOpp = config.noColor ? "#475569" : "#ef4444";
+            const colorAdj = config.noColor ? "#475569" : "#3b82f6";
+            const colorHyp = config.noColor ? "#475569" : "#10b981";
+
+            drawLine(oppLine, colorOpp); 
+            drawLine(adjLine, colorAdj); 
+            drawLine(hypLine, colorHyp); 
+
+            // DIBUJAR ÁNGULO COMO ARCO "REBANADA"
+            const drawAngleWedge = (center, pEnd1, pEnd2, labelText) => {
+                const radius = 45; // Tamaño del arco del ángulo
+                let a1 = Math.atan2(pEnd1.y - center.y, pEnd1.x - center.x);
+                let a2 = Math.atan2(pEnd2.y - center.y, pEnd2.x - center.x);
+
+                // Calcular el ángulo interior para dibujar el arco correcto
+                let diff = a2 - a1;
+                while (diff <= -Math.PI) diff += 2 * Math.PI;
+                while (diff > Math.PI) diff -= 2 * Math.PI;
+
+                if (diff < 0) {
+                    let temp = a1; a1 = a2; a2 = temp;
+                    diff = -diff;
+                }
+
+                const startX = center.x + radius * Math.cos(a1);
+                const startY = center.y + radius * Math.sin(a1);
+                const endX = center.x + radius * Math.cos(a2);
+                const endY = center.y + radius * Math.sin(a2);
+                
+                const largeArc = diff > Math.PI ? 1 : 0;
+
+                const pathStr = `M ${center.x} ${center.y} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY} Z`;
+                const arcPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                arcPath.setAttribute("d", pathStr);
+                arcPath.setAttribute("fill", "rgba(249, 115, 22, 0.15)"); // Relleno naranja transparente
+                arcPath.setAttribute("stroke", "#f97316"); // Borde del arco naranja
+                arcPath.setAttribute("stroke-width", "3");
+                svg.appendChild(arcPath);
+
+                // Etiqueta del ángulo, centrada dentro/borde del arco
+                const midAngle = a1 + diff / 2;
+                const labelDist = radius + 20; // Un poco fuera del arco
+                const lx = center.x + Math.cos(midAngle) * labelDist;
+                const ly = center.y + Math.sin(midAngle) * labelDist;
+                
+                createHtmlLabel(lx, ly, labelText, 'svg-angle-label');
+            };
+
+            const angleLabel = config.knownAngle ? `${config.knownAngle}°` : 'θ';
+            // Pasamos el centro y los otros dos vértices para calcular el arco interior
+            drawAngleWedge(targetPt, targetPt === ptA ? ptB : ptA, targetPt === ptA ? ptC : ptB, angleLabel);
+
+            // DIBUJAR ETIQUETAS DE LADOS
+            const placeSideLabel = (p1, p2, text, colorClass) => {
+                if (!text) return; 
+                const midX = (p1.x + p2.x) / 2;
+                const midY = (p1.y + p2.y) / 2;
+                
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                let nx = -dy, ny = dx; // Normal
+                
+                const len = Math.sqrt(nx*nx + ny*ny);
+                nx /= len; ny /= len;
+                
+                // Asegurar que el texto se "empuja" hacia afuera del triángulo
+                const centroidX = (ptA.x + ptB.x + ptC.x)/3;
+                const centroidY = (ptA.y + ptB.y + ptC.y)/3;
+                if ((nx * (midX - centroidX) + ny * (midY - centroidY)) < 0) {
+                    nx = -nx; ny = -ny;
+                }
+
+                // Más distancia para que no cruce las líneas gruesas
+                const offsetDist = 35; 
+                const lx = midX + nx * offsetDist;
+                const ly = midY + ny * offsetDist;
+
+                let finalClass;
+                if (text.toLowerCase() === 'x') {
+                    finalClass = config.noColor ? 'color-incognita-bn' : 'color-incognita';
+                } else {
+                    finalClass = config.noColor ? 'color-neutral' : colorClass;
+                }
+                createHtmlLabel(lx, ly, text.toUpperCase(), finalClass);
+            };
+
+            placeSideLabel(oppLine.p1, oppLine.p2, config.labels.opp, 'color-opuesto');
+            placeSideLabel(adjLine.p1, adjLine.p2, config.labels.adj, 'color-adyacente');
+            placeSideLabel(hypLine.p1, hypLine.p2, config.labels.hyp, 'color-hipotenusa');
+        }
+
+        function createHtmlLabel(x, y, text, extraClasses) {
+            const container = document.getElementById('labels-container');
+            const div = document.createElement('div');
+            // Mapear de viewBox(350x350) a porcentaje
+            const percentX = (x / 350) * 100;
+            const percentY = (y / 350) * 100;
+            
+            div.className = `svg-label ${extraClasses}`;
+            div.style.left = `${percentX}%`;
+            div.style.top = `${percentY}%`;
+            div.innerHTML = text;
+            container.appendChild(div);
+        }
+
+        /* --- LÓGICA DE JUEGO --- */
+
+        function generateProblem() {
+            resetSelection(); 
+            
+            const triple = triples[Math.floor(Math.random() * triples.length)];
+            const targetAngle = Math.random() > 0.5 ? 'A' : 'C';
+            
+            const sideA = triple.a;
+            const sideB = triple.b;
+            const sideC = triple.c;
+
+            let valOpp, valAdj;
+            if (targetAngle === 'A') {
+                valOpp = sideA; valAdj = sideB;
+            } else {
+                valOpp = sideB; valAdj = sideA;
+            }
+            const valHyp = sideC;
+
+            let isNoColor = gameState.currentSection === 4;
+            
+            // Determinar tipo de problema (1 = Lados, 2 = Ángulos)
+            let mode = gameState.currentSection;
+            if (mode === 3 || mode === 4) {
+                mode = Math.random() > 0.5 ? 1 : 2;
+            }
+
+            let problemData = {
+                sideA: sideA, sideB: sideB, sideC: sideC, targetAngle: targetAngle,
+                values: { opp: valOpp, adj: valAdj, hyp: valHyp },
+                labels: { opp: null, adj: null, hyp: null },
+                correctFunc: '', knownAngle: null, findType: '',
+                noColor: isNoColor
+            };
+
+            const instruction = document.getElementById('game-instruction');
+
+            if (mode === 1) {
+                problemData.findType = 'angle';
+                instruction.innerHTML = `Identifica qué función usar para el ángulo <span class="text-orange-500 font-black text-xl">θ</span>`;
+                
+                const combinations = [
+                    { show: ['opp', 'hyp'], func: 'sen' },
+                    { show: ['adj', 'hyp'], func: 'cos' },
+                    { show: ['opp', 'adj'], func: 'tan' }
+                ];
+                const combo = combinations[Math.floor(Math.random() * combinations.length)];
+                
+                combo.show.forEach(side => {
+                    problemData.labels[side] = problemData.values[side].toString();
+                });
+                problemData.correctFunc = combo.func;
+                
+            } else {
+                problemData.findType = 'side';
+                
+                const angles = [30, 45, 60, 35, 55];
+                problemData.knownAngle = angles[Math.floor(Math.random() * angles.length)];
+                
+                const combinations = [
+                    { known: 'hyp', find: 'opp', func: 'sen', targetName: isNoColor ? 'Cateto Opuesto' : 'Cateto Opuesto (Rojo)' },
+                    { known: 'hyp', find: 'adj', func: 'cos', targetName: isNoColor ? 'Cateto Adyacente' : 'Cateto Adyacente (Azul)' },
+                    { known: 'adj', find: 'opp', func: 'tan', targetName: isNoColor ? 'Cateto Opuesto' : 'Cateto Opuesto (Rojo)' },
+                    { known: 'opp', find: 'adj', func: 'tan', targetName: isNoColor ? 'Cateto Adyacente' : 'Cateto Adyacente (Azul)' } 
+                ];
+                const combo = combinations[Math.floor(Math.random() * combinations.length)];
+
+                problemData.labels[combo.known] = problemData.values[combo.known].toString();
+                problemData.labels[combo.find] = 'x';
+                problemData.correctFunc = combo.func;
+                
+                instruction.innerHTML = `Quieres hallar <span class="${isNoColor ? 'text-slate-800' : 'text-amber-500'} font-black text-xl">X</span>. ¿Qué función relaciona la <b>X</b> con el número que ya tienes?`;
+            }
+
+            gameState.problem = problemData;
+            renderTriangle(problemData);
+        }
+
+        function selectFunction(funcName) {
+            playSound('click');
+            gameState.selectedFunc = funcName;
+            
+            const btns = document.querySelectorAll('.btn-func');
+            btns.forEach(b => {
+                b.disabled = true;
+                if (!b.classList.contains(`btn-${funcName}`)) b.style.opacity = '0.3';
+            });
+
+            const answerBox = document.getElementById('answer-box');
+            const funcTitleMap = { 'sen': 'Seno(θ)', 'cos': 'Coseno(θ)', 'tan': 'Tangente(θ)' };
+            document.getElementById('selected-func-name').textContent = funcTitleMap[funcName];
+            
+            document.getElementById('input-num').value = '';
+            document.getElementById('input-den').value = '';
+            
+            answerBox.classList.add('visible');
+            document.getElementById('input-num').focus();
+        }
+
+        function resetSelection() {
+            playSound('click');
+            gameState.selectedFunc = null;
+            document.getElementById('answer-box').classList.remove('visible');
+            const btns = document.querySelectorAll('.btn-func');
+            btns.forEach(b => {
+                b.disabled = false;
+                b.style.opacity = '1';
+            });
+        }
+
+        function checkAnswer() {
+            const p = gameState.problem;
+            const chosenFunc = gameState.selectedFunc;
+            const inNumStr = document.getElementById('input-num').value.trim();
+            const inDenStr = document.getElementById('input-den').value.trim();
+
+            if (!inNumStr || !inDenStr) {
+                shakeUI();
+                return;
+            }
+
+            const parseInput = (val) => val.toLowerCase() === 'x' ? 'x' : val;
+            const inNum = parseInput(inNumStr);
+            const inDen = parseInput(inDenStr);
+
+            let isFuncCorrect = (chosenFunc === p.correctFunc);
+            let areValuesCorrect = false;
+            let expectedNum, expectedDen;
+            let numName, denName;
+
+            if (chosenFunc === 'sen') {
+                expectedNum = p.labels.opp || p.values.opp.toString(); 
+                if(p.labels.opp === 'x') expectedNum = 'x';
+                expectedDen = p.labels.hyp || p.values.hyp.toString();
+                if(p.labels.hyp === 'x') expectedDen = 'x';
+                numName = "Opuesto"; denName = "Hipotenusa";
+            } else if (chosenFunc === 'cos') {
+                expectedNum = p.labels.adj || p.values.adj.toString();
+                if(p.labels.adj === 'x') expectedNum = 'x';
+                expectedDen = p.labels.hyp || p.values.hyp.toString();
+                if(p.labels.hyp === 'x') expectedDen = 'x';
+                numName = "Adyacente"; denName = "Hipotenusa";
+            } else if (chosenFunc === 'tan') {
+                expectedNum = p.labels.opp || p.values.opp.toString();
+                if(p.labels.opp === 'x') expectedNum = 'x';
+                expectedDen = p.labels.adj || p.values.adj.toString();
+                if(p.labels.adj === 'x') expectedNum = 'x';
+                numName = "Opuesto"; denName = "Adyacente";
+            }
+
+            areValuesCorrect = (inNum === expectedNum && inDen === expectedDen);
+
+            if (isFuncCorrect && areValuesCorrect) {
+                gameState.stats.correct++;
+                playSound('success');
+                showModal('¡Excelente!', 'Identificaste correctamente la función y los lados. ¡Sigue así!', 'success', 'Siguiente', generateProblem);
+            } else {
+                gameState.stats.incorrect++;
+                playSound('error');
+                shakeUI();
+
+                let errorMsg = '';
+                if (!isFuncCorrect) {
+                    errorMsg += `Elegiste <b>${chosenFunc.toUpperCase()}</b>, pero la función correcta es otra.<br><br>`;
+                    
+                    if (p.findType === 'angle') {
+                        let sides = [];
+                        if(p.labels.opp) sides.push(p.noColor ? '<b>Opuesto</b>' : '<span class="text-red-500 font-bold">Opuesto</span>');
+                        if(p.labels.adj) sides.push(p.noColor ? '<b>Adyacente</b>' : '<span class="text-blue-500 font-bold">Adyacente</span>');
+                        if(p.labels.hyp) sides.push(p.noColor ? '<b>Hipotenusa</b>' : '<span class="text-emerald-500 font-bold">Hipotenusa</span>');
+                        errorMsg += `Los números que tienes están en: ${sides.join(' y ')}. Mira las fórmulas arriba para saber cuál conecta ambos.`;
+                    } else {
+                        let knownSide, targetSide;
+                        if(p.labels.opp && p.labels.opp !== 'x') knownSide = p.noColor ? '<b>Opuesto</b>' : '<span class="text-red-500 font-bold">Opuesto</span>';
+                        if(p.labels.adj && p.labels.adj !== 'x') knownSide = p.noColor ? '<b>Adyacente</b>' : '<span class="text-blue-500 font-bold">Adyacente</span>';
+                        if(p.labels.hyp && p.labels.hyp !== 'x') knownSide = p.noColor ? '<b>Hipotenusa</b>' : '<span class="text-emerald-500 font-bold">Hipotenusa</span>';
+
+                        if(p.labels.opp === 'x') targetSide = p.noColor ? '<b>Opuesto</b>' : '<span class="text-red-500 font-bold">Opuesto</span>';
+                        if(p.labels.adj === 'x') targetSide = p.noColor ? '<b>Adyacente</b>' : '<span class="text-blue-500 font-bold">Adyacente</span>';
+                        if(p.labels.hyp === 'x') targetSide = p.noColor ? '<b>Hipotenusa</b>' : '<span class="text-emerald-500 font-bold">Hipotenusa</span>';
+
+                        errorMsg += `Tienes el lado <b>${knownSide}</b> y buscas la <b>X</b> que es el <b>${targetSide}</b>. ¿Qué función usa ambos?`;
+                    }
+                } else if (!areValuesCorrect) {
+                    errorMsg = `La función <b>${chosenFunc.toUpperCase()}</b> es correcta, ¡pero pusiste los datos al revés o usaste otros números!<br><br>`;
+                    errorMsg += `Recuerda: ${chosenFunc.toUpperCase()} = ${numName} / ${denName}.<br>`;
+                    errorMsg += `Aquí el ${numName} es <b>${expectedNum}</b> y el ${denName} es <b>${expectedDen}</b>.`;
+                }
+
+                showModal('Analiza de nuevo', errorMsg, 'error', 'Intentar de nuevo');
+            }
+            updateStats();
+        }
+
+        function shakeUI() {
+            const box = document.getElementById('answer-box');
+            box.classList.remove('shake');
+            void box.offsetWidth; 
+            box.classList.add('shake');
+        }
+
+        /* --- MODAL SYSTEM --- */
+        let modalCallback = null;
+        function showModal(title, message, type, btnText, callback = null) {
+            const overlay = document.getElementById('modal-overlay');
+            const iconDiv = document.getElementById('modal-icon');
+            const btn = document.getElementById('modal-btn');
+            
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').innerHTML = message;
+            btn.innerHTML = btnText;
+            
+            if (type === 'success') {
+                iconDiv.innerHTML = '<i class="ph-fill ph-check-circle text-emerald-500 drop-shadow-md"></i>';
+                document.getElementById('modal-title').className = "text-3xl font-black mb-3 text-emerald-600";
+                btn.className = "btn-game w-full py-4 text-lg bg-emerald-500 hover:bg-emerald-600 !shadow-[0_5px_0_#047857]";
+            } else if (type === 'error') {
+                iconDiv.innerHTML = '<i class="ph-fill ph-warning-circle text-red-500 drop-shadow-md"></i>';
+                document.getElementById('modal-title').className = "text-3xl font-black mb-3 text-red-600";
+                btn.className = "btn-game w-full py-4 text-lg bg-red-500 hover:bg-red-600 !shadow-[0_5px_0_#b91c1c]";
+            } else {
+                iconDiv.innerHTML = '<i class="ph-fill ph-info text-blue-500 drop-shadow-md"></i>';
+                document.getElementById('modal-title').className = "text-3xl font-black mb-3 text-blue-600";
+                btn.className = "btn-game w-full py-4 text-lg bg-blue-500 hover:bg-blue-600 !shadow-[0_5px_0_#1d4ed8]";
+            }
+
+            modalCallback = callback;
+            overlay.classList.add('active');
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('modal-overlay').classList.remove('active');
+            if (modalCallback) {
+                modalCallback();
+                modalCallback = null;
+            }
+        }
+
+        function showHelp() {
+            const msg = `
+                <div class="text-left space-y-3">
+                <p><b>1. Observa los colores:</b></p>
+                <p><span class="text-red-500 font-bold">Rojo (Opuesto):</span> Está frente al ángulo marcado.</p>
+                <p><span class="text-blue-500 font-bold">Azul (Adyacente):</span> Toca al ángulo marcado.</p>
+                <p><span class="text-emerald-500 font-bold">Verde (Hipotenusa):</span> El lado más largo (frente al cuadrito).</p>
+                <p><b>2. Elige tu arma:</b> Usa las fórmulas arriba para seleccionar el botón correcto según lo que tengas y lo que busques (<b>X</b>).</p>
+                </div>
+            `;
+            showModal('Cómo jugar', msg, 'info', '¡Entendido!');
+        }
+
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && document.getElementById('answer-box').classList.contains('visible')) {
+                if (document.getElementById('modal-overlay').classList.contains('active')) {
+                    closeModal();
+                } else {
+                    checkAnswer();
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
