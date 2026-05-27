@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Álgebra Interactiva: Reducción de Términos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        primary: '#4F46E5', secondary: '#10B981', danger: '#EF4444',
+                        warning: '#F59E0B', info: '#3B82F6', dark: '#1E293B',
+                        literal1: '#E0E7FF', literal2: '#D1FAE5', literal3: '#FEE2E2', literal4: '#FEF3C7'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background-color: #F3F4F6;
+            touch-action: manipulation; /* Previene zoom accidental doble tap */
+            overflow-x: hidden;
+        }
+        
+        /* Animaciones Personalizadas */
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .animate-pop { animation: pop 0.3s ease-out forwards; }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        
+        /* Estilos de Términos Algebraicos */
+        .term-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .term-card:active { transform: scale(0.95); }
+        .term-card.selected {
+            ring: 4px solid #F59E0B;
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            border-color: #F59E0B;
+            border-width: 3px;
+        }
+        
+        /* Zonas de soltado (Cajas) */
+        .drop-zone {
+            min-height: 80px;
+            transition: all 0.3s ease;
+            border: 2px dashed #CBD5E1;
+        }
+        .drop-zone.active-target {
+            border-color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+        .drop-zone.success {
+            border-color: #10B981;
+            background-color: #D1FAE5;
+        }
+        
+        /* Esconder scrollbar pero permitir scroll */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Estilo para superíndices en la fuente Nunito */
+        sup { font-size: 0.6em; top: -0.5em; }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Bar (Fija) -->
+    <header id="topbar" class="hidden bg-white shadow-md z-50 p-2 sm:p-4 flex justify-between items-center w-full sticky top-0">
+        <div class="flex items-center gap-2 sm:gap-4">
+            <button onclick="goToMenu()" class="text-primary hover:bg-indigo-50 p-2 rounded-full transition-colors" title="Ir al Menú">
+                <i class="fas fa-home text-xl sm:text-2xl"></i>
+            </button>
+            <div class="flex flex-col">
+                <span id="player-name-display" class="font-bold text-sm sm:text-lg text-slate-700">Estudiante</span>
+                <span id="player-grade-display" class="text-xs sm:text-sm text-slate-500">Grado 8°</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3 sm:gap-6">
+            <div class="hidden sm:flex items-center gap-1 text-slate-600 font-semibold" title="Tiempo transcurrido">
+                <i class="far fa-clock text-info"></i> <span id="timer">00:00</span>
+            </div>
+            <div class="flex items-center gap-1 text-green-600 font-bold" title="Aciertos">
+                <i class="fas fa-check-circle"></i> <span id="score-correct">0</span>
+            </div>
+            <div class="flex items-center gap-1 text-red-500 font-bold" title="Errores">
+                <i class="fas fa-times-circle"></i> <span id="score-incorrect">0</span>
+            </div>
+            <div class="bg-warning text-white px-3 py-1 rounded-full font-bold shadow flex items-center gap-1">
+                <i class="fas fa-star"></i> <span id="score-total">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal (Cambia según la pantalla) -->
+    <main id="main-container" class="flex-grow flex flex-col relative w-full h-full overflow-y-auto hide-scrollbar bg-slate-50">
+        
+        <!-- PANTALLA 0: INICIO -->
+        <section id="screen-login" class="flex-grow flex flex-col items-center justify-center p-4">
+            <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md animate-pop text-center">
+                <div class="text-6xl text-primary mb-4 animate-float">
+                    <i class="fas fa-square-root-variable"></i>
+                </div>
+                <h1 class="text-3xl font-black text-slate-800 mb-2">Álgebra Interactiva</h1>
+                <p class="text-slate-500 mb-6 font-semibold">Misión: Dominar los Términos Semejantes</p>
+                
+                <div class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1 ml-1">Tu Nombre:</label>
+                        <input type="text" id="input-name" placeholder="Ej. Ana Pérez" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-primary focus:outline-none text-lg transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-bold mb-1 ml-1">Grado:</label>
+                        <select id="input-grade" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-primary focus:outline-none text-lg transition-colors bg-white">
+                            <option value="8°">Grado 8°</option>
+                            <option value="9°">Grado 9°</option>
+                            <option value="Libre">Práctica Libre</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button onclick="startGame()" class="mt-8 w-full bg-primary hover:bg-indigo-700 text-white font-black text-xl py-4 rounded-xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-xl active:translate-y-0">
+                    ¡EMPEZAR AVENTURA! <i class="fas fa-rocket ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- PANTALLA 1: MENÚ PRINCIPAL -->
+        <section id="screen-menu" class="hidden flex-grow flex-col p-4 sm:p-8 max-w-4xl mx-auto w-full pb-20">
+            <h2 class="text-2xl sm:text-4xl font-black text-center text-slate-800 mb-8 mt-4">¿Qué vamos a entrenar hoy?</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                <!-- Modos de Juego -->
+                <button onclick="loadMode('identificacion')" class="bg-white p-6 rounded-2xl shadow-md border-b-4 border-info hover:bg-blue-50 transition-all text-left group">
+                    <div class="w-12 h-12 bg-blue-100 text-info rounded-full flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">1. Identificación</h3>
+                    <p class="text-slate-500 text-sm">Separa los términos semejantes en cajas según su parte literal.</p>
+                </button>
+
+                <button onclick="loadMode('suma')" class="bg-white p-6 rounded-2xl shadow-md border-b-4 border-secondary hover:bg-green-50 transition-all text-left group">
+                    <div class="w-12 h-12 bg-green-100 text-secondary rounded-full flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">2. Suma de Expresiones</h3>
+                    <p class="text-slate-500 text-sm">Agrupa los términos, suma sus coeficientes y forma el polinomio final.</p>
+                </button>
+
+                <button onclick="loadMode('resta')" class="bg-white p-6 rounded-2xl shadow-md border-b-4 border-danger hover:bg-red-50 transition-all text-left group">
+                    <div class="w-12 h-12 bg-red-100 text-danger rounded-full flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-minus"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">3. Resta Mixta</h3>
+                    <p class="text-slate-500 text-sm">Separa positivos y negativos, halla la diferencia y construye el polinomio.</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- CONTENEDOR DE JUEGO (Dinámico) -->
+        <section id="screen-game" class="hidden flex-grow flex-col p-2 sm:p-4 w-full max-w-6xl mx-auto h-full relative">
+            
+            <!-- Título del Modo Actual -->
+            <div class="bg-white rounded-xl shadow p-4 mb-4 flex justify-between items-center shrink-0">
+                <h2 id="game-title" class="text-xl sm:text-2xl font-black text-primary">Modo Juego</h2>
+                <button onclick="showHelp()" class="text-slate-400 hover:text-info text-2xl"><i class="fas fa-question-circle"></i></button>
+            </div>
+
+            <!-- Área de Instrucciones Rápidas -->
+            <div id="game-instruction" class="text-center font-semibold text-slate-600 mb-4 animate-pop shrink-0 text-sm sm:text-base">
+                Instrucciones aquí...
+            </div>
+
+            <!-- Zona de Trabajo Principal (Se llena con JS) -->
+            <div id="game-workspace" class="flex-grow bg-white rounded-2xl shadow-inner border-4 border-slate-100 p-2 sm:p-4 flex flex-col gap-4 overflow-y-auto">
+                <!-- Contenido dinámico inyectado aquí -->
+            </div>
+
+            <!-- Controles Inferiores -->
+            <div id="game-controls" class="mt-4 flex justify-end gap-4 shrink-0">
+                <button id="btn-check" onclick="checkAnswer()" class="bg-secondary hover:bg-green-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-transform hover:scale-105 hidden">
+                    <i class="fas fa-check mr-2"></i> Revisar
+                </button>
+                <button id="btn-next" onclick="nextExercise()" class="bg-primary hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-transform hover:scale-105 hidden">
+                    Siguiente <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal de Feedback (Custom) -->
+    <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex-items-center justify-center p-4">
+        <div id="feedback-content" class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-transform scale-90 opacity-0 relative mt-20 mx-auto">
+            <div id="feedback-icon" class="text-6xl mb-4"></div>
+            <h3 id="feedback-title" class="text-2xl font-black mb-2"></h3>
+            <p id="feedback-msg" class="text-slate-600 font-semibold mb-6"></p>
+            <button onclick="closeFeedback()" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700">Continuar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Ayuda -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex-items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative mt-10 mx-auto max-h-[80vh] overflow-y-auto">
+            <button onclick="closeHelp()" class="absolute top-4 right-4 text-slate-400 hover:text-danger text-2xl"><i class="fas fa-times"></i></button>
+            <h3 class="text-2xl font-black text-primary mb-4"><i class="fas fa-lightbulb text-warning mr-2"></i> Guía Rápida</h3>
+            <div id="help-content" class="space-y-4 text-slate-700 text-sm sm:text-base">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Lógica del Juego -->
+    <script>
+        /* --- ESTADO GLOBAL --- */
+        const state = {
+            user: { name: '', grade: '' },
+            stats: { correct: 0, incorrect: 0, score: 0 },
+            timer: { seconds: 0, interval: null },
+            game: {
+                currentMode: '',
+                currentData: null,
+                selectedTermId: null,
+                step: 1
+            }
+        };
+
+        const literalColors = ['bg-blue-100 border-blue-300', 'bg-green-100 border-green-300', 'bg-red-100 border-red-300', 'bg-yellow-100 border-yellow-300', 'bg-purple-100 border-purple-300'];
+
+        /* --- UTILIDADES MATEMÁTICAS --- */
+        function generateTerm(allowedLiterals, allowNegative = true, forceLiteral = null) {
+            let coef = Math.floor(Math.random() * 9) + 1; // 1 a 9
+            if (allowNegative && Math.random() > 0.5) coef *= -1;
+            let literal = forceLiteral !== null ? forceLiteral : allowedLiterals[Math.floor(Math.random() * allowedLiterals.length)];
+            let formatted = formatTerm(coef, literal);
+            return {
+                id: 'term_' + Math.random().toString(36).substr(2, 9),
+                coef: coef,
+                literal: literal,
+                formatted: formatted
+            };
+        }
+
+        function formatTerm(coef, literal, showPlus = false) {
+            let str = '';
+            if (coef > 0 && showPlus) str += '+';
+            if (coef === -1 && literal !== '') str += '-';
+            else if (coef !== 1 || literal === '') str += coef;
+            if (literal !== '') {
+                let formattedLiteral = literal.replace(/\^(\d+)/g, '<sup>$1</sup>');
+                str += formattedLiteral;
+            }
+            return str;
+        }
+
+        function validateTermStr(input, coef, literal) {
+            let str = input.replace(/\s+/g, '').toLowerCase();
+            let correct1 = coef + literal;
+            let correct2 = coef === 1 ? literal : (coef === -1 ? '-' + literal : coef + literal);
+            let correct3 = coef > 0 ? '+' + correct1 : correct1;
+            let correct4 = coef > 0 ? '+' + correct2 : correct2;
+            return str === correct1 || str === correct2 || str === correct3 || str === correct4;
+        }
+
+        /* --- CONTROL DE NAVEGACIÓN --- */
+        function startGame() {
+            const nameInput = document.getElementById('input-name').value.trim();
+            if (!nameInput) {
+                showFeedback('Atención', 'Por favor ingresa tu nombre', 'warning', 2000);
+                return;
+            }
+            state.user.name = nameInput;
+            state.user.grade = document.getElementById('input-grade').value;
+            
+            document.getElementById('player-name-display').textContent = state.user.name;
+            document.getElementById('player-grade-display').textContent = state.user.grade;
+            
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('topbar').classList.remove('hidden');
+            document.getElementById('screen-menu').classList.remove('hidden');
+            document.getElementById('screen-menu').classList.add('flex');
+            
+            startTimer();
+        }
+
+        function goToMenu() {
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('flex');
+            document.getElementById('screen-menu').classList.remove('hidden');
+            document.getElementById('screen-menu').classList.add('flex');
+            state.game.currentMode = '';
+            stopTimer();
+            startTimer();
+        }
+
+        function loadMode(mode) {
+            state.game.currentMode = mode;
+            state.game.step = 1;
+            document.getElementById('screen-menu').classList.add('hidden');
+            document.getElementById('screen-menu').classList.remove('flex');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('screen-game').classList.add('flex');
+            
+            document.getElementById('btn-check').classList.remove('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+            
+            const titleEl = document.getElementById('game-title');
+            const ws = document.getElementById('game-workspace');
+            ws.innerHTML = '';
+            state.game.selectedTermId = null;
+            
+            if (mode === 'identificacion') {
+                titleEl.textContent = "1. Identificar Semejantes";
+                document.getElementById('game-instruction').innerHTML = "Toca un término arriba y luego toca la caja donde pertenece.";
+                initModeIdentificacion(ws);
+            } else if (mode === 'suma') {
+                titleEl.textContent = "2. Suma de Expresiones";
+                document.getElementById('game-instruction').innerHTML = "Paso 1: Agrupa los términos según su letra (parte literal).";
+                initModeSuma(ws);
+            } else if (mode === 'resta') {
+                titleEl.textContent = "3. Resta (Operaciones Mixtas)";
+                document.getElementById('game-instruction').innerHTML = "Paso 1: Agrupa los términos según su letra (parte literal).";
+                initModeResta(ws);
+            }
+        }
+
+        /* --- MÉTODOS COMPARTIDOS (TAP TO MOVE) --- */
+        function createTermCard(termObj, extraClasses = '') {
+            const div = document.createElement('div');
+            div.id = termObj.id;
+            div.className = `term-card bg-white border-2 border-slate-300 rounded-lg px-4 py-2 font-bold text-lg text-slate-800 shadow-sm flex items-center justify-center min-w-[60px] ${extraClasses}`;
+            div.innerHTML = termObj.formatted;
+            div.dataset.literal = termObj.literal;
+            div.dataset.coef = termObj.coef;
+            
+            div.onclick = (e) => {
+                if(state.game.step !== 1) return; // Solo permitir mover en el paso 1
+                e.stopPropagation();
+                handleTermClick(div);
+            };
+            return div;
+        }
+
+        function handleTermClick(el) {
+            if (state.game.selectedTermId) {
+                const prev = document.getElementById(state.game.selectedTermId);
+                if (prev) prev.classList.remove('selected');
+            }
+            if (state.game.selectedTermId === el.id) {
+                state.game.selectedTermId = null;
+                return;
+            }
+            el.classList.add('selected');
+            state.game.selectedTermId = el.id;
+            playSound('tap');
+        }
+
+        function handleDropZoneClick(e, zoneId) {
+            if (!state.game.selectedTermId || state.game.step !== 1) return;
+            const termEl = document.getElementById(state.game.selectedTermId);
+            const zoneEl = document.getElementById(zoneId === 'pool' ? 'pool-area' : zoneId);
+            
+            if (termEl && zoneEl) {
+                zoneEl.appendChild(termEl);
+                termEl.classList.remove('selected');
+                termEl.classList.add('animate-pop');
+                state.game.selectedTermId = null;
+                playSound('drop');
+                setTimeout(() => termEl.classList.remove('animate-pop'), 300);
+            }
+        }
+
+        // ---------------------------------------------------------
+        // MODO 1: IDENTIFICACIÓN (Original, intacto)
+        // ---------------------------------------------------------
+        function initModeIdentificacion(ws) {
+            const literals = ['x', 'y', 'x^2', 'xy', 'm', 'n'];
+            const selectedLiterals = literals.sort(() => 0.5 - Math.random()).slice(0, 3);
+            
+            let terms = [];
+            selectedLiterals.forEach(lit => {
+                let count = Math.floor(Math.random() * 2) + 2;
+                for(let i=0; i<count; i++) terms.push(generateTerm([lit]));
+            });
+            terms = terms.sort(() => 0.5 - Math.random());
+            state.game.currentData = { terms: terms, categories: selectedLiterals };
+            
+            let html = `
+                <div id="pool-area" class="min-h-[100px] bg-slate-200 p-4 rounded-xl flex flex-wrap gap-3 justify-center border-2 border-dashed border-slate-300 drop-zone active-target" onclick="handleDropZoneClick(event, 'pool')"></div>
+                <div class="flex-grow grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+            `;
+            selectedLiterals.forEach((lit, index) => {
+                html += `
+                    <div class="bg-white border-2 border-slate-200 rounded-xl p-4 flex flex-col shadow-sm">
+                        <div class="text-center font-bold text-slate-400 mb-2 border-b pb-1">Caja ${index+1}</div>
+                        <div id="box-${index}" data-literal="${lit}" class="drop-zone flex-grow flex flex-wrap gap-2 content-start p-2 rounded-lg" onclick="handleDropZoneClick(event, 'box-${index}')"></div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            ws.innerHTML = html;
+            
+            const pool = document.getElementById('pool-area');
+            terms.forEach(t => pool.appendChild(createTermCard(t)));
+            
+            document.getElementById('btn-check').setAttribute('onclick', 'checkIdentificacion()');
+        }
+
+        function checkIdentificacion() {
+            const boxes = document.querySelectorAll('div[id^="box-"]');
+            let allCorrect = true;
+            let poolEmpty = document.getElementById('pool-area').children.length === 0;
+
+            if (!poolEmpty) {
+                showFeedback("¡Faltan términos!", "Ubica todos los términos en las cajas.", 'warning');
+                return;
+            }
+
+            boxes.forEach(box => {
+                const termsInBox = Array.from(box.children);
+                if (termsInBox.length === 0) return;
+                const firstLiteral = termsInBox[0].dataset.literal;
+                let boxCorrect = termsInBox.every(t => t.dataset.literal === firstLiteral);
+                
+                if (boxCorrect) {
+                    box.classList.add('success');
+                    box.classList.remove('border-red-400', 'bg-red-50');
+                    termsInBox.forEach(t => t.classList.add('bg-green-100', 'border-green-400'));
+                } else {
+                    allCorrect = false;
+                    box.classList.add('border-red-400', 'bg-red-50');
+                    box.classList.remove('success');
+                    termsInBox.forEach(t => {
+                        if(t.dataset.literal !== firstLiteral) t.classList.add('animate-shake', 'bg-red-100', 'border-red-400');
+                    });
+                }
+            });
+
+            if (allCorrect) {
+                updateScore(true);
+                showFeedback("¡Excelente!", "Has agrupado correctamente los términos.", 'success');
+                document.getElementById('btn-check').classList.add('hidden');
+                document.getElementById('btn-next').classList.remove('hidden');
+            } else {
+                updateScore(false);
+                showFeedback("Revisa bien", "Hay términos en la caja equivocada.", 'error');
+            }
+        }
+
+        // ---------------------------------------------------------
+        // MODO 2: SUMA DE EXPRESIONES (Paso a Paso)
+        // ---------------------------------------------------------
+        function initModeSuma(ws) {
+            const literals = ['x', 'y']; // 2 literales para simplificar
+            let terms = [];
+            
+            // 60% probabilidad de que el ejercicio sea de suma de negativos
+            const isNegativeExercise = Math.random() < 0.6;
+
+            literals.forEach(lit => {
+                for(let i=0; i<2; i++) {
+                    let coef = Math.floor(Math.random() * 9) + 1;
+                    if (isNegativeExercise) coef *= -1;
+                    terms.push({
+                        id: 'term_' + Math.random().toString(36).substr(2, 9),
+                        coef: coef,
+                        literal: lit,
+                        formatted: formatTerm(coef, lit)
+                    });
+                }
+            });
+            terms = terms.sort(() => 0.5 - Math.random());
+            state.game.currentData = { terms: terms, literals: literals };
+            
+            let html = `
+                <div id="pool-area" class="min-h-[100px] bg-slate-200 p-4 rounded-xl flex flex-wrap gap-3 justify-center border-2 border-dashed border-slate-300 drop-zone active-target" onclick="handleDropZoneClick(event, 'pool')"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4" id="boxes-area">
+                    <div class="bg-white border-2 border-slate-200 rounded-xl p-4 flex flex-col shadow-sm">
+                        <div class="text-center font-bold text-slate-400 mb-2 border-b pb-1">Términos con ${literals[0]}</div>
+                        <div id="box-0" data-literal="${literals[0]}" class="drop-zone flex-grow flex flex-wrap gap-2 content-start p-2 rounded-lg" onclick="handleDropZoneClick(event, 'box-0')"></div>
+                    </div>
+                    <div class="bg-white border-2 border-slate-200 rounded-xl p-4 flex flex-col shadow-sm">
+                        <div class="text-center font-bold text-slate-400 mb-2 border-b pb-1">Términos con ${literals[1]}</div>
+                        <div id="box-1" data-literal="${literals[1]}" class="drop-zone flex-grow flex flex-wrap gap-2 content-start p-2 rounded-lg" onclick="handleDropZoneClick(event, 'box-1')"></div>
+                    </div>
+                </div>
+                <div id="suma-step2" class="hidden mt-6 animate-pop"></div>
+            `;
+            ws.innerHTML = html;
+            
+            const pool = document.getElementById('pool-area');
+            terms.forEach(t => pool.appendChild(createTermCard(t)));
+            
+            document.getElementById('btn-check').setAttribute('onclick', 'checkSuma()');
+        }
+
+        function checkSuma() {
+            if (state.game.step === 1) {
+                // Validar agrupación (Paso 1)
+                const boxes = [document.getElementById('box-0'), document.getElementById('box-1')];
+                let poolEmpty = document.getElementById('pool-area').children.length === 0;
+                
+                if (!poolEmpty) {
+                    showFeedback("Faltan términos", "Debes ubicar todos los términos.", 'warning'); return;
+                }
+
+                let allCorrect = true;
+                boxes.forEach(box => {
+                    const targetLit = box.dataset.literal;
+                    Array.from(box.children).forEach(t => {
+                        if (t.dataset.literal !== targetLit) {
+                            allCorrect = false;
+                            t.classList.add('animate-shake', 'bg-red-100', 'border-red-400');
+                            setTimeout(() => t.classList.remove('animate-shake', 'bg-red-100', 'border-red-400'), 1000);
+                        }
+                    });
+                });
+
+                if (allCorrect) {
+                    state.game.step = 2;
+                    document.getElementById('game-instruction').innerHTML = "Paso 2: Suma los coeficientes y luego forma el polinomio final.";
+                    document.getElementById('pool-area').classList.add('hidden');
+                    
+                    // Fijar visualmente las cajas
+                    boxes.forEach(box => {
+                        box.classList.add('border-solid', 'border-green-400', 'bg-green-50');
+                        box.classList.remove('border-dashed');
+                        Array.from(box.children).forEach(t => {
+                            t.classList.add('bg-green-100', 'border-green-300');
+                            t.style.cursor = 'default';
+                        });
+                    });
+
+                    // Construir UI Paso 2
+                    const lits = state.game.currentData.literals;
+                    let htmlStep2 = `
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 flex flex-col gap-4">
+                            <h3 class="font-black text-slate-700 text-lg">Suma los coeficientes de cada grupo (¡no olvides el signo!):</h3>
+                            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                                <div class="flex items-center gap-2 bg-white p-3 rounded shadow-sm">
+                                    <span class="font-bold text-slate-500">Suma grupo ${lits[0]}:</span>
+                                    <input type="text" id="suma-coef-0" placeholder="Ej: -5" class="w-20 p-2 rounded border-2 border-slate-300 text-center font-bold text-lg outline-none focus:border-primary">
+                                    <span class="font-black text-xl">${lits[0]}</span>
+                                </div>
+                                <div class="flex items-center gap-2 bg-white p-3 rounded shadow-sm">
+                                    <span class="font-bold text-slate-500">Suma grupo ${lits[1]}:</span>
+                                    <input type="text" id="suma-coef-1" placeholder="Ej: 3" class="w-20 p-2 rounded border-2 border-slate-300 text-center font-bold text-lg outline-none focus:border-primary">
+                                    <span class="font-black text-xl">${lits[1]}</span>
+                                </div>
+                            </div>
+                            
+                            <hr class="border-blue-200 my-2">
+                            
+                            <h3 class="font-black text-slate-700 text-lg">Forma el polinomio final uniendo los resultados:</h3>
+                            <div class="flex flex-wrap items-center justify-center gap-3">
+                                <input type="text" id="suma-poly-0" placeholder="Ej: 5x" class="w-24 p-3 rounded-lg border-2 border-slate-300 text-center font-bold text-lg outline-none focus:border-primary">
+                                <span class="font-black text-2xl text-slate-400">+</span>
+                                <input type="text" id="suma-poly-1" placeholder="Ej: 3y" class="w-24 p-3 rounded-lg border-2 border-slate-300 text-center font-bold text-lg outline-none focus:border-primary">
+                            </div>
+                        </div>
+                    `;
+                    const step2El = document.getElementById('suma-step2');
+                    step2El.innerHTML = htmlStep2;
+                    step2El.classList.remove('hidden');
+                    
+                    playSound('success');
+                } else {
+                    updateScore(false);
+                    showFeedback("Error", "Hay términos agrupados incorrectamente.", "error");
+                }
+            } 
+            else if (state.game.step === 2) {
+                // Validar sumas y polinomio final
+                const lits = state.game.currentData.literals;
+                const terms = state.game.currentData.terms;
+                
+                // Calcular sumas reales
+                let correctSums = [0, 0];
+                terms.forEach(t => {
+                    if(t.literal === lits[0]) correctSums[0] += t.coef;
+                    if(t.literal === lits[1]) correctSums[1] += t.coef;
+                });
+
+                // Obtener valores usuario (removiendo + iniciales si los ponen)
+                const userSum0Str = document.getElementById('suma-coef-0').value.trim().replace('+', '');
+                const userSum1Str = document.getElementById('suma-coef-1').value.trim().replace('+', '');
+                const userSum0 = parseInt(userSum0Str);
+                const userSum1 = parseInt(userSum1Str);
+                const userPoly0 = document.getElementById('suma-poly-0').value;
+                const userPoly1 = document.getElementById('suma-poly-1').value;
+
+                if (isNaN(userSum0) || isNaN(userSum1) || !userPoly0 || !userPoly1) {
+                    showFeedback("Incompleto", "Llena todos los campos (sumas y el polinomio final).", "warning"); return;
+                }
+
+                let isPerfect = true;
+
+                // Validar sumas
+                if (userSum0 !== correctSums[0]) {
+                    isPerfect = false;
+                    document.getElementById('suma-coef-0').classList.add('border-red-500', 'bg-red-50');
+                } else {
+                    document.getElementById('suma-coef-0').classList.remove('border-red-500', 'bg-red-50');
+                    document.getElementById('suma-coef-0').classList.add('border-green-500', 'bg-green-50');
+                }
+
+                if (userSum1 !== correctSums[1]) {
+                    isPerfect = false;
+                    document.getElementById('suma-coef-1').classList.add('border-red-500', 'bg-red-50');
+                } else {
+                    document.getElementById('suma-coef-1').classList.remove('border-red-500', 'bg-red-50');
+                    document.getElementById('suma-coef-1').classList.add('border-green-500', 'bg-green-50');
+                }
+
+                // Validar polinomios
+                if (!validateTermStr(userPoly0, correctSums[0], lits[0])) {
+                    isPerfect = false;
+                    document.getElementById('suma-poly-0').classList.add('border-red-500', 'bg-red-50');
+                } else {
+                    document.getElementById('suma-poly-0').classList.remove('border-red-500', 'bg-red-50');
+                    document.getElementById('suma-poly-0').classList.add('border-green-500', 'bg-green-50');
+                }
+
+                if (!validateTermStr(userPoly1, correctSums[1], lits[1])) {
+                    isPerfect = false;
+                    document.getElementById('suma-poly-1').classList.add('border-red-500', 'bg-red-50');
+                } else {
+                    document.getElementById('suma-poly-1').classList.remove('border-red-500', 'bg-red-50');
+                    document.getElementById('suma-poly-1').classList.add('border-green-500', 'bg-green-50');
+                }
+
+                if (isPerfect) {
+                    updateScore(true);
+                    showFeedback("¡Suma Completada!", "Excelente trabajo sumando y formando el polinomio.", "success");
+                    document.getElementById('btn-check').classList.add('hidden');
+                    document.getElementById('btn-next').classList.remove('hidden');
+                } else {
+                    updateScore(false);
+                    showFeedback("Revisa los cálculos", "Verifica las sumas y asegúrate de escribir la letra en el polinomio.", "error");
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // MODO 3: RESTA / MIXTA (Positivos y Negativos)
+        // ---------------------------------------------------------
+        function initModeResta(ws) {
+            const literals = ['x', 'y'];
+            let terms = [];
+            // Generar términos mixtos (positivos y negativos)
+            literals.forEach(lit => {
+                terms.push(generateTerm([lit], true, lit)); // Positivo o Neg
+                terms.push(generateTerm([lit], true, lit));
+                terms.push(generateTerm([lit], true, lit)); // 3 términos para forzar suma interna
+            });
+            
+            // Garantizar que haya al menos un positivo y un negativo por grupo para asegurar la experiencia didáctica
+            literals.forEach(lit => {
+                const group = terms.filter(t => t.literal === lit);
+                let allPos = group.every(t => t.coef > 0);
+                let allNeg = group.every(t => t.coef < 0);
+                if (allPos) group[0].coef *= -1;
+                if (allNeg) group[0].coef *= -1;
+                // Re-formatear tras el cambio forzado
+                group[0].formatted = formatTerm(group[0].coef, group[0].literal);
+            });
+
+            terms = terms.sort(() => 0.5 - Math.random());
+            state.game.currentData = { terms: terms, literals: literals };
+
+            let html = `
+                <div id="pool-area" class="min-h-[100px] bg-slate-200 p-4 rounded-xl flex flex-wrap gap-3 justify-center border-2 border-dashed border-slate-300 drop-zone active-target" onclick="handleDropZoneClick(event, 'pool')"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4" id="boxes-area">
+                    <div class="bg-white border-2 border-slate-200 rounded-xl p-4 flex flex-col shadow-sm">
+                        <div class="text-center font-bold text-slate-400 mb-2 border-b pb-1">Caja ${literals[0]}</div>
+                        <div id="box-0" data-literal="${literals[0]}" class="drop-zone flex-grow flex flex-wrap gap-2 content-start p-2 rounded-lg" onclick="handleDropZoneClick(event, 'box-0')"></div>
+                    </div>
+                    <div class="bg-white border-2 border-slate-200 rounded-xl p-4 flex flex-col shadow-sm">
+                        <div class="text-center font-bold text-slate-400 mb-2 border-b pb-1">Caja ${literals[1]}</div>
+                        <div id="box-1" data-literal="${literals[1]}" class="drop-zone flex-grow flex flex-wrap gap-2 content-start p-2 rounded-lg" onclick="handleDropZoneClick(event, 'box-1')"></div>
+                    </div>
+                </div>
+                <div id="resta-step2" class="hidden mt-6 animate-pop flex-col gap-4"></div>
+            `;
+            ws.innerHTML = html;
+            
+            const pool = document.getElementById('pool-area');
+            terms.forEach(t => pool.appendChild(createTermCard(t)));
+            
+            document.getElementById('btn-check').setAttribute('onclick', 'checkResta()');
+        }
+
+        function checkResta() {
+            if (state.game.step === 1) {
+                // Validar agrupación
+                const boxes = [document.getElementById('box-0'), document.getElementById('box-1')];
+                if (document.getElementById('pool-area').children.length > 0) {
+                    showFeedback("Faltan términos", "Debes ubicar todos los términos.", 'warning'); return;
+                }
+
+                let allCorrect = true;
+                boxes.forEach(box => {
+                    const targetLit = box.dataset.literal;
+                    Array.from(box.children).forEach(t => {
+                        if (t.dataset.literal !== targetLit) {
+                            allCorrect = false;
+                            t.classList.add('animate-shake', 'bg-red-100', 'border-red-400');
+                            setTimeout(() => t.classList.remove('animate-shake', 'bg-red-100', 'border-red-400'), 1000);
+                        }
+                    });
+                });
+
+                if (allCorrect) {
+                    state.game.step = 2;
+                    document.getElementById('game-instruction').innerHTML = "Paso 2: Suma positivos, suma negativos y calcula la diferencia final. ¡Asegúrate de colocar los signos correctos!";
+                    document.getElementById('pool-area').classList.add('hidden');
+                    // Se mantiene visible 'boxes-area' para que el estudiante vea de dónde provienen los términos
+
+                    // Generar UI de Paso 2
+                    let step2Html = '';
+                    state.game.currentData.literals.forEach((lit, index) => {
+                        const groupTerms = state.game.currentData.terms.filter(t => t.literal === lit);
+                        const posTerms = groupTerms.filter(t => t.coef > 0).map(t => t.formatted).join(', ') || '0';
+                        const negTerms = groupTerms.filter(t => t.coef < 0).map(t => t.formatted).join(', ') || '0';
+                        
+                        step2Html += `
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 mt-4">
+                                <h3 class="font-black text-blue-800 mb-3 text-lg border-b border-blue-200 pb-2">Grupo de ${lit}</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-white p-3 rounded shadow-sm border border-green-200">
+                                        <div class="text-green-600 font-bold mb-1"><i class="fas fa-plus-circle"></i> Términos Positivos:</div>
+                                        <div class="text-lg font-mono mb-2">${posTerms}</div>
+                                        <div class="mt-2 flex items-center gap-2 border-t pt-2">
+                                            <span class="text-sm font-bold text-slate-500">Suma total (+):</span>
+                                            <input type="text" id="resta-pos-${index}" placeholder="+?" class="w-16 p-1 border-b-2 border-slate-300 text-center font-bold outline-none focus:border-green-500 text-green-700">
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded shadow-sm border border-red-200">
+                                        <div class="text-red-600 font-bold mb-1"><i class="fas fa-minus-circle"></i> Términos Negativos:</div>
+                                        <div class="text-lg font-mono mb-2">${negTerms}</div>
+                                        <div class="mt-2 flex items-center gap-2 border-t pt-2">
+                                            <span class="text-sm font-bold text-slate-500">Suma total (-):</span>
+                                            <input type="text" id="resta-neg-${index}" placeholder="-?" class="w-16 p-1 border-b-2 border-slate-300 text-center font-bold outline-none focus:border-red-500 text-red-700">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 bg-white p-3 rounded shadow-sm flex items-center gap-3 border border-indigo-200 justify-center">
+                                    <span class="font-black text-indigo-800">Diferencia (Resta Final):</span>
+                                    <input type="text" id="resta-diff-${index}" placeholder="Ej: -2" class="w-20 p-2 border-2 border-indigo-300 rounded text-center font-black text-lg outline-none focus:border-indigo-600 text-indigo-700">
+                                    <span class="font-black text-xl">${lit}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    step2Html += `
+                        <div class="bg-slate-100 p-4 rounded-xl border-2 border-slate-300 mt-2">
+                            <h3 class="font-black text-slate-800 mb-2 text-lg">Resultado Final (Arma el Polinomio)</h3>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <input type="text" id="resta-poly-0" placeholder="Término ${state.game.currentData.literals[0]}" class="w-32 p-3 rounded border-2 border-slate-300 text-center font-bold text-lg outline-none focus:border-primary">
+                                <input type="text" id="resta-poly-1" placeholder="Término ${state.game.currentData.literals[1]}" class="w-32 p-3 rounded border-2 border-slate-300 text-center font-bold text-lg outline-none focus:border-primary">
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">*Escribe el resultado con su signo. (Ej. -3x, +5y)</p>
+                        </div>
+                    `;
+
+                    const step2El = document.getElementById('resta-step2');
+                    step2El.innerHTML = step2Html;
+                    step2El.classList.remove('hidden');
+                    step2El.classList.add('flex');
+                    playSound('success');
+
+                } else {
+                    updateScore(false);
+                    showFeedback("Error", "Hay términos agrupados incorrectamente.", "error");
+                }
+            }
+            else if (state.game.step === 2) {
+                // Validar Operaciones de Resta
+                const lits = state.game.currentData.literals;
+                const terms = state.game.currentData.terms;
+                let isPerfect = true;
+
+                lits.forEach((lit, index) => {
+                    const groupTerms = terms.filter(t => t.literal === lit);
+                    const realPosSum = groupTerms.filter(t => t.coef > 0).reduce((acc, t) => acc + t.coef, 0);
+                    const realNegSum = groupTerms.filter(t => t.coef < 0).reduce((acc, t) => acc + t.coef, 0);
+                    const realDiff = realPosSum + realNegSum;
+
+                    const userPos = parseInt(document.getElementById(`resta-pos-${index}`).value.replace('+', '')) || 0;
+                    const userNeg = parseInt(document.getElementById(`resta-neg-${index}`).value) || 0;
+                    const userDiff = parseInt(document.getElementById(`resta-diff-${index}`).value.replace('+', '')) || 0;
+                    const userPoly = document.getElementById(`resta-poly-${index}`).value;
+
+                    // Validar Positivos
+                    if (userPos !== realPosSum) {
+                        isPerfect = false; document.getElementById(`resta-pos-${index}`).classList.add('border-red-500', 'bg-red-50');
+                    } else {
+                        document.getElementById(`resta-pos-${index}`).classList.remove('border-red-500', 'bg-red-50');
+                    }
+                    
+                    // Validar Negativos (Obligamos a que el estudiante coloque el signo negativo si aplica)
+                    if (userNeg !== realNegSum) {
+                        isPerfect = false; document.getElementById(`resta-neg-${index}`).classList.add('border-red-500', 'bg-red-50');
+                    } else {
+                        document.getElementById(`resta-neg-${index}`).classList.remove('border-red-500', 'bg-red-50');
+                    }
+
+                    // Validar Diferencia
+                    if (userDiff !== realDiff) {
+                        isPerfect = false; document.getElementById(`resta-diff-${index}`).classList.add('border-red-500', 'bg-red-50');
+                    } else {
+                        document.getElementById(`resta-diff-${index}`).classList.remove('border-red-500', 'bg-red-50');
+                    }
+
+                    // Validar Polinomio
+                    if (!validateTermStr(userPoly, realDiff, lit)) {
+                        isPerfect = false; document.getElementById(`resta-poly-${index}`).classList.add('border-red-500', 'bg-red-50');
+                    } else {
+                        document.getElementById(`resta-poly-${index}`).classList.remove('border-red-500', 'bg-red-50');
+                        document.getElementById(`resta-poly-${index}`).classList.add('border-green-500', 'bg-green-50');
+                    }
+                });
+
+                if (isPerfect) {
+                    updateScore(true);
+                    showFeedback("¡Reducción Perfecta!", "Lograste separar, sumar y calcular la diferencia correctamente.", "success");
+                    document.getElementById('btn-check').classList.add('hidden');
+                    document.getElementById('btn-next').classList.remove('hidden');
+                } else {
+                    updateScore(false);
+                    showFeedback("Hay errores", "Revisa la suma de los positivos, negativos y la resta final.", "error");
+                }
+            }
+        }
+
+
+        /* --- FLUJO DE JUEGO GENERAL Y UI COMPARTIDA --- */
+        function nextExercise() {
+            loadMode(state.game.currentMode);
+        }
+
+        function updateScore(isCorrect) {
+            if (isCorrect) {
+                state.stats.correct++;
+                state.stats.score += 10;
+                document.getElementById('score-correct').textContent = state.stats.correct;
+                playSound('success');
+            } else {
+                state.stats.incorrect++;
+                state.stats.score = Math.max(0, state.stats.score - 5);
+                document.getElementById('score-incorrect').textContent = state.stats.incorrect;
+                playSound('error');
+            }
+            document.getElementById('score-total').textContent = state.stats.score;
+            
+            const scoreEl = document.getElementById('score-total').parentElement;
+            scoreEl.classList.add('animate-pop');
+            setTimeout(() => scoreEl.classList.remove('animate-pop'), 300);
+        }
+
+        function showFeedback(title, msg, type, autoCloseMs = 0) {
+            const modal = document.getElementById('feedback-modal');
+            const content = document.getElementById('feedback-content');
+            const iconEl = document.getElementById('feedback-icon');
+            
+            document.getElementById('feedback-title').textContent = title;
+            document.getElementById('feedback-title').className = `text-2xl font-black mb-2 ${type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-warning'}`;
+            document.getElementById('feedback-msg').innerHTML = msg;
+            
+            if (type === 'success') iconEl.innerHTML = '<i class="fas fa-check-circle text-green-500 animate-pop"></i>';
+            else if (type === 'error') iconEl.innerHTML = '<i class="fas fa-times-circle text-red-500 animate-shake"></i>';
+            else iconEl.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i>';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-90', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            if (autoCloseMs > 0) {
+                setTimeout(closeFeedback, autoCloseMs);
+            }
+        }
+
+        function closeFeedback() {
+            const modal = document.getElementById('feedback-modal');
+            const content = document.getElementById('feedback-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        }
+
+        function showHelp() {
+            const helpContent = document.getElementById('help-content');
+            let content = "";
+            switch(state.game.currentMode) {
+                case 'identificacion':
+                    content = `<p><b>Términos Semejantes:</b> Son aquellos que tienen la misma parte literal (mismas letras con mismos exponentes).<br>Ej: <span class="bg-blue-100 px-1 rounded">3x²</span> y <span class="bg-blue-100 px-1 rounded">-5x²</span> son semejantes.</p>`;
+                    break;
+                case 'suma':
+                    content = `<p><b>Paso a paso:</b><br>1. Primero reúne en cada caja los que tienen la misma letra.<br>2. Luego, suma los números grandes (coeficientes).<br>3. Finalmente, únelos para crear un solo polinomio.</p>`;
+                    break;
+                case 'resta':
+                    content = `<p><b>Paso a paso con positivos y negativos:</b><br>1. Separa por letras.<br>2. Adentro de cada grupo, suma aparte los que tienen signo (+) y aparte los que tienen signo (-).<br>3. Réstalos (Diferencia) y coloca el resultado.<br>4. Forma el polinomio final con los resultados.</p>`;
+                    break;
+                default: content = "<p>Selecciona un modo de juego en el menú principal.</p>";
+            }
+            helpContent.innerHTML = content;
+            document.getElementById('help-modal').classList.remove('hidden');
+            document.getElementById('help-modal').classList.add('flex');
+        }
+
+        function closeHelp() {
+            document.getElementById('help-modal').classList.add('hidden');
+            document.getElementById('help-modal').classList.remove('flex');
+        }
+
+        function startTimer() {
+            if (state.timer.interval) clearInterval(state.timer.interval);
+            state.timer.interval = setInterval(() => {
+                state.timer.seconds++;
+                const mins = Math.floor(state.timer.seconds / 60).toString().padStart(2, '0');
+                const secs = (state.timer.seconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(state.timer.interval);
+        }
+
+        function playSound(type) {
+            if (navigator.vibrate) {
+                if (type === 'success') navigator.vibrate([50, 50, 50]);
+                if (type === 'error') navigator.vibrate([100, 50, 100]);
+                if (type === 'tap') navigator.vibrate(20);
+                if (type === 'drop') navigator.vibrate(40);
+            }
+        }
+
+        document.getElementById('input-name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') startGame();
+        });
+
+    </script>
+</body>
+</html>
