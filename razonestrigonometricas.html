@@ -918,17 +918,24 @@
         function checkAnswer() {
             const p = gameState.problem;
             const chosenFunc = gameState.selectedFunc;
-            const inNumStr = document.getElementById('input-num').value.trim();
-            const inDenStr = document.getElementById('input-den').value.trim();
+            const inNumRaw = document.getElementById('input-num').value.trim();
+            const inDenRaw = document.getElementById('input-den').value.trim();
 
-            if (!inNumStr || !inDenStr) {
+            if (!inNumRaw || !inDenRaw) {
                 shakeUI();
                 return;
             }
 
-            const parseInput = (val) => val.toLowerCase() === 'x' ? 'x' : val;
-            const inNum = parseInput(inNumStr);
-            const inDen = parseInput(inDenStr);
+            // Mejoramos el parseo para evitar errores si digitan "03", "3.0" o "X"
+            const parseInput = (val) => {
+                const cleanStr = val.toLowerCase().replace(',', '.');
+                if (cleanStr === 'x') return 'x';
+                const num = Number(cleanStr);
+                return isNaN(num) ? cleanStr : num.toString();
+            };
+
+            const inNum = parseInput(inNumRaw);
+            const inDen = parseInput(inDenRaw);
 
             let isFuncCorrect = (chosenFunc === p.correctFunc);
             let areValuesCorrect = false;
@@ -951,7 +958,7 @@
                 expectedNum = p.labels.opp || p.values.opp.toString();
                 if(p.labels.opp === 'x') expectedNum = 'x';
                 expectedDen = p.labels.adj || p.values.adj.toString();
-                if(p.labels.adj === 'x') expectedNum = 'x';
+                if(p.labels.adj === 'x') expectedDen = 'x'; // ¡AQUÍ ESTABA EL ERROR QUE PERMITÍA DOBLE x!
                 numName = "Opuesto"; denName = "Adyacente";
             }
 
@@ -989,9 +996,12 @@
                         errorMsg += `Tienes el lado <b>${knownSide}</b> y buscas la <b>X</b> que es el <b>${targetSide}</b>. ¿Qué función usa ambos?`;
                     }
                 } else if (!areValuesCorrect) {
-                    errorMsg = `La función <b>${chosenFunc.toUpperCase()}</b> es correcta, ¡pero pusiste los datos al revés o usaste otros números!<br><br>`;
+                    errorMsg = `La función <b>${chosenFunc.toUpperCase()}</b> es correcta, ¡pero pusiste los datos al revés o escribiste otros valores!<br><br>`;
                     errorMsg += `Recuerda: ${chosenFunc.toUpperCase()} = ${numName} / ${denName}.<br>`;
-                    errorMsg += `Aquí el ${numName} es <b>${expectedNum}</b> y el ${denName} es <b>${expectedDen}</b>.`;
+                    errorMsg += `Aquí el ${numName} debe ser <b>${expectedNum}</b> y el ${denName} debe ser <b>${expectedDen}</b>.<br><br>`;
+                    if (p.findType === 'side') {
+                        errorMsg += `<span class="text-xs font-bold text-slate-500">Nota: Digita exactamente la letra 'x' para la incógnita y números limpios.</span>`;
+                    }
                 }
 
                 showModal('Analiza de nuevo', errorMsg, 'error', 'Intentar de nuevo');
