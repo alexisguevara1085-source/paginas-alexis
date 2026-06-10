@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Álgebra Interactiva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0fdf4;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .animate-slide { animation: slideUp 0.3s ease-out forwards; }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        /* Custom Styles */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-primary:active { transform: scale(0.95); }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            transition: transform 0.1s;
+        }
+        .btn-secondary:active { transform: scale(0.95); }
+
+        /* Term Selection (Game 2) */
+        .term-card {
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .term-card.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            transform: scale(1.05);
+        }
+
+        /* Drag and Drop (Game 3) */
+        .draggable {
+            touch-action: none; /* Crucial para drag en móviles */
+            user-select: none;
+            cursor: grab;
+            z-index: 10;
+        }
+        .draggable:active { cursor: grabbing; }
+        .dropzone {
+            border: 2px dashed #cbd5e1;
+            transition: background-color 0.2s;
+        }
+        .dropzone.drag-over {
+            background-color: #f1f5f9;
+            border-color: #3b82f6;
+        }
+
+        /* Input styling */
+        .math-input {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1e293b;
+            border: 2px solid #cbd5e1;
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .math-input:focus { border-color: #3b82f6; }
+    </style>
+</head>
+<body class="text-slate-800 h-screen w-screen overflow-hidden flex flex-col items-center">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="w-full h-full flex items-center justify-center p-4 bg-gradient-to-br from-green-50 to-blue-50 absolute inset-0 z-50">
+        <div class="glass-panel w-full max-w-sm rounded-3xl p-8 animate-pop text-center space-y-6">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-800">¡Bienvenido a Álgebra!</h1>
+            <p class="text-slate-500 text-sm">Ingresa tus datos para comenzar a jugar y aprender.</p>
+            
+            <div class="space-y-4">
+                <input type="text" id="student-name" placeholder="Tu Nombre" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition">
+                <select id="student-grade" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition bg-white">
+                    <option value="" disabled selected>Selecciona tu Grado</option>
+                    <option value="6">Sexto Grado</option>
+                    <option value="7">Séptimo Grado</option>
+                    <option value="8">Octavo Grado</option>
+                    <option value="9">Noveno Grado</option>
+                </select>
+            </div>
+            <button onclick="login()" class="btn-primary w-full py-3 rounded-xl font-bold text-lg shadow-lg">Comenzar Aventura</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP AREA -->
+    <div id="app-area" class="w-full max-w-md h-full flex flex-col hidden relative">
+        
+        <!-- HEADER -->
+        <header class="glass-panel px-4 py-3 flex justify-between items-center z-40 relative rounded-b-2xl shadow-sm">
+            <button onclick="goHome()" class="p-2 bg-blue-50 rounded-full text-blue-600 active:scale-95 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            </button>
+            <div class="text-center flex-1">
+                <h2 id="header-name" class="font-bold text-slate-800 leading-tight">Estudiante</h2>
+                <span id="header-time" class="text-xs text-slate-500 font-mono">00:00</span>
+            </div>
+            <div class="flex gap-2 text-sm font-bold">
+                <div class="flex items-center bg-green-100 text-green-700 px-2 py-1 rounded-lg">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    <span id="score-correct">0</span>
+                </div>
+                <div class="flex items-center bg-red-100 text-red-700 px-2 py-1 rounded-lg">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <span id="score-incorrect">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN MENU -->
+        <main id="main-menu" class="flex-1 overflow-y-auto p-4 space-y-4 pb-10 custom-scrollbar animate-slide">
+            <h3 class="text-center font-bold text-lg text-slate-700 mb-6 mt-2">¿Qué quieres practicar hoy?</h3>
+            
+            <button onclick="startGame(1)" class="w-full bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4 active:scale-95 transition">
+                <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center font-bold text-xl">+</div>
+                <div class="text-left flex-1">
+                    <h4 class="font-bold text-slate-800">1. Operaciones con enteros</h4>
+                    <p class="text-xs text-slate-500">Suma y multiplicación con signos.</p>
+                </div>
+            </button>
+
+            <button onclick="startGame(2)" class="w-full bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4 active:scale-95 transition">
+                <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center font-bold text-xl">3x</div>
+                <div class="text-left flex-1">
+                    <h4 class="font-bold text-slate-800">2. Términos semejantes</h4>
+                    <p class="text-xs text-slate-500">Identifica expresiones con la misma parte literal.</p>
+                </div>
+            </button>
+
+            <button onclick="startGame(3)" class="w-full bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4 active:scale-95 transition">
+                <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center font-bold text-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                </div>
+                <div class="text-left flex-1">
+                    <h4 class="font-bold text-slate-800">3. Reducción de términos</h4>
+                    <p class="text-xs text-slate-500">Agrupa y suma los coeficientes.</p>
+                </div>
+            </button>
+
+            <button onclick="startGame(4)" class="w-full bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4 active:scale-95 transition">
+                <div class="w-12 h-12 rounded-full bg-green-100 text-green-500 flex items-center justify-center font-bold text-xl">()</div>
+                <div class="text-left flex-1">
+                    <h4 class="font-bold text-slate-800">4. Multiplicación Polinomios</h4>
+                    <p class="text-xs text-slate-500">Monomio por monomio o binomio.</p>
+                </div>
+            </button>
+        </main>
+
+        <!-- GAMES CONTAINER -->
+        <div id="games-container" class="flex-1 overflow-y-auto p-4 hidden bg-slate-50 relative">
+            
+            <!-- GAME 1: Operaciones con enteros -->
+            <div id="game-1" class="hidden flex flex-col h-full space-y-6 animate-pop">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold text-blue-600">Operaciones con Enteros</h2>
+                    <p class="text-sm text-slate-500">Resuelve la siguiente operación:</p>
+                </div>
+                <div class="flex-1 flex flex-col items-center justify-center space-y-8">
+                    <div id="g1-expression" class="text-5xl font-black text-slate-700 tracking-wider text-center"></div>
+                    <input type="number" id="g1-input" class="math-input max-w-xs text-3xl py-4" placeholder="?">
+                </div>
+                <button onclick="checkG1()" class="btn-primary w-full py-4 rounded-xl font-bold text-lg shadow-md">Comprobar</button>
+            </div>
+
+            <!-- GAME 2: Términos Semejantes -->
+            <div id="game-2" class="hidden flex flex-col h-full space-y-4 animate-pop">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold text-purple-600">Términos Semejantes</h2>
+                    <p class="text-sm text-slate-500">Selecciona TODOS los términos semejantes a:</p>
+                </div>
+                <div class="bg-purple-100 border-2 border-purple-200 rounded-2xl p-4 text-center">
+                    <span id="g2-target" class="text-3xl font-bold text-purple-700"></span>
+                </div>
+                <div id="g2-grid" class="flex-1 grid grid-cols-3 gap-3 content-start">
+                    <!-- Cards injected via JS -->
+                </div>
+                <button onclick="checkG2()" class="btn-primary w-full py-4 rounded-xl font-bold text-lg shadow-md mt-auto">Verificar Selección</button>
+            </div>
+
+            <!-- GAME 3: Reducción -->
+            <div id="game-3" class="hidden flex flex-col h-full space-y-4 animate-pop">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold text-orange-500">Reducción de Términos</h2>
+                    <p class="text-sm text-slate-500">Arrastra los términos a su caja correspondiente.</p>
+                </div>
+                
+                <div id="g3-source" class="min-h-[60px] flex flex-wrap gap-2 justify-center items-center bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                    <!-- Draggables injected here -->
+                </div>
+
+                <div class="flex-1 flex flex-col gap-4 py-2" id="g3-dropzones">
+                    <!-- Dropzones injected here -->
+                </div>
+
+                <div id="g3-step2" class="hidden flex-col gap-3 p-4 bg-white rounded-xl shadow-sm border border-slate-200">
+                    <p class="text-sm font-bold text-center text-slate-600">¡Bien! Ahora suma/resta los coeficientes:</p>
+                    <div id="g3-inputs" class="flex flex-col gap-2">
+                        <!-- Inputs injected here -->
+                    </div>
+                    <button onclick="checkG3Step2()" class="btn-secondary w-full py-3 rounded-xl font-bold shadow-sm">Verificar Final</button>
+                </div>
+            </div>
+
+            <!-- GAME 4: Multiplicación -->
+            <div id="game-4" class="hidden flex flex-col h-full space-y-4 animate-pop">
+                <div class="text-center">
+                    <h2 class="text-xl font-bold text-green-600">Multiplicación</h2>
+                    <p class="text-sm text-slate-500" id="g4-instruction">Sigue los pasos.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 text-center flex-1 flex flex-col justify-center gap-6">
+                    <div id="g4-expression" class="text-3xl font-bold text-slate-800"></div>
+                    
+                    <div id="g4-steps" class="flex flex-col gap-4 text-left">
+                        <!-- Pasos inyectados por JS -->
+                    </div>
+                </div>
+
+                <button id="g4-btn" onclick="nextStepG4()" class="btn-primary w-full py-4 rounded-xl font-bold text-lg shadow-md">Siguiente Paso</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FEEDBACK MODAL (Overlay) -->
+    <div id="feedback-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 hidden">
+        <div id="feedback-card" class="bg-white w-full max-w-sm rounded-3xl p-6 text-center transform scale-90 transition-transform">
+            <div id="feedback-icon-container" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-4">
+                <!-- Icon injected by JS -->
+            </div>
+            <h2 id="feedback-title" class="text-2xl font-bold mb-2"></h2>
+            <p id="feedback-message" class="text-slate-600 mb-6"></p>
+            <button onclick="closeFeedback()" class="w-full py-3 rounded-xl font-bold text-white shadow-md transition active:scale-95 bg-blue-500">Continuar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        let state = {
+            name: '',
+            grade: '',
+            correct: 0,
+            incorrect: 0,
+            timeElapsed: 0,
+            timer: null
+        };
+        let currentGame = 0;
+        let gameData = {}; // Stores transient data for the current game
+
+        // DOM Elements
+        const $ = id => document.getElementById(id);
+        
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            const savedState = localStorage.getItem('algebraState');
+            if (savedState) {
+                state = { ...state, ...JSON.parse(savedState) };
+                if (state.name) {
+                    $('student-name').value = state.name;
+                    $('student-grade').value = state.grade;
+                    login(); // Auto-login si ya hay datos
+                }
+            }
+        };
+
+        function saveState() {
+            localStorage.setItem('algebraState', JSON.stringify(state));
+            updateHeader();
+        }
+
+        function login() {
+            const name = $('student-name').value.trim();
+            const grade = $('student-grade').value;
+            if (!name || !grade) {
+                alert("Por favor ingresa tu nombre y grado.");
+                return;
+            }
+            state.name = name;
+            state.grade = grade;
+            saveState();
+
+            $('login-screen').classList.add('hidden');
+            $('app-area').classList.remove('hidden');
+            $('header-name').innerText = state.name;
+            
+            startTimer();
+            goHome();
+        }
+
+        function startTimer() {
+            if (state.timer) clearInterval(state.timer);
+            updateHeader();
+            state.timer = setInterval(() => {
+                state.timeElapsed++;
+                updateHeader();
+                localStorage.setItem('algebraState', JSON.stringify(state)); // Guardar cada segundo puede ser mucho, mejor cada acierto, pero lo dejamos simple.
+            }, 1000);
+        }
+
+        function updateHeader() {
+            const mins = Math.floor(state.timeElapsed / 60).toString().padStart(2, '0');
+            const secs = (state.timeElapsed % 60).toString().padStart(2, '0');
+            $('header-time').innerText = `${mins}:${secs}`;
+            $('score-correct').innerText = state.correct;
+            $('score-incorrect').innerText = state.incorrect;
+        }
+
+        function goHome() {
+            currentGame = 0;
+            $('games-container').classList.add('hidden');
+            $('main-menu').classList.remove('hidden');
+            
+            // Hide all games
+            [1,2,3,4].forEach(i => $(`game-${i}`).classList.add('hidden'));
+        }
+
+        function startGame(id) {
+            currentGame = id;
+            $('main-menu').classList.add('hidden');
+            $('games-container').classList.remove('hidden');
+            
+            [1,2,3,4].forEach(i => {
+                const el = $(`game-${i}`);
+                if (i === id) {
+                    el.classList.remove('hidden');
+                    // Reiniciar animacion
+                    el.classList.remove('animate-pop');
+                    void el.offsetWidth; // trigger reflow
+                    el.classList.add('animate-pop');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+
+            // Initialize specific game
+            if(id === 1) startG1();
+            if(id === 2) startG2();
+            if(id === 3) startG3();
+            if(id === 4) startG4();
+        }
+
+        // --- UTILS ---
+        function rnd(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        
+        function rndNonZero(min, max) {
+            let val;
+            do { val = rnd(min, max); } while (val === 0);
+            return val;
+        }
+
+        function formatBase(base) {
+            // Ocultar el exponente 1 (ej. x^1 -> x)
+            let formatted = base.replace(/\^1(?!\d)/g, '');
+            return formatted.replace(/\^(\d+)/g, '<sup>$1</sup>');
+        }
+
+        function formatTerm(coef, base) {
+            if (coef === 0) return "0";
+            if (base === "") return coef.toString();
+            let cStr = coef.toString();
+            if (coef === 1) cStr = "";
+            if (coef === -1) cStr = "-";
+            return `${cStr}${formatBase(base)}`;
+        }
+
+        function showFeedback(isCorrect, explanation, callback) {
+            const modal = $('feedback-modal');
+            const card = $('feedback-card');
+            const iconContainer = $('feedback-icon-container');
+            const title = $('feedback-title');
+            const msg = $('feedback-message');
+
+            if (isCorrect) {
+                state.correct++;
+                iconContainer.className = "w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-4 bg-green-100 text-green-500";
+                iconContainer.innerHTML = `<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                title.innerText = "¡Muy bien!";
+                title.className = "text-2xl font-bold mb-2 text-green-600";
+            } else {
+                state.incorrect++;
+                iconContainer.className = "w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-4 bg-red-100 text-red-500";
+                iconContainer.innerHTML = `<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                title.innerText = "Ups, vuelve a intentar";
+                title.className = "text-2xl font-bold mb-2 text-red-600";
+            }
+            
+            saveState();
+            msg.innerHTML = explanation;
+            modal.classList.remove('hidden');
+            setTimeout(() => card.classList.replace('scale-90', 'scale-100'), 10);
+            
+            gameData.onFeedbackClose = callback;
+        }
+
+        function closeFeedback() {
+            $('feedback-card').classList.replace('scale-100', 'scale-90');
+            setTimeout(() => {
+                $('feedback-modal').classList.add('hidden');
+                if (gameData.onFeedbackClose) gameData.onFeedbackClose();
+            }, 200);
+        }
+
+        // --- GAME 1: ENTEROS ---
+        function startG1() {
+            $('g1-input').value = '';
+            $('g1-input').focus();
+            
+            const rand = Math.random();
+            let a, b;
+            let isAdd = true;
+
+            // Ajuste de probabilidades a los requerimientos
+            if (rand < 0.40) { 
+                // 40% sumas de diferente signo
+                a = rndNonZero(1, 13) * (Math.random()>0.5?1:-1);
+                b = rndNonZero(1, 13) * (a > 0 ? -1 : 1);
+            } else if (rand < 0.70) { 
+                // 30% sumas ambos negativos
+                a = -rndNonZero(1, 13);
+                b = -rndNonZero(1, 13);
+            } else { 
+                // 30% multiplicación forzando al menos un negativo
+                isAdd = false;
+                a = rndNonZero(-13, 13);
+                b = rndNonZero(-13, 13);
+                // Si ambos salieron positivos, convertimos uno o ambos a negativos
+                if (a > 0 && b > 0) {
+                    if (Math.random() > 0.5) { a = -a; b = -b; } // ambos negativos
+                    else a = -a; // uno negativo
+                }
+            }
+
+            if (isAdd) {
+                gameData.ans = a + b;
+                let op = b < 0 ? `- ${Math.abs(b)}` : `+ ${b}`;
+                $('g1-expression').innerHTML = `${a} ${op}`;
+                gameData.explanation = `${a} ${b < 0 ? '-' : '+'} ${Math.abs(b)} es igual a ${gameData.ans}.`;
+            } else {
+                gameData.ans = a * b;
+                $('g1-expression').innerHTML = `(${a}) <span class="text-blue-500">×</span> (${b})`;
+                let signRules = (a>0 && b>0) || (a<0 && b<0) ? "Signos iguales da positivo." : "Signos diferentes da negativo.";
+                gameData.explanation = `${a} × ${b} = ${gameData.ans}. <br><small class="text-slate-500">${signRules}</small>`;
+            }
+        }
+
+        function checkG1() {
+            const input = $('g1-input');
+            const val = parseInt(input.value);
+            if (isNaN(val)) return;
+
+            if (val === gameData.ans) {
+                showFeedback(true, "¡Respuesta correcta!", startG1);
+            } else {
+                input.classList.add('animate-shake');
+                setTimeout(() => input.classList.remove('animate-shake'), 400);
+                showFeedback(false, `Tu respuesta fue ${val}. La correcta es <b>${gameData.ans}</b>.<br><br>${gameData.explanation}`, startG1);
+            }
+        }
+
+        // --- GAME 2: SEMEJANTES ---
+        function startG2() {
+            // Términos complejos con variaciones conmutativas y trampas
+            const complexTerms = [
+                { target: 'a^3b^4', matches: ['a^3b^4', 'b^4a^3'], tricks: ['a^4b^3', 'ab^4', 'a^3b', 'a^3'] },
+                { target: 'x^2y', matches: ['x^2y', 'yx^2'], tricks: ['xy^2', 'x^2', 'y', 'x^2y^2'] },
+                { target: 'm^5n^2', matches: ['m^5n^2', 'n^2m^5'], tricks: ['mn^2', 'm^2n^5', 'm^5n'] },
+                { target: 'p^2q^3', matches: ['p^2q^3', 'q^3p^2'], tricks: ['pq^3', 'p^3q^2', 'q^3'] },
+                { target: 'x^3y^3', matches: ['x^3y^3', 'y^3x^3'], tricks: ['x^2y^3', 'xy^3', 'x^3'] }
+            ];
+            
+            const termDef = complexTerms[rnd(0, complexTerms.length - 1)];
+            const targetBase = termDef.matches[0];
+            const targetCoef = rndNonZero(-13, 13);
+            
+            $('g2-target').innerHTML = formatTerm(targetCoef, targetBase);
+            gameData.targetMatches = termDef.matches;
+            gameData.selected = [];
+
+            const grid = $('g2-grid');
+            grid.innerHTML = '';
+            gameData.terms = [];
+
+            let matchesNeeded = rnd(3, 4);
+            for(let i=0; i<9; i++) {
+                let base;
+                let isMatch = false;
+                if (matchesNeeded > 0) {
+                    base = termDef.matches[rnd(0, termDef.matches.length - 1)];
+                    isMatch = true;
+                    matchesNeeded--;
+                } else {
+                    // 50% trampa visual, 50% otro término aleatorio
+                    if (Math.random() > 0.5) {
+                        base = termDef.tricks[rnd(0, termDef.tricks.length - 1)];
+                    } else {
+                        let otherTerm;
+                        do { 
+                            otherTerm = complexTerms[rnd(0, complexTerms.length - 1)].matches[0]; 
+                        } while(termDef.matches.includes(otherTerm));
+                        base = otherTerm;
+                    }
+                }
+                
+                let coef = rndNonZero(-13, 13);
+                gameData.terms.push({ id: i, coef, base, isMatch });
+            }
+
+            gameData.terms.sort(() => Math.random() - 0.5);
+
+            gameData.terms.forEach(t => {
+                const btn = document.createElement('button');
+                btn.className = 'term-card bg-white p-3 rounded-xl shadow-sm text-lg font-bold text-slate-700';
+                btn.innerHTML = formatTerm(t.coef, t.base);
+                btn.onclick = () => toggleTermG2(t.id, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function toggleTermG2(id, btn) {
+            btn.classList.toggle('selected');
+            if (btn.classList.contains('selected')) {
+                gameData.selected.push(id);
+            } else {
+                gameData.selected = gameData.selected.filter(x => x !== id);
+            }
+        }
+
+        function checkG2() {
+            let correctCount = 0;
+            let falsePositives = 0;
+            let totalMatches = gameData.terms.filter(t => t.isMatch).length;
+
+            gameData.selected.forEach(id => {
+                const term = gameData.terms.find(t => t.id === id);
+                if (term.isMatch) correctCount++;
+                else falsePositives++;
+            });
+
+            if (correctCount === totalMatches && falsePositives === 0) {
+                showFeedback(true, "¡Excelente! Identificaste correctamente la misma parte literal sin importar el orden de las letras.", startG2);
+            } else {
+                // Pasamos `null` para que NO se cambie el ejercicio y el estudiante deba corregir
+                showFeedback(false, "Revisa bien. Los términos semejantes deben tener <b>exactamente las mismas letras y los mismos exponentes</b>, aunque estén al revés.", null);
+            }
+        }
+
+        // --- GAME 3: REDUCCIÓN ---
+        function startG3() {
+            $('g3-step2').classList.add('hidden');
+            const source = $('g3-source');
+            const zones = $('g3-dropzones');
+            source.innerHTML = '';
+            zones.innerHTML = '';
+
+            // Variables más complejas
+            const complexVars = [ ['x^2y', 'xy^2'], ['a^3b^2', 'ab^4'], ['m^2n', 'mn^2'], ['p^3', 'q^3'] ];
+            const vars = complexVars[rnd(0, complexVars.length - 1)];
+            const v1 = vars[0], v2 = vars[1];
+            
+            // 5 términos en total para mayor dificultad
+            let terms = [
+                { id: 't1', c: rndNonZero(-13, 13), v: v1 },
+                { id: 't2', c: rndNonZero(-13, 13), v: v1 },
+                { id: 't3', c: rndNonZero(-13, 13), v: v1 },
+                { id: 't4', c: rndNonZero(-13, 13), v: v2 },
+                { id: 't5', c: rndNonZero(-13, 13), v: v2 }
+            ].sort(() => Math.random() - 0.5);
+
+            gameData.g3Terms = terms;
+            gameData.v1 = v1;
+            gameData.v2 = v2;
+            gameData.groups = { [v1]: [], [v2]: [] };
+
+            terms.forEach(t => {
+                const el = document.createElement('div');
+                el.className = 'draggable bg-orange-100 text-orange-700 font-bold px-4 py-2 rounded-lg shadow-sm border border-orange-200';
+                el.innerHTML = formatTerm(t.c, t.v);
+                el.id = t.id;
+                el.dataset.v = t.v;
+                source.appendChild(el);
+            });
+
+            // Cajas sin la respuesta explicita
+            let boxCount = 1;
+            [v1, v2].forEach(v => {
+                const box = document.createElement('div');
+                box.className = 'dropzone flex-1 min-h-[70px] rounded-xl flex items-center justify-center gap-2 p-2 relative bg-white';
+                // Ya no validamos por dataset.v explícitamente, pero lo dejamos para control interno si se necesita
+                box.innerHTML = `<span class="absolute text-slate-300 font-bold text-xl z-0 text-center w-full px-2">Caja ${boxCount++}</span>`;
+                zones.appendChild(box);
+            });
+
+            initDragLogic();
+        }
+
+        function initDragLogic() {
+            const draggables = document.querySelectorAll('.draggable');
+            const dropzones = document.querySelectorAll('.dropzone');
+            
+            draggables.forEach(item => {
+                item.onclick = (e) => {
+                    if(item.parentElement.id !== 'g3-source') {
+                        $('g3-source').appendChild(item);
+                        checkG3Step1();
+                        return;
+                    }
+                    draggables.forEach(d => d.classList.remove('ring-2', 'ring-orange-500', 'scale-110'));
+                    item.classList.add('ring-2', 'ring-orange-500', 'scale-110');
+                    gameData.selectedForDrop = item;
+                };
+            });
+
+            dropzones.forEach(zone => {
+                zone.onclick = () => {
+                    if (gameData.selectedForDrop) {
+                        const item = gameData.selectedForDrop;
+                        item.classList.remove('ring-2', 'ring-orange-500', 'scale-110');
+                        zone.appendChild(item);
+                        gameData.selectedForDrop = null;
+                        checkG3Step1();
+                    }
+                };
+            });
+        }
+
+        function checkG3Step1() {
+            const zones = document.querySelectorAll('.dropzone');
+            let allCorrect = true;
+            let totalInZones = 0;
+
+            // Validación inteligente: revisa que todos los elementos DENTRO de cada caja sean del mismo tipo
+            zones.forEach(zone => {
+                const items = Array.from(zone.children).filter(c => c.classList.contains('draggable'));
+                totalInZones += items.length;
+                
+                if (items.length > 0) {
+                    const firstItemType = items[0].dataset.v;
+                    items.forEach(item => {
+                        if (item.dataset.v !== firstItemType) allCorrect = false;
+                    });
+                }
+            });
+
+            if (totalInZones === 5) { 
+                if (allCorrect) {
+                    $('g3-step2').classList.remove('hidden');
+                    setupG3Step2();
+                } else {
+                    // Tampoco reinicia, permite corregir
+                    showFeedback(false, "Agrupaste mal los términos. Asegúrate de mirar muy bien los exponentes, en cada caja solo deben ir términos idénticos en letras.", null);
+                }
+            } else {
+                $('g3-step2').classList.add('hidden');
+            }
+        }
+
+        function setupG3Step2() {
+            const container = $('g3-inputs');
+            container.innerHTML = '';
+            
+            [gameData.v1, gameData.v2].forEach(v => {
+                const terms = gameData.g3Terms.filter(t => t.v === v);
+                const sum = terms.reduce((acc, t) => acc + t.c, 0);
+                gameData[`ans_${v}`] = sum;
+
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-slate-50 p-2 rounded-lg';
+                
+                const expStr = terms.map(t => formatTerm(t.c, t.v)).join(' + ').replace(/\+ -/g, '- ');
+                
+                row.innerHTML = `
+                    <span class="text-xs font-bold text-slate-700 max-w-[60%]">${expStr} =</span>
+                    <div class="flex items-center">
+                        <input type="number" id="g3-input-${v}" class="w-14 p-1 text-center border-2 border-slate-300 rounded font-bold outline-none focus:border-orange-500">
+                        <span class="ml-1 font-bold text-slate-700 text-sm">${formatBase(v)}</span>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function checkG3Step2() {
+            const v1 = gameData.v1;
+            const v2 = gameData.v2;
+            const i1 = parseInt($(`g3-input-${v1}`).value);
+            const i2 = parseInt($(`g3-input-${v2}`).value);
+
+            if (isNaN(i1) || isNaN(i2)) return;
+
+            if (i1 === gameData[`ans_${v1}`] && i2 === gameData[`ans_${v2}`]) {
+                showFeedback(true, "¡Excelente reducción! Operaste correctamente los signos y coeficientes.", startG3);
+            } else {
+                showFeedback(false, `Revisa tus sumas.<br>El coeficiente para ${formatBase(v1)} era ${gameData[`ans_${v1}`]}.<br>El coeficiente para ${formatBase(v2)} era ${gameData[`ans_${v2}`]}.`, null);
+            }
+        }
+
+        // --- GAME 4: MULTIPLICACIÓN ---
+        function startG4() {
+            gameData.step = 0;
+            const isBinomial = Math.random() > 0.5;
+            let c1 = rndNonZero(-6, 6); 
+            let e1 = rnd(1, 4);
+            
+            // Variable aleatoria (x, y, z, w, a, m)
+            const variables = ['x', 'y', 'z', 'w', 'a', 'm'];
+            let v = variables[rnd(0, variables.length - 1)];
+            gameData.varChar = v;
+
+            let html = `<div id="g4-expression-container" class="relative inline-block mt-6 mb-2 p-4">
+                <svg id="g4-arrows" class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible" style="z-index: 10;">
+                    <defs>
+                        <marker id="arrowhead1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                            <polygon points="0 0, 6 3, 0 6" fill="#3b82f6" />
+                        </marker>
+                        <marker id="arrowhead2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                            <polygon points="0 0, 6 3, 0 6" fill="#a855f7" />
+                        </marker>
+                    </defs>
+                </svg>`;
+
+            if (!isBinomial) {
+                let c2 = rndNonZero(-6, 6); let e2 = rnd(1, 4);
+                gameData = { ...gameData, type: 'mono', c1, e1, c2, e2 };
+                html += `<span id="g4-t1" class="px-1 text-2xl font-bold">(${formatTerm(c1, `${v}^${e1}`)})</span> <span class="text-green-500 text-2xl">·</span> <span id="g4-t2" class="px-1 text-2xl font-bold">(${formatTerm(c2, `${v}^${e2}`)})</span>`;
+            } else {
+                let c2 = rndNonZero(-5, 5); let e2 = rnd(1, 3); let c3 = rndNonZero(-6, 6);
+                gameData = { ...gameData, type: 'bino', c1, e1, c2, e2, c3 };
+                html += `<span id="g4-t1" class="px-1 text-2xl font-bold">${formatTerm(c1, `${v}^${e1}`)}</span> <span class="text-green-500 text-2xl">·</span> <span class="text-2xl">(</span> <span id="g4-t2" class="px-1 text-2xl font-bold">${formatTerm(c2, `${v}^${e2}`)}</span> <span class="text-2xl font-bold">${c3 > 0 ? '+' : '-'}</span> <span id="g4-t3" class="px-1 text-2xl font-bold">${Math.abs(c3)}</span> <span class="text-2xl">)</span>`;
+            }
+            html += `</div>`;
+            
+            $('g4-expression').innerHTML = html;
+            $('g4-steps').innerHTML = '';
+            $('g4-btn').innerText = "Comenzar Propiedad Distributiva";
+            $('g4-instruction').innerText = "Identifica las partes de la respuesta";
+        }
+
+        function drawArrowG4(targetIndex) {
+            const svg = $('g4-arrows');
+            const t1 = $('g4-t1');
+            const t2 = $(`g4-t${targetIndex+1}`);
+            if (!svg || !t1 || !t2) return;
+            
+            // Limpia las flechas anteriores para mostrar solo la actual
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrowhead1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#3b82f6" />
+                    </marker>
+                    <marker id="arrowhead2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#a855f7" />
+                    </marker>
+                </defs>
+            `;
+
+            const r1 = t1.getBoundingClientRect();
+            const r2 = t2.getBoundingClientRect();
+            const c = $('g4-expression-container').getBoundingClientRect();
+            
+            const startX = r1.left - c.left + r1.width / 2;
+            const startY = r1.top - c.top; 
+            const endX = r2.left - c.left + r2.width / 2;
+            const endY = r2.top - c.top;
+
+            const midX = (startX + endX) / 2;
+            const midY = Math.min(startY, endY) - 25; 
+            
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", `M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`);
+            path.setAttribute("fill", "transparent");
+            path.setAttribute("stroke", targetIndex === 1 ? "#3b82f6" : "#a855f7");
+            path.setAttribute("stroke-width", "3");
+            path.setAttribute("marker-end", `url(#arrowhead${targetIndex})`);
+            path.setAttribute("stroke-dasharray", "4,4");
+            
+            svg.appendChild(path);
+        }
+
+        function addG4StepUI(prefix, explanation, borderCol, placeholderVar) {
+            // Creamos un nodo HTML en vez de usar innerHTML += para NO borrar los valores escritos antes
+            const htmlStr = `
+                <div class="p-4 bg-white rounded-xl text-sm border-2 ${borderCol} animate-slide shadow-sm">
+                    <b class="text-slate-700">${explanation}</b>
+                    <div class="flex items-end justify-center gap-3 mt-4">
+                        <div class="flex flex-col items-center">
+                            <span class="text-[11px] text-slate-500 font-bold mb-1">Coef.</span>
+                            <input type="number" id="${prefix}-coef" class="w-16 p-2 text-center border-2 border-slate-300 rounded-xl focus:border-blue-500 outline-none font-bold text-lg">
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <span class="text-[11px] text-slate-500 font-bold mb-1">Letra</span>
+                            <input type="text" id="${prefix}-var" class="w-14 p-2 text-center border-2 border-slate-300 rounded-xl focus:border-blue-500 outline-none font-bold text-lg" placeholder="${placeholderVar}">
+                        </div>
+                        <div class="flex flex-col items-center justify-start h-full pb-6">
+                            <span class="text-[11px] text-slate-500 font-bold mb-1">Exp.</span>
+                            <input type="number" id="${prefix}-exp" class="w-12 p-1 text-center border-2 border-slate-300 rounded-lg focus:border-blue-500 outline-none font-bold text-sm" placeholder="?">
+                        </div>
+                    </div>
+                </div>
+            `;
+            const divWrapper = document.createElement('div');
+            divWrapper.innerHTML = htmlStr;
+            $('g4-steps').appendChild(divWrapper.firstElementChild);
+        }
+
+        function disableG4Inputs(prefix) {
+            $(`${prefix}-coef`).disabled = true;
+            $(`${prefix}-var`).disabled = true;
+            $(`${prefix}-exp`).disabled = true;
+            $(`${prefix}-coef`).classList.add('bg-slate-100');
+            $(`${prefix}-var`).classList.add('bg-slate-100');
+            $(`${prefix}-exp`).classList.add('bg-slate-100');
+        }
+
+        function nextStepG4() {
+            const btn = $('g4-btn');
+            const v = gameData.varChar;
+            
+            if (gameData.type === 'mono') {
+                if (gameData.step === 0) {
+                    drawArrowG4(1);
+                    addG4StepUI('g4-i1', `Multiplica ${formatTerm(gameData.c1, `${v}^${gameData.e1}`)} por ${formatTerm(gameData.c2, `${v}^${gameData.e2}`)}`, 'border-blue-200', v);
+                    btn.innerText = "Verificar Monomio";
+                    gameData.step++;
+                } else if (gameData.step === 1) {
+                    let ansC = parseInt($('g4-i1-coef').value);
+                    let ansV = $('g4-i1-var').value.toLowerCase().trim();
+                    let ansE = parseInt($('g4-i1-exp').value);
+                    
+                    if (ansC !== gameData.c1*gameData.c2 || ansV !== v || ansE !== gameData.e1+gameData.e2) {
+                        showFeedback(false, `Revisa. Coeficientes se multiplican (${gameData.c1}×${gameData.c2}), la letra es '${v}', y los exponentes se suman (${gameData.e1}+${gameData.e2}).`, null); return;
+                    }
+                    disableG4Inputs('g4-i1');
+                    showFeedback(true, "¡Perfecto! Todo el término es correcto.", null);
+                    btn.innerText = "Siguiente Ejercicio";
+                    gameData.step++;
+                } else {
+                    startG4();
+                }
+            } else {
+                if (gameData.step === 0) {
+                    drawArrowG4(1);
+                    addG4StepUI('g4-i1', `1º Paso: ${formatTerm(gameData.c1, `${v}^${gameData.e1}`)} multiplicado por ${formatTerm(gameData.c2, `${v}^${gameData.e2}`)}`, 'border-blue-200', v);
+                    btn.innerText = "Verificar Primer Término";
+                    gameData.step++;
+                } else if (gameData.step === 1) {
+                    let ansC = parseInt($('g4-i1-coef').value);
+                    let ansV = $('g4-i1-var').value.toLowerCase().trim();
+                    let ansE = parseInt($('g4-i1-exp').value);
+                    
+                    if (ansC !== gameData.c1*gameData.c2 || ansV !== v || ansE !== gameData.e1+gameData.e2) {
+                        showFeedback(false, `Revisa la multiplicación del primer término. Los coeficientes se multiplican, la letra es '${v}' y se suman exponentes.`, null); return;
+                    }
+                    
+                    disableG4Inputs('g4-i1'); // Se bloquea, pero NO se borra de la pantalla
+                    drawArrowG4(2); // Flecha morada y desaparece la azul
+                    let sign = gameData.c3 > 0 ? "+" : "-";
+                    addG4StepUI('g4-i2', `2º Paso: ${formatTerm(gameData.c1, `${v}^${gameData.e1}`)} multiplicado por ${sign} ${Math.abs(gameData.c3)}`, 'border-purple-200', v);
+                    btn.innerText = "Verificar Segundo Término";
+                    gameData.step++;
+                } else if (gameData.step === 2) {
+                    let ansC = parseInt($('g4-i2-coef').value);
+                    let ansV = $('g4-i2-var').value.toLowerCase().trim();
+                    let ansE = parseInt($('g4-i2-exp').value);
+                    
+                    if (ansC !== gameData.c1*gameData.c3 || ansV !== v || ansE !== gameData.e1) {
+                        showFeedback(false, `Revisa. Multiplica ${gameData.c1} por ${gameData.c3}. Como el segundo número no tiene letra, la letra y el exponente quedan igual al primer término.`, null); return;
+                    }
+
+                    disableG4Inputs('g4-i2');
+                    showFeedback(true, "¡Excelente uso de la Propiedad Distributiva! Has completado la multiplicación.", null);
+                    btn.innerText = "Siguiente Ejercicio";
+                    gameData.step++;
+                } else {
+                    startG4();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
