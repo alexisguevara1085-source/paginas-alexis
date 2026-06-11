@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caja de Polinomios - Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,600&display=swap');
+
+        body { overscroll-behavior: none; }
+
+        /* Contenedor del viewport para el Zoom/Pan */
+        #viewport {
+            overflow: hidden; /* Ocultar barras de scroll nativas, usamos JS para mover */
+            position: relative;
+            cursor: grab;
+        }
+        #viewport:active { cursor: grabbing; }
+
+        /* El espacio de trabajo gigante (Plano virtual) */
+        #workspace {
+            width: 6000px;
+            height: 6000px;
+            position: absolute;
+            transform-origin: 0 0;
+            background-color: #f8fafc;
+            background-image: 
+                linear-gradient(#cbd5e1 1px, transparent 1px),
+                linear-gradient(90deg, #cbd5e1 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: 0 0;
+            will-change: transform;
+        }
+
+        .math { font-family: 'Lora', serif; font-style: italic; }
+
+        .tile {
+            position: absolute;
+            box-sizing: border-box;
+            border-style: solid;
+            border-width: 10px; /* Borde más estético */
+            user-select: none;
+            touch-action: none;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
+            transition: transform 0.1s, filter 0.2s;
+        }
+
+        .tile-workspace { cursor: move; }
+        
+        .tile.dragging {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+            box-shadow: 0 15px 25px -5px rgba(0,0,0,0.3);
+            z-index: 1000 !important;
+        }
+
+        /* Etiquetas en los marcos */
+        .lbl {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            pointer-events: none;
+        }
+        .text-dark { color: #1e293b; }
+        .text-light { color: #ffffff; text-shadow: 0 0 2px rgba(0,0,0,0.5); }
+
+        .lbl-top { top: -10px; left: -10px; right: -10px; height: 10px; }
+        .lbl-bottom { bottom: -10px; left: -10px; right: -10px; height: 10px; }
+        .lbl-left { left: -10px; top: -10px; bottom: -10px; width: 10px; }
+        .lbl-right { right: -10px; top: -10px; bottom: -10px; width: 10px; }
+
+        .center-text {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; font-weight: bold;
+            pointer-events: none;
+        }
+
+        /* Etiquetas Flotantes del Perímetro */
+        .floating-side {
+            position: absolute;
+            background: white;
+            color: #0f172a;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 4px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border: 2px solid #3b82f6;
+            z-index: 500;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .vertical-text-left { writing-mode: vertical-rl; transform: rotate(180deg); }
+        .vertical-text-right { writing-mode: vertical-rl; }
+
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden bg-slate-50 text-slate-800">
+
+    <!-- BARRA SUPERIOR -->
+    <header class="bg-slate-900 text-white shadow-xl z-30 flex flex-col md:flex-row items-center justify-between px-6 py-2 border-b-4 border-blue-500">
+        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+            <h1 class="text-xl font-bold tracking-wide">Caja de Polinomios</h1>
+            <div class="flex items-center gap-2">
+                <button id="btn-clear" class="bg-red-500 hover:bg-red-600 text-white text-sm font-bold py-1.5 px-3 rounded-lg shadow transition flex items-center gap-1">
+                    🧹 Limpiar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Panel de Estado y Cálculo -->
+        <div class="flex flex-col md:flex-row items-center gap-4 mt-2 md:mt-0 w-full md:w-auto">
+            
+            <!-- Indicador de Estado -->
+            <div id="status-panel" class="flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 min-w-[250px] justify-center">
+                <span id="status-msg" class="text-sm font-bold text-blue-400">🔵 Vacío</span>
+            </div>
+
+            <!-- Área calculada -->
+            <div class="flex items-center gap-3 bg-slate-800 px-4 py-2 rounded-lg border border-slate-700">
+                <span class="text-xs text-slate-400 font-bold uppercase">Área (Polinomio):</span>
+                <span id="calc-area" class="text-lg font-bold text-yellow-400 min-w-[50px] text-center">0</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        
+        <!-- MENÚ LATERAL -->
+        <aside class="w-full md:w-28 bg-white border-r border-slate-300 shadow-lg flex flex-row md:flex-col items-center py-4 px-2 gap-5 overflow-y-auto z-20">
+            <div id="menu-container" class="flex flex-row md:flex-col items-center gap-5 w-full">
+                <!-- Fichas Inyectadas por JS -->
+            </div>
+        </aside>
+
+        <!-- VIEWPORT (Maneja el Pan y Zoom) -->
+        <main id="viewport" class="flex-1 relative bg-slate-300">
+            
+            <!-- PLANO VIRTUAL -->
+            <div id="workspace">
+                <!-- Elementos Flotantes para los lados -->
+                <div id="side-top" class="floating-side hidden"></div>
+                <div id="side-bottom" class="floating-side hidden"></div>
+                <div id="side-left" class="floating-side vertical-text-left hidden"></div>
+                <div id="side-right" class="floating-side vertical-text-right hidden"></div>
+            </div>
+
+            <!-- Controles de Zoom -->
+            <div class="absolute bottom-6 left-6 flex flex-col gap-2 z-10">
+                <button id="btn-zoom-in" class="w-10 h-10 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center text-xl font-bold hover:bg-slate-100 focus:outline-none">➕</button>
+                <button id="btn-zoom-out" class="w-10 h-10 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center text-xl font-bold hover:bg-slate-100 focus:outline-none">➖</button>
+            </div>
+
+            <div class="absolute bottom-6 right-6 text-xs text-slate-600 bg-white/90 px-3 py-2 rounded-lg shadow border border-slate-200 pointer-events-none text-right">
+                <p>🖱️ <b>Arrastrar fondo</b>: Mover cámara</p>
+                <p>🔄 <b>Doble clic en ficha</b>: Rotar</p>
+                <p>🗑️ <b>Clic derecho en ficha</b>: Borrar</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL CONFIRMACIÓN LIMPIAR -->
+    <div id="modal-clear" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 transform scale-95 transition-transform duration-200" id="modal-content">
+            <h2 class="text-xl font-bold text-slate-800 mb-2">¿Limpiar Tablero?</h2>
+            <p class="text-slate-600 mb-6">Se eliminarán todas las fichas del plano. Esta acción no se puede deshacer.</p>
+            <div class="flex justify-end gap-3">
+                <button id="btn-cancel-clear" class="px-4 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 transition">Cancelar</button>
+                <button id="btn-confirm-clear" class="px-4 py-2 rounded-lg font-medium text-white bg-red-500 hover:bg-red-600 shadow-md transition">Sí, limpiar todo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTES Y CONFIGURACIÓN ---
+        const GRID_SIZE = 60; 
+        
+        // Paleta de Colores Mejorada
+        const C_1_BG = '#86efac'; const C_1_TXT = '#14532d'; // Verde pastel
+        const C_X_BG = '#93c5fd'; const C_X_TXT = '#1e3a8a'; // Azul pastel
+        const C_X2_BG = '#fde047'; const C_X2_TXT = '#713f12'; // Amarillo pastel
+        const C_NEG_BG = '#fca5a5'; const C_NEG_TXT = '#7f1d1d'; // Rojo salmón (suave)
+
+        // Colores de los bordes (Representan la longitud geométrica)
+        const B_1 = '#d97706'; // Ámbar oscuro (Lados de tamaño 1)
+        const B_X = '#0d9488'; // Teal oscuro (Lados de tamaño X)
+
+        /*
+            typeW/typeH: '1' (60px) o 'x' (180px). Usado para validar encajes.
+            lT, lB, lL, lR: Etiquetas algebraicas (-1, 1, x, -x) para construir el polinomio factorizado.
+        */
+        const tileDefs = [
+            { id: 'p1', v: '1', txt: '+1', w: 60, h: 60, bg: C_1_BG, txtColor: C_1_TXT, lblCls: 'text-dark',
+              bT: B_1, bB: B_1, bL: B_1, bR: B_1, typeW: '1', typeH: '1', lT: '1', lB: '1', lL: '1', lR: '1' },
+            
+            { id: 'm1', v: '-1', txt: '-1', w: 60, h: 60, bg: C_NEG_BG, txtColor: C_NEG_TXT, lblCls: 'text-dark',
+              bT: B_1, bB: B_1, bL: B_1, bR: B_1, typeW: '1', typeH: '1', lT: '-1', lB: '-1', lL: '1', lR: '1' },
+            
+            { id: 'px', v: 'x', txt: '+<i class="math">x</i>', w: 60, h: 180, bg: C_X_BG, txtColor: C_X_TXT, lblCls: 'text-light',
+              bT: B_1, bB: B_1, bL: B_X, bR: B_X, typeW: '1', typeH: 'x', lT: '1', lB: '1', lL: 'x', lR: 'x' },
+            
+            { id: 'mx', v: '-x', txt: '-<i class="math">x</i>', w: 60, h: 180, bg: C_NEG_BG, txtColor: C_NEG_TXT, lblCls: 'text-light',
+              bT: B_1, bB: B_1, bL: B_X, bR: B_X, typeW: '1', typeH: 'x', lT: '-1', lB: '-1', lL: 'x', lR: 'x' },
+            
+            { id: 'px2', v: 'x2', txt: '+<i class="math">x</i>²', w: 180, h: 180, bg: C_X2_BG, txtColor: C_X2_TXT, lblCls: 'text-light',
+              bT: B_X, bB: B_X, bL: B_X, bR: B_X, typeW: 'x', typeH: 'x', lT: 'x', lB: 'x', lL: 'x', lR: 'x' },
+            
+            { id: 'mx2', v: '-x2', txt: '-<i class="math">x</i>²', w: 180, h: 180, bg: C_NEG_BG, txtColor: C_NEG_TXT, lblCls: 'text-light',
+              bT: B_X, bB: B_X, bL: B_X, bR: B_X, typeW: 'x', typeH: 'x', lT: '-x', lB: '-x', lL: 'x', lR: 'x' }
+        ];
+
+        // --- REFERENCIAS DOM ---
+        const viewport = document.getElementById('viewport');
+        const workspace = document.getElementById('workspace');
+        const menuContainer = document.getElementById('menu-container');
+        const sideLabels = {
+            top: document.getElementById('side-top'),
+            bottom: document.getElementById('side-bottom'),
+            left: document.getElementById('side-left'),
+            right: document.getElementById('side-right')
+        };
+
+        // --- ESTADO GLOBAL ---
+        let scale = 1;
+        let panX = -2000, panY = -2000; // Iniciar en el centro del plano virtual
+        
+        let activeTile = null;
+        let isPanning = false;
+        let startX = 0, startY = 0;
+        let initialLeft = 0, initialTop = 0;
+        let lastTapTime = 0;
+
+        // Aplicar transformación inicial
+        updateTransform();
+
+        function updateTransform() {
+            workspace.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+
+        // --- INICIALIZACIÓN DEL MENÚ ---
+        function getTileContent(def, cls) {
+            return `
+                <div class="lbl lbl-top ${cls}">${def.lT}</div>
+                <div class="lbl lbl-bottom ${cls}">${def.lB}</div>
+                <div class="lbl lbl-left ${cls}">${def.lL}</div>
+                <div class="lbl lbl-right ${cls}">${def.lR}</div>
+                <div class="center-text" style="color: ${def.txtColor}">${def.txt}</div>
+            `;
+        }
+
+        tileDefs.forEach(def => {
+            let s = def.w > 60 || def.h > 60 ? (60 / Math.max(def.w, def.h)) : 1;
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = "relative cursor-grab group";
+            wrapper.style.width = `${def.w * s}px`;
+            wrapper.style.height = `${def.h * s}px`;
+
+            const sourceTile = document.createElement('div');
+            sourceTile.className = "tile tile-source origin-top-left";
+            
+            // Guardar todos los datasets necesarios para la matemática
+            sourceTile.dataset.v = def.v;
+            sourceTile.dataset.typew = def.typeW;
+            sourceTile.dataset.typeh = def.typeH;
+            sourceTile.dataset.lt = def.lT;
+            sourceTile.dataset.lb = def.lB;
+            sourceTile.dataset.ll = def.lL;
+            sourceTile.dataset.lr = def.lR;
+            
+            sourceTile.style.width = `${def.w}px`;
+            sourceTile.style.height = `${def.h}px`;
+            sourceTile.style.backgroundColor = def.bg;
+            sourceTile.style.borderTopColor = def.bT;
+            sourceTile.style.borderBottomColor = def.bB;
+            sourceTile.style.borderLeftColor = def.bL;
+            sourceTile.style.borderRightColor = def.bR;
+            sourceTile.style.transform = `scale(${s})`;
+            
+            sourceTile.innerHTML = getTileContent(def, def.lblCls);
+            wrapper.appendChild(sourceTile);
+            menuContainer.appendChild(wrapper);
+        });
+
+        // --- LÓGICA DE INTERACCIÓN (PAN, ZOOM, DRAG) ---
+
+        // Convertir coordenadas de pantalla a coordenadas del Workspace matemático
+        function getWorkspaceCoords(clientX, clientY) {
+            const rect = viewport.getBoundingClientRect();
+            return {
+                x: (clientX - rect.left - panX) / scale,
+                y: (clientY - rect.top - panY) / scale
+            };
+        }
+
+        function snap(value) { return Math.round(value / GRID_SIZE) * GRID_SIZE; }
+
+        document.addEventListener('pointerdown', (e) => {
+            // Ignorar clics en botones
+            if(e.target.closest('button')) return;
+
+            // 1. Arrastrar Ficha desde el Menú
+            const source = e.target.closest('.tile-source');
+            if (source && e.button !== 2) {
+                e.preventDefault();
+                activeTile = source.cloneNode(true);
+                activeTile.classList.remove('tile-source', 'origin-top-left');
+                activeTile.classList.add('tile-workspace', 'cursor-move', 'dragging');
+                activeTile.style.transform = '';
+                
+                workspace.appendChild(activeTile);
+
+                const coords = getWorkspaceCoords(e.clientX, e.clientY);
+                const w = parseFloat(activeTile.style.width);
+                const h = parseFloat(activeTile.style.height);
+                
+                initialLeft = coords.x - (w / 2);
+                initialTop = coords.y - (h / 2);
+                
+                activeTile.style.left = initialLeft + 'px';
+                activeTile.style.top = initialTop + 'px';
+                activeTile.style.zIndex = 100;
+                
+                startX = e.clientX;
+                startY = e.clientY;
+                return;
+            }
+
+            // 2. Interactuar con Ficha en el Plano
+            const wsTile = e.target.closest('.tile-workspace');
+            if (wsTile) {
+                if (e.button === 2) { // Clic derecho = Borrar
+                    wsTile.remove();
+                    calculateAll();
+                    e.preventDefault();
+                    return;
+                }
+
+                e.preventDefault();
+
+                // Doble clic = Rotar
+                const currentTime = new Date().getTime();
+                if (currentTime - lastTapTime < 300) {
+                    let oldW = parseFloat(wsTile.style.width);
+                    let oldH = parseFloat(wsTile.style.height);
+                    let oldL = parseFloat(wsTile.style.left);
+                    let oldT = parseFloat(wsTile.style.top);
+                    
+                    let newL = snap(oldL + (oldW / 2) - (oldH / 2));
+                    let newT = snap(oldT + (oldH / 2) - (oldW / 2));
+
+                    wsTile.style.width = oldH + 'px';
+                    wsTile.style.height = oldW + 'px';
+                    wsTile.style.left = newL + 'px';
+                    wsTile.style.top = newT + 'px';
+                    
+                    // Rotar Datos Lógicos
+                    let tw = wsTile.dataset.typew;
+                    wsTile.dataset.typew = wsTile.dataset.typeh;
+                    wsTile.dataset.typeh = tw;
+
+                    let lt = wsTile.dataset.lt, lb = wsTile.dataset.lb, ll = wsTile.dataset.ll, lr = wsTile.dataset.lr;
+                    wsTile.dataset.lt = ll; wsTile.dataset.ll = lb; wsTile.dataset.lb = lr; wsTile.dataset.lr = lt;
+                    
+                    // Rotar Colores de Borde
+                    let cT = wsTile.style.borderTopColor;
+                    let cR = wsTile.style.borderRightColor;
+                    let cB = wsTile.style.borderBottomColor;
+                    let cL = wsTile.style.borderLeftColor;
+                    wsTile.style.borderTopColor = cL; wsTile.style.borderRightColor = cT; 
+                    wsTile.style.borderBottomColor = cR; wsTile.style.borderLeftColor = cB;
+
+                    // Rotar Textos Visuales
+                    let tTop = wsTile.querySelector('.lbl-top');
+                    let tRight = wsTile.querySelector('.lbl-right');
+                    let tBottom = wsTile.querySelector('.lbl-bottom');
+                    let tLeft = wsTile.querySelector('.lbl-left');
+                    let txtT = tTop.innerHTML;
+                    tTop.innerHTML = tLeft.innerHTML; tLeft.innerHTML = tBottom.innerHTML;
+                    tBottom.innerHTML = tRight.innerHTML; tRight.innerHTML = txtT;
+
+                    activeTile = null;
+                    calculateAll();
+                    return;
+                }
+                lastTapTime = currentTime;
+
+                activeTile = wsTile;
+                activeTile.classList.add('dragging');
+                
+                // Mover al frente
+                workspace.appendChild(activeTile); 
+                
+                startX = e.clientX;
+                startY = e.clientY;
+                initialLeft = parseFloat(activeTile.style.left);
+                initialTop = parseFloat(activeTile.style.top);
+                return;
+            }
+
+            // 3. Arrastrar el Fondo (Paneo)
+            if (e.target === viewport || e.target === workspace) {
+                isPanning = true;
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+        });
+
+        document.addEventListener('pointermove', (e) => {
+            if (activeTile) {
+                e.preventDefault();
+                const dx = (e.clientX - startX) / scale;
+                const dy = (e.clientY - startY) / scale;
+                activeTile.style.left = (initialLeft + dx) + 'px';
+                activeTile.style.top = (initialTop + dy) + 'px';
+            } else if (isPanning) {
+                e.preventDefault();
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                panX += dx;
+                panY += dy;
+                updateTransform();
+                startX = e.clientX;
+                startY = e.clientY;
+            }
+        });
+
+        document.addEventListener('pointerup', () => {
+            isPanning = false;
+            if (activeTile) {
+                activeTile.style.left = snap(parseFloat(activeTile.style.left)) + 'px';
+                activeTile.style.top = snap(parseFloat(activeTile.style.top)) + 'px';
+                activeTile.classList.remove('dragging');
+                activeTile = null;
+                calculateAll();
+            }
+        });
+
+        // Prevenir menú contextual para borrar fácil
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('.tile-workspace') || e.target === viewport || e.target === workspace) {
+                e.preventDefault();
+            }
+        });
+
+        // Controles de Zoom
+        function setZoom(newScale) {
+            // Limitar zoom
+            newScale = Math.max(0.4, Math.min(newScale, 2));
+            if (newScale === scale) return;
+
+            // Ajustar Pan para acercar hacia el centro de la pantalla
+            const rect = viewport.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const workspaceX = (centerX - panX) / scale;
+            const workspaceY = (centerY - panY) / scale;
+
+            scale = newScale;
+            
+            panX = centerX - (workspaceX * scale);
+            panY = centerY - (workspaceY * scale);
+
+            updateTransform();
+        }
+
+        document.getElementById('btn-zoom-in').addEventListener('click', () => setZoom(scale + 0.2));
+        document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(scale - 0.2));
+
+        // --- MODAL DE LIMPIEZA ---
+        const btnClear = document.getElementById('btn-clear');
+        const modalClear = document.getElementById('modal-clear');
+        const modalContent = document.getElementById('modal-content');
+        const btnCancelClear = document.getElementById('btn-cancel-clear');
+        const btnConfirmClear = document.getElementById('btn-confirm-clear');
+
+        btnClear.addEventListener('click', () => {
+            modalClear.classList.remove('hidden');
+            setTimeout(() => modalContent.classList.remove('scale-95'), 10);
+        });
+
+        function closeModal() {
+            modalContent.classList.add('scale-95');
+            setTimeout(() => modalClear.classList.add('hidden'), 200);
+        }
+
+        btnCancelClear.addEventListener('click', closeModal);
+        btnConfirmClear.addEventListener('click', () => {
+            document.querySelectorAll('.tile-workspace').forEach(t => t.remove());
+            calculateAll();
+            closeModal();
+            // Recentrar cámara
+            scale = 1; panX = -2000; panY = -2000; updateTransform();
+        });
+
+        // --- MOTOR MATEMÁTICO AVANZADO ---
+
+        function formatPoly(x2, x, ones) {
+            let terms = [];
+            if (x2 !== 0) terms.push((x2 === 1 ? '' : x2 === -1 ? '-' : x2) + 'x²');
+            if (x !== 0) terms.push((x === 1 ? '' : x === -1 ? '-' : x) + 'x');
+            if (ones !== 0) terms.push(ones.toString());
+            
+            if (terms.length === 0) return '0';
+            return terms.join(' + ').replace(/\+ -/g, '- ');
+        }
+
+        function updateStatus(msg, colorClass) {
+            const el = document.getElementById('status-msg');
+            el.className = `text-sm font-bold ${colorClass}`;
+            el.innerText = msg;
+        }
+
+        function hideFloatingLabels() {
+            Object.values(sideLabels).forEach(el => el.classList.add('hidden'));
+        }
+
+        // Analiza las etiquetas de un borde específico y genera el polinomio perimetral
+        function calcEdgePoly(tiles, edge) {
+            let xCount = 0, oneCount = 0;
+            tiles.forEach(t => {
+                let lbl = t.dataset[edge]; // 'lt', 'lb', 'll', 'lr'
+                if(lbl === 'x') xCount++;
+                if(lbl === '-x') xCount--;
+                if(lbl === '1') oneCount++;
+                if(lbl === '-1') oneCount--;
+            });
+            return formatPoly(0, xCount, oneCount);
+        }
+
+        function calculateAll() {
+            const tiles = Array.from(document.querySelectorAll('.tile-workspace'));
+            const areaEl = document.getElementById('calc-area');
+            hideFloatingLabels();
+
+            if (tiles.length === 0) {
+                updateStatus('🔵 Tablero Vacío', 'text-blue-400');
+                areaEl.innerText = '0';
+                return;
+            }
+
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            let geoArea = 0;
+            let pX2 = 0, pX = 0, p1 = 0;
+
+            const rects = []; // Para cálculos de colisión
+
+            tiles.forEach(t => {
+                const l = parseFloat(t.style.left);
+                const tp = parseFloat(t.style.top);
+                const w = parseFloat(t.style.width);
+                const h = parseFloat(t.style.height);
+                
+                minX = Math.min(minX, l); minY = Math.min(minY, tp);
+                maxX = Math.max(maxX, l + w); maxY = Math.max(maxY, tp + h);
+                geoArea += (w * h);
+
+                const v = t.dataset.v;
+                if(v==='1') p1++; else if(v==='-1') p1--;
+                else if(v==='x') pX++; else if(v==='-x') pX--;
+                else if(v==='x2') pX2++; else if(v==='-x2') pX2--;
+
+                rects.push({
+                    el: t,
+                    l: l, t: tp, r: l + w, b: tp + h,
+                    w: w, h: h,
+                    typeW: t.dataset.typew, typeH: t.dataset.typeh
+                });
+            });
+
+            areaEl.innerText = formatPoly(pX2, pX, p1);
+
+            // 1. Detección de Superposiciones (Solapamiento Estricto)
+            let hasOverlap = false;
+            for(let i=0; i<rects.length; i++) {
+                for(let j=i+1; j<rects.length; j++) {
+                    let A = rects[i], B = rects[j];
+                    if (!(A.r <= B.l || A.l >= B.r || A.b <= B.t || A.t >= B.b)) {
+                        hasOverlap = true; break;
+                    }
+                }
+                if(hasOverlap) break;
+            }
+
+            if(hasOverlap) {
+                updateStatus('❌ Error: Hay fichas superpuestas', 'text-red-500');
+                return;
+            }
+
+            // 2. Detección de Coincidencia de Lados (La regla de oro de Baldosas)
+            let isMismatch = false;
+            for(let i=0; i<rects.length; i++) {
+                for(let j=0; j<rects.length; j++) {
+                    if(i === j) continue;
+                    let A = rects[i], B = rects[j];
+
+                    // Toque Horizontal (A está a la izquierda de B)
+                    if (A.r === B.l) {
+                        let overlapY = Math.max(0, Math.min(A.b, B.b) - Math.max(A.t, B.t));
+                        if (overlapY > 0) {
+                            // Los tipos de borde deben coincidir verticalmente (typeH)
+                            if (A.typeH !== B.typeH) isMismatch = true;
+                            // Si es borde X (180px), DEBEN alinear perfecto
+                            if (A.typeH === 'x' && overlapY !== 180) isMismatch = true;
+                        }
+                    }
+
+                    // Toque Vertical (A está arriba de B)
+                    if (A.b === B.t) {
+                        let overlapX = Math.max(0, Math.min(A.r, B.r) - Math.max(A.l, B.l));
+                        if (overlapX > 0) {
+                            // Los tipos de borde deben coincidir horizontalmente (typeW)
+                            if (A.typeW !== B.typeW) isMismatch = true;
+                            // Si es borde X (180px), DEBEN alinear perfecto
+                            if (A.typeW === 'x' && overlapX !== 180) isMismatch = true;
+                        }
+                    }
+                }
+            }
+
+            if (isMismatch) {
+                updateStatus('❌ Error: Lados no coinciden o mal alineados', 'text-red-500');
+                return;
+            }
+
+            // 3. Verificación de Rectángulo Completo
+            const expectedGeoArea = (maxX - minX) * (maxY - minY);
+            if (Math.abs(geoArea - expectedGeoArea) > 1) { // Tolerancia flotante
+                updateStatus('⚠️ Fichas válidas, pero no forman un rectángulo', 'text-yellow-400');
+                return;
+            }
+
+            // --- ÉXITO: ES UN RECTÁNGULO PERFECTO ---
+            updateStatus('✅ ¡Rectángulo Perfecto!', 'text-green-400');
+
+            // Encontrar fichas en los bordes para calcular factores
+            let topTiles = [], bottomTiles = [], leftTiles = [], rightTiles = [];
+            
+            rects.forEach(r => {
+                if (Math.abs(r.t - minY) < 1) topTiles.push(r.el);
+                if (Math.abs(r.b - maxY) < 1) bottomTiles.push(r.el);
+                if (Math.abs(r.l - minX) < 1) leftTiles.push(r.el);
+                if (Math.abs(r.r - maxX) < 1) rightTiles.push(r.el);
+            });
+
+            const polyTop = calcEdgePoly(topTiles, 'lt');
+            const polyBottom = calcEdgePoly(bottomTiles, 'lb');
+            const polyLeft = calcEdgePoly(leftTiles, 'll');
+            const polyRight = calcEdgePoly(rightTiles, 'lr');
+
+            // Posicionar etiquetas flotantes en el Workspace
+            const cX = minX + (maxX - minX)/2;
+            const cY = minY + (maxY - minY)/2;
+
+            function placeLabel(el, x, y, text) {
+                el.innerText = text;
+                el.classList.remove('hidden');
+                // Centrar basado en su propio tamaño
+                el.style.left = `${x}px`;
+                el.style.top = `${y}px`;
+                el.style.transform = `translate(-50%, -50%) ${el.classList.contains('vertical-text-left') ? 'rotate(180deg)' : ''}`;
+            }
+
+            placeLabel(sideLabels.top, cX, minY - 35, polyTop);
+            placeLabel(sideLabels.bottom, cX, maxY + 35, polyBottom);
+            placeLabel(sideLabels.left, minX - 35, cY, polyLeft);
+            placeLabel(sideLabels.right, maxX + 35, cY, polyRight);
+        }
+    </script>
+</body>
+</html>
