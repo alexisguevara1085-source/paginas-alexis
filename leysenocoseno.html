@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrigoQuest - Ley de Senos y Cosenos</title>
+    <!-- Tailwind CSS para diseño fluido y rápido -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconografía educativa de calidad -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter y JetBrains Mono para código -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- KaTeX para renderizar expresiones matemáticas perfectas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            touch-action: manipulation;
+        }
+        .font-mono-custom {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Estilos de Neumorfismo Premium para Móviles */
+        .neumorphic-inset {
+            background: #f8fafc;
+            box-shadow: inset 3px 3px 6px #cbd5e1, inset -3px -3px 6px #ffffff;
+        }
+        .neumorphic-flat {
+            background: #ffffff;
+            box-shadow: 6px 6px 12px #cbd5e1, -6px -6px 12px #ffffff;
+        }
+        .neumorphic-button {
+            background: #f8fafc;
+            box-shadow: 4px 4px 8px #cbd5e1, -4px -4px 8px #ffffff;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .neumorphic-button:active {
+            box-shadow: inset 2px 2px 5px #cbd5e1, inset -2px -2px 5px #ffffff;
+            transform: scale(0.97);
+        }
+
+        /* Ocultar scrollbars */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Transiciones entre vistas */
+        .page-transition {
+            transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+        }
+
+        /* Inputs interactivos para armado de ecuaciones */
+        .formula-input {
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 800;
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .formula-input:focus {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex justify-center items-center p-0 m-0">
+
+    <!-- Notificaciones Flotantes Integradas (Toasts de Feedback) -->
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white py-3 px-5 rounded-2xl shadow-2xl flex items-center gap-3 opacity-0 transition-all duration-300 z-50 max-w-[90%] w-80">
+        <span id="toast-icon" class="text-xl"></span>
+        <p id="toast-message" class="text-xs font-semibold leading-relaxed"></p>
+    </div>
+
+    <!-- CONTENEDOR UNIFICADO DE LA APLICACIÓN MÓVIL (100% Altura de Pantalla/Simulador Limpio) -->
+    <div class="relative w-full max-w-[410px] h-screen max-h-[860px] bg-slate-50 md:rounded-[40px] shadow-[0_30px_60px_-15px_rgba(15,23,42,0.5)] md:border-[10px] border-slate-950 overflow-hidden flex flex-col">
+        
+        <!-- Barra de Estado de Dispositivo Falsa (Para simular interfaz móvil pura) -->
+        <div class="w-full h-8 bg-white/90 backdrop-blur-md flex justify-between items-center px-6 z-40 select-none flex-shrink-0">
+            <span class="text-[11px] font-bold text-slate-800 font-mono-custom" id="mobile-clock">09:41</span>
+            <div class="w-[85px] h-[16px] bg-slate-950 rounded-b-xl absolute left-1/2 transform -translate-x-1/2 top-0"></div>
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-800">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full text-xs"></i>
+            </div>
+        </div>
+
+        <!-- CONTENEDOR DINÁMICO DE PANTALLAS (Scroll oculto) -->
+        <div class="flex-1 overflow-y-auto no-scrollbar flex flex-col relative bg-[#F8FAFC]">
+
+            <!-- 1. PANTALLA DE BIENVENIDA / ACCESO -->
+            <div id="screen-welcome" class="flex-1 flex flex-col justify-between px-6 pt-10 pb-6 page-transition">
+                <div class="text-center mt-6">
+                    <div class="inline-flex p-4 rounded-3xl bg-white border border-slate-100 mb-4 shadow-sm neumorphic-flat">
+                        <i class="fas fa-compass-drafting text-4xl text-blue-600"></i>
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-950 tracking-tight">Trigo<span class="text-blue-600">Quest</span></h2>
+                    <p class="text-xs text-slate-400 mt-2 font-semibold uppercase tracking-wider">Geometría Oblicuángula</p>
+                </div>
+
+                <!-- Formulario Neumórfico -->
+                <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-5 my-6">
+                    <div class="text-center pb-2 border-b border-slate-100">
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-widest">Identificación</span>
+                    </div>
+
+                    <!-- Entrada: Nombre -->
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Tu Nombre</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i class="far fa-user"></i>
+                            </span>
+                            <input type="text" id="student-name" placeholder="Escribe tu nombre" 
+                                class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-500 focus:bg-white outline-none text-xs transition-all font-semibold text-slate-800 neumorphic-inset">
+                        </div>
+                    </div>
+
+                    <!-- Botones de Grado -->
+                    <div>
+                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Selecciona tu Grado</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="setGrado('10º')" id="btn-g10"
+                                class="py-3.5 rounded-2xl border border-slate-100 text-xs font-black text-slate-600 transition-all flex flex-col items-center justify-center gap-1 neumorphic-button">
+                                <span class="text-sm">10º</span>
+                                <span class="text-[8px] text-slate-400 font-bold uppercase">Décimo</span>
+                            </button>
+                            <button type="button" onclick="setGrado('11º')" id="btn-g11"
+                                class="py-3.5 rounded-2xl border border-slate-100 text-xs font-black text-slate-600 transition-all flex flex-col items-center justify-center gap-1 neumorphic-button">
+                                <span class="text-sm">11º</span>
+                                <span class="text-[8px] text-slate-400 font-bold uppercase">Undécimo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de Ingreso -->
+                <button onclick="loginEstudiante()" 
+                    class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-xs">
+                    <span>ENTRAR AL MENÚ</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- 2. PANTALLA: MENÚ PRINCIPAL -->
+            <div id="screen-menu" class="hidden flex-1 flex flex-col justify-between px-6 pt-6 pb-6 page-transition">
+                <div>
+                    <!-- Saludo superior -->
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                        <div>
+                            <h3 class="text-xs text-slate-400 font-bold">¡Bienvenido!</h3>
+                            <h2 id="menu-user-name" class="text-lg font-black text-slate-900 truncate max-w-[180px]">Estudiante</h2>
+                        </div>
+                        <span id="menu-user-grade" class="bg-blue-100 text-blue-800 text-[9px] font-black px-2.5 py-1 rounded-full uppercase">10º Grado</span>
+                    </div>
+
+                    <!-- Modos de Desafío -->
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Selecciona la Modalidad</h3>
+                        
+                        <!-- Tarjeta Modo Color -->
+                        <button onclick="iniciarJuego('color')" 
+                            class="w-full bg-white border border-slate-100 p-4 rounded-3xl text-left shadow-sm hover:border-red-500 hover:shadow-md transition-all duration-300 group flex items-start gap-3.5 relative overflow-hidden neumorphic-button">
+                            <div class="absolute right-0 top-0 h-full w-2 bg-gradient-to-b from-[#EF4444] via-[#3B82F6] to-[#10B981]"></div>
+                            <div class="p-3 bg-red-50 rounded-2xl text-red-600 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-palette text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-xs font-black text-slate-900">Modo Color</h4>
+                                <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">Asistencia visual cromática. Lados y ángulos opuestos comparten el mismo color.</p>
+                            </div>
+                        </button>
+
+                        <!-- Tarjeta Modo Experto -->
+                        <button onclick="iniciarJuego('experto')" 
+                            class="w-full bg-white border border-slate-100 p-4 rounded-3xl text-left shadow-sm hover:border-slate-800 hover:shadow-md transition-all duration-300 group flex items-start gap-3.5 relative overflow-hidden neumorphic-button">
+                            <div class="absolute right-0 top-0 h-full w-2 bg-slate-800"></div>
+                            <div class="p-3 bg-slate-50 rounded-2xl text-slate-700 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-brain text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-xs font-black text-slate-900">Modo Experto</h4>
+                                <p class="text-[10px] text-slate-400 mt-1 leading-relaxed">Sin pistas visuales. Triángulo y fórmulas representados estrictamente en escala de grises.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cerrar Sesión -->
+                <button onclick="cerrarSesion()" class="w-full py-3 rounded-xl text-slate-400 hover:text-red-500 transition-colors text-xs font-bold flex items-center justify-center gap-1.5 mt-6">
+                    <i class="fas fa-sign-out-alt"></i> Cambiar de Jugador
+                </button>
+            </div>
+
+            <!-- 3. PANTALLA: PANEL DE JUEGO (MAXIMIZACIÓN VISUAL) -->
+            <div id="screen-game" class="hidden flex-1 flex flex-col justify-between page-transition">
+                
+                <!-- HEADER DINÁMICO FIJO SUPERIOR -->
+                <div class="px-4 py-2 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-20 shadow-sm flex-shrink-0">
+                    <!-- Botón Home para volver al menú principal -->
+                    <button onclick="volverAlMenu()" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-sm">
+                        <i class="fas fa-house-user text-xs"></i>
+                    </button>
+
+                    <!-- Datos dinámicos del estudiante -->
+                    <div class="text-center flex-1 mx-2">
+                        <p id="hud-user-name" class="text-xs font-black text-slate-800 truncate max-w-[100px] mx-auto">Estudiante</p>
+                        <span id="hud-user-grade" class="text-[8px] font-extrabold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded uppercase">10º</span>
+                    </div>
+
+                    <!-- Métricas de Desempeño y Cronómetro Activo -->
+                    <div class="flex items-center gap-1">
+                        <!-- Cronómetro -->
+                        <div class="flex items-center gap-1 bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[9px] font-bold">
+                            <i class="far fa-clock text-blue-500"></i>
+                            <span id="hud-clock" class="font-mono-custom">00:00</span>
+                        </div>
+                        <!-- Aciertos (✔ Verde) -->
+                        <div class="flex items-center gap-0.5 bg-green-50 text-[#10B981] px-1.5 py-0.5 rounded text-[9px] font-black border border-green-100">
+                            <i class="fas fa-check"></i>
+                            <span id="hud-aciertos">0</span>
+                        </div>
+                        <!-- Errores (✘ Rojo) -->
+                        <div class="flex items-center gap-0.5 bg-red-50 text-[#EF4444] px-1.5 py-0.5 rounded text-[9px] font-black border border-red-100">
+                            <i class="fas fa-times"></i>
+                            <span id="hud-errores">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÁREA CENTRAL: MAXIMIZACIÓN DEL TRIÁNGULO SVG -->
+                <div class="flex-1 p-3 flex flex-col justify-between gap-2 overflow-hidden">
+                    
+                    <!-- Tarjeta contenedora del Triángulo SVG -->
+                    <div id="triangle-card" class="bg-white rounded-3xl p-3 border border-slate-100 shadow-sm flex flex-col items-center justify-center relative flex-1 min-h-[200px]">
+                        <!-- Distintivo de Modo de Juego -->
+                        <span id="hud-game-mode-badge" class="absolute top-2 left-2 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 shadow-sm">
+                            MODO COLOR
+                        </span>
+
+                        <!-- Triángulo SVG expandido y claro -->
+                        <div class="w-full h-full flex items-center justify-center my-1 relative">
+                            <svg id="triangulo-vectorial" class="w-full h-full max-h-[220px] overflow-visible" viewBox="0 0 280 180">
+                                <polygon id="poly-fill" points="140,20 40,140 240,140" fill="#f8fafc" />
+                                
+                                <!-- Arcos dinámicos para Ángulos Interiores -->
+                                <path id="arc-A" d="" fill="none" stroke-width="3" />
+                                <path id="arc-B" d="" fill="none" stroke-width="3" />
+                                <path id="arc-C" d="" fill="none" stroke-width="3" />
+
+                                <!-- Lados del Triángulo -->
+                                <line id="lado-a" x1="40" y1="140" x2="240" y2="140" stroke-width="4" stroke-linecap="round" />
+                                <line id="lado-b" x1="240" y1="140" x2="140" y2="20" stroke-width="4" stroke-linecap="round" />
+                                <line id="lado-c" x1="40" y1="140" x2="140" y2="20" stroke-width="4" stroke-linecap="round" />
+
+                                <!-- Vértices -->
+                                <circle id="vertice-A" cx="140" cy="20" r="5.5" />
+                                <circle id="vertice-B" cx="40" cy="140" r="5.5" />
+                                <circle id="vertice-C" cx="240" cy="140" r="5.5" />
+
+                                <!-- Textos de Lados (Aumentados, sin "cm") -->
+                                <text id="txt-lado-a" x="140" y="162" font-size="15" font-weight="900" class="font-mono-custom" text-anchor="middle">x</text>
+                                <text id="txt-lado-b" x="205" y="75" font-size="15" font-weight="900" class="font-mono-custom">12</text>
+                                <text id="txt-lado-c" x="55" y="75" font-size="15" font-weight="900" class="font-mono-custom">15</text>
+
+                                <!-- Textos de Ángulos (MAYÚSCULAS - Aumentados) -->
+                                <text id="txt-ang-A" x="140" y="52" font-size="14" font-weight="900" class="font-mono-custom" text-anchor="middle">45°</text>
+                                <text id="txt-ang-B" x="65" y="130" font-size="14" font-weight="900" class="font-mono-custom">60°</text>
+                                <text id="txt-ang-C" x="215" y="130" font-size="14" font-weight="900" class="font-mono-custom" text-anchor="end">75°</text>
+                            </svg>
+                        </div>
+
+                        <!-- Fórmulas flotantes de apoyo dinámico en miniatura -->
+                        <div class="w-full flex justify-between items-center bg-slate-50 p-1.5 border border-slate-100 rounded-xl mt-1 flex-shrink-0">
+                            <span class="text-[8px] font-extrabold text-slate-400 uppercase">Teoremas de apoyo:</span>
+                            <div class="flex gap-2">
+                                <button onclick="abrirPopupLey('senos')" class="text-[8px] font-black text-red-600 bg-red-50 px-2 py-0.5 rounded hover:bg-red-100 transition shadow-sm">Senos</button>
+                                <button onclick="abrirPopupLey('cosenos')" class="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded hover:bg-blue-100 transition shadow-sm">Cosenos</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ZONA INFERIOR: SELECCIÓN DE LEY Y CASILLAS INTERACTIVAS -->
+                    <div class="flex-shrink-0 space-y-2">
+                        
+                        <!-- ETAPA 1: SELECCIÓN DE LEY APLICABLE -->
+                        <div id="step-select-law" class="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm">
+                            <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 text-center">PASO 1: Determina la Ley Aplicable</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="verificarLeySeleccionada('senos')" class="py-3 px-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-100 text-xs font-black text-red-700 transition active:scale-95 flex flex-col items-center gap-1 shadow-sm">
+                                    <span>Ley de Senos</span>
+                                </button>
+                                <button onclick="verificarLeySeleccionada('cosenos')" class="py-3 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 text-xs font-black text-blue-700 transition active:scale-95 flex flex-col items-center gap-1 shadow-sm">
+                                    <span>Ley de Cosenos</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ETAPA 2: PLANTEAMIENTO ESTRUCTURAL INTERACTIVO (Teclado) -->
+                        <div id="step-build-formula" class="hidden bg-white rounded-2xl p-3 border border-slate-100 shadow-sm space-y-2">
+                            <div class="text-center">
+                                <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block">PASO 2: Completa el Planteamiento</span>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Escribe con tu teclado los valores en las casillas.</p>
+                            </div>
+
+                            <!-- Selector de Variantes (Solo Cosenos) -->
+                            <div id="cosenes-variants-selector" class="hidden grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl">
+                                <button onclick="selectCosVariant('a')" id="btn-variant-a" class="py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm">a² = ...</button>
+                                <button onclick="selectCosVariant('b')" id="btn-variant-b" class="py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500">b² = ...</button>
+                                <button onclick="selectCosVariant('c')" id="btn-variant-c" class="py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500">c² = ...</button>
+                            </div>
+
+                            <!-- Selector de Variantes (Solo Senos) -->
+                            <div id="sines-variants-selector" class="hidden grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl">
+                                <button onclick="selectSinVariant('lados')" id="btn-variant-sin-lados" class="py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm">Lados Arriba</button>
+                                <button onclick="selectSinVariant('senos')" id="btn-variant-sin-senos" class="py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500">Senos Arriba</button>
+                            </div>
+
+                            <!-- Área de Estructuración con Inputs para Teclado -->
+                            <div class="flex items-center justify-center gap-0.5 py-3 px-1 bg-slate-50 rounded-xl border border-dashed border-slate-300 min-h-[56px] w-full overflow-hidden">
+                                <div id="structural-formula-container" class="flex items-center justify-center flex-nowrap w-full text-[9px] sm:text-[10px] font-mono-custom font-bold">
+                                    <!-- Inyección dinámica de casillas input -->
+                                </div>
+                            </div>
+
+                            <!-- Acciones del Constructor de Planteamiento -->
+                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                                <button onclick="limpiarPlanteamiento()" class="py-1.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-600 transition shadow-sm">
+                                    <i class="fas fa-trash-alt mr-1"></i> Borrar
+                                </button>
+                                <button onclick="validarPlanteamiento()" class="py-1.5 px-3 rounded-lg bg-slate-900 hover:bg-blue-600 text-[10px] font-bold text-white transition shadow-sm">
+                                    Comprobar <i class="fas fa-check ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ETAPA 3: RESOLUCIÓN NUMÉRICA -->
+                        <div id="step-numeric-solve" class="hidden bg-white rounded-2xl p-3 border border-slate-100 shadow-sm">
+                            <div class="text-center mb-2">
+                                <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">PASO 3: Calcula el Valor Final</span>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Selecciona el valor correcto de 'x'.</p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2" id="game-answers-grid">
+                                <!-- Opciones cargadas dinámicamente -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- BARRA DE ACCIÓN INFERIOR -->
+                    <div class="bg-white border-t border-slate-100 py-2 px-6 flex justify-between items-center text-slate-400 flex-shrink-0">
+                        <button onclick="volverAlMenu()" class="flex flex-col items-center gap-0.5 hover:text-blue-500 transition-colors">
+                            <i class="fas fa-arrow-left text-xs"></i>
+                            <span class="text-[8px] font-black uppercase">Volver</span>
+                        </button>
+                        <button onclick="saltarPregunta()" class="flex flex-col items-center gap-0.5 hover:text-blue-500 transition-colors">
+                            <i class="fas fa-redo text-xs"></i>
+                            <span class="text-[8px] font-black uppercase">Saltar</span>
+                        </button>
+                        <button onclick="mostrarConsejo()" class="flex flex-col items-center gap-0.5 hover:text-blue-500 transition-colors">
+                            <i class="fas fa-lightbulb text-xs"></i>
+                            <span class="text-[8px] font-black uppercase">Consejo</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Botón de barra inferior de dispositivo móvil (iOS style) -->
+        <div class="absolute bottom-1 w-[110px] h-[4px] bg-slate-950 rounded-full left-1/2 transform -translate-x-1/2 z-40 flex-shrink-0"></div>
+    </div>
+
+    <!-- PANELES MODALES / POPUPS OCULTOS DE LA LEY -->
+    <div id="popup-ley-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+        <div class="bg-white rounded-[32px] p-6 max-w-sm w-full border border-slate-100 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <h3 id="popup-ley-title" class="text-sm font-black text-slate-900 uppercase">Teorema de Trigonometría</h3>
+                <button onclick="cerrarPopupLey()" class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <!-- Contenedor LaTeX -->
+            <div id="popup-ley-latex-box" class="py-4 bg-slate-50 rounded-2xl text-center border border-slate-100 min-h-[60px] flex items-center justify-center font-mono-custom text-sm overflow-x-auto">
+                <!-- Se inyecta la fórmula KaTeX -->
+            </div>
+            <p id="popup-ley-desc" class="text-xs text-slate-500 leading-relaxed">
+                Explicación de uso metodológico de la ley.
+            </p>
+            <button onclick="cerrarPopupLey()" class="w-full bg-slate-950 text-white font-bold py-3 rounded-xl text-xs shadow-md">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- COMPORTAMIENTO Y LOGICA DE CONTROL EN JAVASCRIPT -->
+    <script>
+        // SINTETIZADOR DE AUDIO (Web Audio API)
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playSuccess() {
+                this.init();
+                const now = this.ctx.currentTime;
+                
+                const osc1 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc1.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(523.25, now); // C5
+                osc1.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                osc1.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                osc1.frequency.setValueAtTime(1046.50, now + 0.24); // C6
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+
+                osc1.start(now);
+                osc1.stop(now + 0.45);
+            },
+            playError() {
+                this.init();
+                const now = this.ctx.currentTime;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.setValueAtTime(146.83, now + 0.12); // D3
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+        };
+
+        // ESTADO GLOBAL DE LA APLICACIÓN
+        const appState = {
+            user: {
+                nombre: '',
+                grado: ''
+            },
+            modo: 'color', // color, experto
+            score: {
+                aciertos: 0,
+                errores: 0
+            },
+            timer: {
+                seconds: 0,
+                interval: null
+            },
+            game: {
+                currentQuestion: null,
+                selectedLaw: null, 
+                selectedVariant: null, 
+                step: 1, 
+                consecutiveErrors: 0
+            }
+        };
+
+        // RELOJ FLOTANTE
+        function clockLoop() {
+            const timeNow = new Date();
+            const hrs = String(timeNow.getHours()).padStart(2, '0');
+            const mins = String(timeNow.getMinutes()).padStart(2, '0');
+            const elClock = document.getElementById('mobile-clock');
+            if (elClock) elClock.textContent = `${hrs}:${mins}`;
+        }
+        setInterval(clockLoop, 1000);
+        clockLoop();
+
+        // CONTROL DE NOTIFICACIONES TOAST
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-message');
+
+            text.textContent = message;
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fas fa-check-circle text-emerald-500"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fas fa-times-circle text-red-500"></i>';
+            } else {
+                icon.innerHTML = '<i class="fas fa-info-circle text-blue-500"></i>';
+            }
+
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 0)';
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -150px)';
+            }, 3000);
+        }
+
+        // ASIGNACIÓN DE GRADO ESCOLAR
+        function setGrado(grado) {
+            appState.user.grado = grado;
+            const btnG10 = document.getElementById('btn-g10');
+            const btnG11 = document.getElementById('btn-g11');
+
+            if (grado === '10º') {
+                btnG10.className = "py-3.5 rounded-2xl border border-blue-500 bg-blue-50 text-xs font-black text-blue-700 transition-all flex flex-col items-center justify-center gap-1 scale-[1.02] shadow-sm";
+                btnG11.className = "py-3.5 rounded-2xl border border-slate-100 bg-slate-50 text-xs font-black text-slate-600 transition-all flex flex-col items-center justify-center gap-1";
+            } else {
+                btnG11.className = "py-3.5 rounded-2xl border border-blue-500 bg-blue-50 text-xs font-black text-blue-700 transition-all flex flex-col items-center justify-center gap-1 scale-[1.02] shadow-sm";
+                btnG10.className = "py-3.5 rounded-2xl border border-slate-100 bg-slate-50 text-xs font-black text-slate-600 transition-all flex flex-col items-center justify-center gap-1";
+            }
+        }
+
+        // INGRESO AL MENÚ PRINCIPAL
+        function loginEstudiante() {
+            const nameField = document.getElementById('student-name').value.trim();
+
+            if (!nameField) {
+                showToast("Por favor, introduce tu nombre.", "error");
+                return;
+            }
+            if (!appState.user.grado) {
+                showToast("Por favor, selecciona tu grado.", "error");
+                return;
+            }
+
+            appState.user.nombre = nameField;
+
+            // Vincular textos
+            document.getElementById('menu-user-name').textContent = appState.user.nombre;
+            document.getElementById('menu-user-grade').textContent = `${appState.user.grado} Grado`;
+            document.getElementById('hud-user-name').textContent = appState.user.nombre;
+            document.getElementById('hud-user-grade').textContent = appState.user.grado;
+
+            cambiarPantalla('screen-welcome', 'screen-menu');
+        }
+
+        // CERRAR SESIÓN
+        function cerrarSesion() {
+            appState.user.nombre = '';
+            appState.user.grado = '';
+            document.getElementById('student-name').value = '';
+            
+            document.getElementById('btn-g10').className = "py-3.5 rounded-2xl border border-slate-100 bg-slate-50 text-xs font-black text-slate-600 transition-all flex flex-col items-center justify-center gap-1 hover:border-blue-400";
+            document.getElementById('btn-g11').className = "py-3.5 rounded-2xl border border-slate-100 bg-slate-50 text-xs font-black text-slate-600 transition-all flex flex-col items-center justify-center gap-1 hover:border-blue-400";
+
+            cambiarPantalla('screen-menu', 'screen-welcome');
+        }
+
+        // CAMBIO DE PANTALLA
+        function cambiarPantalla(pantallaActualId, pantallaNuevaId) {
+            const act = document.getElementById(pantallaActualId);
+            const nva = document.getElementById(pantallaNuevaId);
+
+            act.style.opacity = '0';
+            act.style.transform = 'translateY(15px)';
+
+            setTimeout(() => {
+                act.classList.add('hidden');
+                nva.classList.remove('hidden');
+                nva.style.opacity = '0';
+                nva.style.transform = 'translateY(15px)';
+                
+                nva.offsetHeight; // Reflujo
+
+                nva.style.opacity = '1';
+                nva.style.transform = 'translateY(0)';
+            }, 250);
+        }
+
+        // INICIAR JUEGO
+        function iniciarJuego(modo) {
+            appState.modo = modo;
+            
+            const badge = document.getElementById('hud-game-mode-badge');
+            if (modo === 'color') {
+                badge.textContent = "Modo Color";
+                badge.className = "absolute top-2 left-2 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 shadow-sm";
+            } else {
+                badge.textContent = "Modo Experto";
+                badge.className = "absolute top-2 left-2 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider bg-slate-900 text-white border border-slate-800 shadow-sm";
+            }
+
+            iniciarCronometro();
+            generarNuevoRetoMatematico();
+            cambiarPantalla('screen-menu', 'screen-game');
+        }
+
+        // HOME
+        function volverAlMenu() {
+            pararCronometro();
+            cambiarPantalla('screen-game', 'screen-menu');
+        }
+
+        // TIEMPO
+        function iniciarCronometro() {
+            appState.timer.seconds = 0;
+            document.getElementById('hud-clock').textContent = "00:00";
+            clearInterval(appState.timer.interval);
+            appState.timer.interval = setInterval(() => {
+                appState.timer.seconds++;
+                const mm = String(Math.floor(appState.timer.seconds / 60)).padStart(2, '0');
+                const ss = String(appState.timer.seconds % 60).padStart(2, '0');
+                document.getElementById('hud-clock').textContent = `${mm}:${ss}`;
+            }, 1000);
+        }
+
+        function pararCronometro() {
+            clearInterval(appState.timer.interval);
+        }
+
+        // FORMULAS DE APOYO
+        function abrirPopupLey(ley) {
+            const modal = document.getElementById('popup-ley-modal');
+            const title = document.getElementById('popup-ley-title');
+            const box = document.getElementById('popup-ley-latex-box');
+            const desc = document.getElementById('popup-ley-desc');
+
+            if (ley === 'senos') {
+                title.textContent = "Ley de Senos";
+                box.innerHTML = `$$\\frac{a}{\\sin(A)} = \\frac{b}{\\sin(B)}$$`;
+                desc.textContent = "Se aplica cuando posees una pareja completa lado-ángulo opuesto complementada con cualquier otro dato.";
+            } else {
+                title.textContent = "Ley de Cosenos";
+                box.innerHTML = `$$a^2 = b^2 + c^2 - 2bc\\cos(A)$$`;
+                desc.textContent = "Se aplica cuando conoces dos lados y el ángulo central comprendido entre ellos, o cuando posees el valor de los tres lados.";
+            }
+
+            modal.classList.remove('hidden');
+            if (window.katex) {
+                renderMathInElement(box);
+            }
+        }
+
+        function cerrarPopupLey() {
+            document.getElementById('popup-ley-modal').classList.add('hidden');
+        }
+
+        // GENERADOR DE RETOS MATEMÁTICOS (100% Preciso, 4 Casos)
+        function generarNuevoRetoMatematico() {
+            appState.game.step = 1;
+            appState.game.selectedVariant = null;
+            
+            document.getElementById('step-select-law').classList.remove('hidden');
+            document.getElementById('step-build-formula').classList.add('hidden');
+            document.getElementById('step-numeric-solve').classList.add('hidden');
+
+            const casos = ['LAL', 'LLL', 'ALA', 'LLA'];
+            const casoElegido = casos[Math.floor(Math.random() * casos.length)];
+            
+            // Generar triángulo base válido
+            let angA = Math.floor(Math.random() * 30) + 45; // 45 a 75
+            let angB = Math.floor(Math.random() * 30) + 45; // 45 a 75
+            let angC = 180 - angA - angB;
+            
+            let ladoC = Math.floor(Math.random() * 6) + 10; // 10 a 15
+            let ladoA = parseFloat(((ladoC * Math.sin(angA * Math.PI/180)) / Math.sin(angC * Math.PI/180)).toFixed(1));
+            let ladoB = parseFloat(((ladoC * Math.sin(angB * Math.PI/180)) / Math.sin(angC * Math.PI/180)).toFixed(1));
+
+            let reto = { 
+                caso: casoElegido, 
+                ley: '', 
+                incognita: '', 
+                solucionCorrecta: 0, 
+                distractores: [], 
+                display: { a: '', b: '', c: '', A: '', B: '', C: '' } // Lo que se muestra en UI
+            };
+
+            if (casoElegido === 'LAL') {
+                reto.ley = 'cosenos';
+                reto.incognita = 'a';
+                reto.display.b = ladoB;
+                reto.display.c = ladoC;
+                reto.display.A = angA;
+                reto.display.a = 'x';
+                reto.solucionCorrecta = ladoA;
+                reto.distractores = [
+                    parseFloat((ladoA + 2.5).toFixed(1)),
+                    parseFloat((ladoA - 1.8).toFixed(1)),
+                    parseFloat(Math.sqrt(ladoB*ladoB + ladoC*ladoC).toFixed(1))
+                ];
+            } else if (casoElegido === 'LLL') {
+                reto.ley = 'cosenos';
+                reto.incognita = 'A';
+                reto.display.a = ladoA;
+                reto.display.b = ladoB;
+                reto.display.c = ladoC;
+                reto.display.A = 'x';
+                reto.solucionCorrecta = angA;
+                reto.distractores = [
+                    angA + 15,
+                    Math.max(10, angA - 12),
+                    90
+                ];
+            } else if (casoElegido === 'ALA') {
+                reto.ley = 'senos';
+                reto.incognita = 'a';
+                reto.display.A = angA;
+                reto.display.B = angB;
+                reto.display.b = ladoB;
+                reto.display.a = 'x';
+                reto.solucionCorrecta = ladoA;
+                reto.distractores = [
+                    parseFloat((ladoA + 1.9).toFixed(1)),
+                    parseFloat((ladoA - 2.4).toFixed(1)),
+                    parseFloat((ladoA * 1.4).toFixed(1))
+                ];
+            } else if (casoElegido === 'LLA') {
+                reto.ley = 'senos';
+                reto.incognita = 'B';
+                reto.display.a = ladoA;
+                reto.display.b = ladoB;
+                reto.display.A = angA;
+                reto.display.B = 'x';
+                reto.solucionCorrecta = angB;
+                reto.distractores = [
+                    angB + 10,
+                    Math.max(15, angB - 15),
+                    180 - angB
+                ];
+            }
+
+            appState.game.currentQuestion = reto;
+
+            // Renderizado del triángulo
+            actualizarGraficosSVG();
+        }
+
+        // GENERACIÓN AUXILIAR DE ARCOS SVG
+        function getArcPath(cx, cy, startAngleRad, endAngleRad, radius) {
+            const startX = cx + radius * Math.cos(startAngleRad);
+            const startY = cy + radius * Math.sin(startAngleRad);
+            const endX = cx + radius * Math.cos(endAngleRad);
+            const endY = cy + radius * Math.sin(endAngleRad);
+            
+            const largeArcFlag = Math.abs(endAngleRad - startAngleRad) > Math.PI ? 1 : 0;
+            const sweepFlag = endAngleRad > startAngleRad ? 1 : 0;
+
+            return `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${endX} ${endY}`;
+        }
+
+        // RENDERIZADO DEL TRIÁNGULO (SOLO 3 DATOS + 1 INCOGNITA 'X')
+        function actualizarGraficosSVG() {
+            const reto = appState.game.currentQuestion;
+            const modo = appState.modo;
+
+            // Valores reales para graficar proporcionalmente
+            let aDeg = reto.display.A === 'x' ? reto.solucionCorrecta : (reto.display.A !== '' ? reto.display.A : 60);
+            let bDeg = reto.display.B === 'x' ? reto.solucionCorrecta : (reto.display.B !== '' ? reto.display.B : 55);
+            
+            // Garantizar triangulo coherente para graficar
+            let cDeg = 180 - aDeg - bDeg;
+
+            // Coordenadas base
+            const bx = 45;
+            const by = 135;
+            const cx = 235;
+            const cy = 135;
+
+            const radA = (aDeg * Math.PI) / 180;
+            const radB = (bDeg * Math.PI) / 180;
+            const radC = (cDeg * Math.PI) / 180;
+
+            const basePix = 190; 
+            const sideCPix = (basePix * Math.sin(radC)) / Math.sin(radA);
+            
+            const ax = bx + sideCPix * Math.cos(radB);
+            const ay = by - sideCPix * Math.sin(radB);
+
+            // Polígono
+            document.getElementById('poly-fill').setAttribute('points', `${ax},${ay} ${bx},${by} ${cx},${cy}`);
+
+            // Lados
+            const lineA = document.getElementById('lado-a');
+            const lineB = document.getElementById('lado-b');
+            const lineC = document.getElementById('lado-c');
+
+            lineA.setAttribute('x1', `${bx}`); lineA.setAttribute('y1', `${by}`);
+            lineA.setAttribute('x2', `${cx}`); lineA.setAttribute('y2', `${cy}`);
+
+            lineB.setAttribute('x1', `${cx}`); lineB.setAttribute('y1', `${cy}`);
+            lineB.setAttribute('x2', `${ax}`); lineB.setAttribute('y2', `${ay}`);
+
+            lineC.setAttribute('x1', `${bx}`); lineC.setAttribute('y1', `${by}`);
+            lineC.setAttribute('x2', `${ax}`); lineC.setAttribute('y2', `${ay}`);
+
+            // Vértices
+            document.getElementById('vertice-A').setAttribute('cx', `${ax}`);
+            document.getElementById('vertice-A').setAttribute('cy', `${ay}`);
+            document.getElementById('vertice-B').setAttribute('cx', `${bx}`);
+            document.getElementById('vertice-B').setAttribute('cy', `${by}`);
+            document.getElementById('vertice-C').setAttribute('cx', `${cx}`);
+            document.getElementById('vertice-C').setAttribute('cy', `${cy}`);
+
+            // Arcos
+            const pathB = getArcPath(bx, by, -radB, 0, 22);
+            document.getElementById('arc-B').setAttribute('d', pathB);
+
+            const pathC = getArcPath(cx, cy, Math.PI, Math.PI + radC, 22);
+            document.getElementById('arc-C').setAttribute('d', pathC);
+
+            const angleAB = Math.atan2(by - ay, bx - ax);
+            const angleAC = Math.atan2(cy - ay, cx - ax);
+            const pathA = getArcPath(ax, ay, angleAB, angleAC, 22);
+            document.getElementById('arc-A').setAttribute('d', pathA);
+
+            // Textos (Ocultar si están vacíos)
+            const txtLadoA = document.getElementById('txt-lado-a');
+            txtLadoA.textContent = reto.display.a;
+            txtLadoA.setAttribute('x', `${(bx + cx) / 2}`); 
+            txtLadoA.setAttribute('y', `${by + 16}`);
+
+            const txtLadoB = document.getElementById('txt-lado-b');
+            txtLadoB.textContent = reto.display.b;
+            txtLadoB.setAttribute('x', `${(ax + cx) / 2 + 10}`);
+            txtLadoB.setAttribute('y', `${(ay + cy) / 2}`);
+
+            const txtLadoC = document.getElementById('txt-lado-c');
+            txtLadoC.textContent = reto.display.c;
+            txtLadoC.setAttribute('x', `${(ax + bx) / 2 - 20}`);
+            txtLadoC.setAttribute('y', `${(ay + by) / 2 - 5}`);
+
+            const txtAngA = document.getElementById('txt-ang-A');
+            txtAngA.textContent = reto.display.A === 'x' ? 'x' : (reto.display.A ? reto.display.A + '°' : '');
+            txtAngA.setAttribute('x', `${ax}`); 
+            txtAngA.setAttribute('y', `${ay + 40}`);
+
+            const txtAngB = document.getElementById('txt-ang-B');
+            txtAngB.textContent = reto.display.B === 'x' ? 'x' : (reto.display.B ? reto.display.B + '°' : '');
+            txtAngB.setAttribute('x', `${bx + 30}`); 
+            txtAngB.setAttribute('y', `${by - 10}`);
+
+            const txtAngC = document.getElementById('txt-ang-C');
+            txtAngC.textContent = reto.display.C === 'x' ? 'x' : (reto.display.C ? reto.display.C + '°' : '');
+            txtAngC.setAttribute('x', `${cx - 30}`); 
+            txtAngC.setAttribute('y', `${cy - 10}`);
+
+            // Código de Color (Solo pintar los que existen)
+            if (modo === 'color') {
+                document.getElementById('arc-A').setAttribute('stroke', reto.display.A ? '#EF4444' : 'none');
+                txtAngA.setAttribute('fill', '#EF4444');
+                lineA.setAttribute('stroke', '#EF4444');
+                txtLadoA.setAttribute('fill', '#EF4444');
+                document.getElementById('vertice-A').setAttribute('fill', '#EF4444');
+
+                document.getElementById('arc-B').setAttribute('stroke', reto.display.B ? '#3B82F6' : 'none');
+                txtAngB.setAttribute('fill', '#3B82F6');
+                lineB.setAttribute('stroke', '#3B82F6');
+                txtLadoB.setAttribute('fill', '#3B82F6');
+                document.getElementById('vertice-B').setAttribute('fill', '#3B82F6');
+
+                document.getElementById('arc-C').setAttribute('stroke', reto.display.C ? '#10B981' : 'none');
+                txtAngC.setAttribute('fill', '#10B981');
+                lineC.setAttribute('stroke', '#10B981');
+                txtLadoC.setAttribute('fill', '#10B981');
+                document.getElementById('vertice-C').setAttribute('fill', '#10B981');
+            } else {
+                const dark = '#475569';
+                const text = '#1E293B';
+
+                document.getElementById('arc-A').setAttribute('stroke', reto.display.A ? dark : 'none');
+                document.getElementById('arc-B').setAttribute('stroke', reto.display.B ? dark : 'none');
+                document.getElementById('arc-C').setAttribute('stroke', reto.display.C ? dark : 'none');
+
+                txtAngA.setAttribute('fill', text); txtAngB.setAttribute('fill', text); txtAngC.setAttribute('fill', text);
+                lineA.setAttribute('stroke', dark); lineB.setAttribute('stroke', dark); lineC.setAttribute('stroke', dark);
+                txtLadoA.setAttribute('fill', text); txtLadoB.setAttribute('fill', text); txtLadoC.setAttribute('fill', text);
+
+                document.getElementById('vertice-A').setAttribute('fill', dark);
+                document.getElementById('vertice-B').setAttribute('fill', dark);
+                document.getElementById('vertice-C').setAttribute('fill', dark);
+            }
+        }
+
+        // ETAPA 1: VERIFICAR LA LEY SELECCIONADA
+        function verificarLeySeleccionada(leySeleccionada) {
+            const reto = appState.game.currentQuestion;
+
+            if (leySeleccionada === reto.ley) {
+                appState.game.consecutiveErrors = 0;
+                AudioFX.playSuccess();
+                showToast("¡Correcto! Has determinado la ley ideal.", "success");
+                
+                appState.game.step = 2;
+                document.getElementById('step-select-law').classList.add('hidden');
+                document.getElementById('step-build-formula').classList.remove('hidden');
+                
+                inicializarFasePlanteamiento();
+            } else {
+                AudioFX.playError();
+                appState.score.errores++;
+                appState.game.consecutiveErrors++;
+                document.getElementById('hud-errores').textContent = appState.score.errores;
+
+                let explicacion = "";
+                if (reto.ley === 'senos') {
+                    explicacion = "Incorrecto. Para la Ley de Senos requieres emparejar un lado con su ángulo opuesto (pareja completa). Revisa los datos (x cuenta como dato).";
+                } else {
+                    explicacion = "Incorrecto. Cuando se conocen dos lados y el ángulo central (LAL) o los tres lados (LLL), usa Ley de Cosenos.";
+                }
+                showToast(explicacion, "error");
+                revisarRendimientoIncomodo();
+            }
+        }
+
+        function revisarRendimientoIncomodo() {
+            if (appState.game.consecutiveErrors >= 3) {
+                setTimeout(() => {
+                    showToast("¡No te rindas! Fíjate bien qué datos tienes y qué te piden ('x').", "info");
+                }, 4100);
+            }
+        }
+
+        // PLANTEAMIENTO ESTRUCTURAL (PASO 2) CON INPUTS
+        function inicializarFasePlanteamiento() {
+            const reto = appState.game.currentQuestion;
+
+            const cosSelector = document.getElementById('cosenes-variants-selector');
+            const sinSelector = document.getElementById('sines-variants-selector');
+
+            if (reto.ley === 'cosenos') {
+                cosSelector.classList.remove('hidden');
+                sinSelector.classList.add('hidden');
+                selectCosVariant('a');
+            } else {
+                cosSelector.classList.add('hidden');
+                sinSelector.classList.remove('hidden');
+                selectSinVariant('lados');
+            }
+        }
+
+        // LEY DE COSENOS (Todo en 1 linea pequeña)
+        function selectCosVariant(letra) {
+            appState.game.selectedVariant = letra;
+
+            ['a', 'b', 'c'].forEach(v => {
+                const btn = document.getElementById(`btn-variant-${v}`);
+                if (v === letra) {
+                    btn.className = "py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
+                } else {
+                    btn.className = "py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
+                }
+            });
+
+            const container = document.getElementById('structural-formula-container');
+            container.innerHTML = `
+                <input type="text" id="slot-1" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
+                <span>²=</span>
+                <input type="text" id="slot-2" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
+                <span>²+</span>
+                <input type="text" id="slot-3" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
+                <span>²-2·</span>
+                <input type="text" id="slot-4" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
+                <span>·</span>
+                <input type="text" id="slot-5" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
+                <span>·cos(</span>
+                <input type="text" id="slot-6" autocomplete="off" class="formula-input w-[26px] h-[22px] border border-slate-300 text-slate-800 bg-white">
+                <span>)</span>
+            `;
+        }
+
+        // LEY DE SENOS
+        function selectSinVariant(tipo) {
+            appState.game.selectedVariant = tipo;
+
+            const btnLados = document.getElementById('btn-variant-sin-lados');
+            const btnSenos = document.getElementById('btn-variant-sin-senos');
+
+            if (tipo === 'lados') {
+                btnLados.className = "py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
+                btnSenos.className = "py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
+            } else {
+                btnSenos.className = "py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
+                btnLados.className = "py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
+            }
+
+            const container = document.getElementById('structural-formula-container');
+
+            if (tipo === 'lados') {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center gap-1">
+                        <input type="text" id="slot-1" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
+                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
+                        <div class="flex items-center text-[10px]">
+                            <span>sen(</span>
+                            <input type="text" id="slot-2" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <span>)</span>
+                        </div>
+                    </div>
+                    <span class="text-sm font-semibold mx-1">=</span>
+                    <div class="flex flex-col items-center gap-1">
+                        <input type="text" id="slot-3" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
+                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
+                        <div class="flex items-center text-[10px]">
+                            <span>sen(</span>
+                            <input type="text" id="slot-4" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <span>)</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="flex items-center text-[10px]">
+                            <span>sen(</span>
+                            <input type="text" id="slot-1" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <span>)</span>
+                        </div>
+                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
+                        <input type="text" id="slot-2" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
+                    </div>
+                    <span class="text-sm font-semibold mx-1">=</span>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="flex items-center text-[10px]">
+                            <span>sen(</span>
+                            <input type="text" id="slot-3" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <span>)</span>
+                        </div>
+                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
+                        <input type="text" id="slot-4" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
+                    </div>
+                `;
+            }
+        }
+
+        function limpiarPlanteamiento() {
+            const inputs = document.querySelectorAll('.formula-input');
+            inputs.forEach(i => i.value = '');
+        }
+
+        // VALIDAR INPUTS TIPEADOS
+        function normalizeInput(val) {
+            if(!val) return "";
+            return val.trim().toLowerCase().replace(',', '.');
+        }
+
+        function validarPlanteamiento() {
+            const reto = appState.game.currentQuestion;
+
+            if (reto.ley === 'cosenos') {
+                const s1 = normalizeInput(document.getElementById('slot-1').value);
+                const s2 = normalizeInput(document.getElementById('slot-2').value);
+                const s3 = normalizeInput(document.getElementById('slot-3').value);
+                const s4 = normalizeInput(document.getElementById('slot-4').value);
+                const s5 = normalizeInput(document.getElementById('slot-5').value);
+                const s6 = normalizeInput(document.getElementById('slot-6').value);
+
+                if (!s1 || !s2 || !s3 || !s4 || !s5 || !s6) {
+                    showToast("Por favor, llena todas las casillas antes de comprobar.", "error");
+                    return;
+                }
+
+                let esValido = false;
+                const variant = appState.game.selectedVariant;
+
+                const valA = String(reto.display.a).toLowerCase();
+                const valB = String(reto.display.b).toLowerCase();
+                const valC = String(reto.display.c).toLowerCase();
+                const valAngA = String(reto.display.A).toLowerCase();
+                const valAngB = String(reto.display.B).toLowerCase();
+                const valAngC = String(reto.display.C).toLowerCase();
+
+                if (variant === 'a') {
+                    const checkA = (s1 === valA || s1 === 'a');
+                    const checkB = (s2 === valB || s2 === 'b');
+                    const checkC = (s3 === valC || s3 === 'c');
+                    const checkB2 = (s2 === valC || s2 === 'c');
+                    const checkC2 = (s3 === valB || s3 === 'b');
+                    const checkAng = (s6 === valAngA || s6 === 'a');
+
+                    const match1 = checkA && checkB && checkC && (s4===s2) && (s5===s3) && checkAng;
+                    const match2 = checkA && checkB2 && checkC2 && (s4===s2) && (s5===s3) && checkAng;
+                    if(match1 || match2) esValido = true;
+                } else if (variant === 'b') {
+                    const checkB = (s1 === valB || s1 === 'b');
+                    const checkA = (s2 === valA || s2 === 'a');
+                    const checkC = (s3 === valC || s3 === 'c');
+                    const checkA2 = (s2 === valC || s2 === 'c');
+                    const checkC2 = (s3 === valA || s3 === 'a');
+                    const checkAng = (s6 === valAngB || s6 === 'b');
+
+                    const match1 = checkB && checkA && checkC && (s4===s2) && (s5===s3) && checkAng;
+                    const match2 = checkB && checkA2 && checkC2 && (s4===s2) && (s5===s3) && checkAng;
+                    if(match1 || match2) esValido = true;
+                } else if (variant === 'c') {
+                    const checkC = (s1 === valC || s1 === 'c');
+                    const checkA = (s2 === valA || s2 === 'a');
+                    const checkB = (s3 === valB || s3 === 'b');
+                    const checkA2 = (s2 === valB || s2 === 'b');
+                    const checkB2 = (s3 === valA || s3 === 'a');
+                    const checkAng = (s6 === valAngC || s6 === 'c');
+
+                    const match1 = checkC && checkA && checkB && (s4===s2) && (s5===s3) && checkAng;
+                    const match2 = checkC && checkA2 && checkB2 && (s4===s2) && (s5===s3) && checkAng;
+                    if(match1 || match2) esValido = true;
+                }
+
+                if (esValido) {
+                    appState.game.consecutiveErrors = 0;
+                    AudioFX.playSuccess();
+                    showToast("¡Excelente identificación estructural!", "success");
+                    avanzarAFaseResolucion();
+                } else {
+                    AudioFX.playError();
+                    appState.score.errores++;
+                    appState.game.consecutiveErrors++;
+                    document.getElementById('hud-errores').textContent = appState.score.errores;
+                    showToast("Incorrecto. Revisa que los lados y ángulos colocados correspondan a los datos del triángulo.", "error");
+                    revisarRendimientoIncomodo();
+                }
+
+            } else {
+                // Ley de Senos
+                const s1 = normalizeInput(document.getElementById('slot-1').value);
+                const s2 = normalizeInput(document.getElementById('slot-2').value);
+                const s3 = normalizeInput(document.getElementById('slot-3').value);
+                const s4 = normalizeInput(document.getElementById('slot-4').value);
+
+                if (!s1 || !s2 || !s3 || !s4) {
+                    showToast("Por favor, llena todas las casillas.", "error");
+                    return;
+                }
+
+                // Pairs validos (Lado, Angulo)
+                let validPairs = [];
+                if (reto.display.a !== '' && reto.display.A !== '') validPairs.push({l: String(reto.display.a).toLowerCase(), a: String(reto.display.A).toLowerCase()});
+                if (reto.display.b !== '' && reto.display.B !== '') validPairs.push({l: String(reto.display.b).toLowerCase(), a: String(reto.display.B).toLowerCase()});
+                if (reto.display.c !== '' && reto.display.C !== '') validPairs.push({l: String(reto.display.c).toLowerCase(), a: String(reto.display.C).toLowerCase()});
+
+                if(validPairs.length < 2) {
+                    showToast("Error de generación.", "error"); return;
+                }
+
+                let esValido = false;
+
+                if (appState.game.selectedVariant === 'lados') {
+                    // s1/sen(s2) = s3/sen(s4)
+                    const m1 = (s1 === validPairs[0].l && s2 === validPairs[0].a && s3 === validPairs[1].l && s4 === validPairs[1].a);
+                    const m2 = (s1 === validPairs[1].l && s2 === validPairs[1].a && s3 === validPairs[0].l && s4 === validPairs[0].a);
+                    if(m1 || m2) esValido = true;
+                } else {
+                    // sen(s1)/s2 = sen(s3)/s4
+                    const m1 = (s1 === validPairs[0].a && s2 === validPairs[0].l && s3 === validPairs[1].a && s4 === validPairs[1].l);
+                    const m2 = (s1 === validPairs[1].a && s2 === validPairs[1].l && s3 === validPairs[0].a && s4 === validPairs[0].l);
+                    if(m1 || m2) esValido = true;
+                }
+
+                if (esValido) {
+                    appState.game.consecutiveErrors = 0;
+                    AudioFX.playSuccess();
+                    showToast("¡Excelente identificación estructural!", "success");
+                    avanzarAFaseResolucion();
+                } else {
+                    AudioFX.playError();
+                    appState.score.errores++;
+                    appState.game.consecutiveErrors++;
+                    document.getElementById('hud-errores').textContent = appState.score.errores;
+                    showToast("Incorrecto. Asegúrate de emparejar el valor de cada lado con su ángulo opuesto.", "error");
+                    revisarRendimientoIncomodo();
+                }
+            }
+        }
+
+        // RESOLUCIÓN NUMÉRICA (PASO 3)
+        function avanzarAFaseResolucion() {
+            appState.game.step = 3;
+            document.getElementById('step-build-formula').classList.add('hidden');
+            document.getElementById('step-numeric-solve').classList.remove('hidden');
+
+            prepararResolucionNumerica();
+        }
+
+        function prepararResolucionNumerica() {
+            const reto = appState.game.currentQuestion;
+
+            const opciones = [reto.solucionCorrecta, ...reto.distractores];
+            const opcionesMezcladas = opciones.sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('game-answers-grid');
+            grid.innerHTML = '';
+
+            opcionesMezcladas.forEach(val => {
+                const btn = document.createElement('button');
+                btn.className = "py-3.5 px-3 rounded-2xl border border-slate-200 text-center font-bold text-slate-800 transition text-xs flex justify-center items-center gap-2 neumorphic-button";
+                btn.innerHTML = `<i class="fas fa-cube text-slate-400"></i> ${val}`;
+                btn.onclick = () => verificarResultadoFinal(val, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function verificarResultadoFinal(valorSeleccionado, boton) {
+            const reto = appState.game.currentQuestion;
+
+            if (valorSeleccionado === reto.solucionCorrecta) {
+                appState.game.consecutiveErrors = 0;
+                AudioFX.playSuccess();
+                
+                boton.className = "py-3.5 px-3 rounded-2xl border-2 border-emerald-500 bg-emerald-500 text-white text-center font-bold transition text-xs flex justify-center items-center gap-2 shadow-md";
+                boton.innerHTML = `<i class="fas fa-check-circle"></i> ${valorSeleccionado}`;
+
+                appState.score.aciertos++;
+                document.getElementById('hud-aciertos').textContent = appState.score.aciertos;
+
+                // Revelar valor en el SVG (Reemplazar 'x')
+                if (reto.incognita === 'a') {
+                    document.getElementById('txt-lado-a').textContent = reto.solucionCorrecta;
+                } else if (reto.incognita === 'b') {
+                    document.getElementById('txt-lado-b').textContent = reto.solucionCorrecta;
+                } else if (reto.incognita === 'A') {
+                    document.getElementById('txt-ang-A').textContent = reto.solucionCorrecta + '°';
+                } else if (reto.incognita === 'B') {
+                    document.getElementById('txt-ang-B').textContent = reto.solucionCorrecta + '°';
+                }
+
+                showToast("¡Felicidades! Desafío completado. 🎉", "success");
+
+                setTimeout(() => {
+                    generarNuevoRetoMatematico();
+                }, 2000);
+
+            } else {
+                AudioFX.playError();
+                
+                boton.className = "py-3.5 px-3 rounded-2xl border-2 border-red-500 bg-red-500 text-white text-center font-bold transition text-xs flex justify-center items-center gap-2 shadow-md animate-bounce";
+                boton.innerHTML = `<i class="fas fa-times-circle"></i> ${valorSeleccionado}`;
+
+                appState.score.errores++;
+                appState.game.consecutiveErrors++;
+                document.getElementById('hud-errores').textContent = appState.score.errores;
+                showToast("El cálculo matemático no es correcto.", "error");
+                revisarRendimientoIncomodo();
+            }
+        }
+
+        // SALTOS Y CONSEJOS
+        function saltarPregunta() {
+            generarNuevoRetoMatematico();
+            showToast("Se ha cargado un nuevo reto.", "info");
+        }
+
+        function mostrarConsejo() {
+            const reto = appState.game.currentQuestion;
+            if (reto.ley === 'senos') {
+                showToast("Consejo: Aplica la Ley de Senos cuando conozcas un ángulo y su lado opuesto correspondiente.", "info");
+            } else {
+                showToast("Consejo: Aplica la Ley de Cosenos cuando conozcas dos lados y el ángulo que está justo entre ellos.", "info");
+            }
+        }
+    </script>
+</body>
+</html>
