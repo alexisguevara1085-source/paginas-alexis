@@ -18,7 +18,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
+            background-color: #0f172a; /* Fondo oscuro para destacar la app en PC */
             touch-action: manipulation;
         }
         .font-mono-custom {
@@ -74,7 +74,7 @@
         }
     </style>
 </head>
-<body class="text-slate-800 min-h-screen flex justify-center items-center p-0 m-0">
+<body class="text-slate-800 h-[100dvh] w-full flex justify-center items-center p-0 m-0 overflow-hidden">
 
     <!-- Notificaciones Flotantes Integradas (Toasts de Feedback) -->
     <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white py-3 px-5 rounded-2xl shadow-2xl flex items-center gap-3 opacity-0 transition-all duration-300 z-50 max-w-[90%] w-80">
@@ -82,25 +82,14 @@
         <p id="toast-message" class="text-xs font-semibold leading-relaxed"></p>
     </div>
 
-    <!-- CONTENEDOR UNIFICADO DE LA APLICACIÓN MÓVIL (100% Altura de Pantalla/Simulador Limpio) -->
-    <div class="relative w-full max-w-[410px] h-screen max-h-[860px] bg-slate-50 md:rounded-[40px] shadow-[0_30px_60px_-15px_rgba(15,23,42,0.5)] md:border-[10px] border-slate-950 overflow-hidden flex flex-col">
+    <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN (Responsivo) -->
+    <div class="relative w-full h-full max-w-md bg-[#F8FAFC] shadow-2xl flex flex-col overflow-hidden">
         
-        <!-- Barra de Estado de Dispositivo Falsa (Para simular interfaz móvil pura) -->
-        <div class="w-full h-8 bg-white/90 backdrop-blur-md flex justify-between items-center px-6 z-40 select-none flex-shrink-0">
-            <span class="text-[11px] font-bold text-slate-800 font-mono-custom" id="mobile-clock">09:41</span>
-            <div class="w-[85px] h-[16px] bg-slate-950 rounded-b-xl absolute left-1/2 transform -translate-x-1/2 top-0"></div>
-            <div class="flex items-center gap-1.5 text-[10px] text-slate-800">
-                <i class="fas fa-signal"></i>
-                <i class="fas fa-wifi"></i>
-                <i class="fas fa-battery-full text-xs"></i>
-            </div>
-        </div>
-
         <!-- CONTENEDOR DINÁMICO DE PANTALLAS (Scroll oculto) -->
-        <div class="flex-1 overflow-y-auto no-scrollbar flex flex-col relative bg-[#F8FAFC]">
+        <div class="flex-1 overflow-y-auto no-scrollbar flex flex-col relative w-full h-full">
 
             <!-- 1. PANTALLA DE BIENVENIDA / ACCESO -->
-            <div id="screen-welcome" class="flex-1 flex flex-col justify-between px-6 pt-10 pb-6 page-transition">
+            <div id="screen-welcome" class="flex-1 flex flex-col justify-between px-6 pt-10 pb-6 page-transition min-h-full">
                 <div class="text-center mt-6">
                     <div class="inline-flex p-4 rounded-3xl bg-white border border-slate-100 mb-4 shadow-sm neumorphic-flat">
                         <i class="fas fa-compass-drafting text-4xl text-blue-600"></i>
@@ -154,7 +143,7 @@
             </div>
 
             <!-- 2. PANTALLA: MENÚ PRINCIPAL -->
-            <div id="screen-menu" class="hidden flex-1 flex flex-col justify-between px-6 pt-6 pb-6 page-transition">
+            <div id="screen-menu" class="hidden flex-1 flex flex-col justify-between px-6 pt-10 pb-6 page-transition min-h-full">
                 <div>
                     <!-- Saludo superior -->
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
@@ -204,35 +193,35 @@
             </div>
 
             <!-- 3. PANTALLA: PANEL DE JUEGO (MAXIMIZACIÓN VISUAL) -->
-            <div id="screen-game" class="hidden flex-1 flex flex-col justify-between page-transition">
+            <div id="screen-game" class="hidden flex-1 flex flex-col justify-between page-transition min-h-full">
                 
                 <!-- HEADER DINÁMICO FIJO SUPERIOR -->
-                <div class="px-4 py-2 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-20 shadow-sm flex-shrink-0">
+                <div class="px-4 py-3 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-20 shadow-sm flex-shrink-0">
                     <!-- Botón Home para volver al menú principal -->
-                    <button onclick="volverAlMenu()" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-sm">
-                        <i class="fas fa-house-user text-xs"></i>
+                    <button onclick="volverAlMenu()" class="w-9 h-9 rounded-lg bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-sm">
+                        <i class="fas fa-house-user text-sm"></i>
                     </button>
 
                     <!-- Datos dinámicos del estudiante -->
                     <div class="text-center flex-1 mx-2">
-                        <p id="hud-user-name" class="text-xs font-black text-slate-800 truncate max-w-[100px] mx-auto">Estudiante</p>
-                        <span id="hud-user-grade" class="text-[8px] font-extrabold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded uppercase">10º</span>
+                        <p id="hud-user-name" class="text-xs font-black text-slate-800 truncate max-w-[120px] mx-auto">Estudiante</p>
+                        <span id="hud-user-grade" class="text-[9px] font-extrabold text-slate-400 bg-slate-100 px-2 py-0.5 rounded uppercase">10º</span>
                     </div>
 
                     <!-- Métricas de Desempeño y Cronómetro Activo -->
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center gap-1.5">
                         <!-- Cronómetro -->
-                        <div class="flex items-center gap-1 bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[9px] font-bold">
+                        <div class="flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded text-[10px] font-bold">
                             <i class="far fa-clock text-blue-500"></i>
                             <span id="hud-clock" class="font-mono-custom">00:00</span>
                         </div>
                         <!-- Aciertos (✔ Verde) -->
-                        <div class="flex items-center gap-0.5 bg-green-50 text-[#10B981] px-1.5 py-0.5 rounded text-[9px] font-black border border-green-100">
+                        <div class="flex items-center gap-0.5 bg-green-50 text-[#10B981] px-2 py-1 rounded text-[10px] font-black border border-green-100">
                             <i class="fas fa-check"></i>
                             <span id="hud-aciertos">0</span>
                         </div>
                         <!-- Errores (✘ Rojo) -->
-                        <div class="flex items-center gap-0.5 bg-red-50 text-[#EF4444] px-1.5 py-0.5 rounded text-[9px] font-black border border-red-100">
+                        <div class="flex items-center gap-0.5 bg-red-50 text-[#EF4444] px-2 py-1 rounded text-[10px] font-black border border-red-100">
                             <i class="fas fa-times"></i>
                             <span id="hud-errores">0</span>
                         </div>
@@ -245,7 +234,7 @@
                     <!-- Tarjeta contenedora del Triángulo SVG -->
                     <div id="triangle-card" class="bg-white rounded-3xl p-3 border border-slate-100 shadow-sm flex flex-col items-center justify-center relative flex-1 min-h-[200px]">
                         <!-- Distintivo de Modo de Juego -->
-                        <span id="hud-game-mode-badge" class="absolute top-2 left-2 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 shadow-sm">
+                        <span id="hud-game-mode-badge" class="absolute top-3 left-3 text-[9px] font-black px-2.5 py-1 rounded uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 shadow-sm">
                             MODO COLOR
                         </span>
 
@@ -282,11 +271,11 @@
                         </div>
 
                         <!-- Fórmulas flotantes de apoyo dinámico en miniatura -->
-                        <div class="w-full flex justify-between items-center bg-slate-50 p-1.5 border border-slate-100 rounded-xl mt-1 flex-shrink-0">
-                            <span class="text-[8px] font-extrabold text-slate-400 uppercase">Teoremas de apoyo:</span>
+                        <div class="w-full flex justify-between items-center bg-slate-50 p-2 border border-slate-100 rounded-xl mt-1 flex-shrink-0">
+                            <span class="text-[9px] font-extrabold text-slate-400 uppercase">Teoremas de apoyo:</span>
                             <div class="flex gap-2">
-                                <button onclick="abrirPopupLey('senos')" class="text-[8px] font-black text-red-600 bg-red-50 px-2 py-0.5 rounded hover:bg-red-100 transition shadow-sm">Senos</button>
-                                <button onclick="abrirPopupLey('cosenos')" class="text-[8px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded hover:bg-blue-100 transition shadow-sm">Cosenos</button>
+                                <button onclick="abrirPopupLey('senos')" class="text-[9px] font-black text-red-600 bg-red-50 px-2.5 py-1 rounded hover:bg-red-100 transition shadow-sm">Senos</button>
+                                <button onclick="abrirPopupLey('cosenos')" class="text-[9px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded hover:bg-blue-100 transition shadow-sm">Cosenos</button>
                             </div>
                         </div>
                     </div>
@@ -295,9 +284,9 @@
                     <div class="flex-shrink-0 space-y-2">
                         
                         <!-- ETAPA 1: SELECCIÓN DE LEY APLICABLE -->
-                        <div id="step-select-law" class="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm">
-                            <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 text-center">PASO 1: Determina la Ley Aplicable</span>
-                            <div class="grid grid-cols-2 gap-2">
+                        <div id="step-select-law" class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-3 text-center">PASO 1: Determina la Ley Aplicable</span>
+                            <div class="grid grid-cols-2 gap-3">
                                 <button onclick="verificarLeySeleccionada('senos')" class="py-3 px-2 rounded-xl bg-red-50 hover:bg-red-100 border border-red-100 text-xs font-black text-red-700 transition active:scale-95 flex flex-col items-center gap-1 shadow-sm">
                                     <span>Ley de Senos</span>
                                 </button>
@@ -308,51 +297,51 @@
                         </div>
 
                         <!-- ETAPA 2: PLANTEAMIENTO ESTRUCTURAL INTERACTIVO (Teclado) -->
-                        <div id="step-build-formula" class="hidden bg-white rounded-2xl p-3 border border-slate-100 shadow-sm space-y-2">
+                        <div id="step-build-formula" class="hidden bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm space-y-3">
                             <div class="text-center">
-                                <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block">PASO 2: Completa el Planteamiento</span>
-                                <p class="text-[9px] text-slate-500 mt-0.5">Escribe con tu teclado los valores en las casillas.</p>
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">PASO 2: Completa el Planteamiento</span>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Escribe con tu teclado los valores en las casillas.</p>
                             </div>
 
                             <!-- Selector de Variantes (Solo Cosenos) -->
                             <div id="cosenes-variants-selector" class="hidden grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl">
-                                <button onclick="selectCosVariant('a')" id="btn-variant-a" class="py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm">a² = ...</button>
-                                <button onclick="selectCosVariant('b')" id="btn-variant-b" class="py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500">b² = ...</button>
-                                <button onclick="selectCosVariant('c')" id="btn-variant-c" class="py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500">c² = ...</button>
+                                <button onclick="selectCosVariant('a')" id="btn-variant-a" class="py-1.5 px-2 text-[10px] font-bold text-center rounded bg-white text-slate-700 shadow-sm">a² = ...</button>
+                                <button onclick="selectCosVariant('b')" id="btn-variant-b" class="py-1.5 px-2 text-[10px] font-bold text-center rounded text-slate-500">b² = ...</button>
+                                <button onclick="selectCosVariant('c')" id="btn-variant-c" class="py-1.5 px-2 text-[10px] font-bold text-center rounded text-slate-500">c² = ...</button>
                             </div>
 
                             <!-- Selector de Variantes (Solo Senos) -->
                             <div id="sines-variants-selector" class="hidden grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl">
-                                <button onclick="selectSinVariant('lados')" id="btn-variant-sin-lados" class="py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm">Lados Arriba</button>
-                                <button onclick="selectSinVariant('senos')" id="btn-variant-sin-senos" class="py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500">Senos Arriba</button>
+                                <button onclick="selectSinVariant('lados')" id="btn-variant-sin-lados" class="py-1.5 px-2 text-[10px] font-bold text-center rounded bg-white text-slate-700 shadow-sm">Lados Arriba</button>
+                                <button onclick="selectSinVariant('senos')" id="btn-variant-sin-senos" class="py-1.5 px-2 text-[10px] font-bold text-center rounded text-slate-500">Senos Arriba</button>
                             </div>
 
                             <!-- Área de Estructuración con Inputs para Teclado -->
-                            <div class="flex items-center justify-center gap-0.5 py-3 px-1 bg-slate-50 rounded-xl border border-dashed border-slate-300 min-h-[56px] w-full overflow-hidden">
-                                <div id="structural-formula-container" class="flex items-center justify-center flex-nowrap w-full text-[9px] sm:text-[10px] font-mono-custom font-bold">
+                            <div class="flex items-center justify-center gap-0.5 py-4 px-1 bg-slate-50 rounded-xl border border-dashed border-slate-300 min-h-[64px] w-full overflow-hidden">
+                                <div id="structural-formula-container" class="flex items-center justify-center flex-nowrap w-full text-[10px] sm:text-[11px] font-mono-custom font-bold">
                                     <!-- Inyección dinámica de casillas input -->
                                 </div>
                             </div>
 
                             <!-- Acciones del Constructor de Planteamiento -->
-                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
-                                <button onclick="limpiarPlanteamiento()" class="py-1.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-600 transition shadow-sm">
+                            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                                <button onclick="limpiarPlanteamiento()" class="py-2.5 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-600 transition shadow-sm">
                                     <i class="fas fa-trash-alt mr-1"></i> Borrar
                                 </button>
-                                <button onclick="validarPlanteamiento()" class="py-1.5 px-3 rounded-lg bg-slate-900 hover:bg-blue-600 text-[10px] font-bold text-white transition shadow-sm">
+                                <button onclick="validarPlanteamiento()" class="py-2.5 px-3 rounded-lg bg-slate-900 hover:bg-blue-600 text-xs font-bold text-white transition shadow-sm">
                                     Comprobar <i class="fas fa-check ml-1"></i>
                                 </button>
                             </div>
                         </div>
 
                         <!-- ETAPA 3: RESOLUCIÓN NUMÉRICA -->
-                        <div id="step-numeric-solve" class="hidden bg-white rounded-2xl p-3 border border-slate-100 shadow-sm">
-                            <div class="text-center mb-2">
-                                <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">PASO 3: Calcula el Valor Final</span>
-                                <p class="text-[9px] text-slate-500 mt-0.5">Selecciona el valor correcto de 'x'.</p>
+                        <div id="step-numeric-solve" class="hidden bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <div class="text-center mb-3">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">PASO 3: Calcula el Valor Final</span>
+                                <p class="text-[10px] text-slate-500 mt-0.5">Selecciona el valor correcto de 'x'.</p>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2" id="game-answers-grid">
+                            <div class="grid grid-cols-2 gap-3" id="game-answers-grid">
                                 <!-- Opciones cargadas dinámicamente -->
                             </div>
                         </div>
@@ -360,18 +349,18 @@
                     </div>
 
                     <!-- BARRA DE ACCIÓN INFERIOR -->
-                    <div class="bg-white border-t border-slate-100 py-2 px-6 flex justify-between items-center text-slate-400 flex-shrink-0">
-                        <button onclick="volverAlMenu()" class="flex flex-col items-center gap-0.5 hover:text-blue-500 transition-colors">
-                            <i class="fas fa-arrow-left text-xs"></i>
-                            <span class="text-[8px] font-black uppercase">Volver</span>
+                    <div class="bg-white border-t border-slate-100 py-3 px-6 flex justify-between items-center text-slate-400 flex-shrink-0 mt-2 rounded-2xl shadow-sm border">
+                        <button onclick="volverAlMenu()" class="flex flex-col items-center gap-1 hover:text-blue-500 transition-colors">
+                            <i class="fas fa-arrow-left text-sm"></i>
+                            <span class="text-[9px] font-black uppercase">Volver</span>
                         </button>
-                        <button onclick="saltarPregunta()" class="flex flex-col items-center gap-0.5 hover:text-blue-500 transition-colors">
-                            <i class="fas fa-redo text-xs"></i>
-                            <span class="text-[8px] font-black uppercase">Saltar</span>
+                        <button onclick="saltarPregunta()" class="flex flex-col items-center gap-1 hover:text-blue-500 transition-colors">
+                            <i class="fas fa-redo text-sm"></i>
+                            <span class="text-[9px] font-black uppercase">Saltar</span>
                         </button>
-                        <button onclick="mostrarConsejo()" class="flex flex-col items-center gap-0.5 hover:text-blue-500 transition-colors">
-                            <i class="fas fa-lightbulb text-xs"></i>
-                            <span class="text-[8px] font-black uppercase">Consejo</span>
+                        <button onclick="mostrarConsejo()" class="flex flex-col items-center gap-1 hover:text-blue-500 transition-colors">
+                            <i class="fas fa-lightbulb text-sm"></i>
+                            <span class="text-[9px] font-black uppercase">Consejo</span>
                         </button>
                     </div>
 
@@ -380,9 +369,6 @@
             </div>
 
         </div>
-
-        <!-- Botón de barra inferior de dispositivo móvil (iOS style) -->
-        <div class="absolute bottom-1 w-[110px] h-[4px] bg-slate-950 rounded-full left-1/2 transform -translate-x-1/2 z-40 flex-shrink-0"></div>
     </div>
 
     <!-- PANELES MODALES / POPUPS OCULTOS DE LA LEY -->
@@ -484,17 +470,6 @@
                 consecutiveErrors: 0
             }
         };
-
-        // RELOJ FLOTANTE
-        function clockLoop() {
-            const timeNow = new Date();
-            const hrs = String(timeNow.getHours()).padStart(2, '0');
-            const mins = String(timeNow.getMinutes()).padStart(2, '0');
-            const elClock = document.getElementById('mobile-clock');
-            if (elClock) elClock.textContent = `${hrs}:${mins}`;
-        }
-        setInterval(clockLoop, 1000);
-        clockLoop();
 
         // CONTROL DE NOTIFICACIONES TOAST
         function showToast(message, type = 'success') {
@@ -599,10 +574,10 @@
             const badge = document.getElementById('hud-game-mode-badge');
             if (modo === 'color') {
                 badge.textContent = "Modo Color";
-                badge.className = "absolute top-2 left-2 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 shadow-sm";
+                badge.className = "absolute top-3 left-3 text-[9px] font-black px-2.5 py-1 rounded uppercase tracking-wider bg-red-100 text-red-800 border border-red-200 shadow-sm";
             } else {
                 badge.textContent = "Modo Experto";
-                badge.className = "absolute top-2 left-2 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-wider bg-slate-900 text-white border border-slate-800 shadow-sm";
+                badge.className = "absolute top-3 left-3 text-[9px] font-black px-2.5 py-1 rounded uppercase tracking-wider bg-slate-900 text-white border border-slate-800 shadow-sm";
             }
 
             iniciarCronometro();
@@ -960,26 +935,26 @@
             ['a', 'b', 'c'].forEach(v => {
                 const btn = document.getElementById(`btn-variant-${v}`);
                 if (v === letra) {
-                    btn.className = "py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
+                    btn.className = "py-1.5 px-2 text-[10px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
                 } else {
-                    btn.className = "py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
+                    btn.className = "py-1.5 px-2 text-[10px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
                 }
             });
 
             const container = document.getElementById('structural-formula-container');
             container.innerHTML = `
-                <input type="text" id="slot-1" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
-                <span>²=</span>
-                <input type="text" id="slot-2" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
-                <span>²+</span>
-                <input type="text" id="slot-3" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
-                <span>²-2·</span>
-                <input type="text" id="slot-4" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
-                <span>·</span>
-                <input type="text" id="slot-5" autocomplete="off" class="formula-input w-[22px] h-[22px] border border-slate-300 text-slate-800 bg-white">
-                <span>·cos(</span>
-                <input type="text" id="slot-6" autocomplete="off" class="formula-input w-[26px] h-[22px] border border-slate-300 text-slate-800 bg-white">
-                <span>)</span>
+                <input type="text" id="slot-1" autocomplete="off" class="formula-input w-[24px] h-[24px] border border-slate-300 text-slate-800 bg-white">
+                <span class="mx-0.5">²=</span>
+                <input type="text" id="slot-2" autocomplete="off" class="formula-input w-[24px] h-[24px] border border-slate-300 text-slate-800 bg-white">
+                <span class="mx-0.5">²+</span>
+                <input type="text" id="slot-3" autocomplete="off" class="formula-input w-[24px] h-[24px] border border-slate-300 text-slate-800 bg-white">
+                <span class="mx-0.5">²-2·</span>
+                <input type="text" id="slot-4" autocomplete="off" class="formula-input w-[24px] h-[24px] border border-slate-300 text-slate-800 bg-white">
+                <span class="mx-0.5">·</span>
+                <input type="text" id="slot-5" autocomplete="off" class="formula-input w-[24px] h-[24px] border border-slate-300 text-slate-800 bg-white">
+                <span class="mx-0.5">·cos(</span>
+                <input type="text" id="slot-6" autocomplete="off" class="formula-input w-[28px] h-[24px] border border-slate-300 text-slate-800 bg-white">
+                <span class="mx-0.5">)</span>
             `;
         }
 
@@ -991,57 +966,57 @@
             const btnSenos = document.getElementById('btn-variant-sin-senos');
 
             if (tipo === 'lados') {
-                btnLados.className = "py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
-                btnSenos.className = "py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
+                btnLados.className = "py-1.5 px-2 text-[10px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
+                btnSenos.className = "py-1.5 px-2 text-[10px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
             } else {
-                btnSenos.className = "py-1 px-2 text-[9px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
-                btnLados.className = "py-1 px-2 text-[9px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
+                btnSenos.className = "py-1.5 px-2 text-[10px] font-bold text-center rounded bg-white text-slate-700 shadow-sm";
+                btnLados.className = "py-1.5 px-2 text-[10px] font-bold text-center rounded text-slate-500 hover:text-slate-800";
             }
 
             const container = document.getElementById('structural-formula-container');
 
             if (tipo === 'lados') {
                 container.innerHTML = `
-                    <div class="flex flex-col items-center gap-1">
-                        <input type="text" id="slot-1" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
-                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
-                        <div class="flex items-center text-[10px]">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <input type="text" id="slot-1" class="formula-input w-[36px] h-[26px] border border-slate-300 text-slate-800 bg-white text-xs">
+                        <div class="w-12 h-[1.5px] bg-slate-400"></div>
+                        <div class="flex items-center text-[11px]">
                             <span>sen(</span>
-                            <input type="text" id="slot-2" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <input type="text" id="slot-2" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-[11px]">
                             <span>)</span>
                         </div>
                     </div>
-                    <span class="text-sm font-semibold mx-1">=</span>
-                    <div class="flex flex-col items-center gap-1">
-                        <input type="text" id="slot-3" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
-                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
-                        <div class="flex items-center text-[10px]">
+                    <span class="text-sm font-semibold mx-2">=</span>
+                    <div class="flex flex-col items-center gap-1.5">
+                        <input type="text" id="slot-3" class="formula-input w-[36px] h-[26px] border border-slate-300 text-slate-800 bg-white text-xs">
+                        <div class="w-12 h-[1.5px] bg-slate-400"></div>
+                        <div class="flex items-center text-[11px]">
                             <span>sen(</span>
-                            <input type="text" id="slot-4" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <input type="text" id="slot-4" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-[11px]">
                             <span>)</span>
                         </div>
                     </div>
                 `;
             } else {
                 container.innerHTML = `
-                    <div class="flex flex-col items-center gap-1">
-                        <div class="flex items-center text-[10px]">
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="flex items-center text-[11px]">
                             <span>sen(</span>
-                            <input type="text" id="slot-1" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <input type="text" id="slot-1" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-[11px]">
                             <span>)</span>
                         </div>
-                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
-                        <input type="text" id="slot-2" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
+                        <div class="w-12 h-[1.5px] bg-slate-400"></div>
+                        <input type="text" id="slot-2" class="formula-input w-[36px] h-[26px] border border-slate-300 text-slate-800 bg-white text-xs">
                     </div>
-                    <span class="text-sm font-semibold mx-1">=</span>
-                    <div class="flex flex-col items-center gap-1">
-                        <div class="flex items-center text-[10px]">
+                    <span class="text-sm font-semibold mx-2">=</span>
+                    <div class="flex flex-col items-center gap-1.5">
+                        <div class="flex items-center text-[11px]">
                             <span>sen(</span>
-                            <input type="text" id="slot-3" class="formula-input w-[28px] h-[22px] border border-slate-300 text-slate-800 bg-white text-[10px]">
+                            <input type="text" id="slot-3" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-[11px]">
                             <span>)</span>
                         </div>
-                        <div class="w-10 h-[1.5px] bg-slate-400"></div>
-                        <input type="text" id="slot-4" class="formula-input w-[32px] h-[24px] border border-slate-300 text-slate-800 bg-white text-xs">
+                        <div class="w-12 h-[1.5px] bg-slate-400"></div>
+                        <input type="text" id="slot-4" class="formula-input w-[36px] h-[26px] border border-slate-300 text-slate-800 bg-white text-xs">
                     </div>
                 `;
             }
