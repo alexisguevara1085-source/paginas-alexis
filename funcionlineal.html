@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MathQuest: Funciones Lineales</title>
+    <style>
+        /* ================= VARIABLES Y RESET ================= */
+        :root {
+            --primary: #4F46E5; /* Indigo */
+            --primary-dark: #4338CA;
+            --secondary: #10B981; /* Emerald (Correcto) */
+            --secondary-dark: #059669;
+            --danger: #EF4444; /* Red (Incorrecto) */
+            --danger-dark: #DC2626;
+            --warning: #F59E0B; /* Amber */
+            --info: #3B82F6; /* Blue */
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        input, textarea {
+            user-select: text;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ================= ESTRUCTURA PRINCIPAL ================= */
+        #app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            padding: 20px;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* ================= COMPONENTES UI ================= */
+        h1, h2, h3 { font-weight: 800; text-align: center; margin-bottom: 15px; }
+        h1 { color: var(--primary); font-size: 28px; }
+        h2 { color: var(--text-main); font-size: 22px; }
+        p { text-align: center; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        /* Botones */
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+            gap: 8px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 rgba(0,0,0,0);
+        }
+
+        .btn-primary { background-color: var(--primary); color: white; box-shadow: 0 4px 0 var(--primary-dark); }
+        .btn-success { background-color: var(--secondary); color: white; box-shadow: 0 4px 0 var(--secondary-dark); }
+        .btn-danger { background-color: var(--danger); color: white; box-shadow: 0 4px 0 var(--danger-dark); }
+        .btn-info { background-color: var(--info); color: white; box-shadow: 0 4px 0 #2563EB; }
+        .btn-warning { background-color: var(--warning); color: white; box-shadow: 0 4px 0 #D97706; }
+        .btn-outline { background-color: transparent; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
+
+        /* Inputs */
+        .input-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
+        }
+        .input-control {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #D1D5DB;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .input-control:focus { border-color: var(--primary); }
+
+        .input-mini {
+            width: 60px;
+            text-align: center;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* HEADER */
+        #header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: var(--radius-xl);
+            border-bottom-right-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            font-weight: bold;
+        }
+        .stat-item { display: flex; align-items: center; gap: 5px; }
+        .stat-icon { width: 20px; height: 20px; fill: currentColor; }
+        .icon-correct { color: #34D399; }
+        .icon-incorrect { color: #FCA5A5; }
+
+        /* MENÚ PRINCIPAL */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: bold;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .menu-btn:active { transform: scale(0.98); }
+        .menu-btn .icon-box {
+            width: 45px; height: 45px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 15px;
+        }
+        .menu-btn svg { width: 24px; height: 24px; fill: white; }
+
+        /* SECCIONES ESPECÍFICAS */
+        .math-formula {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--primary);
+            background: #EEF2FF;
+            padding: 15px;
+            border-radius: 12px;
+            letter-spacing: 2px;
+        }
+
+        /* Canvas / Gráficas */
+        .canvas-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            border: 2px solid #E5E7EB;
+            margin-bottom: 20px;
+        }
+        canvas { max-width: 100%; }
+
+        /* Diagrama Conjuntos */
+        #diagram-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 300px;
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            border: 2px solid #E5E7EB;
+            margin-bottom: 20px;
+        }
+        svg.arrows {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+        }
+        .set-col { display: flex; flex-direction: column; justify-content: space-around; height: 100%; width: 50px; z-index: 2;}
+        .set-node {
+            width: 45px; height: 45px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 22px; border: 2px solid; background: white;
+            box-shadow: var(--shadow-sm);
+        }
+        .node-x { border-color: var(--primary); }
+        .node-y { border-color: var(--info); }
+        .set-label { text-align: center; font-weight: bold; margin-bottom: 5px; color: var(--text-main); }
+
+        /* Fracciones */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 10px;
+        }
+        .numerator { border-bottom: 2px solid var(--text-main); padding-bottom: 5px; width: 100%; text-align: center; }
+        .denominator { padding-top: 5px; width: 100%; text-align: center; }
+        .flex-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;}
+
+        /* Tabla */
+        .math-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px #E5E7EB;
+        }
+        .math-table th, .math-table td {
+            padding: 10px 4px;
+            text-align: center;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .math-table th { background: #F9FAFB; color: var(--text-muted); font-size: 14px; }
+        .math-table input { width: 100%; max-width: 50px; text-align: center; padding: 8px; border: 2px solid #D1D5DB; border-radius: 8px; font-weight: bold;}
+        .math-table input:focus { border-color: var(--primary); outline: none; }
+        
+        .coord-input-container { display: flex; align-items: center; justify-content: center; gap: 5px; font-weight: bold; font-size: 18px; }
+
+        /* MODAL DE FEEDBACK */
+        #feedback-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px;
+            backdrop-filter: blur(2px);
+        }
+        #feedback-overlay.show { display: flex; animation: fadeIn 0.2s; }
+        .feedback-card {
+            background: white; border-radius: var(--radius-xl); padding: 30px;
+            width: 100%; max-width: 400px; text-align: center;
+            box-shadow: var(--shadow-lg); transform: translateY(20px);
+            animation: slideUp 0.3s forwards;
+        }
+        .feedback-icon {
+            width: 80px; height: 80px; margin: 0 auto 15px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .feedback-correct .feedback-icon { background: #D1FAE5; color: var(--secondary); }
+        .feedback-incorrect .feedback-icon { background: #FEE2E2; color: var(--danger); }
+        .feedback-icon svg { width: 40px; height: 40px; fill: currentColor; }
+        .feedback-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .feedback-msg { color: var(--text-muted); margin-bottom: 20px; font-size: 16px; }
+
+        /* ANIMACIONES */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.3s ease; }
+
+        /* UTILIDADES */
+        .hidden { display: none !important; }
+        .text-blue { color: var(--info); font-weight: bold;}
+        .text-red { color: var(--danger); font-weight: bold;}
+        
+        .point-label { display: inline-flex; flex-direction: column; align-items: center; }
+        .point-sub { font-size: 12px; color: #6B7280; font-weight: normal; margin-bottom: -2px; }
+
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    
+    <!-- PANTALLA INICIO -->
+    <div id="screen-login" class="screen active">
+        <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+            <!-- Icono Decorativo -->
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 16V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V16C3 17.1046 3.89543 18 5 18H19C20.1046 18 21 17.1046 21 16Z" stroke="#4F46E5" stroke-width="2"/>
+                <path d="M7 10L11 14L17 8" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h1 style="font-size: 36px;">MathQuest</h1>
+            <p>¡Aprende Funciones Lineales jugando!</p>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label for="student-name">Tu nombre (Héroe)</label>
+                <input type="text" id="student-name" class="input-control" placeholder="Ej: Carlos" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label for="student-grade">Grado</label>
+                <select id="student-grade" class="input-control">
+                    <option value="" disabled selected>Selecciona tu grado...</option>
+                    <option value="8">Octavo Grado</option>
+                    <option value="9">Noveno Grado</option>
+                    <option value="10">Décimo Grado</option>
+                    <option value="11">Undécimo Grado</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="app.startApp()" style="margin-top: 10px;">
+                ¡Comenzar Aventura! 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- HEADER (Visible tras login) -->
+    <div id="header" class="hidden">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <svg onclick="app.showMenu()" style="width: 24px; height: 24px; fill: white; cursor: pointer;" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <div style="display: flex; flex-direction: column;">
+                <span id="display-name" style="font-weight: 800; font-size: 14px;">Jugador</span>
+                <span id="display-grade" style="font-size: 10px; opacity: 0.8;">Grado</span>
+            </div>
+        </div>
+        
+        <div class="header-stats">
+            <div class="stat-item" title="Tiempo">
+                <svg class="stat-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                <span id="display-time">0:00</span>
+            </div>
+            <div class="stat-item icon-correct" title="Aciertos">
+                <svg class="stat-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span id="display-correct">0</span>
+            </div>
+            <div class="stat-item icon-incorrect" title="Errores">
+                <svg class="stat-icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                <span id="display-incorrect">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENÚ PRINCIPAL -->
+    <div id="screen-menu" class="screen">
+        <h2>Mapa de Aprendizaje</h2>
+        <p>Selecciona una misión para entrenar tu mente.</p>
+        
+        <div class="menu-grid">
+            <div class="menu-btn" onclick="app.loadSection(1)">
+                <div class="icon-box" style="background: #4F46E5;"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+                <span>1. ¿Es función o no?</span>
+            </div>
+            <div class="menu-btn" onclick="app.loadSection(2)">
+                <div class="icon-box" style="background: #10B981;"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2V9h-2V7h4v10z"/></svg></div>
+                <span>2. Elementos m y b</span>
+            </div>
+            <div class="menu-btn" onclick="app.loadSection(3)">
+                <div class="icon-box" style="background: #F59E0B;"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></div>
+                <span>3. Crecimiento (Pendiente)</span>
+            </div>
+            <div class="menu-btn" onclick="app.loadSection(4)">
+                <div class="icon-box" style="background: #3B82F6;"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div>
+                <span>4. Interpretar Gráficas</span>
+            </div>
+            <div class="menu-btn" onclick="app.loadSection(5)">
+                <div class="icon-box" style="background: #8B5CF6;"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
+                <span>5. Calcular m con 2 Puntos</span>
+            </div>
+            <div class="menu-btn" onclick="app.loadSection(6)">
+                <div class="icon-box" style="background: #EC4899;"><svg viewBox="0 0 24 24"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 7h4v2H7zm6 0h4v2h-4zM7 11h4v2H7zm6 0h4v2h-4zM7 15h4v2H7zm6 0h4v2h-4z"/></svg></div>
+                <span>6. Tabular Valores</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 1: ¿Es función? -->
+    <div id="screen-sec1" class="screen">
+        <h2>¿Es Función?</h2>
+        <p>Observa el diagrama. ¿Cada elemento del Dominio tiene una y <b>solo una</b> flecha de salida?</p>
+        
+        <div id="diagram-container">
+            <div class="set-col" id="set-A">
+                <div class="set-label">Dom</div>
+                <!-- Creados por JS -->
+            </div>
+            <svg class="arrows" id="svg-arrows"></svg>
+            <div class="set-col" id="set-B">
+                <div class="set-label">Cod</div>
+                <!-- Creados por JS -->
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-success" onclick="app.checkSec1(true)">Sí es Función</button>
+            <button class="btn btn-danger" onclick="app.checkSec1(false)">No es Función</button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: Elementos m y b -->
+    <div id="screen-sec2" class="screen">
+        <h2>Elementos: m y b</h2>
+        <p>Analiza la siguiente función lineal y extrae sus componentes.</p>
+        
+        <div class="card" style="text-align: center;">
+            <h3>Forma: y = mx + b</h3>
+            <div class="math-formula" id="sec2-formula">y = x + 3</div>
+            
+            <div class="flex-row">
+                <div class="input-group" style="width: 45%;">
+                    <label>Pendiente (m)</label>
+                    <input type="number" id="sec2-m" class="input-control input-mini">
+                </div>
+                <div class="input-group" style="width: 45%;">
+                    <label>Intercepto (b)</label>
+                    <input type="number" id="sec2-b" class="input-control input-mini">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Punto de corte en el eje Y</label>
+                <div class="coord-input-container">
+                    ( <input type="number" id="sec2-px" class="input-control input-mini" placeholder="x"> , 
+                      <input type="number" id="sec2-pb" class="input-control input-mini" placeholder="y"> )
+                </div>
+                <small style="color:var(--text-muted); display:block; margin-top:5px;">Recuerda qué valor toma siempre "x" en el intercepto.</small>
+            </div>
+            
+            <button class="btn btn-primary" onclick="app.checkSec2()">Verificar</button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: Creciente o Decreciente -->
+    <div id="screen-sec3" class="screen">
+        <h2>Comportamiento de la Recta</h2>
+        <p>Identifica 'm' y 'b', y según la pendiente, decide hacia dónde va la recta.</p>
+
+        <div class="card" style="text-align: center;">
+            <div class="math-formula" id="sec3-formula" style="font-size: 28px;">y = -x + 4</div>
+            
+            <div class="flex-row">
+                <div class="input-group" style="width: 45%;">
+                    <label>m =</label>
+                    <input type="number" id="sec3-m-in" class="input-control input-mini">
+                </div>
+                <div class="input-group" style="width: 45%;">
+                    <label>b =</label>
+                    <input type="number" id="sec3-b-in" class="input-control input-mini">
+                </div>
+            </div>
+            
+            <hr style="border:0; border-top:1px solid #E5E7EB; margin:15px 0;">
+            <label style="font-weight:600; margin-bottom:10px; display:block;">¿Qué comportamiento tiene?</label>
+
+            <!-- Grid para evitar que se salgan los botones en móviles -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+                <button class="btn btn-info" onclick="app.checkSec3('creciente')">
+                    <svg style="width:20px; fill:currentColor" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Creciente
+                </button>
+                <button class="btn btn-warning" onclick="app.checkSec3('constante')">
+                    <svg style="width:20px; fill:currentColor" viewBox="0 0 24 24"><path d="M22 12H2v-2h20v2z"/></svg> Constante
+                </button>
+                <button class="btn btn-danger" onclick="app.checkSec3('decreciente')">
+                    <svg style="width:20px; fill:currentColor" viewBox="0 0 24 24"><path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z"/></svg> Decreciente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 4: Interpretar Gráficas -->
+    <div id="screen-sec4" class="screen">
+        <h2>Interpretar la Gráfica</h2>
+        <p>Observa el plano cartesiano (Eje X <span class="text-blue">azul</span>, Eje Y <span class="text-red">rojo</span>).</p>
+
+        <div class="canvas-container">
+            <canvas id="canvas-sec4" width="300" height="300"></canvas>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label>1. ¿Cómo es la función?</label>
+                <select id="sec4-type" class="input-control">
+                    <option value="" disabled selected>Selecciona...</option>
+                    <option value="creciente">Creciente (Sube)</option>
+                    <option value="decreciente">Decreciente (Baja)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>2. ¿Cuál es el punto de intersección en el eje y?</label>
+                <div class="coord-input-container">
+                    ( <input type="number" id="sec4-px" class="input-control input-mini" placeholder="x"> , 
+                      <input type="number" id="sec4-py" class="input-control input-mini" placeholder="y"> )
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="app.checkSec4()">Comprobar</button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 5: Calcular Pendiente -->
+    <div id="screen-sec5" class="screen">
+        <h2>Calcular Pendiente (m)</h2>
+        <p>Halla la pendiente usando la fórmula con los puntos dados.</p>
+
+        <div class="canvas-container">
+            <canvas id="canvas-sec5" width="300" height="240"></canvas>
+        </div>
+
+        <div class="card" style="text-align: center; padding: 15px 5px;">
+            <div style="margin-bottom: 15px; font-weight: bold; font-size: 18px; display:flex; justify-content:center; gap:15px;">
+                <!-- Punto A -->
+                <div style="display:flex; align-items:flex-end;">
+                    A( 
+                    <div class="point-label"><span class="point-sub">x₁</span><span class="text-blue" id="sec5-x1"></span></div> , 
+                    <div class="point-label"><span class="point-sub">y₁</span><span class="text-red" id="sec5-y1"></span></div> 
+                    )
+                </div>
+                <!-- Punto B -->
+                <div style="display:flex; align-items:flex-end;">
+                    B( 
+                    <div class="point-label"><span class="point-sub">x₂</span><span class="text-blue" id="sec5-x2"></span></div> , 
+                    <div class="point-label"><span class="point-sub">y₂</span><span class="text-red" id="sec5-y2"></span></div> 
+                    )
+                </div>
+            </div>
+            
+            <!-- Fórmula horizontal -->
+            <div class="flex-row" style="font-size: 16px; margin-bottom: 10px;">
+                m = 
+                <div class="fraction">
+                    <div class="numerator"><span class="text-red">y₂</span> - <span class="text-red">y₁</span></div>
+                    <div class="denominator"><span class="text-blue">x₂</span> - <span class="text-blue">x₁</span></div>
+                </div>
+                =
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" id="sec5-in-y2" class="input-control input-mini" style="padding:4px; max-width:45px;"> - 
+                        <input type="number" id="sec5-in-y1" class="input-control input-mini" style="padding:4px; max-width:45px;">
+                    </div>
+                    <div class="denominator">
+                        <input type="number" id="sec5-in-x2" class="input-control input-mini" style="padding:4px; max-width:45px;"> - 
+                        <input type="number" id="sec5-in-x1" class="input-control input-mini" style="padding:4px; max-width:45px;">
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="border:0; border-top:1px solid #E5E7EB; margin:15px 0;">
+            
+            <!-- Resultado de m en fracción -->
+            <div class="flex-row" style="font-size: 20px; font-weight: bold;">
+                m = 
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" id="sec5-final-num" class="input-control input-mini" placeholder="Num">
+                    </div>
+                    <div class="denominator">
+                        <input type="number" id="sec5-final-den" class="input-control input-mini" placeholder="Den">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="app.checkSec5()" style="margin-top: 20px;">Resolver</button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 6: Tabular -->
+    <div id="screen-sec6" class="screen">
+        <h2>Tabular Valores</h2>
+        <p>Sustituye la 'x' en la fórmula, calcula y arma el punto (x, y).</p>
+
+        <div class="card" style="padding: 10px;">
+            <div class="math-formula" id="sec6-formula" style="margin: 10px 0; font-size: 24px;">y = 2x + 1</div>
+            
+            <div style="overflow-x: auto;">
+                <table class="math-table" id="table-sec6">
+                    <thead>
+                        <tr>
+                            <th>x</th>
+                            <th>Sustitución</th>
+                            <th>y</th>
+                            <th>Punto (x, y)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sec6-tbody">
+                        <!-- Filas generadas por JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <button class="btn btn-primary" onclick="app.checkSec6()">Evaluar Tabla</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- OVERLAY DE FEEDBACK -->
+<div id="feedback-overlay">
+    <div class="feedback-card" id="feedback-card">
+        <div class="feedback-icon" id="feedback-icon">
+            <!-- Icono Inyectado -->
+        </div>
+        <div class="feedback-title" id="feedback-title">¡Correcto!</div>
+        <div class="feedback-msg" id="feedback-msg">Mensaje de explicación aquí.</div>
+        <button class="btn btn-primary" id="feedback-btn" onclick="app.closeFeedback()">Continuar</button>
+    </div>
+</div>
+
+
+<script>
+/**
+ * Lógica principal de MathQuest
+ */
+const app = {
+    state: {
+        name: '',
+        grade: '',
+        timeSeconds: 0,
+        correct: 0,
+        incorrect: 0,
+        timerInterval: null,
+        currentSection: 0,
+        currentData: {} 
+    },
+
+    icons: {
+        success: `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`,
+        error: `<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`
+    },
+
+    emojis: ['🍎', '🐶', '🚗', '🎸', '⚽', '🍕', '🚀', '🐱', '🍔', '🍓', '🏀', '👾'],
+
+    getEl: (id) => document.getElementById(id),
+    rnd: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+    
+    // Función mejorada para mostrar siempre b explícito y coeficientes de x como 1 o -1
+    formatMath: (m, b) => {
+        let text = "y = ";
+        
+        if (m === 0) {
+            text += b;
+            return text;
+        }
+
+        if (m === 1) text += "x ";
+        else if (m === -1) text += "-x ";
+        else text += m + "x ";
+
+        // Para temas pedagógicos, aseguramos que siempre aparezca + o - algo (incluso + 0)
+        if (b > 0) text += "+ " + b;
+        else if (b < 0) text += "- " + Math.abs(b);
+        else if (b === 0) text += "+ 0"; 
+        
+        return text;
+    },
+
+    startApp() {
+        const nameInput = this.getEl('student-name').value.trim();
+        const gradeInput = this.getEl('student-grade').value;
+        
+        if(!nameInput) { alert("¡Por favor ingresa tu nombre de héroe!"); return; }
+        if(!gradeInput) { alert("¡Selecciona tu grado para continuar!"); return; }
+
+        this.state.name = nameInput;
+        this.state.grade = `Grado ${gradeInput}`;
+        
+        this.getEl('display-name').innerText = this.state.name;
+        this.getEl('display-grade').innerText = this.state.grade;
+        
+        this.getEl('header').classList.remove('hidden');
+        this.startTimer();
+        this.showMenu();
+    },
+
+    startTimer() {
+        if(this.state.timerInterval) clearInterval(this.state.timerInterval);
+        this.state.timerInterval = setInterval(() => {
+            this.state.timeSeconds++;
+            const mins = Math.floor(this.state.timeSeconds / 60);
+            const secs = this.state.timeSeconds % 60;
+            this.getEl('display-time').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+    },
+
+    updateScore(isCorrect) {
+        if (isCorrect) {
+            this.state.correct++;
+            this.getEl('display-correct').innerText = this.state.correct;
+        } else {
+            this.state.incorrect++;
+            this.getEl('display-incorrect').innerText = this.state.incorrect;
+        }
+    },
+
+    hideAllScreens() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    },
+
+    showMenu() {
+        this.hideAllScreens();
+        this.getEl('screen-menu').classList.add('active');
+        this.state.currentSection = 0;
+    },
+
+    loadSection(num) {
+        this.hideAllScreens();
+        this.getEl(`screen-sec${num}`).classList.add('active');
+        this.state.currentSection = num;
+        
+        document.querySelectorAll(`#screen-sec${num} input, #screen-sec${num} select`).forEach(el => el.value = '');
+        
+        if(num === 1) this.generateSec1();
+        if(num === 2) this.generateSec2();
+        if(num === 3) this.generateSec3();
+        if(num === 4) this.generateSec4();
+        if(num === 5) this.generateSec5();
+        if(num === 6) this.generateSec6();
+    },
+
+    /* ================= SECCIÓN 1 ================= */
+    generateSec1() {
+        const isFunction = Math.random() > 0.5;
+        this.state.currentData.isFunction = isFunction;
+        
+        const setA = this.getEl('set-A');
+        const setB = this.getEl('set-B');
+        const svg = this.getEl('svg-arrows');
+        
+        setA.innerHTML = '<div class="set-label">Dom</div>';
+        setB.innerHTML = '<div class="set-label">Cod</div>';
+        svg.innerHTML = '';
+        
+        // Seleccionar 4 emojis únicos para cada conjunto
+        let shuffledEmojis = [...this.emojis].sort(() => 0.5 - Math.random());
+        const nodesA = shuffledEmojis.slice(0, 4);
+        const nodesB = shuffledEmojis.slice(4, 8);
+        
+        nodesA.forEach((n, i) => { setA.innerHTML += `<div class="set-node node-x" id="nodeA${i}">${n}</div>`; });
+        nodesB.forEach((n, i) => { setB.innerHTML += `<div class="set-node node-y" id="nodeB${i}">${n}</div>`; });
+        
+        setTimeout(() => {
+            const getPos = (id) => {
+                const el = this.getEl(id);
+                const rect = el.getBoundingClientRect();
+                const containerRect = this.getEl('diagram-container').getBoundingClientRect();
+                return {
+                    x: rect.left - containerRect.left + (rect.width/2),
+                    y: rect.top - containerRect.top + (rect.height/2)
+                };
+            };
+
+            const drawLine = (from, to) => {
+                const p1 = getPos(from);
+                const p2 = getPos(to);
+                p1.x += 22; p2.x -= 22; 
+                svg.innerHTML += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="#9CA3AF" stroke-width="2" marker-end="url(#arrowhead)" />`;
+            };
+            
+            svg.innerHTML = `<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#9CA3AF" /></marker></defs>`;
+
+            if (isFunction) {
+                // Función: Cada uno en Dom tiene exactamente 1 flecha
+                for(let i=0; i<4; i++) {
+                    drawLine(`nodeA${i}`, `nodeB${this.rnd(0,3)}`);
+                }
+            } else {
+                // No función: Al menos uno tiene 2 o más
+                drawLine('nodeA0', 'nodeB0');
+                drawLine('nodeA0', 'nodeB1'); // Violación
+                drawLine('nodeA1', 'nodeB2');
+                drawLine('nodeA2', 'nodeB3');
+                // nodeA3 puede tener 1 o ninguna
+                if(Math.random() > 0.5) drawLine('nodeA3', 'nodeB3');
+            }
+        }, 50);
+    },
+    checkSec1(userSaysFunction) {
+        const correct = this.state.currentData.isFunction;
+        const isOk = (userSaysFunction === correct);
+        const msg = correct 
+            ? "¡Muy bien! Cada figura del Dominio tiene exactamente UNA flecha de salida. ¡Es función!"
+            : "¡Correcto! Hay al menos una figura en el Dominio con DOS flechas de salida. Por lo tanto, no es función.";
+        
+        if(!isOk) this.shakeCard('screen-sec1');
+        this.showFeedback(isOk, msg);
+    },
+
+    /* ================= SECCIÓN 2 ================= */
+    generateSec2() {
+        let m = this.rnd(-3, 3);
+        if (m === 0) m = this.rnd(1, 2) === 1 ? 1 : -1; // Para forzar que salga x o -x
+        let b = this.rnd(-5, 5);
+        
+        this.state.currentData = { m, b };
+        this.getEl('sec2-formula').innerText = this.formatMath(m, b);
+    },
+    checkSec2() {
+        const mIn = parseInt(this.getEl('sec2-m').value);
+        const bIn = parseInt(this.getEl('sec2-b').value);
+        const pxIn = parseInt(this.getEl('sec2-px').value);
+        const pbIn = parseInt(this.getEl('sec2-pb').value);
+        const {m, b} = this.state.currentData;
+        
+        if(isNaN(mIn) || isNaN(bIn) || isNaN(pxIn) || isNaN(pbIn)) { alert("Completa todos los campos primero."); return; }
+
+        // El estudiante siempre debe colocar 0 en la X
+        const isOk = (mIn === m && bIn === b && pbIn === b && pxIn === 0);
+        let msg = "";
+        
+        if(isOk) {
+            msg = `¡Perfecto! m=${m} y b=${b}. Además, recordaste que la gráfica corta el eje Y siempre en x=0, siendo el punto (0, ${b}).`;
+        } else if (pxIn !== 0) {
+            msg = `Recuerda: El punto de corte en el eje vertical (Y) siempre tiene a 'x' valiendo 0. Debe ser (0, b).`;
+            this.shakeCard('screen-sec2');
+        } else {
+            msg = `Revisa bien: 'm' es el número que acompaña a 'x' (si no hay número escrito, es 1 o -1). 'b' es el número independiente (b=${b}).`;
+            this.shakeCard('screen-sec2');
+        }
+        this.showFeedback(isOk, msg);
+    },
+
+    /* ================= SECCIÓN 3 ================= */
+    generateSec3() {
+        let types = ['creciente', 'decreciente', 'constante'];
+        let type = types[this.rnd(0, 2)];
+        let m = 0;
+        if(type === 'creciente') m = this.rnd(1, 3);
+        if(type === 'decreciente') m = this.rnd(-3, -1);
+        
+        let b = this.rnd(-5, 5);
+        this.state.currentData = { type, m, b };
+        
+        this.getEl('sec3-formula').innerText = this.formatMath(m, b);
+    },
+    checkSec3(answer) {
+        const mIn = parseInt(this.getEl('sec3-m-in').value);
+        const bIn = parseInt(this.getEl('sec3-b-in').value);
+        const {type, m, b} = this.state.currentData;
+
+        if(isNaN(mIn) || isNaN(bIn)) { alert("Primero escribe quién es 'm' y quién es 'b'."); return; }
+
+        const isOk = (answer === type && mIn === m && bIn === b);
+        
+        if(mIn !== m || bIn !== b) {
+            this.shakeCard('screen-sec3');
+            this.showFeedback(false, `¡Ojo con los valores! m=${m} (acompaña a la x) y b=${b} (está solo). Identifícalos bien antes de ver el crecimiento.`);
+            return;
+        }
+
+        let explanation = "";
+        if(m > 0) explanation = `¡Correcto! m=${m} (positiva), por lo que la recta es Creciente (sube).`;
+        else if(m < 0) explanation = `¡Correcto! m=${m} (negativa), por lo que la recta es Decreciente (baja).`;
+        else explanation = `¡Correcto! m=0, por lo que la recta es Constante (horizontal).`;
+
+        if(!isOk) this.shakeCard('screen-sec3');
+        this.showFeedback(isOk, explanation);
+    },
+
+    /* ================= SECCIÓN 4 ================= */
+    generateSec4() {
+        let m = this.rnd(1, 2) * (Math.random() > 0.5 ? 1 : -1);
+        let b = this.rnd(-3, 3);
+        this.state.currentData = { 
+            type: m > 0 ? 'creciente' : 'decreciente',
+            m: m, 
+            b: b 
+        };
+        this.drawGraph('canvas-sec4', m, b);
+    },
+    checkSec4() {
+        const typeIn = this.getEl('sec4-type').value;
+        const pxIn = parseInt(this.getEl('sec4-px').value);
+        const pyIn = parseInt(this.getEl('sec4-py').value);
+        const {type, b} = this.state.currentData;
+
+        if(!typeIn || isNaN(pxIn) || isNaN(pyIn)) { alert("Completa todas las opciones."); return; }
+
+        const isOk = (typeIn === type && pxIn === 0 && pyIn === b);
+        let msg = "";
+        
+        if(isOk) {
+            msg = `¡Excelente! La recta es ${type} y cruza el eje Y (rojo) en el punto (0, ${b}).`;
+        } else if (pxIn !== 0) {
+            msg = `El punto de intersección en el eje Y siempre tiene la coordenada X (horizontal) igual a 0.`;
+            this.shakeCard('screen-sec4');
+        } else {
+            msg = `Observa la gráfica: De izquierda a derecha, va hacia ${type==='creciente'?'arriba':'abajo'}. Corta el eje rojo (Y) en el número ${b}.`;
+            this.shakeCard('screen-sec4');
+        }
+        this.showFeedback(isOk, msg);
+    },
+
+    /* ================= SECCIÓN 5 ================= */
+    generateSec5() {
+        let x1 = this.rnd(-3, -1);
+        let x2 = this.rnd(1, 3);
+        let m = this.rnd(-2, 2);
+        if(m===0) m=1; 
+        let b = this.rnd(-2, 2);
+        
+        let y1 = m * x1 + b;
+        let y2 = m * x2 + b;
+
+        this.state.currentData = { x1, y1, x2, y2, m };
+        
+        this.getEl('sec5-x1').innerText = x1;
+        this.getEl('sec5-y1').innerText = y1;
+        this.getEl('sec5-x2').innerText = x2;
+        this.getEl('sec5-y2').innerText = y2;
+        
+        this.drawGraph('canvas-sec5', m, b, {x:x1, y:y1}, {x:x2, y:y2});
+    },
+    checkSec5() {
+        const y2 = parseInt(this.getEl('sec5-in-y2').value);
+        const y1 = parseInt(this.getEl('sec5-in-y1').value);
+        const x2 = parseInt(this.getEl('sec5-in-x2').value);
+        const x1 = parseInt(this.getEl('sec5-in-x1').value);
+        const mNum = parseInt(this.getEl('sec5-final-num').value);
+        const mDen = parseInt(this.getEl('sec5-final-den').value);
+        
+        const d = this.state.currentData;
+        
+        if(isNaN(y2) || isNaN(y1) || isNaN(x2) || isNaN(x1) || isNaN(mNum) || isNaN(mDen)) { 
+            alert("Completa todos los recuadros de la fórmula y el resultado final."); return; 
+        }
+
+        const formulaOk1 = (y2 === d.y2 && y1 === d.y1 && x2 === d.x2 && x1 === d.x1);
+        const formulaOk2 = (y2 === d.y1 && y1 === d.y2 && x2 === d.x1 && x1 === d.x2);
+        
+        // Validar que la fracción que pongan equivalga a 'm'
+        // Calculamos lo que ellos restaron
+        let calcNum = y2 - y1;
+        let calcDen = x2 - x1;
+        
+        // Evaluamos si el resultado final de la fracción coincide con su resta
+        const fracOk = (mNum === calcNum && mDen === calcDen) || (mNum/mDen === d.m);
+        
+        const isOk = (formulaOk1 || formulaOk2) && fracOk;
+
+        if(isOk) {
+            this.showFeedback(true, `¡Operación perfecta! Colocaste bien los valores y restaste correctamente. m = ${d.m}`);
+        } else if (!(formulaOk1 || formulaOk2)) {
+            this.shakeCard('screen-sec5');
+            this.showFeedback(false, `Ubica bien los números. Arriba las 'y' rojas (${d.y2} y ${d.y1}), abajo las 'x' azules (${d.x2} y ${d.x1}).`);
+        } else {
+            this.shakeCard('screen-sec5');
+            this.showFeedback(false, `La ubicación es correcta, pero revisa tus restas (ley de signos). Arriba debe dar ${calcNum} y abajo ${calcDen}.`);
+        }
+    },
+
+    /* ================= SECCIÓN 6 ================= */
+    generateSec6() {
+        let m = this.rnd(-2, 2);
+        if (m === 0) m = 2;
+        let b = this.rnd(-3, 3);
+        this.state.currentData = { m, b };
+        
+        this.getEl('sec6-formula').innerText = this.formatMath(m, b);
+        
+        let xs = [-1, 0, 1];
+        let tbody = this.getEl('sec6-tbody');
+        tbody.innerHTML = '';
+        
+        xs.forEach((x, i) => {
+            let y = m * x + b;
+            this.state.currentData[`ans_x_${i}`] = x;
+            this.state.currentData[`ans_y_${i}`] = y;
+            
+            let row = `<tr>
+                <td style="font-weight:bold">${x}</td>
+                <td style="font-size:14px; color:#6B7280">${m}(${x}) ${b >= 0 ? '+'+b : b}</td>
+                <td><input type="number" id="sec6-y-${i}"></td>
+                <td>
+                    <div class="coord-input-container" style="justify-content:flex-start;">
+                        (<input type="number" id="sec6-px-${i}" class="input-control" style="padding:5px; width:45px;" placeholder="x"> ,
+                         <input type="number" id="sec6-py-${i}" class="input-control" style="padding:5px; width:45px;" placeholder="y">)
+                    </div>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    },
+    checkSec6() {
+        let isOk = true;
+        for(let i=0; i<3; i++) {
+            let yIn = parseInt(this.getEl(`sec6-y-${i}`).value);
+            let pxIn = parseInt(this.getEl(`sec6-px-${i}`).value);
+            let pyIn = parseInt(this.getEl(`sec6-py-${i}`).value);
+            
+            let correctX = this.state.currentData[`ans_x_${i}`];
+            let correctY = this.state.currentData[`ans_y_${i}`];
+            
+            if(yIn !== correctY || pxIn !== correctX || pyIn !== correctY) {
+                isOk = false;
+                break;
+            }
+        }
+
+        if(isOk) {
+            this.showFeedback(true, "¡Tabla completada magistralmente! Recuerda: el primer valor del punto es X y el segundo es Y.");
+        } else {
+            this.shakeCard('screen-sec6');
+            this.showFeedback(false, "Revisa los cálculos o los puntos. Al lado derecho debes colocar tú mismo la (x) que usaste y la (y) que te dio.");
+        }
+    },
+
+    /* ================= GRÁFICOS Y UTILIDADES ================= */
+    drawGraph(canvasId, m, b, p1=null, p2=null) {
+        const canvas = this.getEl(canvasId);
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        const scale = 25; // Píxeles por unidad
+        
+        ctx.clearRect(0,0,w,h);
+        
+        const cx = w/2;
+        const cy = h/2;
+
+        // Dibujar Cuadrícula
+        ctx.strokeStyle = "#F3F4F6";
+        ctx.lineWidth = 1;
+        for(let i=0; i<=w; i+=scale) {
+            ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(w,i); ctx.stroke();
+        }
+
+        // Dibujar Eje X (Azul)
+        ctx.strokeStyle = "#3B82F6"; 
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke(); 
+        
+        // Dibujar Eje Y (Rojo)
+        ctx.strokeStyle = "#EF4444"; 
+        ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke(); 
+        
+        // Dibujar números
+        ctx.font = "10px sans-serif";
+        ctx.fillStyle = "#4B5563"; // Gris oscuro
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        for(let i=0; i<=w; i+=scale) {
+            let valX = Math.round((i - cx) / scale);
+            if(valX !== 0 && (i - cx) % scale === 0) {
+                ctx.fillText(valX, i, cy + 12); // Números eje X
+            }
+        }
+        for(let i=0; i<=h; i+=scale) {
+            let valY = Math.round((cy - i) / scale);
+            if(valY !== 0 && (cy - i) % scale === 0) {
+                ctx.fillText(valY, cx - 12, i); // Números eje Y
+            }
+        }
+
+        // Función de conversión
+        const toCanvas = (mathX, mathY) => {
+            return { x: cx + (mathX * scale), y: cy - (mathY * scale) };
+        };
+
+        // Dibujar Recta (Color Morado para contrastar con los ejes)
+        ctx.strokeStyle = "#8B5CF6";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        let startX = -10;
+        let startY = m * startX + b;
+        let pStart = toCanvas(startX, startY);
+        ctx.moveTo(pStart.x, pStart.y);
+        
+        let endX = 10;
+        let endY = m * endX + b;
+        let pEnd = toCanvas(endX, endY);
+        ctx.lineTo(pEnd.x, pEnd.y);
+        ctx.stroke();
+
+        // Punto intercepto Y para sección 4
+        if(!p1 && !p2) {
+            let intercept = toCanvas(0, b);
+            ctx.fillStyle = "#1F2937"; // Gris muy oscuro
+            ctx.beginPath(); ctx.arc(intercept.x, intercept.y, 5, 0, Math.PI*2); ctx.fill();
+        }
+
+        // Dibujar puntos específicos (Sección 5)
+        if(p1 && p2) {
+            const cp1 = toCanvas(p1.x, p1.y);
+            const cp2 = toCanvas(p2.x, p2.y);
+            
+            ctx.fillStyle = "#10B981"; // Verde Esmeralda
+            ctx.beginPath(); ctx.arc(cp1.x, cp1.y, 6, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "black";
+            ctx.font = "bold 14px Arial";
+            ctx.fillText("A", cp1.x - 12, cp1.y - 12);
+
+            ctx.fillStyle = "#10B981";
+            ctx.beginPath(); ctx.arc(cp2.x, cp2.y, 6, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "black";
+            ctx.fillText("B", cp2.x - 12, cp2.y - 12);
+        }
+    },
+
+    showFeedback(isCorrect, message) {
+        this.updateScore(isCorrect);
+        
+        const overlay = this.getEl('feedback-overlay');
+        const card = this.getEl('feedback-card');
+        const iconContainer = this.getEl('feedback-icon');
+        const title = this.getEl('feedback-title');
+        const msg = this.getEl('feedback-msg');
+        const btn = this.getEl('feedback-btn');
+
+        card.className = 'feedback-card'; 
+        
+        if(isCorrect) {
+            card.classList.add('feedback-correct');
+            iconContainer.innerHTML = this.icons.success;
+            title.innerText = "¡Excelente!";
+            title.style.color = "var(--secondary)";
+            msg.innerText = message;
+            btn.innerText = "Siguiente Ejercicio";
+            btn.className = "btn btn-success";
+            btn.onclick = () => {
+                this.closeFeedback();
+                this.loadSection(this.state.currentSection); 
+            };
+        } else {
+            card.classList.add('feedback-incorrect');
+            iconContainer.innerHTML = this.icons.error;
+            title.innerText = "¡Casi lo tienes!";
+            title.style.color = "var(--danger)";
+            msg.innerText = message;
+            btn.innerText = "Intentar de nuevo";
+            btn.className = "btn btn-danger";
+            btn.onclick = () => this.closeFeedback();
+        }
+
+        overlay.classList.add('show');
+    },
+
+    closeFeedback() {
+        this.getEl('feedback-overlay').classList.remove('show');
+    },
+
+    shakeCard(sectionId) {
+        const screen = this.getEl(sectionId);
+        const card = screen.querySelector('.card');
+        if(card) {
+            card.classList.remove('shake');
+            void card.offsetWidth; 
+            card.classList.add('shake');
+        }
+    }
+};
+
+</script>
+</body>
+</html>
