@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Salón de Clases</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            align-items: flex-start;
+        }
+        /* Zona del Cuadro de Honor */
+        .banco-estudiantes {
+            background: #fff;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            min-height: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .banco-estudiantes h3 {
+            text-align: center;
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 16px;
+        }
+        /* El Salón Físico */
+        .salon {
+            background: #fff;
+            border: 3px solid #7f8c8d;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: 650px;
+        }
+        .tablero {
+            background: #27ae60;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            border: 4px solid #2ecc71;
+        }
+        .puerta {
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            background: #8e44ad;
+            color: white;
+            padding: 20px 5px;
+            font-weight: bold;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            border-radius: 3px;
+        }
+        .filas-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .fila {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+            min-width: 100px;
+            align-items: center;
+        }
+        .fila-titulo {
+            font-size: 12px;
+            font-weight: bold;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        /* Los Puestos y Estudiantes */
+        .puesto {
+            width: 90px;
+            height: 50px;
+            background: #bdc3c7;
+            border: 2px dashed #95a5a6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .estudiante {
+            width: 100%;
+            height: 100%;
+            background: #3498db;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: 3px;
+            cursor: grab;
+            user-select: none;
+            padding: 2px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .estudiante:active {
+            cursor: grabbing;
+        }
+        .estudiante.fijo {
+            background: #e74c3c; /* Rojo para puestos fijos/disciplina */
+        }
+        .estudiante.libre {
+            background: #f1c40f; /* Amarillo para el cuadro de honor */
+            color: #333;
+        }
+        .estudiante.medico {
+            background: #e67e22; /* Naranja para los de adelante sí o sí */
+        }
+        
+        .instrucciones {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+            max-width: 800px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Organizador de Puestos Interactivo</h1>
+    <p class="instrucciones">
+        <strong>Instrucciones:</strong> Arrastra a los estudiantes del "Cuadro de Honor" hacia los puestos vacíos (cuadros grises). 
+        <span style="color:#e74c3c; font-weight:bold;">■ Rojos:</span> Puestos Fijos asignados por comportamiento. 
+        <span style="color:#e67e22; font-weight:bold;">■ Naranjas:</span> Estudiantes de honor que deben ir en primeros puestos por salud (arrástralos adelante).
+        <span style="color:#f1c40f; font-weight:bold;">■ Amarillos:</span> Estudiantes de honor con libre elección.
+    </p>
+
+    <div class="container">
+        <!-- Panel Lateral para estudiantes sin ubicar -->
+        <div class="banco-estudiantes" id="banco" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>🏆 Cuadro de Honor<br>(Por Ubicar)</h3>
+            
+            <!-- Estudiantes con prioridad de frente -->
+            <div class="estudiante medico" draggable="true" ondragstart="drag(event)" id="e-dylan">3. Dylan Santiago</div>
+            <div class="estudiante medico" draggable="true" ondragstart="drag(event)" id="e-mauricio">7. Yesid Mauricio</div>
+            <div class="estudiante medico" draggable="true" ondragstart="drag(event)" id="e-luis">8. Luis Alejandro</div>
+            
+            <!-- Estudiantes libres -->
+            <div class="estudiante libre" draggable="true" ondragstart="drag(event)" id="e-camilo">1. David Camilo</div>
+            <div class="estudiante libre" draggable="true" ondragstart="drag(event)" id="e-samuel">2. Samuel Torres</div>
+            <div class="estudiante libre" draggable="true" ondragstart="drag(event)" id="e-montoya">4. Alejandro Montoya</div>
+            <div class="estudiante libre" draggable="true" ondragstart="drag(event)" id="e-evelyn">5. Evelyn Yurani</div>
+            <div class="estudiante libre" draggable="true" ondragstart="drag(event)" id="e-ailin">6. Ailin Paredes</div>
+            <div class="estudiante libre" draggable="true" ondragstart="drag(event)" id="e-juliana">9. Juliana Salomé</div>
+            <div class="estudiante libre" draggable="true" ondragstart="drag(event)" id="e-isabela">10. María Isabela</div>
+        </div>
+
+        <!-- Representación del Salón -->
+        <div class="salon">
+            <div class="tablero">TABLERO</div>
+            <div class="puerta">PUERTA</div>
+
+            <div class="filas-container">
+                <!-- Fila 1 (Izquierda) -->
+                <div class="fila">
+                    <div class="fila-titulo">Fila 1 (Pared Izq)</div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-juanpablo">Juan Pablo</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-josep">Josep Emanuel</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 1 -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-valery">Valery Nicole</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-yesids">Yesid Santiago</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-camilam">M. Camila Mora</div>
+                    </div>
+                </div>
+
+                <!-- Fila 2 (Centro-Izq) -->
+                <div class="fila">
+                    <div class="fila-titulo">Fila 2 (C-Izq)</div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 2 FRENTE -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-christopher">Christopher S.</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-itzae">Itzae Alejandro</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 3 -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-juandavid">Juan David</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-thiago">Thiago Emanuel</div>
+                    </div>
+                </div>
+
+                <!-- Fila 3 (Centro) -->
+                <div class="fila">
+                    <div class="fila-titulo">Fila 3 (Centro 7)</div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 4 FRENTE -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 5 FRENTE -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-sarav">Sara Valeria C.</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 6 -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-isabelai">Isabela Ibarra</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 7 -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 8 FONDO -->
+                </div>
+
+                <!-- Fila 4 (Pasillo Der) -->
+                <div class="fila">
+                    <div class="fila-titulo">Fila 4 (C-Der)</div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-salazar">D. A. Salazar</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 9 -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-iker">Iker Gerard</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-laura">Laura Delgado</div>
+                    </div>
+                </div>
+
+                <!-- Fila 5 (Pared Der) -->
+                <div class="fila">
+                    <div class="fila-titulo">Fila 5 (Pared Der)</div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-alan">Alan Tobar</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)"></div> <!-- Vacío 10 -->
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-guadalupe">M. Guadalupe</div>
+                    </div>
+                    <div class="puesto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <div class="estudiante fijo" draggable="true" ondragstart="drag(event)" id="f-saran">Sara Nicole</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts para el Drag and Drop -->
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            var draggedElement = document.getElementById(data);
+            
+            // Verifica si el área donde se suelta es un puesto vacío o el banco original
+            if (ev.target.classList.contains('puesto') && ev.target.children.length === 0) {
+                ev.target.appendChild(draggedElement);
+            } else if (ev.target.id === 'banco') {
+                ev.target.appendChild(draggedElement);
+            }
+        }
+    </script>
+</body>
+</html>
