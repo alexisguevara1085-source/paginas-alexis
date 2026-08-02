@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fracciones Z Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366F1; /* Indigo 500 */
+            --primary-dark: #4F46E5; /* Indigo 600 */
+            --secondary: #EC4899; /* Pink 500 */
+            --danger: #F43F5E; /* Rose 500 */
+            --success: #10B981; /* Emerald 500 */
+            --bg-color: #F8FAFC;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #F8FAFC;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Estilos de fracciones */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1E293B;
+            margin: 0 0.25rem;
+        }
+        .fraction .num {
+            padding: 0.1rem 0.6rem;
+            border-bottom: 3px solid #1E293B;
+            width: 100%;
+            text-align: center;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+        .fraction .den {
+            padding: 0.1rem 0.6rem;
+            width: 100%;
+            text-align: center;
+            border-radius: 0 0 4px 4px;
+            transition: all 0.3s;
+        }
+        .math-op-text {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 0 0.5rem;
+            transition: all 0.3s;
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+        }
+        .paren {
+            font-size: 2.2rem;
+            font-weight: 300;
+            color: #64748B;
+            vertical-align: middle;
+        }
+
+        /* Casillas de respuesta amplias */
+        .math-input {
+            width: 5.5rem; /* Ampliado horizontalmente */
+            height: 3.2rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            border: 2px solid #CBD5E1;
+            border-radius: 0.75rem;
+            background-color: white;
+            transition: all 0.2s;
+            outline: none;
+            color: #1E293B;
+            padding: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            -moz-appearance: textfield; /* Quitar flechas */
+        }
+        .math-input::-webkit-outer-spin-button,
+        .math-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .math-input:disabled {
+            background-color: #F1F5F9;
+            color: #94A3B8;
+            border-color: #E2E8F0;
+            opacity: 0.7;
+        }
+        .math-input:focus:not(:disabled) {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+            transform: scale(1.05);
+        }
+        .math-input.error {
+            border-color: var(--danger) !important;
+            background-color: #FFF1F2 !important;
+            color: var(--danger);
+            animation: shake 0.4s;
+        }
+        .math-input.success {
+            border-color: var(--success) !important;
+            background-color: #F0FDF4 !important;
+            color: var(--success);
+        }
+        select.math-input {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            width: 4rem; /* Un poco más angosto para el select */
+        }
+
+        /* Colores de Resaltado (Modo Ayuda) */
+        .hl-active { transform: scale(1.15); font-weight: 900; z-index: 10; position: relative; }
+        .hl-orange { background-color: #FDBA74 !important; color: #7C2D12 !important; box-shadow: 0 4px 0 #EA580C; }
+        .hl-blue { background-color: #93C5FD !important; color: #1E3A8A !important; box-shadow: 0 4px 0 #2563EB; }
+        .hl-green { background-color: #86EFAC !important; color: #14532D !important; box-shadow: 0 4px 0 #16A34A; }
+        .hl-purple { background-color: #D8B4FE !important; color: #4C1D95 !important; box-shadow: 0 4px 0 #7C3AED; }
+
+        /* Animaciones */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .hidden-view { display: none !important; }
+        .btn-press:active { transform: scale(0.95); }
+        
+        /* Progreso */
+        .progress-track {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 10px;
+            margin-top: 10px;
+        }
+        .progress-line-bg {
+            position: absolute; top: 50%; left: 10px; right: 10px; height: 6px;
+            background-color: #E2E8F0; border-radius: 3px; z-index: 1; transform: translateY(-50%);
+        }
+        .progress-line-fill {
+            position: absolute; top: 50%; left: 10px; height: 6px;
+            background-color: var(--primary); border-radius: 3px; z-index: 2;
+            transform: translateY(-50%); transition: width 0.4s ease; width: 0%;
+        }
+        .progress-node {
+            width: 14px; height: 14px; border-radius: 50%; background-color: #CBD5E1;
+            z-index: 3; transition: all 0.3s; position: relative;
+        }
+        .progress-node.active { background-color: var(--primary); box-shadow: 0 0 0 4px rgba(99,102,241,0.2); }
+        .progress-node.checkpoint {
+            width: 24px; height: 24px; background-color: #F1F5F9; border: 3px solid #CBD5E1;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .progress-node.checkpoint.active {
+            background-color: #FBBF24; border-color: #F59E0B; box-shadow: 0 0 0 4px rgba(251,191,36,0.3);
+            animation: popIn 0.5s ease forwards;
+        }
+
+        /* Botón Flotante Lateral Derecho (Centrado Verticalmente) */
+        .float-check-btn {
+            position: fixed;
+            right: 15px; /* Lateral derecho */
+            top: 50%; /* Centrado verticalmente */
+            transform: translateY(-50%);
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background-color: #FACC15;
+            color: #713F12;
+            box-shadow: 0 4px 15px rgba(250,204,21,0.5), inset 0 -4px 0 rgba(202,138,4,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            z-index: 45;
+            transition: all 0.2s;
+            animation: pulse-ring 2s infinite;
+        }
+        .float-check-btn:active { transform: translateY(-50%) scale(0.9); box-shadow: none; }
+        .float-check-btn.hidden { display: none; }
+        
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(250,204,21, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(250,204,21, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(250,204,21, 0); }
+        }
+
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div id="app-container">
+        
+        <header id="top-bar" class="hidden-view bg-white px-4 py-3 shadow-sm sticky top-0 z-40 flex justify-between items-center border-b border-slate-100">
+            <button id="btn-home" class="p-2 rounded-full hover:bg-slate-100 active:bg-slate-200 transition text-slate-500 btn-press">
+                <i class="ph-fill ph-house text-2xl text-indigo-500"></i>
+            </button>
+            
+            <div class="flex flex-col items-center">
+                <span id="tb-name" class="font-bold text-sm text-slate-700">Estudiante</span>
+                <span id="tb-grade" class="text-xs text-slate-400">Grado</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-lg text-sm border border-emerald-100">
+                    <i class="ph-bold ph-check"></i> <span id="tb-correct">0</span>
+                </div>
+                <div class="flex items-center gap-1 text-rose-600 font-bold bg-rose-50 px-2 py-1 rounded-lg text-sm border border-rose-100">
+                    <i class="ph-bold ph-x"></i> <span id="tb-incorrect">0</span>
+                </div>
+                <div class="flex items-center gap-1 text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-lg min-w-[55px] justify-center text-sm border border-indigo-100">
+                    <i class="ph-bold ph-timer"></i> <span id="tb-time">00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-grow flex flex-col relative w-full h-full overflow-y-auto pb-6">
+            
+            <!-- VIEW: WELCOME -->
+            <section id="view-welcome" class="flex-grow flex flex-col items-center justify-center p-6 animate-fade-in">
+                <div class="w-24 h-24 bg-indigo-100 rounded-3xl flex items-center justify-center mb-6 shadow-inner relative overflow-hidden">
+                    <i class="ph-fill ph-math-operations text-5xl text-indigo-600 relative z-10"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-center mb-2 text-slate-800 tracking-tight">Fracciones Z<br><span class="text-indigo-600">Master</span></h1>
+                <p class="text-slate-500 text-center mb-8 font-medium">Domina las fracciones con signos (+ y -)</p>
+                
+                <div class="w-full max-w-sm space-y-4 bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">Tu Nombre</label>
+                        <input type="text" id="input-name" placeholder="Ej. Ana Gómez" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none transition font-semibold text-slate-700 text-center text-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">Tu Grado</label>
+                        <select id="input-grade" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none transition font-semibold text-slate-700 bg-white text-center text-lg">
+                            <option value="" disabled selected>Selecciona tu grado...</option>
+                            <option value="6°">Grado 6°</option>
+                            <option value="7°">Grado 7°</option>
+                            <option value="8°">Grado 8°</option>
+                            <option value="9°">Grado 9°</option>
+                        </select>
+                    </div>
+                    <button id="btn-start" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(79,70,229)] active:shadow-none active:translate-y-1 transition text-xl mt-4 flex justify-center items-center gap-2 btn-press">
+                        ¡Comenzar! <i class="ph-bold ph-rocket-launch"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW: MENU -->
+            <section id="view-menu" class="hidden-view flex-grow flex flex-col p-5 animate-fade-in bg-slate-50">
+                <h2 class="text-2xl font-black mb-6 mt-2 text-slate-800 tracking-tight">Misiones Disponibles</h2>
+                
+                <div class="space-y-4">
+                    <button onclick="startLesson(1)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-blue-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 group-hover:scale-110 transition border border-blue-100">
+                                <i class="ph-bold ph-equals text-3xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold text-blue-500 uppercase tracking-widest">Misión 1</span>
+                                <h3 class="font-bold text-[1.15rem] text-slate-800 leading-tight">Igual Denominador</h3>
+                                <p class="text-xs text-slate-500 font-medium mt-1">Suma y resta simple con Z</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(2)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-orange-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 group-hover:scale-110 transition border border-orange-100">
+                                <i class="ph-bold ph-smiley text-3xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold text-orange-500 uppercase tracking-widest">Misión 2</span>
+                                <h3 class="font-bold text-[1.15rem] text-slate-800 leading-tight">Diferente Denominador</h3>
+                                <p class="text-xs text-slate-500 font-medium mt-1">Carita feliz con negativos</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(3)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-purple-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-500 group-hover:scale-110 transition border border-purple-100">
+                                <i class="ph-bold ph-x text-3xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold text-purple-500 uppercase tracking-widest">Misión 3</span>
+                                <h3 class="font-bold text-[1.15rem] text-slate-800 leading-tight">Multiplicación</h3>
+                                <p class="text-xs text-slate-500 font-medium mt-1">Directo aplicando Z</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(4)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-teal-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-500 group-hover:scale-110 transition border border-teal-100">
+                                <i class="ph-bold ph-divide text-3xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold text-teal-500 uppercase tracking-widest">Misión 4</span>
+                                <h3 class="font-bold text-[1.15rem] text-slate-800 leading-tight">División</h3>
+                                <p class="text-xs text-slate-500 font-medium mt-1">Cruce con ley de signos</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(5)" class="w-full bg-slate-800 p-5 rounded-2xl shadow-md flex items-center justify-between hover:bg-slate-700 transition text-left btn-press group relative overflow-hidden mt-6">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full transform translate-x-8 -translate-y-8"></div>
+                        <div class="flex items-center gap-4 relative z-10">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-700 flex items-center justify-center text-yellow-400 group-hover:scale-110 transition shadow-inner border border-slate-600">
+                                <i class="ph-fill ph-lightning text-3xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] font-extrabold text-yellow-400 uppercase tracking-widest">Reto Final</span>
+                                <h3 class="font-bold text-[1.15rem] text-white leading-tight">Misión Sorpresa Z</h3>
+                                <p class="text-xs text-slate-300 font-medium mt-1">Mezcla aleatoria de todo</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW: LESSON -->
+            <section id="view-lesson" class="hidden-view flex-grow flex flex-col p-4 animate-fade-in relative bg-white">
+                
+                <div class="w-full mb-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <span id="lesson-title" class="font-black text-slate-700 text-sm tracking-tight">Lección</span>
+                        <span id="lesson-mode-badge" class="text-[10px] font-extrabold px-2 py-1 rounded bg-indigo-100 text-indigo-700 uppercase tracking-wide">Modo</span>
+                    </div>
+                    <div class="progress-track" id="progress-container">
+                        <div class="progress-line-bg"></div>
+                        <div class="progress-line-fill" id="progress-fill"></div>
+                        <!-- Nodos JS -->
+                    </div>
+                </div>
+
+                <!-- Caja de Instrucciones (Ayuda) -->
+                <div id="instruction-box" class="bg-indigo-50 border-l-4 border-indigo-500 p-3 rounded-r-xl mb-4 shadow-sm hidden transition-all duration-300">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm text-indigo-500">
+                            <i class="ph-bold ph-info text-lg"></i>
+                        </div>
+                        <p id="instruction-text" class="text-indigo-900 font-bold text-sm leading-tight"></p>
+                    </div>
+                </div>
+
+                <!-- Contenedor del Problema -->
+                <div class="flex-grow flex flex-col items-center justify-center w-full max-w-sm mx-auto relative mt-2">
+                    <div id="problem-canvas" class="w-full flex flex-col items-center gap-6">
+                        <!-- Contenido Dinámico JS -->
+                    </div>
+                </div>
+
+                <!-- Botón Flotante Derecho -->
+                <button id="btn-check-float" class="float-check-btn hidden btn-press">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+
+                <!-- Controles Inferiores (Backup o limpiar) -->
+                <div class="w-full mt-auto pt-6 pb-2 space-y-3 bg-white">
+                    <button id="btn-check" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-4 rounded-xl shadow-[0_4px_0_rgb(5,150,105)] active:shadow-none active:translate-y-1 transition text-lg flex justify-center items-center gap-2">
+                        <i class="ph-bold ph-check-circle text-xl"></i> COMPROBAR
+                    </button>
+                    <button id="btn-clear" class="w-full bg-white hover:bg-slate-50 text-slate-500 font-bold py-3 rounded-xl border-2 border-slate-200 transition text-sm flex justify-center items-center gap-2 btn-press">
+                        <i class="ph-bold ph-eraser"></i> Borrar casillas
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW: COMPLETION -->
+            <section id="view-completion" class="hidden-view flex-grow flex flex-col items-center justify-center p-6 animate-fade-in bg-slate-50">
+                <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden text-center p-8">
+                    <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pop shadow-inner">
+                        <i class="ph-fill ph-trophy text-5xl text-yellow-500"></i>
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-800 mb-2 tracking-tight">¡Lección Completada!</h2>
+                    <p class="text-slate-500 mb-6 font-bold" id="completion-message">Excelente trabajo.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                            <i class="ph-fill ph-clock text-indigo-400 text-2xl mb-1"></i>
+                            <span class="block text-[10px] text-indigo-500 uppercase font-black tracking-wider">Tiempo</span>
+                            <span class="text-xl font-black text-indigo-700" id="comp-time">00:00</span>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                            <i class="ph-fill ph-check-circle text-emerald-400 text-2xl mb-1"></i>
+                            <span class="block text-[10px] text-emerald-500 uppercase font-black tracking-wider">Aciertos</span>
+                            <span class="text-xl font-black text-emerald-700" id="comp-correct">12</span>
+                        </div>
+                    </div>
+
+                    <button onclick="goHome()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-black py-4 rounded-xl shadow-[0_4px_0_rgb(79,70,229)] active:shadow-none active:translate-y-1 transition text-lg btn-press">
+                        Volver al Menú
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- OVERLAY Y MODALES -->
+        <div id="overlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden-view flex items-center justify-center p-4">
+            
+            <!-- Modal Success -->
+            <div id="modal-success" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden shadow-2xl">
+                <div class="bg-emerald-500 p-5 flex flex-col items-center">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-2 animate-pop shadow-md">
+                        <i class="ph-bold ph-check text-4xl text-emerald-500"></i>
+                    </div>
+                    <h3 class="text-white text-2xl font-black tracking-tight">¡Correcto!</h3>
+                </div>
+                <div class="p-6 text-center">
+                    <p id="success-msg" class="text-slate-600 text-lg font-bold mb-6">Paso completado correctamente.</p>
+                    <button id="btn-next-step" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-4 rounded-xl shadow-[0_4px_0_rgb(5,150,105)] active:shadow-none active:translate-y-1 transition text-lg btn-press flex justify-center items-center gap-2">
+                        Continuar <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Error -->
+            <div id="modal-error" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden shadow-2xl">
+                <div class="bg-rose-500 p-5 flex flex-col items-center">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-2 animate-pop shadow-md">
+                        <i class="ph-bold ph-x text-4xl text-rose-500"></i>
+                    </div>
+                    <h3 class="text-white text-2xl font-black tracking-tight">Inténtalo de nuevo</h3>
+                </div>
+                <div class="p-6 text-center">
+                    <p id="error-hint" class="text-rose-700 text-sm font-bold mb-6 bg-rose-50 border border-rose-100 p-4 rounded-xl">Revisa la operación.</p>
+                    <button id="btn-retry" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-xl shadow-[0_4px_0_rgb(225,29,72)] active:shadow-none active:translate-y-1 transition text-lg mb-3 btn-press">
+                        Reintentar
+                    </button>
+                    <button id="btn-show-how" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl border border-slate-300 transition text-sm hidden flex items-center justify-center gap-2 btn-press">
+                        <i class="ph-fill ph-lightbulb text-yellow-500 text-lg"></i> Muéstrame cómo hacerlo
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Seleccion de Modo -->
+            <div id="modal-mode" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden p-6 shadow-2xl">
+                <h3 class="text-2xl font-black text-center text-slate-800 mb-2 tracking-tight">Elige tu modo</h3>
+                <p class="text-center text-slate-500 mb-6 font-medium text-sm">¿Cómo quieres resolver las operaciones?</p>
+                
+                <div class="space-y-4">
+                    <button onclick="selectMode('help')" class="w-full border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 bg-white p-4 rounded-2xl flex items-center text-left transition group shadow-sm btn-press">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mr-4 group-hover:scale-110 transition">
+                            <i class="ph-fill ph-student text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-indigo-900 text-lg">Modo Entrenamiento</h4>
+                            <p class="text-xs text-indigo-600 font-bold">Paso a paso con flechas y colores</p>
+                        </div>
+                    </button>
+                    
+                    <button onclick="selectMode('expert')" class="w-full border-2 border-slate-200 hover:border-slate-500 hover:bg-slate-50 bg-white p-4 rounded-2xl flex items-center text-left transition group shadow-sm btn-press">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 mr-4 group-hover:scale-110 transition">
+                            <i class="ph-fill ph-lightning text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-slate-800 text-lg">Modo Ninja</h4>
+                            <p class="text-xs text-slate-500 font-bold">Ingresas el resultado directo</p>
+                        </div>
+                    </button>
+                </div>
+                <button onclick="closeModal('modal-mode')" class="w-full mt-4 py-3 text-slate-400 font-bold hover:text-slate-600 transition">Cancelar</button>
+            </div>
+
+            <!-- Modal Checkpoint (Motivación) -->
+            <div id="modal-checkpoint" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden shadow-2xl relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-yellow-300 to-orange-400 opacity-20"></div>
+                <div class="p-8 flex flex-col items-center relative z-10 text-center">
+                    <div class="w-28 h-28 bg-white rounded-full flex items-center justify-center mb-5 animate-pop shadow-xl border-4 border-yellow-400">
+                        <i id="check-icon" class="ph-fill ph-star text-6xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-slate-800 text-3xl font-black tracking-tight mb-3" id="checkpoint-title">¡Genial!</h3>
+                    <p id="checkpoint-msg" class="text-slate-600 text-lg font-bold mb-8">Vas por buen camino.</p>
+                    <button id="btn-next-checkpoint" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-black py-4 rounded-xl shadow-[0_4px_0_rgb(202,138,4)] active:shadow-none active:translate-y-1 transition text-xl btn-press">
+                        ¡A seguir! <i class="ph-bold ph-rocket ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Estado Global ---
+        let synth = null;
+        let user = { name: '', grade: '' };
+        let stats = { correct: 0, incorrect: 0, timeSeconds: 0, timerInterval: null };
+        let appState = {
+            currentSection: null, // 1 a 5
+            currentMode: null, // 'help' | 'expert'
+            progress: 0,
+            targetProgress: 12, // 12 ejercicios
+            problem: null, 
+            failsOnCurrentStep: 0
+        };
+
+        const views = {
+            welcome: document.getElementById('view-welcome'),
+            menu: document.getElementById('view-menu'),
+            lesson: document.getElementById('view-lesson'),
+            completion: document.getElementById('view-completion')
+        };
+        const overlay = document.getElementById('overlay');
+
+        // --- Utilidades ---
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : null; };
+        const getNum = (id) => { const v = getVal(id); return v === "" ? null : parseInt(v); };
+
+        // --- Sistema de Audio (Tone.js) ---
+        async function initAudio() {
+            if(!synth) {
+                await Tone.start();
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -10; 
+            }
+        }
+        function playSound(type) {
+            if(!synth) return;
+            try {
+                if(type === 'correct') synth.triggerAttackRelease(["C5", "E5"], "8n");
+                else if (type === 'incorrect') synth.triggerAttackRelease(["C4", "C4"], "8n");
+                else if (type === 'checkpoint') synth.triggerAttackRelease(["G4", "C5", "E5", "G5"], "4n");
+                else if (type === 'finish') synth.triggerAttackRelease(["C5", "D5", "E5", "F5", "G5", "C6"], "2n");
+            } catch(e) {}
+        }
+
+        // --- Navegación Principal ---
+        document.getElementById('btn-start').addEventListener('click', () => {
+            const name = document.getElementById('input-name').value.trim();
+            const grade = document.getElementById('input-grade').value;
+            if(!name || !grade) { alert("Completa tu nombre y grado."); return; }
+            
+            initAudio();
+            user.name = name; user.grade = grade;
+            document.getElementById('tb-name').innerText = name.split(" ")[0]; // Solo primer nombre
+            document.getElementById('tb-grade').innerText = grade;
+            showView('menu');
+        });
+
+        // Botón Casa Reparado: Limpia y vuelve al menú sin 'confirm'
+        document.getElementById('btn-home').addEventListener('click', goHome);
+
+        function goHome() {
+            // Cierra todos los modales
+            overlay.classList.add('hidden-view');
+            document.querySelectorAll('#overlay > div').forEach(el => {
+                el.classList.add('hidden'); el.classList.remove('scale-100', 'opacity-100'); el.classList.add('scale-90', 'opacity-0');
+            });
+            document.getElementById('btn-check-float').classList.add('hidden');
+            
+            // Resetea estado
+            appState.currentSection = null; appState.currentMode = null; appState.progress = 0;
+            if(stats.timerInterval) clearInterval(stats.timerInterval);
+            stats.timerInterval = null; stats.timeSeconds = 0;
+            
+            document.getElementById('tb-time').innerText = "00:00";
+            document.getElementById('tb-correct').innerText = "0";
+            document.getElementById('tb-incorrect').innerText = "0";
+            stats.correct = 0; stats.incorrect = 0;
+            
+            showView('menu');
+        }
+
+        function showView(viewName) {
+            Object.values(views).forEach(v => v.classList.add('hidden-view'));
+            views[viewName].classList.remove('hidden-view');
+            document.getElementById('top-bar').classList.toggle('hidden-view', viewName === 'welcome');
+        }
+
+        function startTimer() {
+            if(stats.timerInterval) clearInterval(stats.timerInterval);
+            stats.timerInterval = setInterval(() => {
+                stats.timeSeconds++;
+                const m = Math.floor(stats.timeSeconds / 60).toString().padStart(2, '0');
+                const s = (stats.timeSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('tb-time').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        let sectionToStart = null;
+        function startLesson(sectionNum) {
+            sectionToStart = sectionNum;
+            showModal('modal-mode');
+            initAudio(); // Por si acaso
+        }
+
+        function selectMode(mode) {
+            closeModal('modal-mode');
+            appState.currentSection = sectionToStart;
+            appState.currentMode = mode;
+            appState.progress = 0; stats.correct = 0; stats.incorrect = 0;
+            document.getElementById('tb-correct').innerText = "0";
+            document.getElementById('tb-incorrect').innerText = "0";
+            
+            const titles = ["Igual Denominador", "Diferente Denominador", "Multiplicación", "División", "Reto Sorpresa"];
+            document.getElementById('lesson-title').innerText = titles[sectionToStart - 1];
+            
+            const badge = document.getElementById('lesson-mode-badge');
+            badge.innerText = mode === 'help' ? 'Ayuda Guiada' : 'Modo Ninja';
+            badge.className = mode === 'help' ? 'text-[10px] font-extrabold px-2 py-1 rounded bg-indigo-100 text-indigo-700 uppercase tracking-wide' 
+                                              : 'text-[10px] font-extrabold px-2 py-1 rounded bg-slate-200 text-slate-700 uppercase tracking-wide';
+            
+            buildProgressBar();
+            startTimer();
+            showView('lesson');
+            generateNextProblem();
+        }
+
+        function buildProgressBar() {
+            const container = document.getElementById('progress-container');
+            Array.from(container.children).forEach(c => { if(c.id !== 'progress-fill' && !c.classList.contains('progress-line-bg')) c.remove(); });
+            
+            for(let i=0; i<=appState.targetProgress; i++) {
+                const isCheckpoint = (i === 4 || i === 8);
+                const dot = document.createElement('div');
+                dot.className = `progress-node ${isCheckpoint ? 'checkpoint' : ''}`;
+                dot.id = `p-node-${i}`;
+                if (isCheckpoint) dot.innerHTML = `<i class="ph-fill ph-star text-yellow-400 text-[12px]"></i>`;
+                if (i === appState.targetProgress) {
+                    dot.className += ' checkpoint'; dot.innerHTML = `<i class="ph-fill ph-trophy text-yellow-500 text-[14px]"></i>`;
+                }
+                container.appendChild(dot);
+            }
+            updateProgressVisuals();
+        }
+
+        function updateProgressVisuals() {
+            const fill = document.getElementById('progress-fill');
+            fill.style.width = `${(appState.progress / appState.targetProgress) * 100}%`;
+            for(let i=0; i<=appState.targetProgress; i++) {
+                const dot = document.getElementById(`p-node-${i}`);
+                if(i <= appState.progress) dot.classList.add('active'); else dot.classList.remove('active');
+            }
+        }
+
+        function advanceProgress() {
+            appState.progress++;
+            updateProgressVisuals();
+            
+            if(appState.progress === appState.targetProgress) {
+                playSound('finish'); finishLesson();
+            } else if (appState.progress === 4 || appState.progress === 8) {
+                playSound('checkpoint');
+                showCheckpoint(appState.progress);
+            } else {
+                generateNextProblem();
+            }
+        }
+
+        function showCheckpoint(level) {
+            const msgs = [
+                `¡Vamos ${user.name.split(' ')[0]}, sigue así!`,
+                `¡${user.name.split(' ')[0]}, estás por buen camino!`,
+                `¡Imparable! Casi eres un experto en Z.`
+            ];
+            document.getElementById('checkpoint-msg').innerText = msgs[rand(0, msgs.length-1)];
+            document.getElementById('check-icon').className = level === 4 ? "ph-fill ph-rocket text-6xl text-orange-500" : "ph-fill ph-fire text-6xl text-rose-500";
+            showModal('modal-checkpoint');
+        }
+
+        function finishLesson() {
+            clearInterval(stats.timerInterval);
+            document.getElementById('comp-time').innerText = document.getElementById('tb-time').innerText;
+            document.getElementById('comp-correct').innerText = stats.correct;
+            const total = stats.correct + stats.incorrect;
+            const p = total === 0 ? 0 : Math.round((stats.correct / total) * 100);
+            
+            document.getElementById('completion-message').innerText = 
+                p >= 80 ? "¡Impresionante! Dominas la ley de los signos." :
+                p >= 60 ? "¡Buen trabajo! Sigue entrenando para ser más rápido." : "Recuerda: De los errores se aprende.";
+            showView('completion');
+        }
+
+        function generateNextProblem() {
+            appState.failsOnCurrentStep = 0;
+            let section = appState.currentSection;
+            
+            // Reto Final: elige operación aleatoria
+            if (section === 5) section = rand(1, 4); 
+            
+            let p = { section, steps: [], currentStep: 0 };
+            const maxNum = appState.currentSection === 5 ? 12 : 10;
+            
+            // Generar fracciones con posibles negativos
+            p.d1 = rand(2, maxNum);
+            p.d2 = section === 1 ? p.d1 : rand(2, maxNum);
+            
+            // Asegurar que al menos una fracción sea negativa casi siempre para practicar Z
+            let sign1 = Math.random() > 0.4 ? -1 : 1; 
+            let sign2 = Math.random() > 0.4 ? -1 : 1;
+            if(sign1 === 1 && sign2 === 1) { if(rand(0,1)) sign1 = -1; else sign2 = -1; }
+
+            p.n1 = rand(1, maxNum) * sign1;
+            p.n2 = rand(1, maxNum) * sign2;
+            
+            if(section === 1) p.op = rand(0,1) ? '+' : '-';
+            else if(section === 2) p.op = rand(0,1) ? '+' : '-';
+            else if(section === 3) p.op = '×';
+            else p.op = '÷';
+
+            // Cálculos del resultado (sin simplificar aún)
+            if(section === 1) {
+                p.resN = p.op === '+' ? p.n1 + p.n2 : p.n1 - p.n2;
+                p.resD = p.d1;
+            } else if (section === 2) {
+                const cross1 = p.n1 * p.d2; const cross2 = p.d1 * p.n2;
+                p.resN = p.op === '+' ? cross1 + cross2 : cross1 - cross2;
+                p.resD = p.d1 * p.d2;
+                p.cross1 = cross1; p.cross2 = cross2;
+            } else if (section === 3) {
+                p.resN = p.n1 * p.n2; p.resD = p.d1 * p.d2;
+            } else if (section === 4) {
+                p.crossN = p.n1 * p.d2;
+                p.crossD = p.d1 * p.n2;
+                p.resN = p.crossN;
+                p.resD = p.crossD;
+                // Detectar si requiere paso extra para normalizar el signo
+                if (p.crossD < 0) {
+                     p.resN = p.crossN * -1;
+                     p.resD = p.crossD * -1;
+                     p.needsSignNormalization = true;
+                }
+            }
+
+            p.steps = buildSteps(p);
+            
+            // Paso extra de simplificación simple (menores a 40 y solo Mitad o Tercera)
+            let finalN = p.resN; let finalD = p.resD;
+            
+            // Determinar qué casillas iluminar para la simplificación según la sección
+            let hlIds = ['in-n', 'in-d'];
+            if (section === 2) hlIds = ['res-n', 'res-d'];
+            if (section === 4 && p.needsSignNormalization) hlIds = ['norm-n', 'norm-d'];
+
+            if (Math.abs(finalN) < 40 && Math.abs(finalD) < 40) {
+                if(Math.abs(finalN) % 2 === 0 && finalD % 2 === 0) {
+                    p.steps.push({
+                        text: "¡El resultado se puede simplificar! Saca la MITAD (divide ÷2 arriba y abajo).",
+                        hl: hlIds, hlClass: 'hl-green',
+                        html: `
+                            <div class="flex items-center gap-2 mt-4 animate-fade-in">
+                                <span class="math-op-text text-slate-400">=</span>
+                                <div class="flex flex-col items-center gap-1">
+                                    <input id="in-simp-n" type="number" class="math-input border-b-2 border-black rounded-b-none pb-1">
+                                    <input id="in-simp-d" type="number" class="math-input border-t-2 border-black rounded-t-none pt-1">
+                                </div>
+                            </div>`,
+                        active: ['in-simp-n', 'in-simp-d'],
+                        check: () => getNum('in-simp-n') === (finalN/2) && getNum('in-simp-d') === (finalD/2),
+                        fill: { 'in-simp-n': (finalN/2), 'in-simp-d': (finalD/2) }
+                    });
+                } else if(Math.abs(finalN) % 3 === 0 && finalD % 3 === 0) {
+                     p.steps.push({
+                        text: "¡El resultado se puede simplificar! Saca la TERCERA (divide ÷3 arriba y abajo).",
+                        hl: hlIds, hlClass: 'hl-green',
+                        html: `
+                            <div class="flex items-center gap-2 mt-4 animate-fade-in">
+                                <span class="math-op-text text-slate-400">=</span>
+                                <div class="flex flex-col items-center gap-1">
+                                    <input id="in-simp-n" type="number" class="math-input border-b-2 border-black rounded-b-none pb-1">
+                                    <input id="in-simp-d" type="number" class="math-input border-t-2 border-black rounded-t-none pt-1">
+                                </div>
+                            </div>`,
+                        active: ['in-simp-n', 'in-simp-d'],
+                        check: () => getNum('in-simp-n') === (finalN/3) && getNum('in-simp-d') === (finalD/3),
+                        fill: { 'in-simp-n': (finalN/3), 'in-simp-d': (finalD/3) }
+                    });
+                }
+            }
+
+            appState.problem = p;
+            renderProblem();
+        }
+
+        function buildSteps(p) {
+            let steps = [];
+            const s = p.section;
+
+            // HTML Base Workspace
+            let baseWorkspace = `
+                <div id="workspace-base" class="flex items-center gap-2 mt-4 bg-slate-50 p-4 rounded-2xl border-2 border-slate-200 shadow-inner">
+                    <span class="math-op-text text-slate-400">=</span>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="flex items-center gap-2 border-b-4 border-slate-800 pb-3" id="ws-top-row"></div>
+                        <div class="pt-1" id="ws-bot-row"></div>
+                    </div>
+                </div>`;
+
+            if(s === 1) {
+                // Igual Denominador: 1. Numeradores, 2. Denominador
+                steps.push({
+                    text: "Suma o resta los numeradores respetando la ley de los signos.",
+                    hl: ['orig-n1', 'orig-op', 'orig-n2'], hlClass: 'hl-orange',
+                    html: baseWorkspace,
+                    initDOM: () => { 
+                        document.getElementById('ws-top-row').innerHTML = `<input id="in-n" type="number" class="math-input">`;
+                        document.getElementById('ws-bot-row').innerHTML = `<input id="in-d" type="number" class="math-input" disabled>`;
+                    },
+                    active: ['in-n'], check: () => getNum('in-n') === p.resN, fill: {'in-n': p.resN}
+                });
+                steps.push({
+                    text: "Como tienen el MISMO denominador, simplemente pásalo igual abajo.",
+                    hl: ['orig-d1', 'orig-d2'], hlClass: 'hl-blue',
+                    active: ['in-d'], check: () => getNum('in-d') === p.resD, fill: {'in-d': p.resD}
+                });
+            } 
+            else if (s === 2) {
+                // Diferente Denominador (Carita Feliz en partes)
+                steps.push({
+                    text: "Multiplica en cruz: Numerador Izquierdo × Denominador Derecho.",
+                    hl: ['orig-n1', 'orig-d2'], hlClass: 'hl-orange',
+                    html: baseWorkspace,
+                    initDOM: () => {
+                        document.getElementById('ws-top-row').innerHTML = `
+                            <input id="in-cross1" type="number" class="math-input w-16">
+                            <select id="in-op" class="math-input text-xl px-1" disabled><option value="?">?</option><option value="+">+</option><option value="-">-</option></select>
+                            <input id="in-cross2" type="number" class="math-input w-16" disabled>
+                        `;
+                        document.getElementById('ws-bot-row').innerHTML = `<input id="in-d" type="number" class="math-input" disabled>`;
+                    },
+                    active: ['in-cross1'], check: () => getNum('in-cross1') === p.cross1, fill: {'in-cross1': p.cross1}
+                });
+                steps.push({
+                    text: "Multiplica en cruz: Denominador Izquierdo × Numerador Derecho.",
+                    hl: ['orig-d1', 'orig-n2'], hlClass: 'hl-purple',
+                    active: ['in-cross2'], check: () => getNum('in-cross2') === p.cross2, fill: {'in-cross2': p.cross2}
+                });
+                steps.push({
+                    text: "Copia el signo de la operación original.",
+                    hl: ['orig-op'], hlClass: 'hl-green',
+                    active: ['in-op'], check: () => getVal('in-op') === p.op, fill: {'in-op': p.op}
+                });
+                steps.push({
+                    text: "Multiplica los denominadores de frente (la sonrisa).",
+                    hl: ['orig-d1', 'orig-d2'], hlClass: 'hl-blue',
+                    active: ['in-d'], check: () => getNum('in-d') === p.resD, fill: {'in-d': p.resD}
+                });
+                // Paso final para resolver el numerador
+                steps.push({
+                    text: "Ahora resuelve la operación de arriba respetando los signos (ej: -10 + 4).",
+                    hl: [], hlClass: '',
+                    html: `
+                        <div class="flex items-center gap-2 mt-4 animate-fade-in" id="ws-final-frac">
+                            <span class="math-op-text text-slate-400">=</span>
+                            <div class="flex flex-col items-center gap-1">
+                                <input id="res-n" type="number" class="math-input border-b-2 border-black rounded-b-none pb-1">
+                                <input id="res-d" type="number" class="math-input border-t-2 border-black rounded-t-none pt-1" disabled>
+                            </div>
+                        </div>`,
+                    initDOM: () => { document.getElementById('res-d').value = p.resD; }, // Auto llenar el denominador
+                    active: ['res-n'], check: () => getNum('res-n') === p.resN, fill: {'res-n': p.resN}
+                });
+            }
+            else if (s === 3) {
+                // Multiplicación
+                steps.push({
+                    text: "Multiplica los Numeradores DE FRENTE (aplica ley de signos).",
+                    hl: ['orig-n1', 'orig-n2'], hlClass: 'hl-orange',
+                    html: baseWorkspace,
+                    initDOM: () => { 
+                        document.getElementById('ws-top-row').innerHTML = `<input id="in-n" type="number" class="math-input">`;
+                        document.getElementById('ws-bot-row').innerHTML = `<input id="in-d" type="number" class="math-input" disabled>`;
+                    },
+                    active: ['in-n'], check: () => getNum('in-n') === p.resN, fill: {'in-n': p.resN}
+                });
+                steps.push({
+                    text: "Multiplica los Denominadores DE FRENTE.",
+                    hl: ['orig-d1', 'orig-d2'], hlClass: 'hl-blue',
+                    active: ['in-d'], check: () => getNum('in-d') === p.resD, fill: {'in-d': p.resD}
+                });
+            }
+            else if (s === 4) {
+                // División
+                steps.push({
+                    text: "Multiplica en CRUZ: Numerador 1 × Denominador 2 (va ARRIBA). Respeta el signo.",
+                    hl: ['orig-n1', 'orig-d2'], hlClass: 'hl-orange',
+                    html: baseWorkspace,
+                    initDOM: () => { 
+                        document.getElementById('ws-top-row').innerHTML = `<input id="in-n" type="number" class="math-input">`;
+                        document.getElementById('ws-bot-row').innerHTML = `<input id="in-d" type="number" class="math-input" disabled>`;
+                    },
+                    active: ['in-n'], check: () => getNum('in-n') === p.crossN, fill: {'in-n': p.crossN}
+                });
+                
+                steps.push({
+                    text: "Multiplica en CRUZ: Denominador 1 × Numerador 2 (va ABAJO). Respeta el signo.",
+                    hl: ['orig-d1', 'orig-n2'], hlClass: 'hl-purple',
+                    active: ['in-d'], check: () => getNum('in-d') === p.crossD, fill: {'in-d': p.crossD}
+                });
+
+                if (p.needsSignNormalization) {
+                    steps.push({
+                        text: p.crossN < 0 ? "¡Ambos son negativos! Aplica la ley de signos (menos por menos = más)." : "El denominador es negativo. Aplica la ley de signos para subir el negativo al numerador.",
+                        hl: ['in-n', 'in-d'], hlClass: 'hl-blue',
+                        html: `
+                            <div class="flex items-center gap-2 mt-4 animate-fade-in">
+                                <span class="math-op-text text-slate-400">=</span>
+                                <div class="flex flex-col items-center gap-1">
+                                    <input id="norm-n" type="number" class="math-input border-b-2 border-black rounded-b-none pb-1">
+                                    <input id="norm-d" type="number" class="math-input border-t-2 border-black rounded-t-none pt-1">
+                                </div>
+                            </div>`,
+                        active: ['norm-n', 'norm-d'],
+                        check: () => getNum('norm-n') === p.resN && getNum('norm-d') === p.resD,
+                        fill: { 'norm-n': p.resN, 'norm-d': p.resD }
+                    });
+                }
+            }
+
+            return steps;
+        }
+
+        function renderProblem() {
+            const p = appState.problem;
+            const canvas = document.getElementById('problem-canvas');
+            
+            // Formateo visual (poner paréntesis a negativos si es fracción 2)
+            const f1HTML = `
+                <div class="fraction">
+                    <span id="orig-n1" class="num transition">${p.n1}</span>
+                    <span id="orig-d1" class="den transition">${p.d1}</span>
+                </div>`;
+            
+            const needsParen = p.n2 < 0;
+            const f2HTML = `
+                ${needsParen ? '<span class="paren">(</span>' : ''}
+                <div class="fraction">
+                    <span id="orig-n2" class="num transition">${p.n2}</span>
+                    <span id="orig-d2" class="den transition">${p.d2}</span>
+                </div>
+                ${needsParen ? '<span class="paren">)</span>' : ''}
+            `;
+
+            let html = `
+            <div class="bg-indigo-50 border-2 border-indigo-100 rounded-3xl p-6 w-full shadow-sm text-center flex items-center justify-center">
+                ${f1HTML}
+                <span id="orig-op" class="math-op-text bg-white shadow-sm border border-slate-100">${p.op}</span>
+                ${f2HTML}
+            </div>
+            <div id="workspace-container" class="w-full flex flex-col items-center"></div>
+            `;
+            
+            canvas.innerHTML = html;
+            
+            if(appState.currentMode === 'help') {
+                document.getElementById('instruction-box').classList.remove('hidden');
+                document.getElementById('btn-check-float').classList.remove('hidden');
+                applyHelpStep();
+            } else {
+                document.getElementById('instruction-box').classList.add('hidden');
+                document.getElementById('btn-check-float').classList.remove('hidden');
+                
+                // Expert Workspace
+                document.getElementById('workspace-container').innerHTML = `
+                    <div class="flex items-center gap-3 mt-6 bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 w-full justify-center">
+                        <span class="math-op-text text-slate-500">=</span>
+                        <div class="flex flex-col items-center gap-1">
+                            <input id="exp-n" type="number" class="math-input border-b-2 border-black rounded-b-none pb-1 h-14 text-2xl w-24">
+                            <input id="exp-d" type="number" class="math-input border-t-2 border-black rounded-t-none pt-1 h-14 text-2xl w-24">
+                        </div>
+                    </div>`;
+                document.getElementById('exp-n').focus();
+            }
+        }
+
+        function applyHelpStep() {
+            const p = appState.problem;
+            const step = p.steps[p.currentStep];
+            
+            // Si el paso tiene HTML propio, lo inyectamos (ej. nuevo bloque de inputs)
+            if(step.html) {
+                document.getElementById('workspace-container').insertAdjacentHTML('beforeend', step.html);
+                if(step.initDOM) step.initDOM();
+            }
+
+            document.getElementById('instruction-text').innerText = step.text;
+
+            // Limpiar Highlights previos
+            document.querySelectorAll('.hl-active').forEach(el => {
+                el.classList.remove('hl-active', 'hl-orange', 'hl-blue', 'hl-green', 'hl-purple');
+            });
+
+            // Deshabilitar todos los inputs primero
+            document.querySelectorAll('.math-input').forEach(el => {
+                el.disabled = true; el.removeAttribute('data-active-step');
+            });
+
+            // Aplicar Highlight actual
+            step.hl.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.classList.add('hl-active', step.hlClass);
+                    // Scroll suave hacia la operación si es celular
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            });
+
+            // Habilitar Inputs del paso
+            let firstInput = null;
+            step.active.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) { el.disabled = false; el.setAttribute('data-active-step', 'true'); if(!firstInput) firstInput = el; }
+            });
+            
+            if(firstInput) setTimeout(() => firstInput.focus(), 100);
+        }
+
+        function checkAnswer() {
+            const m = appState.currentMode;
+            const p = appState.problem;
+            let isCorrect = false;
+
+            if (m === 'help') {
+                const step = p.steps[p.currentStep];
+                let allFilled = true;
+                step.active.forEach(id => { 
+                    if(id.includes('op') && getVal(id) === '?') allFilled = false;
+                    else if(getNum(id) === null) allFilled = false; 
+                });
+                if(!allFilled) { 
+                    document.getElementById('error-hint').innerText = "Completa todas las casillas activas primero.";
+                    showModal('modal-error'); return; 
+                }
+                
+                isCorrect = step.check();
+            } else {
+                // Expert
+                const userN = getNum('exp-n'); const userD = getNum('exp-d');
+                if(userN === null || userD === null) { alert("Ingresa numerador y denominador."); return; }
+                
+                // Validación por multiplicación cruzada para aceptar fracciones equivalentes
+                isCorrect = (userN * p.resD === userD * p.resN) && (userD > 0);
+            }
+
+            if(isCorrect) {
+                appState.failsOnCurrentStep = 0; playSound('correct');
+                document.querySelectorAll('[data-active-step="true"]').forEach(el => el.classList.add('success'));
+                
+                if(m === 'help') {
+                    document.getElementById('success-msg').innerText = "¡Paso correcto! Muy bien analizado.";
+                    if(p.currentStep === p.steps.length - 1) updateStats(true); 
+                } else {
+                    document.getElementById('success-msg').innerText = "¡Resultado Perfecto!";
+                    updateStats(true);
+                }
+                showModal('modal-success');
+            } else {
+                appState.failsOnCurrentStep++; playSound('incorrect');
+                document.querySelectorAll('[data-active-step="true"]').forEach(el => {
+                    el.classList.add('error'); setTimeout(() => el.classList.remove('error'), 500);
+                });
+                
+                if(m === 'expert' || (m === 'help' && p.currentStep === p.steps.length - 1)) updateStats(false); 
+                
+                let hint = m === 'help' ? "Revisa bien los números resaltados en la operación." : "Revisa la ley de signos y tus cálculos.";
+                document.getElementById('error-hint').innerText = hint;
+                
+                // Mostrar ayuda si falla 3 veces
+                document.getElementById('btn-show-how').style.display = (appState.failsOnCurrentStep >= 3 && m === 'help') ? 'flex' : 'none';
+                showModal('modal-error');
+            }
+        }
+
+        document.getElementById('btn-check').addEventListener('click', checkAnswer);
+        document.getElementById('btn-check-float').addEventListener('click', checkAnswer);
+
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            document.querySelectorAll('[data-active-step="true"]').forEach(el => {
+                if(el.tagName === 'SELECT') el.value = "?"; else el.value = '';
+                el.classList.remove('error', 'success');
+            });
+        });
+
+        // Controles de Modales
+        function showModal(id) {
+            document.getElementById('btn-check-float').classList.add('hidden'); 
+            overlay.classList.remove('hidden-view');
+            document.getElementById(id).classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById(id).classList.remove('scale-90', 'opacity-0');
+                document.getElementById(id).classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            el.classList.remove('scale-100', 'opacity-100'); el.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                el.classList.add('hidden');
+                let openModals = false;
+                document.querySelectorAll('#overlay > div').forEach(m => { if (!m.classList.contains('hidden') && m.id !== id) openModals = true; });
+                if(!openModals) {
+                    overlay.classList.add('hidden-view');
+                    if(appState.currentSection !== null) document.getElementById('btn-check-float').classList.remove('hidden');
+                }
+            }, 300);
+        }
+
+        function updateStats(isRight) {
+            if(isRight) { stats.correct++; document.getElementById('tb-correct').innerText = stats.correct; }
+            else { stats.incorrect++; document.getElementById('tb-incorrect').innerText = stats.incorrect; }
+        }
+
+        document.getElementById('btn-retry').addEventListener('click', () => {
+            closeModal('modal-error');
+            setTimeout(() => { const first = document.querySelector('[data-active-step="true"]'); if(first) first.focus(); }, 300);
+        });
+
+        document.getElementById('btn-next-step').addEventListener('click', () => {
+            closeModal('modal-success');
+            const p = appState.problem; const m = appState.currentMode;
+            if (m === 'help' && p.currentStep < p.steps.length - 1) {
+                // Quitar inputs viejos de tabulacion
+                document.querySelectorAll('[data-active-step="true"]').forEach(el => el.disabled = true);
+                p.currentStep++; 
+                setTimeout(applyHelpStep, 300);
+            } else {
+                setTimeout(advanceProgress, 300);
+            }
+        });
+
+        document.getElementById('btn-next-checkpoint').addEventListener('click', () => {
+            closeModal('modal-checkpoint'); setTimeout(generateNextProblem, 300);
+        });
+
+        document.getElementById('btn-show-how').addEventListener('click', () => {
+            closeModal('modal-error');
+            const p = appState.problem; const step = p.steps[p.currentStep];
+            // Auto completar
+            for (const [id, value] of Object.entries(step.fill)) {
+                const el = document.getElementById(id);
+                if(el) { el.value = value; el.classList.add('success'); }
+            }
+            appState.failsOnCurrentStep = 0;
+            // Esperar un momento para que vea la respuesta y lanzar siguiente problema
+            setTimeout(() => {
+                // No sumamos progreso porque se lo mostramos
+                generateNextProblem();
+            }, 2500); 
+        });
+
+    </script>
+</body>
+</html>
