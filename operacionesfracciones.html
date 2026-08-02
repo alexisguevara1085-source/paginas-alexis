@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fracciones Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --bg-color: #F8FAFC;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #F8FAFC;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TAMAÑOS PARA MEJOR AJUSTE VISUAL Y CASILLAS MÁS ANCHAS */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0 0.2rem;
+            color: #1E293B;
+        }
+        .frac .num {
+            border-bottom: 3px solid #1E293B;
+            padding: 0.15rem 0.4rem;
+            min-width: 2.5rem; 
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 0.3rem 0.3rem 0 0;
+        }
+        .frac .den {
+            padding: 0.15rem 0.4rem;
+            min-width: 2.5rem; 
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 0 0 0.3rem 0.3rem;
+        }
+        
+        .operator {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0 0.3rem;
+            color: #475569;
+            transition: all 0.3s ease;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Cajas de respuesta MÁS ANCHAS horizontalmente */
+        .math-input {
+            width: 4.2rem; /* Aumentado considerablemente */
+            height: 2.8rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            border: 2px solid #CBD5E1;
+            border-radius: 0.6rem;
+            background-color: white;
+            transition: all 0.2s;
+            outline: none;
+            color: #1E293B;
+            padding: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .math-input:disabled {
+            background-color: #F1F5F9;
+            color: #94A3B8;
+            border-color: #E2E8F0;
+            opacity: 0.6;
+        }
+        .math-input:focus:not(:disabled) {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+            transform: scale(1.05);
+        }
+        .math-input.error {
+            border-color: var(--danger) !important;
+            background-color: #FEF2F2 !important;
+            color: var(--danger);
+            animation: shake 0.4s;
+        }
+        .math-input.success {
+            border-color: var(--secondary) !important;
+            background-color: #F0FDF4 !important;
+            color: var(--secondary);
+        }
+
+        /* Select de Operador específico */
+        select.math-input {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            text-align: center;
+            width: 3.5rem; /* Un poco menos ancho que los inputs numéricos */
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #F8FAFC;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TAMAÑOS REDUCIDOS PARA MEJOR AJUSTE VISUAL (25% menores) */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            font-size: 1.25rem; /* Reducido de 1.5rem */
+            font-weight: 800;
+            margin: 0 0.2rem;
+            color: #1E293B;
+        }
+        .frac .num {
+            border-bottom: 3px solid #1E293B;
+            padding: 0.15rem 0.4rem;
+            min-width: 2rem; /* Reducido */
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 0.3rem 0.3rem 0 0;
+        }
+        .frac .den {
+            padding: 0.15rem 0.4rem;
+            min-width: 2rem; /* Reducido */
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 0 0 0.3rem 0.3rem;
+        }
+        
+        .operator {
+            font-size: 1.5rem; /* Reducido */
+            font-weight: 800;
+            margin: 0 0.3rem;
+            color: #475569;
+            transition: all 0.3s ease;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Cajas de respuesta más compactas y redondeadas */
+        .math-input {
+            width: 2.8rem; /* Reducido */
+            height: 2.8rem; /* Reducido */
+            text-align: center;
+            font-size: 1.25rem; /* Reducido */
+            font-weight: 800;
+            border: 2px solid #CBD5E1;
+            border-radius: 0.6rem;
+            background-color: white;
+            transition: all 0.2s;
+            outline: none;
+            color: #1E293B;
+            padding: 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .math-input:disabled {
+            background-color: #F1F5F9;
+            color: #94A3B8;
+            border-color: #E2E8F0;
+            opacity: 0.6;
+        }
+        .math-input:focus:not(:disabled) {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+            transform: scale(1.05);
+        }
+        .math-input.error {
+            border-color: var(--danger) !important;
+            background-color: #FEF2F2 !important;
+            color: var(--danger);
+            animation: shake 0.4s;
+        }
+        .math-input.success {
+            border-color: var(--secondary) !important;
+            background-color: #F0FDF4 !important;
+            color: var(--secondary);
+        }
+
+        /* Select de Operador específico */
+        select.math-input {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* CLASES DE RESALTADO VISUAL (OPACOS PERO VISIBLES) */
+        .hl-orange { 
+            background-color: #F97316 !important; 
+            color: white !important; 
+            box-shadow: 0 3px 0 #C2410C;
+            transform: scale(1.1);
+            border-bottom-color: transparent !important;
+        }
+        .hl-green { 
+            background-color: #10B981 !important; 
+            color: white !important; 
+            box-shadow: 0 3px 0 #047857;
+            transform: scale(1.1);
+            border-bottom-color: transparent !important;
+        }
+        .hl-blue { 
+            background-color: #3B82F6 !important; 
+            color: white !important; 
+            box-shadow: 0 3px 0 #1D4ED8;
+            transform: scale(1.1);
+            border-bottom-color: transparent !important;
+        }
+        .hl-op {
+            background-color: #FCD34D !important;
+            color: #92400E !important;
+            box-shadow: 0 3px 0 #D97706;
+            transform: scale(1.1);
+        }
+
+        /* Línea de fracción grande */
+        .frac-line-large {
+            width: 100%;
+            height: 4px;
+            background-color: #1E293B;
+            border-radius: 2px;
+            margin: 0.5rem 0;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-pop { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        .hidden-view { display: none !important; }
+        .btn-press:active { transform: scale(0.95); }
+        
+        /* Barra de Progreso Mejorada */
+        .progress-track {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 10px;
+            margin-top: 10px;
+        }
+        .progress-line-bg {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            right: 10px;
+            height: 6px;
+            background-color: #E2E8F0;
+            border-radius: 3px;
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+        .progress-line-fill {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            height: 6px;
+            background-color: var(--primary);
+            border-radius: 3px;
+            z-index: 2;
+            transform: translateY(-50%);
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+        .progress-node {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #CBD5E1;
+            z-index: 3;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .progress-node.active { background-color: var(--primary); box-shadow: 0 0 0 4px rgba(79,70,229,0.2); }
+        .progress-node.checkpoint {
+            width: 24px;
+            height: 24px;
+            background-color: #F1F5F9;
+            border: 3px solid #CBD5E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-node.checkpoint.active {
+            background-color: #FBBF24;
+            border-color: #F59E0B;
+            box-shadow: 0 0 0 4px rgba(251,191,36,0.3);
+            animation: popIn 0.5s ease forwards;
+        }
+
+        /* Flecha flotante */
+        .float-check-btn {
+            position: fixed;
+            right: 15px;
+            bottom: 120px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #FACC15; /* yellow-400 */
+            color: #713F12; /* yellow-900 */
+            box-shadow: 0 4px 15px rgba(250,204,21,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            z-index: 45;
+            transition: transform 0.2s, background-color 0.2s;
+            animation: bounceSoft 2s infinite;
+        }
+        .float-check-btn:active { transform: scale(0.9); }
+        .float-check-btn.hidden { display: none; }
+        
+        @keyframes bounceSoft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div id="app-container">
+        
+        <!-- Barra Superior (Top Bar) -->
+        <header id="top-bar" class="hidden-view bg-white px-4 py-3 shadow-sm sticky top-0 z-40 flex justify-between items-center border-b border-slate-100">
+            <button id="btn-home" class="p-2 rounded-full hover:bg-slate-100 active:bg-slate-200 transition text-slate-500">
+                <i class="ph-fill ph-house text-2xl text-indigo-500"></i>
+            </button>
+            
+            <div class="flex flex-col items-center">
+                <span id="tb-name" class="font-bold text-sm text-slate-700">Estudiante</span>
+                <span id="tb-grade" class="text-xs text-slate-400">Grado</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-lg text-sm border border-emerald-100">
+                    <i class="ph-bold ph-check"></i> <span id="tb-correct">0</span>
+                </div>
+                <div class="flex items-center gap-1 text-red-600 font-bold bg-red-50 px-2 py-1 rounded-lg text-sm border border-red-100">
+                    <i class="ph-bold ph-x"></i> <span id="tb-incorrect">0</span>
+                </div>
+                <div class="flex items-center gap-1 text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-lg min-w-[55px] justify-center text-sm border border-indigo-100">
+                    <i class="ph-bold ph-timer"></i> <span id="tb-time">00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-grow flex flex-col relative w-full h-full overflow-y-auto pb-6">
+            
+            <!-- Vista: Inicio / Registro -->
+            <section id="view-welcome" class="flex-grow flex flex-col items-center justify-center p-6 animate-fade-in">
+                <div class="w-24 h-24 bg-indigo-100 rounded-3xl flex items-center justify-center mb-6 shadow-inner relative overflow-hidden">
+                    <div class="absolute inset-0 bg-indigo-500 opacity-10 rotate-45 transform scale-150"></div>
+                    <i class="ph-fill ph-student text-5xl text-indigo-600 relative z-10"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-center mb-2 text-slate-800 tracking-tight">Fracciones<br><span class="text-indigo-600">Master</span></h1>
+                <p class="text-slate-500 text-center mb-8 font-medium">Aprende matemáticas paso a paso.</p>
+                
+                <div class="w-full max-w-sm space-y-4 bg-white p-6 rounded-3xl shadow-lg border border-slate-100">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">Tu Nombre</label>
+                        <input type="text" id="input-name" placeholder="Ej. Juan Pérez" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none transition font-semibold text-slate-700">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">Tu Grado</label>
+                        <select id="input-grade" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none transition font-semibold text-slate-700 bg-white">
+                            <option value="" disabled selected>Selecciona tu grado...</option>
+                            <option value="6°">Grado 6°</option>
+                            <option value="7°">Grado 7°</option>
+                            <option value="8°">Grado 8°</option>
+                            <option value="9°">Grado 9°</option>
+                            <option value="10°">Grado 10°</option>
+                            <option value="11°">Grado 11°</option>
+                        </select>
+                    </div>
+                    <button id="btn-start" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(67,56,202)] active:shadow-none active:translate-y-1 transition text-lg mt-4 flex justify-center items-center gap-2">
+                        ¡Comenzar Aventura! <i class="ph-bold ph-rocket-launch"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-menu" class="hidden-view flex-grow flex flex-col p-5 animate-fade-in bg-slate-50">
+                <h2 class="text-2xl font-bold mb-6 mt-2 text-slate-800 tracking-tight">¿Qué practicaremos hoy?</h2>
+                
+                <div class="space-y-4">
+                    <button onclick="startLesson(1)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-blue-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-110 transition">
+                                <i class="ph-bold ph-plus-minus text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">Sección 1</span>
+                                <h3 class="font-bold text-[1.1rem] text-slate-800 leading-tight">Suma y Resta</h3>
+                                <p class="text-xs text-slate-500 font-medium">Igual denominador</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(2)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-emerald-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition">
+                                <i class="ph-bold ph-smiley text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-emerald-500 uppercase tracking-wider">Sección 2</span>
+                                <h3 class="font-bold text-[1.1rem] text-slate-800 leading-tight">Carita Feliz</h3>
+                                <p class="text-xs text-slate-500 font-medium">Diferente denominador</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(3)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-purple-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 group-hover:scale-110 transition">
+                                <i class="ph-bold ph-x text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-purple-500 uppercase tracking-wider">Sección 3</span>
+                                <h3 class="font-bold text-[1.1rem] text-slate-800 leading-tight">Multiplicación</h3>
+                                <p class="text-xs text-slate-500 font-medium">Directo (Num × Num)</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(4)" class="w-full bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between hover:border-amber-400 hover:shadow-md transition text-left btn-press group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 group-hover:scale-110 transition">
+                                <i class="ph-bold ph-divide text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-amber-500 uppercase tracking-wider">Sección 4</span>
+                                <h3 class="font-bold text-[1.1rem] text-slate-800 leading-tight">División</h3>
+                                <p class="text-xs text-slate-500 font-medium">Multiplicación en cruz</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <button onclick="startLesson(5)" class="w-full bg-slate-800 p-5 rounded-2xl shadow-md flex items-center justify-between hover:bg-slate-700 transition text-left btn-press group relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full transform translate-x-8 -translate-y-8"></div>
+                        <div class="flex items-center gap-4 relative z-10">
+                            <div class="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center text-yellow-400 group-hover:scale-110 transition shadow-inner">
+                                <i class="ph-fill ph-crown text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Sección 5 (Reto)</span>
+                                <h3 class="font-bold text-[1.1rem] text-white leading-tight">Operaciones Combinadas</h3>
+                                <p class="text-xs text-slate-300 font-medium">Jerarquía total</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-lesson" class="hidden-view flex-grow flex flex-col p-4 animate-fade-in relative bg-white">
+                
+                <!-- Barra de Progreso Mejorada -->
+                <div class="w-full mb-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <span id="lesson-title" class="font-bold text-slate-700 text-sm">Lección</span>
+                        <span id="lesson-mode-badge" class="text-[10px] font-bold px-2 py-1 rounded bg-indigo-100 text-indigo-700 uppercase tracking-wide">Modo Ayuda</span>
+                    </div>
+                    <div class="progress-track" id="progress-container">
+                        <div class="progress-line-bg"></div>
+                        <div class="progress-line-fill" id="progress-fill"></div>
+                        <!-- Nodos generados por JS -->
+                    </div>
+                </div>
+
+                <!-- Caja de Instrucciones Dinámica -->
+                <div id="instruction-box" class="bg-indigo-50 border border-indigo-100 p-3 rounded-xl mb-4 shadow-sm hidden transition-all duration-300">
+                    <div class="flex items-start gap-3">
+                        <i class="ph-fill ph-info text-indigo-500 text-xl flex-shrink-0 mt-0.5"></i>
+                        <p id="instruction-text" class="text-indigo-800 font-bold text-sm leading-tight"></p>
+                    </div>
+                </div>
+
+                <!-- Área del Problema Principal -->
+                <div class="flex-grow flex flex-col items-center justify-start w-full max-w-sm mx-auto relative pr-4">
+                    
+                    <div id="problem-canvas" class="w-full flex flex-col items-center">
+                        <!-- El HTML del problema se inyecta aquí -->
+                    </div>
+
+                </div>
+
+                <!-- Botón Flotante Lateral -->
+                <button id="btn-check-float" class="float-check-btn hidden">
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+
+                <!-- Controles Inferiores -->
+                <div class="w-full mt-auto pt-4 space-y-3 bg-white">
+                    <button id="btn-check" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(5,150,105)] active:shadow-none active:translate-y-1 transition text-lg flex justify-center items-center gap-2">
+                        <i class="ph-bold ph-check-circle text-xl"></i> COMPROBAR
+                    </button>
+                    <button id="btn-clear" class="w-full bg-white hover:bg-slate-50 text-slate-500 font-bold py-3 rounded-xl border-2 border-slate-200 transition text-sm flex justify-center items-center gap-2 btn-press">
+                        <i class="ph-bold ph-eraser"></i> Borrar actual
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-completion" class="hidden-view flex-grow flex flex-col items-center justify-center p-6 animate-fade-in bg-slate-50">
+                <div class="w-full max-w-sm bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden text-center p-8">
+                    <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pop shadow-inner">
+                        <i class="ph-fill ph-trophy text-5xl text-yellow-500"></i>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-slate-800 mb-2 tracking-tight">¡Misión Cumplida!</h2>
+                    <p class="text-slate-500 mb-6 font-semibold" id="completion-message">Excelente trabajo.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100">
+                            <i class="ph-fill ph-clock text-indigo-400 text-2xl mb-1"></i>
+                            <span class="block text-[10px] text-indigo-500 uppercase font-bold tracking-wider">Tiempo</span>
+                            <span class="text-xl font-bold text-indigo-700" id="comp-time">00:00</span>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                            <i class="ph-fill ph-check-circle text-emerald-400 text-2xl mb-1"></i>
+                            <span class="block text-[10px] text-emerald-500 uppercase font-bold tracking-wider">Aciertos</span>
+                            <span class="text-xl font-bold text-emerald-700" id="comp-correct">12</span>
+                        </div>
+                    </div>
+
+                    <button onclick="goHome()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(67,56,202)] active:shadow-none active:translate-y-1 transition text-lg">
+                        Continuar
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div id="overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden-view flex items-center justify-center p-4">
+            
+            <!-- Modal Success -->
+            <div id="modal-success" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden shadow-2xl">
+                <div class="bg-emerald-500 p-6 flex flex-col items-center">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 animate-pop shadow-md">
+                        <i class="ph-bold ph-check text-4xl text-emerald-500"></i>
+                    </div>
+                    <h3 class="text-white text-2xl font-extrabold tracking-tight">¡Excelente!</h3>
+                </div>
+                <div class="p-6 text-center">
+                    <p id="success-msg" class="text-slate-600 text-lg font-bold mb-6">Has resuelto correctamente el paso.</p>
+                    <button id="btn-next-step" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(5,150,105)] active:shadow-none active:translate-y-1 transition text-lg">
+                        Continuar <i class="ph-bold ph-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Error -->
+            <div id="modal-error" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden shadow-2xl">
+                <div class="bg-red-500 p-6 flex flex-col items-center">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 animate-pop shadow-md">
+                        <i class="ph-bold ph-x text-4xl text-red-500"></i>
+                    </div>
+                    <h3 class="text-white text-2xl font-extrabold tracking-tight">Casi lo logras</h3>
+                </div>
+                <div class="p-6 text-center">
+                    <p id="error-hint" class="text-red-600 text-sm font-bold mb-6 bg-red-50 border border-red-100 p-4 rounded-xl">Revisa la multiplicación.</p>
+                    
+                    <button id="btn-retry" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl shadow-[0_4px_0_rgb(220,38,38)] active:shadow-none active:translate-y-1 transition text-lg mb-3">
+                        Intentar de nuevo
+                    </button>
+                    
+                    <button id="btn-show-how" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl border border-slate-300 transition text-sm hidden flex items-center justify-center gap-2">
+                        <i class="ph-fill ph-lightbulb text-yellow-500 text-lg"></i> Muéstrame cómo hacerlo
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Mode Selection -->
+            <div id="modal-mode" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden p-6 shadow-2xl">
+                <h3 class="text-2xl font-extrabold text-center text-slate-800 mb-2 tracking-tight">Elige tu modo</h3>
+                <p class="text-center text-slate-500 mb-6 font-medium text-sm">¿Cómo quieres practicar esta lección?</p>
+                
+                <div class="space-y-4">
+                    <button onclick="selectMode('help')" class="w-full border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 bg-white p-4 rounded-2xl flex items-center text-left transition group shadow-sm">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mr-4 group-hover:scale-110 transition">
+                            <i class="ph-fill ph-lifebuoy text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-indigo-900 text-lg">Modo Ayuda</h4>
+                            <p class="text-xs text-indigo-600 font-medium">Guiado paso a paso</p>
+                        </div>
+                    </button>
+                    
+                    <button onclick="selectMode('expert')" class="w-full border-2 border-slate-200 hover:border-slate-500 hover:bg-slate-50 bg-white p-4 rounded-2xl flex items-center text-left transition group shadow-sm">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 mr-4 group-hover:scale-110 transition">
+                            <i class="ph-fill ph-rocket-launch text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-lg">Modo Experto</h4>
+                            <p class="text-xs text-slate-500 font-medium">Solo tú y el reto</p>
+                        </div>
+                    </button>
+                </div>
+                <button onclick="closeModal('modal-mode')" class="w-full mt-4 py-3 text-slate-400 font-bold hover:text-slate-600 transition">Cancelar</button>
+            </div>
+
+            <!-- Modal Checkpoint (Progreso y Motivación) -->
+            <div id="modal-checkpoint" class="bg-white rounded-3xl w-full max-w-sm overflow-hidden transform scale-90 opacity-0 transition-all duration-300 hidden shadow-2xl relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-yellow-300 to-orange-400 opacity-20"></div>
+                <div class="p-6 flex flex-col items-center relative z-10 text-center">
+                    <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4 animate-pop shadow-xl border-4 border-yellow-400">
+                        <i class="ph-fill ph-rocket-launch text-5xl text-yellow-500"></i>
+                    </div>
+                    <h3 class="text-slate-800 text-2xl font-extrabold tracking-tight mb-2">¡Increíble!</h3>
+                    <p id="checkpoint-msg" class="text-slate-600 text-lg font-bold mb-6">Vamos, sigue así.</p>
+                    <button id="btn-next-checkpoint" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-extrabold py-4 rounded-xl shadow-[0_4px_0_rgb(202,138,4)] active:shadow-none active:translate-y-1 transition text-lg">
+                        Continuar <i class="ph-bold ph-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let synth = null;
+        let user = { name: '', grade: '' };
+        let stats = { correct: 0, incorrect: 0, timeSeconds: 0, timerInterval: null };
+        let appState = {
+            currentSection: null,
+            currentMode: null,
+            progress: 0,
+            targetProgress: 12,
+            problem: null, // Data of the current problem
+            failsOnCurrentStep: 0
+        };
+
+        const views = {
+            welcome: document.getElementById('view-welcome'),
+            menu: document.getElementById('view-menu'),
+            lesson: document.getElementById('view-lesson'),
+            completion: document.getElementById('view-completion')
+        };
+        const topBar = document.getElementById('top-bar');
+
+        // Utils
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const gcd = (a, b) => b === 0 ? Math.abs(a) : gcd(b, a % b);
+        const val = (id) => {
+            const el = document.getElementById(id);
+            if(!el) return null;
+            if(el.tagName === 'SELECT') return el.value;
+            if(el.value === '') return null;
+            return parseInt(el.value);
+        };
+
+        // Navigation
+        document.getElementById('btn-start').addEventListener('click', async () => {
+            const name = document.getElementById('input-name').value.trim();
+            const grade = document.getElementById('input-grade').value;
+            if(!name || !grade) { alert("Por favor ingresa tu nombre y selecciona un grado."); return; }
+            
+            // Inicializar Audio
+            if(!synth) {
+                await Tone.start();
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -8; // Bajar un poco el volumen
+            }
+
+            user.name = name;
+            user.grade = grade;
+            document.getElementById('tb-name').innerText = name;
+            document.getElementById('tb-grade').innerText = grade;
+            showView('menu');
+        });
+
+        // FIX: Regresar a casa de manera directa sin confirmaciones que bloqueen
+        document.getElementById('btn-home').addEventListener('click', () => {
+            goHome();
+        });
+
+        function playSound(type) {
+            if(!synth) return;
+            try {
+                if(type === 'correct') {
+                    synth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
+                } else if (type === 'incorrect') {
+                    synth.triggerAttackRelease(["C4", "C4"], "8n");
+                } else if (type === 'checkpoint') {
+                    synth.triggerAttackRelease(["G4", "C5", "E5", "G5", "C6"], "4n");
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease(["C5", "D5", "E5", "F5", "G5", "C6"], "2n");
+                }
+            } catch(e) { console.error("Audio error", e); }
+        }
+
+        function goHome() {
+            // Ocultar forzosamente cualquier modal y overlay
+            document.getElementById('overlay').classList.add('hidden-view');
+            document.querySelectorAll('#overlay > div').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('scale-100', 'opacity-100');
+                el.classList.add('scale-90', 'opacity-0');
+            });
+            document.getElementById('btn-check-float').classList.add('hidden');
+
+            appState.currentSection = null;
+            appState.currentMode = null;
+            appState.progress = 0;
+            if(stats.timerInterval) clearInterval(stats.timerInterval);
+            stats.timerInterval = null;
+            stats.timeSeconds = 0;
+            document.getElementById('tb-time').innerText = "00:00";
+            document.getElementById('tb-correct').innerText = "0";
+            document.getElementById('tb-incorrect').innerText = "0";
+            stats.correct = 0;
+            stats.incorrect = 0;
+            showView('menu');
+        }
+
+        function showView(viewName) {
+            Object.values(views).forEach(v => v.classList.add('hidden-view'));
+            views[viewName].classList.remove('hidden-view');
+            topBar.classList.toggle('hidden-view', viewName === 'welcome');
+        }
+
+        // Timer and Stats
+        function startTimer() {
+            if(stats.timerInterval) clearInterval(stats.timerInterval);
+            stats.timerInterval = setInterval(() => {
+                stats.timeSeconds++;
+                const m = Math.floor(stats.timeSeconds / 60).toString().padStart(2, '0');
+                const s = (stats.timeSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('tb-time').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function updateStats(isCorrect) {
+            if(isCorrect) {
+                stats.correct++;
+                document.getElementById('tb-correct').innerText = stats.correct;
+            } else {
+                stats.incorrect++;
+                document.getElementById('tb-incorrect').innerText = stats.incorrect;
+            }
+        }
+
+        // Lesson Initialization
+        let sectionToStart = null;
+        function startLesson(sectionNum) {
+            sectionToStart = sectionNum;
+            showModal('modal-mode');
+        }
+
+        function selectMode(mode) {
+            closeModal('modal-mode');
+            appState.currentSection = sectionToStart;
+            appState.currentMode = mode;
+            appState.progress = 0;
+            stats.correct = 0;
+            stats.incorrect = 0;
+            document.getElementById('tb-correct').innerText = "0";
+            document.getElementById('tb-incorrect').innerText = "0";
+            
+            const titles = ["Suma/Resta Básica", "Suma/Resta (Carita Feliz)", "Multiplicación", "División", "Operaciones Combinadas"];
+            document.getElementById('lesson-title').innerText = titles[sectionToStart - 1];
+            const badge = document.getElementById('lesson-mode-badge');
+            badge.innerText = mode === 'help' ? 'Modo Ayuda' : 'Modo Experto';
+            badge.className = mode === 'help' ? 'text-[10px] font-bold px-2 py-1 rounded bg-indigo-100 text-indigo-700 uppercase tracking-wide' 
+                                              : 'text-[10px] font-bold px-2 py-1 rounded bg-slate-200 text-slate-700 uppercase tracking-wide';
+            
+            buildProgressBar();
+            startTimer();
+            showView('lesson');
+            generateNextProblem();
+        }
+
+        function buildProgressBar() {
+            const container = document.getElementById('progress-container');
+            // Keep the fill line, remove old nodes
+            Array.from(container.children).forEach(c => {
+                if(c.id !== 'progress-fill' && !c.classList.contains('progress-line-bg')) c.remove();
+            });
+            
+            const totalNodes = appState.targetProgress;
+            for(let i=0; i<=totalNodes; i++) {
+                const isCheckpoint = (i > 0 && i % 4 === 0);
+                const dot = document.createElement('div');
+                dot.className = `progress-node ${isCheckpoint ? 'checkpoint' : ''}`;
+                dot.id = `p-node-${i}`;
+                
+                if (isCheckpoint) {
+                    dot.innerHTML = i === totalNodes ? `<i class="ph-fill ph-trophy text-yellow-500 text-[14px]"></i>` 
+                                                     : `<i class="ph-fill ph-star text-yellow-400 text-[12px]"></i>`;
+                }
+                container.appendChild(dot);
+            }
+            updateProgressVisuals();
+        }
+
+        function updateProgressVisuals() {
+            const fill = document.getElementById('progress-fill');
+            const percent = (appState.progress / appState.targetProgress) * 100;
+            fill.style.width = `${percent}%`;
+            
+            for(let i=0; i<=appState.targetProgress; i++) {
+                const dot = document.getElementById(`p-node-${i}`);
+                if(i <= appState.progress) dot.classList.add('active');
+                else dot.classList.remove('active');
+            }
+        }
+
+        function advanceProgress() {
+            appState.progress++;
+            updateProgressVisuals();
+            
+            if(appState.progress === appState.targetProgress) {
+                playSound('finish');
+                finishLesson();
+            } else if (appState.progress % 4 === 0) {
+                // Logro Intermedio (Checkpoint)
+                playSound('checkpoint');
+                const msgs = [
+                    `¡Vamos ${user.name}, sigue así, estás por buen camino!`,
+                    `¡${user.name}, estás a punto de ser un experto en la temática!`,
+                    `¡Increíble ${user.name}, lo estás haciendo de maravilla!`,
+                    `¡No te rindas ${user.name}, falta poco para la victoria!`
+                ];
+                document.getElementById('checkpoint-msg').innerText = msgs[Math.floor(Math.random() * msgs.length)];
+                showModal('modal-checkpoint');
+            } else {
+                generateNextProblem();
+            }
+        }
+
+        function finishLesson() {
+            clearInterval(stats.timerInterval);
+            document.getElementById('comp-time').innerText = document.getElementById('tb-time').innerText;
+            document.getElementById('comp-correct').innerText = stats.correct;
+            
+            const total = stats.correct + stats.incorrect;
+            const percent = total === 0 ? 0 : Math.round((stats.correct / total) * 100);
+            
+            document.getElementById('completion-message').innerText = 
+                percent >= 80 ? "¡Extraordinario! Dominas este tema a la perfección." :
+                percent >= 60 ? "Buen trabajo. Sigue practicando para la perfección." :
+                "Cada error es una oportunidad. ¡Sigue adelante!";
+                
+            showView('completion');
+        }
+
+        function generateNextProblem() {
+            appState.failsOnCurrentStep = 0;
+            let p = {};
+            const s = appState.currentSection;
+            const m = appState.currentMode;
+            const maxVal = s === 5 ? 12 : 10;
+            
+            let effectiveSection = s;
+            if (s === 5) {
+                effectiveSection = rand(1, 4); // En sección 5 elegimos aleatoriamente de la 1 a la 4
+                p.subType = effectiveSection;
+            }
+
+            p.f1 = { n: rand(1, maxVal), d: rand(2, maxVal) };
+            p.f2 = { n: rand(1, maxVal), d: rand(2, maxVal) };
+            p.op = rand(0,1) === 0 ? '+' : '-'; 
+            
+            if(effectiveSection === 1) { // Igual Denom
+                p.f2.d = p.f1.d;
+                if(p.op === '-' && p.f1.n <= p.f2.n) p.f1.n = p.f2.n + rand(1, 5); // Prevent negative
+                p.finalN = p.op === '+' ? p.f1.n + p.f2.n : p.f1.n - p.f2.n;
+                p.finalD = p.f1.d;
+            } 
+            else if(effectiveSection === 2) { // Diff Denom (Carita Feliz)
+                while(p.f1.d === p.f2.d) p.f2.d = rand(2, maxVal);
+                p.cross1 = p.f1.n * p.f2.d;
+                p.cross2 = p.f2.n * p.f1.d;
+                if(p.op === '-' && p.cross1 <= p.cross2) p.op = '+'; // Keep positive
+                p.finalN = p.op === '+' ? p.cross1 + p.cross2 : p.cross1 - p.cross2;
+                p.finalD = p.f1.d * p.f2.d;
+            }
+            else if (effectiveSection === 3) { // Mult
+                p.op = '×';
+                p.finalN = p.f1.n * p.f2.n;
+                p.finalD = p.f1.d * p.f2.d;
+            }
+            else if (effectiveSection === 4) { // Div
+                p.op = '÷';
+                p.finalN = p.f1.n * p.f2.d;
+                p.finalD = p.f1.d * p.f2.n;
+            }
+
+            // Simplification info - SÓLO MITAD O TERCERA
+            p.needsSimplification = false;
+            if (p.finalN % 2 === 0 && p.finalD % 2 === 0) {
+                p.needsSimplification = true;
+                p.simpDivisor = 2;
+                p.simpText = "¡Saca mitad! Divide el número de arriba y el de abajo entre 2.";
+            } else if (p.finalN % 3 === 0 && p.finalD % 3 === 0) {
+                p.needsSimplification = true;
+                p.simpDivisor = 3;
+                p.simpText = "¡Saca tercera! Divide el número de arriba y el de abajo entre 3.";
+            }
+
+            if (p.needsSimplification) {
+                p.simpN = p.finalN / p.simpDivisor;
+                p.simpD = p.finalD / p.simpDivisor;
+            }
+
+            p.currentStep = 0;
+            p.steps = buildHelpSteps(s, p);
+            
+            appState.problem = p;
+            renderProblemDOM(s);
+            
+            if(m === 'help') applyHelpStep();
+            else applyExpertMode();
+        }
+
+        // Generates the pedagogy instructions and validation rules
+        function buildHelpSteps(s, p) {
+            let steps = [];
+            const type = s === 5 ? p.subType : s;
+            
+            if (type === 1) { // Same Denom: SEPARADO EN DOS PASOS
+                steps.push({
+                    text: p.op === '+' ? "Paso 1: Suma los numeradores (los de arriba)." : "Paso 1: Resta los numeradores (los de arriba).",
+                    hl: ['f1-n', 'op-main', 'f2-n'], hlClass: 'hl-blue',
+                    activeInputs: ['in-res-n'],
+                    check: () => val('in-res-n') === p.finalN,
+                    hint: `Solo opera arriba: ${p.f1.n} ${p.op} ${p.f2.n}.`,
+                    fillRule: { 'in-res-n': p.finalN }
+                });
+                steps.push({
+                    text: "Paso 2: Como el denominador es igual, pásalo exactamente igual (el de abajo).",
+                    hl: ['f1-d', 'f2-d'], hlClass: 'hl-orange',
+                    activeInputs: ['in-res-d'],
+                    check: () => val('in-res-d') === p.finalD,
+                    hint: `El número de abajo se mantiene: ${p.f1.d}.`,
+                    fillRule: { 'in-res-d': p.finalD }
+                });
+            }
+            else if (type === 2) { // Carita Feliz
+                steps.push({
+                    text: "Paso 1: Multiplica en cruz (Numerador Izquierdo × Denominador Derecho).",
+                    hl: ['f1-n', 'f2-d'], hlClass: 'hl-orange',
+                    activeInputs: ['in-1'],
+                    check: () => val('in-1') === p.cross1,
+                    hint: `Multiplica ${p.f1.n} × ${p.f2.d}`,
+                    fillRule: { 'in-1': p.cross1 }
+                });
+                steps.push({
+                    text: "Paso 2: Multiplica la otra cruz (Numerador Derecho × Denominador Izquierdo).",
+                    hl: ['f2-n', 'f1-d'], hlClass: 'hl-green',
+                    activeInputs: ['in-2'],
+                    check: () => val('in-2') === p.cross2,
+                    hint: `Multiplica ${p.f2.n} × ${p.f1.d}`,
+                    fillRule: { 'in-2': p.cross2 }
+                });
+                steps.push({
+                    text: "Paso 3: Selecciona la operación que estás realizando.",
+                    hl: ['op-main'], hlClass: 'hl-op',
+                    activeInputs: ['in-op'],
+                    check: () => val('in-op') === p.op,
+                    hint: `Mira el signo central original (${p.op}).`,
+                    fillRule: { 'in-op': p.op }
+                });
+                steps.push({
+                    text: "Paso 4: Multiplica los denominadores (los números de abajo).",
+                    hl: ['f1-d', 'f2-d'], hlClass: 'hl-blue',
+                    activeInputs: ['in-den'],
+                    check: () => val('in-den') === p.finalD,
+                    hint: `Multiplica ${p.f1.d} × ${p.f2.d}`,
+                    fillRule: { 'in-den': p.finalD }
+                });
+                steps.push({
+                    text: "Paso 5: Resuelve la operación final arriba. Abajo pasa el mismo denominador.",
+                    hl: ['box-in-1', 'box-in-op', 'box-in-2', 'box-in-den'], hlClass: 'hl-op', 
+                    activeInputs: ['in-res-n', 'in-res-d'],
+                    check: () => val('in-res-n') === p.finalN && val('in-res-d') === p.finalD,
+                    hint: `Arriba: ${p.cross1} ${p.op} ${p.cross2}. Abajo: ${p.finalD}.`,
+                    fillRule: { 'in-res-n': p.finalN, 'in-res-d': p.finalD }
+                });
+            }
+            else if (type === 3) { // Mult
+                steps.push({
+                    text: "Paso 1: Multiplica Numerador × Numerador (Los de arriba).",
+                    hl: ['f1-n', 'f2-n'], hlClass: 'hl-orange',
+                    activeInputs: ['in-res-n'],
+                    check: () => val('in-res-n') === p.finalN,
+                    hint: `Multiplica ${p.f1.n} × ${p.f2.n}`,
+                    fillRule: { 'in-res-n': p.finalN }
+                });
+                steps.push({
+                    text: "Paso 2: Multiplica Denominador × Denominador (Los de abajo).",
+                    hl: ['f1-d', 'f2-d'], hlClass: 'hl-blue',
+                    activeInputs: ['in-res-d'],
+                    check: () => val('in-res-d') === p.finalD,
+                    hint: `Multiplica ${p.f1.d} × ${p.f2.d}`,
+                    fillRule: { 'in-res-d': p.finalD }
+                });
+            }
+            else if (type === 4) { // Div
+                steps.push({
+                    text: "Paso 1: Multiplica en cruz HACIA ABAJO y ponlo ARRIBA.",
+                    hl: ['f1-n', 'f2-d'], hlClass: 'hl-orange',
+                    activeInputs: ['in-res-n'],
+                    check: () => val('in-res-n') === p.finalN,
+                    hint: `Multiplica ${p.f1.n} × ${p.f2.d}`,
+                    fillRule: { 'in-res-n': p.finalN }
+                });
+                steps.push({
+                    text: "Paso 2: Multiplica en cruz HACIA ARRIBA y ponlo ABAJO.",
+                    hl: ['f1-d', 'f2-n'], hlClass: 'hl-blue',
+                    activeInputs: ['in-res-d'],
+                    check: () => val('in-res-d') === p.finalD,
+                    hint: `Multiplica ${p.f1.d} × ${p.f2.n}`,
+                    fillRule: { 'in-res-d': p.finalD }
+                });
+            }
+            
+            // Add simplification step (aplica para todas incluyendo seccion 5 si es requerida)
+            if (p.needsSimplification) {
+                steps.push({
+                    text: p.simpText, 
+                    hl: ['res-n-box', 'res-d-box'], hlClass: 'hl-green',
+                    activeInputs: ['in-simp-n', 'in-simp-d'],
+                    isSimp: true, 
+                    check: () => val('in-simp-n') === p.simpN && val('in-simp-d') === p.simpD,
+                    hint: `Recuerda dividir ambos números entre ${p.simpDivisor}.`,
+                    fillRule: { 'in-simp-n': p.simpN, 'in-simp-d': p.simpD }
+                });
+            }
+
+            return steps;
+        }
+
+        function renderProblemDOM(s) {
+            const p = appState.problem;
+            const canvas = document.getElementById('problem-canvas');
+            const type = s === 5 ? p.subType : s;
+            
+            let html = '';
+            
+            let workingArea = '';
+            if(type === 2) { // Show middle box for Carita Feliz
+                workingArea = `
+                <div class="bg-white p-4 rounded-2xl shadow-[0_4px_15px_rgb(0,0,0,0.05)] border-2 border-slate-100 flex flex-col items-center mb-6 w-full max-w-[260px]">
+                    <div class="flex items-center justify-center gap-3 w-full">
+                        <input id="in-1" type="number" class="math-input" id="box-in-1" autocomplete="off">
+                        <select id="in-op" class="math-input" id="box-in-op">
+                            <option value="?">?</option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                        </select>
+                        <input id="in-2" type="number" class="math-input" id="box-in-2" autocomplete="off">
+                    </div>
+                    <div class="frac-line-large"></div>
+                    <div class="flex items-center justify-center w-full">
+                        <input id="in-den" type="number" class="math-input" id="box-in-den" autocomplete="off">
+                    </div>
+                </div>`;
+            }
+
+            html = `
+            <!-- S5 Notice if applicable -->
+            ${s === 5 ? '<div class="text-center font-bold text-slate-400 mb-2 text-xs uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">Reto Combinado (Números del 1 al 12)</div>' : ''}
+            
+            <!-- Operación Original -->
+            <div class="flex items-center justify-center gap-3 text-2xl font-bold text-slate-700 mb-6 bg-slate-50 py-3 px-6 rounded-2xl border border-slate-100 w-full max-w-[260px]">
+                <div class="frac"><div id="f1-n" class="num">${p.f1.n}</div><div id="f1-d" class="den">${p.f1.d}</div></div>
+                <div id="op-main" class="operator">${p.op}</div>
+                <div class="frac"><div id="f2-n" class="num">${p.f2.n}</div><div id="f2-d" class="den">${p.f2.d}</div></div>
+                <div class="operator hidden">=</div>
+            </div>
+
+            <!-- Área de Trabajo -->
+            ${workingArea}
+
+            <!-- Área de Resultado Final -->
+            <div class="flex flex-col items-center justify-center gap-2 w-full">
+                <div class="operator text-slate-400">=</div>
+                <div class="flex items-center justify-center gap-4">
+                    <div class="frac" id="res-n-box">
+                        <div class="num"><input id="in-res-n" type="number" class="math-input" autocomplete="off"></div>
+                        <div class="den" id="res-d-box"><input id="in-res-d" type="number" class="math-input" autocomplete="off"></div>
+                    </div>
+                    
+                    <!-- Simplificación (Oculta por defecto) -->
+                    <div id="area-simp" class="hidden items-center gap-4">
+                        <div class="operator text-slate-400">=</div>
+                        <div class="frac">
+                            <div class="num"><input id="in-simp-n" type="number" class="math-input" autocomplete="off"></div>
+                            <div class="den"><input id="in-simp-d" type="number" class="math-input" autocomplete="off"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            
+            canvas.innerHTML = html;
+
+            // Add auto-select behavior
+            document.querySelectorAll('.math-input').forEach(el => {
+                el.addEventListener('focus', function() { this.select(); });
+            });
+        }
+
+        function applyHelpStep() {
+            const p = appState.problem;
+            const step = p.steps[p.currentStep];
+            
+            // Mostrar botón flotante en modo ayuda
+            document.getElementById('btn-check-float').classList.remove('hidden');
+
+            // Update Instruction Box
+            const box = document.getElementById('instruction-box');
+            document.getElementById('instruction-text').innerText = step.text;
+            box.classList.remove('hidden');
+
+            // Reset all highlights
+            document.querySelectorAll('.hl-orange, .hl-green, .hl-blue, .hl-op').forEach(el => {
+                el.classList.remove('hl-orange', 'hl-green', 'hl-blue', 'hl-op');
+            });
+
+            // Disable all inputs and remove attributes
+            document.querySelectorAll('.math-input').forEach(el => {
+                el.disabled = true;
+                el.removeAttribute('data-active-step');
+            });
+
+            // Show simp area if needed
+            if(step.isSimp) {
+                document.getElementById('area-simp').classList.remove('hidden');
+                document.getElementById('area-simp').classList.add('flex');
+            }
+
+            // Apply new highlights
+            step.hl.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add(step.hlClass);
+            });
+
+            // Enable specific inputs
+            let firstInput = null;
+            step.activeInputs.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.disabled = false;
+                    el.setAttribute('data-active-step', 'true');
+                    if(!firstInput) firstInput = el;
+                }
+            });
+            
+            if(firstInput) setTimeout(() => firstInput.focus(), 100);
+        }
+
+        function applyExpertMode() {
+            document.getElementById('instruction-box').classList.add('hidden');
+            const p = appState.problem;
+            
+            // Mostrar botón flotante en modo experto también
+            document.getElementById('btn-check-float').classList.remove('hidden');
+
+            document.querySelectorAll('.math-input').forEach(el => {
+                // If it's the working area, hide it in expert mode for a cleaner look, or just enable all.
+                // We'll just enable the final result inputs.
+                if(el.id.startsWith('in-res-')) {
+                    el.disabled = false;
+                    el.setAttribute('data-active-step', 'true');
+                } else if (el.id.startsWith('in-simp-')) {
+                    if(p.needsSimplification) {
+                        document.getElementById('area-simp').classList.remove('hidden');
+                        document.getElementById('area-simp').classList.add('flex');
+                        el.disabled = false;
+                        el.setAttribute('data-active-step', 'true');
+                    }
+                } else {
+                    // Hide intermediate steps completely in expert mode
+                    const container = el.closest('.bg-white.p-4');
+                    if(container) container.classList.add('hidden');
+                }
+            });
+
+            setTimeout(() => document.getElementById('in-res-n')?.focus(), 100);
+        }
+
+        function checkAnswer() {
+            const m = appState.currentMode;
+            const p = appState.problem;
+            let isCorrect = false;
+            let hint = "";
+
+            if (m === 'help') {
+                const step = p.steps[p.currentStep];
+                
+                // Ensure all active inputs have value
+                let allFilled = true;
+                step.activeInputs.forEach(id => { if(val(id) === null) allFilled = false; });
+                if(!allFilled) { alert("Completa las casillas activas."); return; }
+                
+                isCorrect = step.check();
+                hint = step.hint;
+            } else {
+                // Expert Mode
+                const rn = val('in-res-n');
+                const rd = val('in-res-d');
+                if(rn === null || rd === null) { alert("Completa la respuesta."); return; }
+                
+                if (p.needsSimplification) {
+                    const sn = val('in-simp-n');
+                    const sd = val('in-simp-d');
+                    if(sn === null || sd === null) { alert("Debes simplificar la respuesta."); return; }
+                    
+                    isCorrect = (sn === p.simpN && sd === p.simpD);
+                    if(rn === p.finalN && rd === p.finalD && !isCorrect) hint = "La operación está bien, revisa la simplificación.";
+                    else hint = "Revisa toda la operación.";
+                } else {
+                    isCorrect = (rn === p.finalN && rd === p.finalD);
+                    hint = "Revisa tus cálculos.";
+                }
+            }
+
+            if(isCorrect) {
+                appState.failsOnCurrentStep = 0;
+                playSound('correct');
+                document.querySelectorAll('[data-active-step="true"]').forEach(el => el.classList.add('success'));
+                
+                if(m === 'help') {
+                    document.getElementById('success-msg').innerText = "¡Paso completado correctamente!";
+                    if(p.currentStep === p.steps.length - 1) updateStats(true); // Only count point at the end of the problem
+                } else {
+                    document.getElementById('success-msg').innerText = "¡Operación resuelta perfectamente!";
+                    updateStats(true);
+                }
+                
+                showModalSuccess();
+            } else {
+                appState.failsOnCurrentStep++;
+                playSound('incorrect');
+                document.querySelectorAll('[data-active-step="true"]').forEach(el => {
+                    el.classList.add('error');
+                    setTimeout(() => el.classList.remove('error'), 500);
+                });
+                
+                if(m === 'expert' || (m === 'help' && p.currentStep === p.steps.length - 1)) {
+                    updateStats(false); 
+                }
+                showModalError(hint, appState.failsOnCurrentStep >= 3 && m === 'help');
+            }
+        }
+
+        // Asignar evento de comprobar a AMBOS botones (el grande y el flotante)
+        document.getElementById('btn-check').addEventListener('click', checkAnswer);
+        document.getElementById('btn-check-float').addEventListener('click', checkAnswer);
+
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            document.querySelectorAll('[data-active-step="true"]').forEach(el => {
+                if(el.tagName === 'SELECT') el.value = "?";
+                else el.value = '';
+                el.classList.remove('error', 'success');
+            });
+            const first = document.querySelector('[data-active-step="true"]');
+            if(first) first.focus();
+        });
+
+        // Modals functionality
+        const overlay = document.getElementById('overlay');
+        function showModal(id) {
+            document.getElementById('btn-check-float').classList.add('hidden'); // Ocultar flecha al abrir modal
+            overlay.classList.remove('hidden-view');
+            document.getElementById(id).classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById(id).classList.remove('scale-90', 'opacity-0');
+                document.getElementById(id).classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            el.classList.remove('scale-100', 'opacity-100');
+            el.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                el.classList.add('hidden');
+                
+                // Solo ocultar el overlay si NO hay otros modales abiertos
+                let openModals = false;
+                document.querySelectorAll('#overlay > div').forEach(modal => {
+                    if (!modal.classList.contains('hidden') && modal.id !== id) openModals = true;
+                });
+                
+                if(!openModals) {
+                    overlay.classList.add('hidden-view');
+                    // Restaurar botón flotante si estamos en una lección activa
+                    if(appState.currentSection !== null) {
+                        document.getElementById('btn-check-float').classList.remove('hidden');
+                    }
+                }
+            }, 300);
+        }
+
+        function showModalSuccess() { showModal('modal-success'); }
+        
+        function showModalError(hintText, showHelp) {
+            document.getElementById('error-hint').innerText = hintText;
+            document.getElementById('btn-show-how').style.display = showHelp ? 'flex' : 'none';
+            showModal('modal-error');
+        }
+
+        document.getElementById('btn-retry').addEventListener('click', () => {
+            closeModal('modal-error');
+            setTimeout(() => {
+                const first = document.querySelector('[data-active-step="true"]');
+                if(first) first.focus();
+            }, 300);
+        });
+
+        document.getElementById('btn-next-step').addEventListener('click', () => {
+            closeModal('modal-success');
+            const p = appState.problem;
+            const m = appState.currentMode;
+            
+            if (m === 'help' && p.currentStep < p.steps.length - 1) {
+                p.currentStep++;
+                setTimeout(applyHelpStep, 300);
+            } else {
+                setTimeout(advanceProgress, 300);
+            }
+        });
+
+        // Continuar desde Checkpoint
+        document.getElementById('btn-next-checkpoint').addEventListener('click', () => {
+            closeModal('modal-checkpoint');
+            setTimeout(generateNextProblem, 300);
+        });
+
+        // "Show me how" Logic
+        document.getElementById('btn-show-how').addEventListener('click', () => {
+            closeModal('modal-error');
+            const p = appState.problem;
+            const step = p.steps[p.currentStep];
+            
+            // Auto fill rules
+            for (const [id, value] of Object.entries(step.fillRule)) {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.value = value;
+                    el.classList.add('success');
+                }
+            }
+            
+            appState.failsOnCurrentStep = 0;
+            
+            // Give student time to see the answer, then move to next problem (without point)
+            setTimeout(() => {
+                generateNextProblem();
+            }, 2500);
+        });
+
+    </script>
+</body>
+</html>
