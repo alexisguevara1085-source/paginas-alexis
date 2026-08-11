@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aprende: Teorema de Tales</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8fafc;
+            /* Evita el scroll horizontal en móviles */
+            overflow-x: hidden;
+        }
+
+        /* Ocultar flechas de inputs numéricos */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Animaciones Personalizadas */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            70% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+        .animate-pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .animate-shake { animation: shake 0.3s ease-in-out; }
+
+        /* Estilos de barra de progreso */
+        .progress-dot {
+            transition: all 0.4s ease;
+        }
+        .progress-line {
+            transition: width 0.4s ease;
+        }
+
+        /* Estilo para las cajas de entrada de matemáticas (Tamaños reducidos) */
+        .math-input {
+            width: 2rem;
+            height: 2rem;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #4338ca; /* text-indigo-700 */
+            background-color: #eef2ff; /* bg-indigo-50 */
+            border: 2px solid #c7d2fe; /* border-indigo-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            outline: none;
+            transition: all 0.2s;
+        }
+        .math-input:focus {
+            border-color: #6366f1; /* focus:border-indigo-500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* focus:ring */
+        }
+        @media (min-width: 768px) {
+            .math-input {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.15rem;
+            }
+        }
+        
+        .fraction-line {
+            width: 100%;
+            height: 2px;
+            background-color: #4f46e5;
+            margin: 2px 0;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<!-- Se cambió a min-h-screen para usar el scroll nativo del celular -->
+<body class="text-slate-800 antialiased min-h-screen bg-slate-50 flex flex-col pb-4">
+
+    <div id="welcome-screen" class="fixed inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full animate-pop-in text-center">
+            <div class="bg-indigo-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">¡Hola!</h1>
+            <p class="text-gray-500 mb-8">Vamos a aprender el Teorema de Tales</p>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tu Nombre</label>
+                    <input type="text" id="student-name" placeholder="Ej. Juan Pérez" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-0 outline-none transition-colors text-lg" autocomplete="off">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tu Grado</label>
+                    <select id="student-grade" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-0 outline-none transition-colors text-lg bg-white">
+                        <option value="" disabled selected>Selecciona tu grado</option>
+                        <option value="6°">Grado 6°</option>
+                        <option value="7°">Grado 7°</option>
+                        <option value="8°">Grado 8°</option>
+                        <option value="9°">Grado 9°</option>
+                        <option value="10°">Grado 10°</option>
+                        <option value="11°">Grado 11°</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="app.startApp()" class="mt-8 w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-4 rounded-xl text-xl shadow-lg transform transition hover:-translate-y-1 active:translate-y-0">
+                Comenzar Aventura
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal Adaptable al Scroll Nativo -->
+    <div id="main-app" class="hidden flex-col w-full max-w-2xl mx-auto relative bg-white sm:shadow-2xl sm:rounded-3xl sm:my-4 min-h-screen sm:min-h-[auto]">
+        
+        <!-- Barra Superior Permanente -->
+        <header class="bg-white px-4 py-3 shadow-sm border-b border-gray-100 z-40 sticky top-0 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="app.goHome()" class="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                </button>
+                <div class="leading-tight">
+                    <div id="display-name" class="font-bold text-gray-800 text-sm sm:text-base truncate max-w-[120px] sm:max-w-[200px]">Estudiante</div>
+                    <div id="display-grade" class="text-xs text-indigo-600 font-semibold">Grado</div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-5">
+                <div class="flex flex-col items-center">
+                    <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Tiempo</span>
+                    <span id="display-time" class="font-mono font-bold text-gray-700 text-sm sm:text-base">00:00</span>
+                </div>
+                <div class="flex gap-2">
+                    <div class="bg-green-50 px-2 sm:px-3 py-1 rounded-lg flex items-center gap-1 border border-green-100">
+                        <span class="text-green-500 font-bold">✔</span>
+                        <span id="display-correct" class="font-bold text-green-700">0</span>
+                    </div>
+                    <div class="bg-red-50 px-2 sm:px-3 py-1 rounded-lg flex items-center gap-1 border border-red-100">
+                        <span class="text-red-500 font-bold">✖</span>
+                        <span id="display-incorrect" class="font-bold text-red-700">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main sin overflow interno, permite que toda la página baje -->
+        <main class="flex-1 relative bg-slate-50 w-full pb-28">
+            
+            <div id="menu-view" class="p-4 sm:p-6 pb-12">
+                <div class="mb-6 text-center">
+                    <h2 class="text-2xl font-bold text-gray-800">Elige tu lección</h2>
+                    <p class="text-gray-500 text-sm mt-1">Completa todas las secciones para dominar el teorema.</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4" id="section-cards-container">
+                    <!-- Cards generadas por JS -->
+                </div>
+            </div>
+
+            <div id="activity-view" class="hidden flex-col min-h-full pb-32">
+                <!-- Barra de Progreso -->
+                <div class="bg-white p-4 shadow-sm mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-bold text-gray-600" id="lesson-title">Lección</span>
+                        <span class="text-sm font-bold text-indigo-600" id="progress-text">0 / 12</span>
+                    </div>
+                    <div class="relative w-full h-2 bg-gray-200 rounded-full flex items-center">
+                        <!-- Línea de llenado -->
+                        <div id="progress-fill" class="absolute left-0 h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full progress-line" style="width: 0%;"></div>
+                        <!-- Puntos de control generados por JS -->
+                        <div id="progress-dots" class="absolute w-full flex justify-between z-10 px-1"></div>
+                    </div>
+                </div>
+
+                <!-- Área del Problema -->
+                <div class="px-3 sm:px-6 flex-1 flex flex-col">
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-2 mb-2 border border-gray-100 animate-slide-up flex justify-center items-center" id="problem-graphic-container">
+                        <!-- El SVG se inyecta aquí -->
+                    </div>
+
+                    <div id="steps-container" class="space-y-2 pb-4">
+                        <!-- Los pasos matemáticos se inyectan aquí -->
+                    </div>
+
+                </div>
+            </div>
+            
+        </main>
+
+        <!-- Botonera Fija en la parte inferior de la pantalla -->
+        <div id="action-bar" class="hidden fixed bottom-0 left-0 right-0 mx-auto max-w-2xl w-full bg-white border-t border-gray-100 p-3 sm:p-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] z-50">
+            <div class="flex gap-3">
+                <button onclick="app.clearCurrentInputs()" class="flex-none p-4 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-colors flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+                <button onclick="app.checkAnswer()" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-green-200 transform transition hover:-translate-y-1 active:translate-y-0 flex justify-center items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Comprobar respuesta
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal de Feedback -->
+    <div id="feedback-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-[100] flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div id="feedback-content" class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl transform transition-transform scale-90 opacity-0">
+            <div id="feedback-icon" class="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 text-4xl shadow-inner">
+                <!-- Icono inyectado -->
+            </div>
+            <h3 id="feedback-title" class="text-2xl font-bold mb-2 text-gray-800">Título</h3>
+            <p id="feedback-message" class="text-gray-600 mb-6 text-lg">Mensaje</p>
+            <button onclick="app.closeModal()" id="feedback-btn" class="w-full font-bold py-4 rounded-xl text-white text-lg shadow-md transition-transform transform active:scale-95">
+                Continuar
+            </button>
+        </div>
+    </div>
+
+    <!-- Pantalla de Logro (Fin de sección) -->
+    <div id="achievement-screen" class="hidden fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center p-6 overflow-y-auto">
+        <div class="animate-pop-in text-center max-w-md w-full">
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-2">¡Lección completada!</h2>
+            <p class="text-gray-500 mb-8" id="achievement-motivational">Excelente trabajo. Cada día mejoras más.</p>
+            
+            <div class="bg-indigo-50 rounded-2xl p-6 mb-8 border border-indigo-100 shadow-sm text-left">
+                <h3 class="font-bold text-indigo-800 mb-4 border-b border-indigo-200 pb-2">Tu resumen</h3>
+                <div class="space-y-3 text-gray-700">
+                    <div class="flex justify-between"><span>Estudiante:</span> <strong id="ach-name"></strong></div>
+                    <div class="flex justify-between"><span>Grado:</span> <strong id="ach-grade"></strong></div>
+                    <div class="flex justify-between"><span>Tiempo en lección:</span> <strong id="ach-time"></strong></div>
+                    <div class="flex justify-between"><span>Aciertos:</span> <strong class="text-green-600" id="ach-correct"></strong></div>
+                    <div class="flex justify-between"><span>Errores:</span> <strong class="text-red-500" id="ach-incorrect"></strong></div>
+                    <div class="flex justify-between font-bold text-lg border-t border-indigo-200 pt-2 mt-2">
+                        <span>Precisión:</span> <span class="text-indigo-600" id="ach-percent"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="app.finishSection()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 text-white font-bold py-4 rounded-xl text-xl shadow-lg transform transition hover:-translate-y-1">
+                Regresar al Menú
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS DE PREGUNTAS (CURRÍCULO) ---
+        // Definimos las estructuras de los problemas de Tales
+        const curriculum = [
+            {
+                id: 1,
+                title: "1. Ubicación y Despeje",
+                description: "Aprende a ubicar los valores en la proporción y despejar X.",
+                icon: "📐",
+                color: "from-blue-400 to-blue-500",
+                problems: [
+                    {
+                        type: 'lines',
+                        graphics: { topL: 4, botL: 6, topR: 'x', botR: 9 },
+                        steps: [
+                            { 
+                                type: 'proportion', 
+                                instruction: '1. Plantea la proporción usando los segmentos paralelos:',
+                                expected: { t1: '4', b1: '6', t2: 'x', b2: '9' },
+                                hint: "Recuerda: El segmento de arriba sobre el de abajo en la izquierda, es igual a lo mismo en la derecha."
+                            },
+                            {
+                                type: 'cross',
+                                instruction: '2. Multiplica en cruz:',
+                                expected: { m1: '6', m2: 'x', m3: '4', m4: '9' }, // 6*x = 4*9
+                                hint: "Multiplica el numerador de un lado por el denominador del otro."
+                            },
+                            {
+                                type: 'isolate',
+                                instruction: '3. Despeja la letra X:',
+                                expected: { num1: '4', num2: '9', den: '6' }, // x = (4*9)/6
+                                hint: "El número que multiplica a la X pasa al otro lado a dividir."
+                            }
+                        ]
+                    },
+                    {
+                        type: 'lines',
+                        graphics: { topL: 'x', botL: 5, topR: 12, botR: 10 },
+                        steps: [
+                            { type: 'proportion', instruction: '1. Plantea la proporción:', expected: { t1: 'x', b1: '5', t2: '12', b2: '10' }, hint: "Izquierda: Arriba/Abajo = Derecha: Arriba/Abajo" },
+                            { type: 'cross', instruction: '2. Multiplica en cruz:', expected: { m1: '10', m2: 'x', m3: '5', m4: '12' }, hint: "Denominador por numerador opuesto." },
+                            { type: 'isolate', instruction: '3. Despeja X:', expected: { num1: '5', num2: '12', den: '10' }, hint: "Deja la X sola, pasando su acompañante a dividir." }
+                        ]
+                    },
+                    {
+                        type: 'triangles',
+                        graphics: { sideL1: 3, sideL2: 'x', sideR1: 6, sideR2: 8 },
+                        steps: [
+                            { type: 'proportion', instruction: '1. Plantea la proporción de los lados del triángulo:', expected: { t1: '3', b1: 'x', t2: '6', b2: '8' }, hint: "Lado superior izquierdo / inferior izquierdo = superior derecho / inferior derecho" },
+                            { type: 'cross', instruction: '2. Multiplica en cruz:', expected: { m1: '6', m2: 'x', m3: '3', m4: '8' }, hint: "Cruza los valores al multiplicar." },
+                            { type: 'isolate', instruction: '3. Despeja X:', expected: { num1: '3', num2: '8', den: '6' }, hint: "Pasa a dividir el número que quedó con la X." }
+                        ]
+                    },
+                    {
+                        type: 'lines',
+                        graphics: { topL: 7, botL: 21, topR: 'x', botR: 15 },
+                        steps: [
+                            { type: 'proportion', instruction: '1. Plantea la proporción:', expected: { t1: '7', b1: '21', t2: 'x', b2: '15' }, hint: "Ordena los valores siguiendo las líneas transversales." },
+                            { type: 'cross', instruction: '2. Multiplica en cruz:', expected: { m1: '21', m2: 'x', m3: '7', m4: '15' }, hint: "El de abajo multiplica al de arriba cruzado." },
+                            { type: 'isolate', instruction: '3. Despeja X:', expected: { num1: '7', num2: '15', den: '21' }, hint: "Aísla la incógnita." }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "2. Cálculo Completo",
+                description: "Plantea, despeja y encuentra el valor final numérico.",
+                icon: "🧮",
+                color: "from-purple-400 to-purple-500",
+                problems: [
+                    {
+                        type: 'lines',
+                        graphics: { topL: 2, botL: 4, topR: 3, botR: 'x' },
+                        steps: [
+                            { type: 'proportion', instruction: 'Plantea:', expected: { t1: '2', b1: '4', t2: '3', b2: 'x' }, hint: "Sigue el orden de los segmentos." },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '2', m2: 'x', m3: '4', m4: '3' }, hint: "Producto cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '4', num2: '3', den: '2' }, hint: "Pasa a dividir." },
+                            { type: 'calculate', instruction: 'Calcula el resultado final:', expected: { ans: '6' }, hint: "Multiplica arriba y divide por el de abajo. (4x3)/2" }
+                        ]
+                    },
+                    {
+                        type: 'triangles',
+                        graphics: { sideL1: 'x', sideL2: 5, sideR1: 8, sideR2: 10 },
+                        steps: [
+                            { type: 'proportion', instruction: 'Plantea:', expected: { t1: 'x', b1: '5', t2: '8', b2: '10' }, hint: "Lados proporcionales del triángulo." },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '10', m2: 'x', m3: '5', m4: '8' }, hint: "Cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '5', num2: '8', den: '10' }, hint: "El 10 pasa a dividir." },
+                            { type: 'calculate', instruction: 'Resultado:', expected: { ans: '4' }, hint: "Resuelve (5x8)/10" }
+                        ]
+                    },
+                    {
+                        type: 'lines',
+                        graphics: { topL: 5, botL: 'x', topR: 15, botR: 9 },
+                        steps: [
+                            { type: 'proportion', instruction: 'Plantea:', expected: { t1: '5', b1: 'x', t2: '15', b2: '9' }, hint: "Izquierda = Derecha" },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '15', m2: 'x', m3: '5', m4: '9' }, hint: "Cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '5', num2: '9', den: '15' }, hint: "El 15 pasa a dividir." },
+                            { type: 'calculate', instruction: 'Resultado:', expected: { ans: '3' }, hint: "Resuelve (5x9)/15" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "3. Problemas Visuales",
+                description: "Aplica el teorema en situaciones con objetos y sombras.",
+                icon: "🌳",
+                color: "from-green-400 to-green-500",
+                problems: [
+                    {
+                        type: 'context_shadow',
+                        graphics: { obj1: '🏢', h1: 'x', s1: 270, obj2: '🌲', h2: 5, s2: 6 },
+                        steps: [
+                            { type: 'proportion', instruction: 'Relaciona (Sombra Edificio / Sombra Árbol = Altura Edificio / Altura Árbol):', expected: { t1: '270', b1: '6', t2: 'x', b2: '5' }, hint: "Sombra mayor sobre sombra menor es igual a altura mayor sobre altura menor." },
+                            { type: 'cross', instruction: 'Multiplica en cruz:', expected: { m1: '6', m2: 'x', m3: '270', m4: '5' }, hint: "Cruza los valores." },
+                            { type: 'isolate', instruction: 'Despeja X:', expected: { num1: '270', num2: '5', den: '6' }, hint: "Pasa el 6 a dividir." },
+                            { type: 'calculate', instruction: 'Calcula la altura del edificio:', expected: { ans: '225' }, hint: "Multiplica 270 por 5, luego divide entre 6." }
+                        ]
+                    },
+                    {
+                        type: 'context_shadow',
+                        graphics: { obj1: '🚦', h1: 3, s1: 4, obj2: '🧍', h2: 'x', s2: 2 },
+                        steps: [
+                            { type: 'proportion', instruction: 'Plantea (Sombra Semáforo / Sombra Persona = Altura Semáforo / Altura Persona):', expected: { t1: '4', b1: '2', t2: '3', b2: 'x' }, hint: "Sombra mayor / sombra menor = altura mayor / altura menor." },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '4', m2: 'x', m3: '2', m4: '3' }, hint: "Cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '2', num2: '3', den: '4' }, hint: "Pasa a dividir el 4." },
+                            { type: 'calculate', instruction: 'Calcula la altura de la persona:', expected: { ans: '1.5' }, hint: "Resuelve (2x3)/4" }
+                        ]
+                    },
+                    {
+                        type: 'context_shadow',
+                        graphics: { obj1: '⛰️', h1: 'x', s1: 150, obj2: '⛺', h2: 2, s2: 5 },
+                        steps: [
+                            { type: 'proportion', instruction: 'Plantea (Sombra Montaña / Sombra Carpa = Altura Montaña / Altura Carpa):', expected: { t1: '150', b1: '5', t2: 'x', b2: '2' }, hint: "Sombra mayor / sombra menor = altura mayor / altura menor." },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '5', m2: 'x', m3: '150', m4: '2' }, hint: "Cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '150', num2: '2', den: '5' }, hint: "Pasa a dividir el 5." },
+                            { type: 'calculate', instruction: 'Calcula la altura de la montaña:', expected: { ans: '60' }, hint: "Resuelve (150x2)/5" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "4. Triángulos Anidados",
+                description: "Casos donde un triángulo está dentro de otro.",
+                icon: "📐",
+                color: "from-orange-400 to-orange-500",
+                problems: [
+                    {
+                        type: 'nested_triangles',
+                        graphics: { smallSide: 4, smallBase: 'x', bigSide: 12, bigBase: 15 },
+                        steps: [
+                            { type: 'proportion', instruction: 'Relaciona Lado Pequeño / Lado Grande = Base Pequeña / Base Grande:', expected: { t1: '4', b1: '12', t2: 'x', b2: '15' }, hint: "Lado del pequeño sobre lado del grande, igual a base pequeña sobre base grande." },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '12', m2: 'x', m3: '4', m4: '15' }, hint: "Cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '4', num2: '15', den: '12' }, hint: "Despeja X." },
+                            { type: 'calculate', instruction: 'Calcula la base pequeña:', expected: { ans: '5' }, hint: "Resuelve (4x15)/12" }
+                        ]
+                    },
+                    {
+                        type: 'nested_triangles',
+                        graphics: { smallSide: 'x', smallBase: 6, bigSide: 10, bigBase: 12 },
+                        steps: [
+                            { type: 'proportion', instruction: 'Plantea (Lado/Grande = Base/Grande):', expected: { t1: 'x', b1: '10', t2: '6', b2: '12' }, hint: "Pequeño / Grande = Pequeño / Grande" },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '12', m2: 'x', m3: '10', m4: '6' }, hint: "Cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '10', num2: '6', den: '12' }, hint: "Pasa a dividir." },
+                            { type: 'calculate', instruction: 'Resultado:', expected: { ans: '5' }, hint: "Resuelve (10x6)/12" }
+                        ]
+                    },
+                    {
+                        type: 'nested_triangles',
+                        graphics: { smallSide: 7, smallBase: 4, bigSide: 21, bigBase: 'x' },
+                        steps: [
+                            { type: 'proportion', instruction: 'Plantea:', expected: { t1: '7', b1: '21', t2: '4', b2: 'x' }, hint: "Pequeño / Grande = Pequeño / Grande" },
+                            { type: 'cross', instruction: 'Multiplica:', expected: { m1: '7', m2: 'x', m3: '21', m4: '4' }, hint: "Cruzado." },
+                            { type: 'isolate', instruction: 'Despeja:', expected: { num1: '21', num2: '4', den: '7' }, hint: "Pasa a dividir." },
+                            { type: 'calculate', instruction: 'Resultado:', expected: { ans: '12' }, hint: "Resuelve (21x4)/7" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        const state = {
+            student: { name: '', grade: '' },
+            stats: { time: 0, correct: 0, incorrect: 0, totalSectionTime: 0 },
+            timer: null,
+            currentSectionIndex: -1,
+            currentProblemIndex: 0,
+            currentStepIndex: 0,
+            sectionProgress: 0,
+            maxProgress: 12 // Por defecto
+        };
+
+        // Mensajes motivadores
+        const motivators = [
+            "¡Excelente trabajo!", "¡Sigue así, lo haces muy bien!", 
+            "Cada vez eres mejor en matemáticas.", "¡Buen trabajo!", 
+            "¡No te rindas, vas por buen camino!", "¡Genial! Tienes talento."
+        ];
+
+        // --- LÓGICA PRINCIPAL (CONTROLADOR) ---
+        const app = {
+            startApp: () => {
+                const nameInp = document.getElementById('student-name').value.trim();
+                const gradeInp = document.getElementById('student-grade').value;
+                
+                if(!nameInp || !gradeInp) {
+                    app.showCustomModal('⚠️', 'Faltan datos', 'Por favor ingresa tu nombre y grado para comenzar.', 'error');
+                    return;
+                }
+
+                state.student.name = nameInp;
+                state.student.grade = gradeInp;
+                
+                document.getElementById('display-name').textContent = state.student.name;
+                document.getElementById('display-grade').textContent = state.student.grade;
+
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                
+                app.renderMenu();
+                app.startGlobalTimer();
+            },
+
+            startGlobalTimer: () => {
+                if(state.timer) clearInterval(state.timer);
+                state.timer = setInterval(() => {
+                    state.stats.time++;
+                    state.stats.totalSectionTime++; // Solo se resetea al cambiar sección
+                    
+                    const min = String(Math.floor(state.stats.time / 60)).padStart(2, '0');
+                    const sec = String(state.stats.time % 60).padStart(2, '0');
+                    document.getElementById('display-time').textContent = `${min}:${sec}`;
+                }, 1000);
+            },
+
+            updateStatsDisplay: () => {
+                document.getElementById('display-correct').textContent = state.stats.correct;
+                document.getElementById('display-incorrect').textContent = state.stats.incorrect;
+            },
+
+            goHome: () => {
+                document.getElementById('activity-view').classList.add('hidden');
+                document.getElementById('action-bar').classList.add('hidden');
+                document.getElementById('menu-view').classList.remove('hidden');
+                state.currentSectionIndex = -1;
+            },
+
+            renderMenu: () => {
+                const container = document.getElementById('section-cards-container');
+                container.innerHTML = '';
+
+                curriculum.forEach((section, index) => {
+                    const card = document.createElement('div');
+                    card.className = `bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 cursor-pointer transform transition hover:-translate-y-1 hover:shadow-md`;
+                    card.onclick = () => app.startSection(index);
+                    
+                    card.innerHTML = `
+                        <div class="flex-none w-16 h-16 rounded-2xl bg-gradient-to-br ${section.color} text-white flex items-center justify-center text-3xl shadow-inner">
+                            ${section.icon}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800">${section.title}</h3>
+                            <p class="text-sm text-gray-500 leading-tight mt-1">${section.description}</p>
+                        </div>
+                        <div class="text-gray-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            },
+
+            startSection: (index) => {
+                state.currentSectionIndex = index;
+                state.currentProblemIndex = 0;
+                state.currentStepIndex = 0;
+                state.sectionProgress = 0;
+                state.stats.totalSectionTime = 0; // Reset timer for section achievement
+                
+                // Calcular puntos máximos
+                const sec = curriculum[index];
+                state.maxProgress = sec.problems.reduce((acc, prob) => acc + prob.steps.length, 0);
+
+                document.getElementById('menu-view').classList.add('hidden');
+                document.getElementById('activity-view').classList.remove('hidden');
+                document.getElementById('activity-view').classList.add('flex');
+                document.getElementById('action-bar').classList.remove('hidden');
+                
+                document.getElementById('lesson-title').textContent = sec.title;
+                
+                app.buildProgressBar();
+                app.renderCurrentProblem();
+            },
+
+            buildProgressBar: () => {
+                const dotsContainer = document.getElementById('progress-dots');
+                dotsContainer.innerHTML = '';
+                // Crear puntos (solo hitos importantes para no saturar si son muchos)
+                // Dividimos en 4 partes visuales (ej. hitos en 25%, 50%, 75%, 100%)
+                for(let i=0; i<=4; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = `w-4 h-4 rounded-full bg-gray-200 border-2 border-white shadow-sm progress-dot z-10`;
+                    dot.id = `dot-${i}`;
+                    dotsContainer.appendChild(dot);
+                }
+                app.updateProgressVisuals();
+            },
+
+            updateProgressVisuals: () => {
+                const perc = (state.sectionProgress / state.maxProgress) * 100;
+                document.getElementById('progress-fill').style.width = `${perc}%`;
+                document.getElementById('progress-text').textContent = `${state.sectionProgress} / ${state.maxProgress}`;
+                
+                // Iluminar puntos
+                const milestone = Math.floor((state.sectionProgress / state.maxProgress) * 4);
+                for(let i=0; i<=4; i++) {
+                    const dot = document.getElementById(`dot-${i}`);
+                    if(dot) {
+                        if(i <= milestone && state.sectionProgress > 0) {
+                            dot.classList.remove('bg-gray-200');
+                            dot.classList.add('bg-green-500');
+                            // Animar al cambiar de estado
+                            if(i === milestone && perc % 25 === 0 && perc !== 0) {
+                                dot.classList.add('animate-pop-in');
+                                setTimeout(() => dot.classList.remove('animate-pop-in'), 500);
+                            }
+                        }
+                    }
+                }
+            },
+
+            renderCurrentProblem: () => {
+                const sec = curriculum[state.currentSectionIndex];
+                const prob = sec.problems[state.currentProblemIndex];
+                
+                // 1. Render Graphic (Only once per problem)
+                if(state.currentStepIndex === 0) {
+                    const graphicContainer = document.getElementById('problem-graphic-container');
+                    graphicContainer.innerHTML = app.generateSVG(prob.type, prob.graphics);
+                    
+                    // Clear previous steps
+                    document.getElementById('steps-container').innerHTML = '';
+                }
+
+                // 2. Render Current Step UI
+                const step = prob.steps[state.currentStepIndex];
+                const stepEl = document.createElement('div');
+                stepEl.className = 'bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-indigo-100 animate-slide-up relative mb-2';
+                stepEl.id = `step-ui-${state.currentStepIndex}`;
+                
+                // Si no es el primer paso, opacar los anteriores y deshabilitar sus casillas
+                const prevSteps = document.getElementById('steps-container').children;
+                for(let i=0; i<prevSteps.length; i++){
+                    prevSteps[i].classList.add('opacity-50');
+                    // Deshabilitar los inputs permite hacer scroll al tocar los pasos anteriores sin problemas
+                    const oldInputs = prevSteps[i].querySelectorAll('input');
+                    oldInputs.forEach(inp => inp.disabled = true);
+                    prevSteps[i].classList.remove('border-indigo-100', 'shadow-sm');
+                }
+
+                let htmlContent = `<p class="font-bold text-sm text-gray-700 mb-2 leading-tight">${step.instruction}</p>`;
+                htmlContent += app.generateInputLayout(step.type);
+                
+                stepEl.innerHTML = htmlContent;
+                document.getElementById('steps-container').appendChild(stepEl);
+
+                // Scroll nativo de la ventana hacia abajo de forma suave y sin fallas
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            },
+
+            generateSVG: (type, data) => {
+                let svg = '';
+                // Imágenes reducidas para ahorrar espacio en celulares
+                const baseClass = "w-full max-w-[200px] sm:max-w-xs mx-auto h-20 sm:h-28 drop-shadow-sm";
+                
+                if (type === 'lines') {
+                    svg = `
+                    <svg viewBox="0 0 200 120" class="${baseClass} stroke-indigo-300 text-gray-700 font-bold text-sm">
+                        <!-- Líneas Paralelas L1, L2, L3 -->
+                        <line x1="20" y1="20" x2="180" y2="20" stroke-width="2"/>
+                        <line x1="10" y1="60" x2="190" y2="60" stroke-width="2"/>
+                        <line x1="0" y1="100" x2="200" y2="100" stroke-width="2"/>
+                        
+                        <!-- Transversales -->
+                        <line x1="60" y1="5" x2="30" y2="115" stroke-width="2.5" class="stroke-blue-500"/>
+                        <line x1="140" y1="5" x2="170" y2="115" stroke-width="2.5" class="stroke-red-400"/>
+                        
+                        <!-- Etiquetas -->
+                        <rect x="25" y="30" width="20" height="20" fill="white" opacity="0.8" rx="4"/>
+                        <text x="35" y="45" text-anchor="middle" class="fill-blue-700">${data.topL}</text>
+                        
+                        <rect x="15" y="70" width="20" height="20" fill="white" opacity="0.8" rx="4"/>
+                        <text x="25" y="85" text-anchor="middle" class="fill-blue-700">${data.botL}</text>
+                        
+                        <rect x="145" y="30" width="20" height="20" fill="white" opacity="0.8" rx="4"/>
+                        <text x="155" y="45" text-anchor="middle" class="fill-red-600">${data.topR}</text>
+                        
+                        <rect x="155" y="70" width="20" height="20" fill="white" opacity="0.8" rx="4"/>
+                        <text x="165" y="85" text-anchor="middle" class="fill-red-600">${data.botR}</text>
+                    </svg>`;
+                } else if (type === 'triangles') {
+                     svg = `
+                    <svg viewBox="0 0 200 120" class="${baseClass} stroke-indigo-300 text-gray-700 font-bold text-sm">
+                        <!-- Triángulo principal -->
+                        <polygon points="100,10 40,110 160,110" fill="none" stroke-width="2.5" class="stroke-indigo-400"/>
+                        <!-- Línea paralela a la base -->
+                        <line x1="70" y1="60" x2="130" y2="60" stroke-width="2.5" class="stroke-indigo-600" stroke-dasharray="4"/>
+                        
+                        <!-- Etiquetas Izquierda -->
+                        <text x="60" y="40" text-anchor="middle" class="fill-indigo-700">${data.sideL1}</text>
+                        <text x="45" y="85" text-anchor="middle" class="fill-indigo-700">${data.sideL2}</text>
+                        <!-- Etiquetas Derecha -->
+                        <text x="140" y="40" text-anchor="middle" class="fill-purple-700">${data.sideR1}</text>
+                        <text x="155" y="85" text-anchor="middle" class="fill-purple-700">${data.sideR2}</text>
+                    </svg>`;
+                } else if (type === 'nested_triangles') {
+                     svg = `
+                    <svg viewBox="0 0 200 140" class="${baseClass} stroke-indigo-300 text-gray-700 font-bold text-sm">
+                        <!-- Triángulo Grande -->
+                        <polygon points="100,10 20,120 180,120" fill="#eef2ff" stroke-width="2" class="stroke-indigo-400"/>
+                        <!-- Triángulo Pequeño -->
+                        <polygon points="100,10 60,65 140,65" fill="#c7d2fe" opacity="0.5" stroke-width="2" class="stroke-indigo-600"/>
+                        
+                        <!-- Lado Pequeño -->
+                        <text x="70" y="40" text-anchor="middle" class="fill-indigo-800">${data.smallSide}</text>
+                        <!-- Base Pequeña -->
+                        <text x="100" y="60" text-anchor="middle" class="fill-indigo-800">${data.smallBase}</text>
+                        
+                        <!-- Lado Grande (Corchete simulado o texto afuera) -->
+                        <path d="M 15 115 L 5 115 L 5 10 L 15 10" fill="none" stroke="gray" stroke-width="1"/>
+                        <text x="-5" y="65" text-anchor="middle" transform="rotate(-90 -5 65)" class="fill-gray-600 text-xs">${data.bigSide}</text>
+                        
+                        <!-- Base Grande -->
+                        <text x="100" y="135" text-anchor="middle" class="fill-gray-600">${data.bigBase}</text>
+                    </svg>`;
+                } else if (type === 'context_shadow') {
+                    // Nuevo diseño visual basado en tu imagen (Triángulos superpuestos con el rayo del sol)
+                    svg = `
+                    <svg viewBox="0 0 300 140" class="${baseClass} stroke-gray-300 text-gray-800 font-bold text-sm">
+                        <!-- Suelo -->
+                        <line x1="10" y1="120" x2="290" y2="120" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+                        
+                        <!-- Triángulo Grande (Edificio + Sombra completa) -->
+                        <polygon points="40,20 40,120 280,120" fill="#fef3c7" opacity="0.4" stroke="none"/>
+                        <!-- Rayo de sol (Hipotenusa) -->
+                        <line x1="40" y1="20" x2="280" y2="120" stroke="#f59e0b" stroke-width="2"/>
+                        
+                        <!-- Edificio (Altura grande) -->
+                        <rect x="10" y="20" width="30" height="100" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>
+                        <line x1="40" y1="20" x2="40" y2="120" stroke="#ef4444" stroke-width="3"/>
+                        
+                        <!-- Objeto Pequeño (Árbol/Persona) dentro del triángulo -->
+                        <rect x="150" y="66" width="12" height="54" fill="#86efac" stroke="#059669" stroke-width="2"/>
+                        <line x1="162" y1="66" x2="162" y2="120" stroke="#3b82f6" stroke-width="3"/>
+                        
+                        <!-- Sombras (Bases) -->
+                        <line x1="40" y1="125" x2="280" y2="125" stroke="#ef4444" stroke-width="2"/> <!-- Sombra total -->
+                        <line x1="162" y1="115" x2="280" y2="115" stroke="#3b82f6" stroke-width="2"/> <!-- Sombra pequeña -->
+                        
+                        <!-- Textos (Valores) -->
+                        <!-- Altura 1 (Edificio) -->
+                        <text x="35" y="60" text-anchor="end" class="fill-red-600">${data.h1}</text>
+                        <!-- Sombra 1 (Edificio) -->
+                        <text x="160" y="138" text-anchor="middle" class="fill-red-600">${data.s1}</text>
+                        
+                        <!-- Altura 2 (Árbol) -->
+                        <text x="155" y="90" text-anchor="end" class="fill-blue-600">${data.h2}</text>
+                        <!-- Sombra 2 (Árbol) -->
+                        <text x="220" y="110" text-anchor="middle" class="fill-blue-600">${data.s2}</text>
+                    </svg>`;
+                }
+                return svg;
+            },
+
+            generateInputLayout: (type) => {
+                const onFocus = `onfocus="this.select()"`;
+                if(type === 'proportion') {
+                    return `
+                    <div class="flex items-center justify-center gap-1 sm:gap-4">
+                        <div class="flex flex-col items-center w-10 sm:w-16">
+                            <input type="text" id="inp-t1" class="math-input" autocomplete="off" ${onFocus}>
+                            <div class="fraction-line"></div>
+                            <input type="text" id="inp-b1" class="math-input" autocomplete="off" ${onFocus}>
+                        </div>
+                        <div class="text-xl font-bold text-gray-400">=</div>
+                        <div class="flex flex-col items-center w-10 sm:w-16">
+                            <input type="text" id="inp-t2" class="math-input" autocomplete="off" ${onFocus}>
+                            <div class="fraction-line"></div>
+                            <input type="text" id="inp-b2" class="math-input" autocomplete="off" ${onFocus}>
+                        </div>
+                    </div>`;
+                } else if (type === 'cross') {
+                    return `
+                    <div class="flex items-center justify-center gap-1 flex-wrap">
+                        <input type="text" id="inp-m1" class="math-input" autocomplete="off" ${onFocus}>
+                        <div class="text-base font-bold text-gray-400">×</div>
+                        <input type="text" id="inp-m2" class="math-input" autocomplete="off" ${onFocus}>
+                        <div class="text-lg font-bold text-gray-400 mx-1">=</div>
+                        <input type="text" id="inp-m3" class="math-input" autocomplete="off" ${onFocus}>
+                        <div class="text-base font-bold text-gray-400">×</div>
+                        <input type="text" id="inp-m4" class="math-input" autocomplete="off" ${onFocus}>
+                    </div>`;
+                } else if (type === 'isolate') {
+                    return `
+                    <div class="flex items-center justify-center gap-1 sm:gap-3">
+                        <div class="text-xl font-bold text-indigo-600">x =</div>
+                        <div class="flex flex-col items-center w-20 sm:w-32">
+                            <div class="flex items-center gap-1">
+                                <input type="text" id="inp-num1" class="math-input" autocomplete="off" ${onFocus}>
+                                <div class="text-base font-bold text-gray-400">×</div>
+                                <input type="text" id="inp-num2" class="math-input" autocomplete="off" ${onFocus}>
+                            </div>
+                            <div class="fraction-line w-full"></div>
+                            <input type="text" id="inp-den" class="math-input" autocomplete="off" ${onFocus}>
+                        </div>
+                    </div>`;
+                } else if (type === 'calculate') {
+                    return `
+                    <div class="flex items-center justify-center gap-2 sm:gap-3">
+                        <div class="text-xl font-bold text-green-600">x =</div>
+                        <input type="text" id="inp-ans" class="math-input !w-16 sm:!w-20 border-green-300 bg-green-50 text-green-700 focus:border-green-500 focus:ring-green-200" autocomplete="off" ${onFocus}>
+                    </div>`;
+                }
+            },
+
+            clearCurrentInputs: () => {
+                const currentUI = document.getElementById(`step-ui-${state.currentStepIndex}`);
+                if(currentUI) {
+                    const inputs = currentUI.querySelectorAll('input');
+                    inputs.forEach(inp => inp.value = '');
+                    inputs[0].focus();
+                }
+            },
+
+            checkAnswer: () => {
+                const sec = curriculum[state.currentSectionIndex];
+                const prob = sec.problems[state.currentProblemIndex];
+                const step = prob.steps[state.currentStepIndex];
+                
+                let isCorrect = false;
+                
+                // Función auxiliar para normalizar (quitar espacios, minúsculas)
+                const n = (val) => val ? val.trim().toLowerCase() : '';
+
+                try {
+                    if(step.type === 'proportion') {
+                        const t1 = n(document.getElementById('inp-t1').value);
+                        const b1 = n(document.getElementById('inp-b1').value);
+                        const t2 = n(document.getElementById('inp-t2').value);
+                        const b2 = n(document.getElementById('inp-b2').value);
+                        
+                        const ex = step.expected;
+                        
+                        if(!t1 || !b1 || !t2 || !b2) {
+                            isCorrect = false;
+                        } else {
+                            // Validar todas las formas correctas de armar la proporción (Izq/Der, Der/Izq, Arr/Aba, etc.)
+                            // La forma infalible es verificar que los productos cruzados contengan los mismos pares.
+                            const diag1 = [ex.t1, ex.b2].sort();
+                            const diag2 = [ex.b1, ex.t2].sort();
+                            
+                            const inpDiag1 = [t1, b2].sort();
+                            const inpDiag2 = [b1, t2].sort();
+                            
+                            const match1 = (inpDiag1[0] === diag1[0] && inpDiag1[1] === diag1[1] && inpDiag2[0] === diag2[0] && inpDiag2[1] === diag2[1]);
+                            const match2 = (inpDiag1[0] === diag2[0] && inpDiag1[1] === diag2[1] && inpDiag2[0] === diag1[0] && inpDiag2[1] === diag1[1]);
+                            
+                            if (match1 || match2) {
+                                isCorrect = true;
+                            } else {
+                                isCorrect = false;
+                            }
+                        }
+
+                    } else if (step.type === 'cross') {
+                        const m1 = n(document.getElementById('inp-m1').value);
+                        const m2 = n(document.getElementById('inp-m2').value);
+                        const m3 = n(document.getElementById('inp-m3').value);
+                        const m4 = n(document.getElementById('inp-m4').value);
+                        const ex = step.expected;
+
+                        // Par 1 = m1*m2 o m2*m1. Par 2 = m3*m4 o m4*m3
+                        const pair1Valid = (m1===ex.m1 && m2===ex.m2) || (m1===ex.m2 && m2===ex.m1);
+                        const pair2Valid = (m3===ex.m3 && m4===ex.m4) || (m3===ex.m4 && m4===ex.m3);
+                        // Pueden estar en lados opuestos del igual
+                        const pair1ValidAlt = (m1===ex.m3 && m2===ex.m4) || (m1===ex.m4 && m2===ex.m3);
+                        const pair2ValidAlt = (m3===ex.m1 && m4===ex.m2) || (m3===ex.m2 && m4===ex.m1);
+
+                        if ((pair1Valid && pair2Valid) || (pair1ValidAlt && pair2ValidAlt)) isCorrect = true;
+                        if(!m1 || !m2 || !m3 || !m4) isCorrect = false;
+
+                    } else if (step.type === 'isolate') {
+                        const num1 = n(document.getElementById('inp-num1').value);
+                        const num2 = n(document.getElementById('inp-num2').value);
+                        const den = n(document.getElementById('inp-den').value);
+                        const ex = step.expected;
+
+                        const numValid = (num1===ex.num1 && num2===ex.num2) || (num1===ex.num2 && num2===ex.num1);
+                        if(numValid && den===ex.den) isCorrect = true;
+                        if(!num1 || !num2 || !den) isCorrect = false;
+
+                    } else if (step.type === 'calculate') {
+                        const ans = n(document.getElementById('inp-ans').value);
+                        // Aceptar con coma o punto decimal
+                        const ansNum = parseFloat(ans.replace(',','.'));
+                        const exNum = parseFloat(step.expected.ans);
+                        if(ansNum === exNum) isCorrect = true;
+                    }
+
+                } catch(e) {
+                    console.error("Error validando", e);
+                }
+
+                if(isCorrect) {
+                    app.handleCorrect();
+                } else {
+                    app.handleIncorrect(step.hint);
+                }
+            },
+
+            handleCorrect: () => {
+                state.stats.correct++;
+                state.sectionProgress++;
+                app.updateStatsDisplay();
+                app.updateProgressVisuals();
+
+                // Check Milestones
+                let title = '¡Excelente!';
+                let msg = 'Has resuelto este paso correctamente.';
+                
+                if (state.sectionProgress % 4 === 0 && state.sectionProgress > 0 && state.sectionProgress < state.maxProgress) {
+                    msg = motivators[Math.floor(Math.random() * motivators.length)];
+                }
+
+                app.showCustomModal('✔', title, msg, 'success', () => {
+                    // Advance Logic
+                    state.currentStepIndex++;
+                    const sec = curriculum[state.currentSectionIndex];
+                    const prob = sec.problems[state.currentProblemIndex];
+
+                    if (state.currentStepIndex >= prob.steps.length) {
+                        // Problem finished
+                        state.currentProblemIndex++;
+                        state.currentStepIndex = 0;
+                        
+                        if (state.currentProblemIndex >= sec.problems.length) {
+                            // Section finished
+                            app.showAchievementScreen();
+                        } else {
+                            app.renderCurrentProblem();
+                        }
+                    } else {
+                        // Next step in same problem
+                        app.renderCurrentProblem();
+                    }
+                });
+            },
+
+            handleIncorrect: (hint) => {
+                state.stats.incorrect++;
+                app.updateStatsDisplay();
+                
+                // Shake effect on inputs
+                const currentUI = document.getElementById(`step-ui-${state.currentStepIndex}`);
+                if(currentUI) {
+                    currentUI.classList.remove('animate-slide-up');
+                    currentUI.classList.add('animate-shake');
+                    setTimeout(() => currentUI.classList.remove('animate-shake'), 300);
+                }
+
+                app.showCustomModal('✖', 'Inténtalo nuevamente', hint, 'error');
+            },
+
+            showCustomModal: (icon, title, message, type, callback = null) => {
+                const modal = document.getElementById('feedback-modal');
+                const content = document.getElementById('feedback-content');
+                const iconContainer = document.getElementById('feedback-icon');
+                
+                iconContainer.textContent = icon;
+                if(type === 'success') {
+                    iconContainer.className = 'w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 text-4xl shadow-inner bg-green-100 text-green-500';
+                    document.getElementById('feedback-btn').className = 'w-full font-bold py-4 rounded-xl text-white text-lg shadow-md transition-transform transform active:scale-95 bg-green-500 hover:bg-green-600';
+                } else if (type === 'error') {
+                    iconContainer.className = 'w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 text-4xl shadow-inner bg-red-100 text-red-500';
+                    document.getElementById('feedback-btn').className = 'w-full font-bold py-4 rounded-xl text-white text-lg shadow-md transition-transform transform active:scale-95 bg-red-500 hover:bg-red-600';
+                }
+
+                document.getElementById('feedback-title').textContent = title;
+                document.getElementById('feedback-message').textContent = message;
+
+                modal.classList.remove('hidden');
+                // Trigger reflow
+                void modal.offsetWidth;
+                content.classList.remove('scale-90', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+
+                // Store callback
+                app.modalCallback = callback;
+            },
+
+            closeModal: () => {
+                const modal = document.getElementById('feedback-modal');
+                const content = document.getElementById('feedback-content');
+                
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-90', 'opacity-0');
+                
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    if(app.modalCallback) {
+                        app.modalCallback();
+                        app.modalCallback = null;
+                    }
+                }, 200);
+            },
+
+            showAchievementScreen: () => {
+                const scr = document.getElementById('achievement-screen');
+                
+                document.getElementById('ach-name').textContent = state.student.name;
+                document.getElementById('ach-grade').textContent = state.student.grade;
+                
+                const min = String(Math.floor(state.stats.totalSectionTime / 60)).padStart(2, '0');
+                const sec = String(state.stats.totalSectionTime % 60).padStart(2, '0');
+                document.getElementById('ach-time').textContent = `${min}:${sec}`;
+                
+                // Estos son globales en la sesión. Para ser estrictos por sección habría que llevar contador separado, 
+                // pero mantenerlo global motiva (o podemos mostrar los del momento). Usaremos los globales.
+                document.getElementById('ach-correct').textContent = state.stats.correct;
+                document.getElementById('ach-incorrect').textContent = state.stats.incorrect;
+                
+                const total = state.stats.correct + state.stats.incorrect;
+                let perc = 100;
+                if(total > 0) perc = Math.round((state.stats.correct / total) * 100);
+                document.getElementById('ach-percent').textContent = `${perc}%`;
+
+                document.getElementById('achievement-motivational').textContent = motivators[Math.floor(Math.random() * motivators.length)];
+
+                document.getElementById('action-bar').classList.add('hidden');
+                scr.classList.remove('hidden');
+            },
+
+            finishSection: () => {
+                document.getElementById('achievement-screen').classList.add('hidden');
+                app.goHome();
+            }
+        };
+
+        // Cerrar modal con Enter si está visible
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const modal = document.getElementById('feedback-modal');
+                if (!modal.classList.contains('hidden')) {
+                    app.closeModal();
+                } else if (!document.getElementById('main-app').classList.contains('hidden') && !document.getElementById('activity-view').classList.contains('hidden')) {
+                    // Si está en el juego, Enter comprueba respuesta
+                    app.checkAnswer();
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
