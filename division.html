@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213D">
+<title>Divide Paso a Paso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14213D;
+  --ink-soft:#3D4E6E;
+  --paper:#FBF8F1;
+  --grid:#DFE7F3;
+  --rojo:#E8483F;
+  --verde:#12A17A;
+  --oro:#F5B301;
+  --azul:#2F5BD9;
+  --violeta:#7B4DD8;
+  --rosa:#E0518A;
+  --teal:#0FA0A8;
+  --line:#E6E1D6;
+  --cell:44px;
+  --r:20px;
+  --shadow:0 10px 26px rgba(20,33,61,.10);
+  --shadow-lg:0 22px 50px rgba(20,33,61,.22);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Nunito',system-ui,-apple-system,Segoe UI,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 600px at 20% -10%, #24365E 0%, transparent 60%),
+    radial-gradient(900px 600px at 100% 110%, #1B2C52 0%, transparent 60%),
+    #14213D;
+  min-height:100dvh;
+}
+h1,h2,h3,h4,.display{font-family:'Space Grotesk','Nunito',sans-serif;letter-spacing:-.02em;margin:0}
+button{font-family:inherit}
+input,select{font-family:inherit;font-size:16px}
+
+/* ---------- SHELL (app móvil) ---------- */
+.shell{
+  display:flex;flex-direction:column;
+  height:100dvh;width:100%;max-width:520px;margin:0 auto;
+  background:var(--paper);position:relative;overflow:hidden;
+}
+@media(min-width:900px){
+  .shell{height:94vh;margin:3vh auto;max-width:940px;border-radius:34px;box-shadow:var(--shadow-lg)}
+}
+.scroller{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.content{padding:16px 16px 40px;max-width:660px;margin:0 auto}
+@media(min-width:900px){.content{max-width:860px;padding:24px 28px 48px}}
+
+/* papel cuadriculado */
+.paperbg{
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;background-position:-1px -1px;
+}
+
+/* ---------- BIENVENIDA ---------- */
+#welcome{position:absolute;inset:0;z-index:40;display:flex;padding:24px 22px;background:var(--paper);overflow-y:auto}
+.hero{max-width:420px;margin:auto;width:100%;padding:8px 0}
+.brandmark{width:150px;height:96px;margin-bottom:18px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--rojo);font-weight:800}
+.hero h1{font-size:clamp(30px,8vw,40px);line-height:1.05;margin:8px 0 10px;font-weight:700}
+.hero p.sub{color:#5A6B8C;font-size:16px;margin:0 0 22px;line-height:1.5}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:800;font-size:14px;margin-bottom:7px}
+.field input,.field select{
+  width:100%;padding:16px 16px;border-radius:16px;border:2px solid var(--line);
+  background:#fff;font-size:17px;font-weight:600;color:var(--ink);outline:none;transition:.18s
+}
+.field input:focus,.field select:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(47,91,217,.14)}
+.err{color:var(--rojo);font-size:14px;font-weight:700;min-height:20px;margin:2px 0 6px}
+
+/* ---------- BOTONES ---------- */
+.btn{
+  border:none;border-radius:18px;padding:17px 22px;font-size:17px;font-weight:800;
+  background:var(--ink);color:#fff;cursor:pointer;transition:transform .12s ease,filter .18s;
+  box-shadow:0 6px 0 rgba(0,0,0,.18)
+}
+.btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.btn.wide{width:100%}
+.btn.green{background:var(--verde);box-shadow:0 6px 0 #0B7659}
+.btn.red{background:var(--rojo);box-shadow:0 6px 0 #B22E27}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn:focus-visible{outline:3px solid var(--azul);outline-offset:3px}
+
+/* ---------- BARRA SUPERIOR ---------- */
+header.topbar{
+  background:var(--ink);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;flex:none;
+  border-bottom-left-radius:22px;border-bottom-right-radius:22px;z-index:20;
+  box-shadow:0 6px 18px rgba(20,33,61,.28)
+}
+.tb-row{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:12px;background:linear-gradient(150deg,var(--oro),var(--rojo));
+  display:grid;place-items:center;font-weight:800;font-size:17px;color:#2A1200;flex:none}
+.who{flex:1;min-width:0}
+.who .nm{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .gr{font-size:12px;opacity:.72;font-weight:600}
+.iconbtn{width:40px;height:40px;border-radius:13px;border:none;background:rgba(255,255,255,.13);color:#fff;
+  font-size:19px;cursor:pointer;display:grid;place-items:center;transition:.15s;flex:none}
+.iconbtn:active{transform:scale(.92)}
+.chips{display:flex;gap:7px;margin-top:9px}
+.chip{flex:1;background:rgba(255,255,255,.1);border-radius:12px;padding:6px 4px;text-align:center;
+  font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:5px}
+.chip small{font-size:11px;opacity:.65;font-weight:700;display:block}
+.chip.ok{color:#6DE7BE}.chip.no{color:#FF9C95}
+.chip .mono{font-family:'JetBrains Mono',monospace}
+@media(min-width:900px){
+  .tb-row{max-width:860px;margin:0 auto}
+  .chips{max-width:860px;margin:9px auto 0}
+}
+
+/* ---------- MENÚ ---------- */
+.greet{margin:6px 0 4px;font-size:26px;font-weight:700}
+.greet + p{margin:0 0 18px;color:#5A6B8C;font-weight:600}
+.lessons{display:grid;gap:13px}
+@media(min-width:900px){.lessons{grid-template-columns:1fr 1fr}}
+.lcard{
+  display:flex;align-items:center;gap:14px;background:#fff;border-radius:var(--r);padding:15px 14px;
+  border:2px solid var(--line);box-shadow:var(--shadow);cursor:pointer;text-align:left;width:100%;
+  transition:transform .14s ease,box-shadow .14s;position:relative;overflow:hidden
+}
+.lcard:active{transform:scale(.985)}
+.lcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c)}
+.lnum{width:50px;height:50px;border-radius:16px;flex:none;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c) 15%,#fff);color:var(--c);font-size:24px}
+.linfo{flex:1;min-width:0}
+.linfo h3{font-size:16.5px;font-weight:700;line-height:1.2}
+.linfo p{margin:3px 0 0;font-size:13px;color:#6B7A96;font-weight:600;line-height:1.35}
+.ltag{font-size:11.5px;font-weight:800;color:var(--c);margin-top:6px;display:inline-block;
+  background:color-mix(in srgb,var(--c) 12%,#fff);padding:3px 9px;border-radius:99px}
+.chev{color:#B9C3D6;font-size:22px;flex:none}
+.sectitle{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8492AC;font-weight:800;margin:24px 0 10px}
+
+/* ---------- LECCIÓN ---------- */
+.lhead{display:flex;align-items:center;gap:12px;margin:2px 0 14px}
+.lhead .lnum{width:44px;height:44px;font-size:21px;border-radius:14px}
+.lhead h2{font-size:20px;font-weight:700;line-height:1.15}
+.lhead span{font-size:12.5px;color:#6B7A96;font-weight:700}
+
+/* camino de progreso */
+.pathcard{background:#fff;border:2px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;box-shadow:var(--shadow);margin-bottom:14px}
+.pathtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+.pathtop b{font-size:13.5px}
+.pathtop span{font-size:12.5px;color:#6B7A96;font-weight:700}
+.path{display:flex;align-items:center}
+.node{width:13px;height:13px;border-radius:50%;background:#E4E9F2;flex:none;transition:.35s;position:relative}
+.node.meta{width:26px;height:26px;font-size:13px;display:grid;place-items:center;color:#B9C3D6}
+.node.on{background:var(--verde);box-shadow:0 0 0 4px rgba(18,161,122,.16)}
+.node.meta.on{background:var(--oro);color:#5A3D00;box-shadow:0 0 0 5px rgba(245,179,1,.2)}
+.node.pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.link{flex:1;height:5px;background:#E4E9F2;transition:.35s}
+.link.on{background:var(--verde)}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.55)}100%{transform:scale(1)}}
+
+/* opciones */
+.opts{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px;align-items:center}
+.seg{display:flex;background:#EEF1F7;border-radius:14px;padding:4px;gap:4px}
+.seg button{border:none;background:transparent;padding:9px 15px;border-radius:11px;font-weight:800;font-size:14px;color:#67748F;cursor:pointer;transition:.16s}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(20,33,61,.12)}
+.tabs{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:2px solid var(--line);background:#fff;border-radius:13px;padding:9px 14px;
+  font-weight:800;font-size:14.5px;color:#67748F;cursor:pointer;transition:.16s}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.switch{display:flex;align-items:center;gap:9px;background:#fff;border:2px solid var(--line);border-radius:14px;
+  padding:9px 13px;font-weight:800;font-size:13.5px;cursor:pointer;user-select:none}
+.switch .knob{width:40px;height:23px;border-radius:99px;background:#DDE3EE;position:relative;transition:.2s;flex:none}
+.switch .knob::after{content:"";position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch.on .knob{background:var(--violeta)}
+.switch.on .knob::after{transform:translateX(17px)}
+
+/* tarjeta ejercicio */
+.exercise{background:#fff;border:2px solid var(--line);border-radius:24px;padding:20px 14px;box-shadow:var(--shadow);
+  margin-bottom:14px;overflow-x:auto;
+  background-image:linear-gradient(#EDF1F8 1px,transparent 1px),linear-gradient(90deg,#EDF1F8 1px,transparent 1px);
+  background-size:22px 22px}
+.exlabel{text-align:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#94A0B8;font-weight:800;margin-bottom:14px}
+.simple{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace;font-size:clamp(30px,9vw,42px);font-weight:700}
+.bigbox{width:104px;height:66px;border-radius:16px;border:3px solid var(--azul);background:#F5F8FF;
+  text-align:center;font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;color:var(--ink);
+  outline:none;transition:.16s}
+.bigbox:focus{border-color:var(--violeta);box-shadow:0 0 0 5px rgba(123,77,216,.16);background:#fff}
+
+/* fracción */
+.frac{display:inline-flex;flex-direction:column;align-items:center;gap:6px;vertical-align:middle}
+.frac .bar{height:5px;width:100%;min-width:118px;background:var(--ink);border-radius:3px}
+.frac .num,.frac .den{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:700;line-height:1.1}
+.midbox{width:92px;height:56px;border-radius:14px;border:3px solid var(--rosa);background:#FFF5F9;text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--ink);outline:none}
+.midbox:focus{box-shadow:0 0 0 5px rgba(224,81,138,.16);background:#fff}
+
+/* ---------- CAJA DE DIVISIÓN ---------- */
+.caja{display:flex;align-items:flex-start;justify-content:center;width:max-content;margin:0 auto;padding:4px 2px 10px}
+.left{display:grid;grid-template-columns:calc(var(--cell) * .62) repeat(var(--cols),var(--cell));align-items:center}
+.cell{width:var(--cell);height:var(--cell);display:grid;place-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:calc(var(--cell) * .52);font-weight:700;color:var(--ink)}
+.cell.given{background:transparent}
+.cell.grid{outline:1px dashed #C9D4E8;outline-offset:-1px;background:rgba(223,231,243,.28)}
+.sign{display:grid;place-items:center;height:var(--cell);font-family:'JetBrains Mono',monospace;
+  font-size:calc(var(--cell) * .5);font-weight:700;color:var(--rojo)}
+.sub{border-bottom:3px solid var(--ink)}
+input.cell{
+  border:2px solid #CBD6EA;border-radius:10px;background:#F7FAFF;padding:0;text-align:center;
+  width:calc(var(--cell) - 4px);height:calc(var(--cell) - 4px);font-size:calc(var(--cell) * .5);
+  color:var(--ink);outline:none;transition:.14s;margin:2px
+}
+input.cell:focus{border-color:var(--azul);background:#fff;box-shadow:0 0 0 4px rgba(47,91,217,.16)}
+input.cell.filled{border-color:#9FB4DE;background:#fff}
+input.cell.bad{border-color:var(--rojo);background:#FFF0EF;animation:shake .42s}
+input.cell.good{border-color:var(--verde);background:#EFFBF6}
+input.cell.sub{border-bottom:3px solid var(--ink);border-bottom-left-radius:0;border-bottom-right-radius:0}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.right{padding-left:10px;margin-left:2px;border-left:5px solid var(--rojo)}
+.divisor{height:var(--cell);display:flex;align-items:center;border-bottom:5px solid var(--rojo);padding-bottom:2px}
+.quot{display:flex;padding-top:8px}
+.rlabel{font-size:11px;font-weight:800;color:#94A0B8;text-transform:uppercase;letter-spacing:.1em;margin-top:12px}
+.residuo{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:6px;font-weight:800;color:#67748F;font-size:14px}
+
+/* tabla del divisor */
+.tabla{background:#F7F4FF;border:2px dashed #C9B8F2;border-radius:18px;padding:12px;margin-bottom:14px}
+.tabla h4{font-size:13px;color:var(--violeta);margin-bottom:9px;letter-spacing:.04em}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+@media(max-width:400px){.tgrid{grid-template-columns:repeat(2,1fr)}}
+.tgrid div{background:#fff;border-radius:10px;padding:7px 4px;text-align:center;font-family:'JetBrains Mono',monospace;
+  font-size:13.5px;font-weight:700;color:var(--ink)}
+
+.actions{display:grid;grid-template-columns:1fr auto;gap:10px}
+
+/* ---------- MODALES ---------- */
+.overlay{position:fixed;inset:0;background:rgba(15,24,45,.55);backdrop-filter:blur(4px);z-index:60;
+  display:flex;align-items:flex-end;justify-content:center;padding:14px;animation:fade .2s}
+@media(min-width:700px){.overlay{align-items:center}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--paper);border-radius:26px;padding:24px 20px 20px;width:100%;max-width:440px;
+  box-shadow:var(--shadow-lg);animation:up .32s cubic-bezier(.2,1,.3,1);text-align:center}
+@keyframes up{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+.fbicon{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-size:38px;margin:0 auto 14px;
+  animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.fbicon.ok{background:#E4F8F1;color:var(--verde)}
+.fbicon.no{background:#FFEEEC;color:var(--rojo)}
+.sheet h3{font-size:23px;margin-bottom:8px}
+.sheet p{margin:0 0 6px;color:#5A6B8C;font-weight:600;font-size:15.5px;line-height:1.5}
+.hintbox{background:#FFF8E4;border:2px solid #F6E0A0;border-radius:16px;padding:12px 14px;margin:14px 0 4px;
+  font-size:15px;font-weight:700;color:#7A5A00;text-align:left;line-height:1.45}
+.hintbox b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#B08600;margin-bottom:4px}
+.sheet .btn{margin-top:16px}
+
+/* logro / toast */
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 92px);transform:translateX(-50%);z-index:70;
+  background:var(--ink);color:#fff;border-radius:18px;padding:13px 20px;font-weight:800;font-size:15px;
+  box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:drop .4s cubic-bezier(.2,1.4,.4,1);max-width:90vw}
+@keyframes drop{from{transform:translate(-50%,-26px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.toast.out{animation:upout .3s forwards}
+@keyframes upout{to{transform:translate(-50%,-26px);opacity:0}}
+
+/* pantalla de logro */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:16px 0 4px;text-align:left}
+.stat{background:#fff;border:2px solid var(--line);border-radius:15px;padding:10px 12px}
+.stat small{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#94A0B8;font-weight:800}
+.stat b{font-size:19px;font-family:'JetBrains Mono',monospace}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:65;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:9px;height:15px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(106vh) rotate(720deg);opacity:.9}}
+.trophy{font-size:52px;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ====== BARRA SUPERIOR ====== -->
+  <header class="topbar" id="topbar" hidden>
+    <div class="tb-row">
+      <div class="avatar" id="tbAvatar">?</div>
+      <div class="who">
+        <div class="nm" id="tbName">—</div>
+        <div class="gr" id="tbGrade">—</div>
+      </div>
+      <button class="iconbtn" id="btnHome" title="Ir al inicio" aria-label="Ir al inicio">🏠</button>
+    </div>
+    <div class="chips">
+      <div class="chip"><span>⏱</span><span class="mono" id="tbTime">00:00</span></div>
+      <div class="chip ok"><span>✔</span><span class="mono" id="tbOk">0</span></div>
+      <div class="chip no"><span>✖</span><span class="mono" id="tbNo">0</span></div>
+    </div>
+  </header>
+
+  <div class="scroller" id="scroller">
+    <div class="content" id="view"></div>
+  </div>
+
+  <!-- ====== BIENVENIDA ====== -->
+  <section id="welcome" class="paperbg">
+    <div class="hero">
+      <svg class="brandmark" viewBox="0 0 150 96" aria-hidden="true">
+        <text x="4" y="40" font-family="JetBrains Mono, monospace" font-size="30" font-weight="700" fill="#14213D">9687</text>
+        <path d="M78 12 L78 52 M78 12 L146 12" stroke="#E8483F" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <text x="88" y="40" font-family="JetBrains Mono, monospace" font-size="26" font-weight="700" fill="#14213D">23</text>
+        <text x="88" y="76" font-family="JetBrains Mono, monospace" font-size="26" font-weight="700" fill="#12A17A">421</text>
+        <text x="10" y="76" font-family="JetBrains Mono, monospace" font-size="26" font-weight="700" fill="#94A0B8">−92</text>
+      </svg>
+      <div class="eyebrow">Matemáticas · Secundaria</div>
+      <h1>Divide paso a paso</h1>
+      <p class="sub">Tablas, divisiones exactas y el algoritmo completo, con casillas que te guían y pistas cuando algo no cuadra.</p>
+      <div class="field">
+        <label for="inName">¿Cómo te llamas?</label>
+        <input id="inName" type="text" placeholder="Escribe tu nombre" autocomplete="name" maxlength="28">
+      </div>
+      <div class="field">
+        <label for="inGrade">¿En qué grado vas?</label>
+        <select id="inGrade">
+          <option value="">Elige tu grado</option>
+          <option>Grado 4°</option><option>Grado 5°</option><option>Grado 6°</option>
+          <option>Grado 7°</option><option>Grado 8°</option><option>Grado 9°</option>
+          <option>Grado 10°</option><option>Grado 11°</option>
+        </select>
+      </div>
+      <div class="err" id="wErr"></div>
+      <button class="btn wide green" id="btnStart">Comenzar</button>
+    </div>
+  </section>
+</div>
+
+<script>
+"use strict";
+/* =========================================================
+   ESTADO GLOBAL
+   ========================================================= */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+
+const S = {
+  name:"", grade:"", ok:0, no:0, t0:0, timer:null,
+  screen:"menu", L:null,
+  progress:{1:0,2:0,3:0,4:0,5:0},
+  prefs:{t1:"mix", t2:"mix", t5:"mix", m3:"restas", m4:"restas", showTable:false}
+};
+
+const LESSONS = {
+  1:{t:"Tablas de multiplicar", d:"Repasa las tablas del 2 al 12. Es la base de toda división.", ic:"✖️", c:"var(--oro)"},
+  2:{t:"Tablas de dividir",     d:"Divisiones exactas: si sabes multiplicar, ya sabes dividir.", ic:"➗", c:"var(--teal)"},
+  3:{t:"Algoritmo · 1 cifra",   d:"Divisor de 1 cifra, dividendo de 2 o 3 cifras.", ic:"🧮", c:"var(--azul)"},
+  4:{t:"Algoritmo · 2 cifras",  d:"Divisor de 2 cifras, dividendo de 3 o 4 cifras. Puedes ver la tabla del divisor.", ic:"🎯", c:"var(--violeta)"},
+  5:{t:"Fracciones mentales",   d:"Lee la fracción como una división y resuélvela de memoria.", ic:"½", c:"var(--rosa)"}
+};
+const GOAL = 12;
+
+const MOTIVA = ["¡Excelente!","¡Sigue así!","Cada vez eres mejor.","Buen trabajo.","Ya casi completas esta lección.","¡No te rindas!","Vas con muy buen ritmo."];
+const CIERRE = ["Excelente trabajo. Cada día mejoras más en matemáticas.",
+  "Lo lograste. Practicar es lo que convierte lo difícil en fácil.",
+  "Muy bien. Dividir ya no es un misterio para ti.",
+  "Gran esfuerzo. Los errores también te enseñaron el camino."];
+
+/* =========================================================
+   BIENVENIDA / CRONÓMETRO
+   ========================================================= */
+$("#btnStart").addEventListener("click", () => {
+  const n = $("#inName").value.trim();
+  const g = $("#inGrade").value;
+  if(n.length < 2){ $("#wErr").textContent = "Escribe tu nombre para continuar."; $("#inName").focus(); return; }
+  if(!g){ $("#wErr").textContent = "Elige tu grado para continuar."; $("#inGrade").focus(); return; }
+  S.name = n; S.grade = g;
+  $("#tbName").textContent = n;
+  $("#tbGrade").textContent = g;
+  $("#tbAvatar").textContent = n.trim()[0].toUpperCase();
+  $("#welcome").remove();
+  $("#topbar").hidden = false;
+  S.t0 = Date.now();
+  S.timer = setInterval(tick, 250);
+  goMenu();
+});
+$("#inName").addEventListener("keydown", e => { if(e.key === "Enter") $("#inGrade").focus(); });
+
+function fmt(ms){
+  const s = Math.floor(ms/1000);
+  return String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
+}
+function tick(){ $("#tbTime").textContent = fmt(Date.now() - S.t0); }
+function syncCounters(){ $("#tbOk").textContent = S.ok; $("#tbNo").textContent = S.no; }
+
+$("#btnHome").addEventListener("click", goMenu);
+
+/* =========================================================
+   MENÚ
+   ========================================================= */
+function goMenu(){
+  S.screen = "menu"; S.L = null;
+  const hora = new Date().getHours();
+  const saludo = hora < 12 ? "Buenos días" : hora < 19 ? "Buenas tardes" : "Buenas noches";
+  let cards = "";
+  for(const id of [1,2,3,4,5]){
+    const L = LESSONS[id], p = S.progress[id];
+    const tag = p >= GOAL ? "✔ Lección completada" : (p > 0 ? p + " de " + GOAL + " aciertos" : "Meta: " + GOAL + " aciertos");
+    cards += '<button class="lcard" style="--c:'+L.c+'" data-open="'+id+'">'+
+      '<div class="lnum">'+L.ic+'</div>'+
+      '<div class="linfo"><h3>'+id+'. '+L.t+'</h3><p>'+L.d+'</p><span class="ltag">'+tag+'</span></div>'+
+      '<div class="chev">›</div></button>';
+  }
+  $("#view").innerHTML =
+    '<h2 class="greet">'+saludo+', '+esc(S.name.split(" ")[0])+' 👋</h2>'+
+    '<p>Elige una sección para practicar. Puedes volver aquí cuando quieras con el botón 🏠.</p>'+
+    '<div class="sectitle">Secciones</div>'+
+    '<div class="lessons">'+cards+'</div>'+
+    '<div class="sectitle">Cómo funciona</div>'+
+    '<div class="pathcard"><p style="margin:0;color:#5A6B8C;font-weight:600;line-height:1.55;font-size:14.5px">'+
+      'Cada lección termina con <b>'+GOAL+' respuestas correctas</b>. Si te equivocas no pierdes nada: recibes una pista y vuelves al mismo ejercicio hasta resolverlo.'+
+    '</p></div>';
+  $("#scroller").scrollTop = 0;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-open]");
+  if(b) openLesson(Number(b.dataset.open));
+});
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* =========================================================
+   LECCIÓN
+   ========================================================= */
+function openLesson(id){
+  S.screen = "lesson";
+  S.L = { id, ok:0, no:0, t0:Date.now(), ex:null, order:[], streak:0 };
+  renderLesson();
+  newExercise();
+  $("#scroller").scrollTop = 0;
+}
+
+function renderLesson(){
+  const id = S.L.id, L = LESSONS[id];
+  let opts = "";
+  if(id === 1 || id === 2 || id === 5){
+    const key = "t" + id;
+    let tabs = '<button data-tab="'+key+'" data-val="mix" class="'+(S.prefs[key]==="mix"?"on":"")+'">Mezcladas</button>';
+    for(let i=2;i<=12;i++) tabs += '<button data-tab="'+key+'" data-val="'+i+'" class="'+(S.prefs[key]==String(i)?"on":"")+'">Tabla del '+i+'</button>';
+    opts = '<div class="tabs">'+tabs+'</div>';
+  }
+  if(id === 3 || id === 4){
+    const key = "m" + id, m = S.prefs[key];
+    opts = '<div class="opts"><div class="seg">'+
+      '<button data-mode="'+key+'" data-val="restas" class="'+(m==="restas"?"on":"")+'">Con restas</button>'+
+      '<button data-mode="'+key+'" data-val="mental" class="'+(m==="mental"?"on":"")+'">Mental</button></div>';
+    if(id === 4){
+      opts += '<div class="switch '+(S.prefs.showTable?"on":"")+'" id="swTable"><div class="knob"></div>Ver tabla del divisor</div>';
+    }
+    opts += '</div>';
+  }
+  $("#view").innerHTML =
+    '<div class="lhead"><div class="lnum" style="--c:'+L.c+';background:color-mix(in srgb,'+L.c+' 15%,#fff);color:'+L.c+'">'+L.ic+'</div>'+
+      '<div><h2>'+L.t+'</h2><span>Meta de la lección: '+GOAL+' respuestas correctas</span></div></div>'+
+    '<div class="pathcard"><div class="pathtop"><b>Tu recorrido</b><span id="pcount">0 / '+GOAL+'</span></div>'+
+      '<div class="path" id="path"></div></div>'+
+    opts +
+    '<div id="tablaWrap"></div>'+
+    '<div class="exercise" id="exbox"></div>'+
+    '<div class="actions">'+
+      '<button class="btn green" id="btnCheck">✅ Comprobar respuesta</button>'+
+      '<button class="btn ghost" id="btnClear" title="Borrar">🗑</button>'+
+    '</div>';
+  renderPath();
+  $("#btnCheck").addEventListener("click", check);
+  $("#btnClear").addEventListener("click", clearAll);
+  const sw = $("#swTable");
+  if(sw) sw.addEventListener("click", () => {
+    S.prefs.showTable = !S.prefs.showTable;
+    sw.classList.toggle("on", S.prefs.showTable);
+    renderTabla();
+  });
+  $$("[data-tab]").forEach(b => b.addEventListener("click", () => {
+    S.prefs[b.dataset.tab] = b.dataset.val;
+    $$('[data-tab="'+b.dataset.tab+'"]').forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    newExercise();
+  }));
+  $$("[data-mode]").forEach(b => b.addEventListener("click", () => {
+    S.prefs[b.dataset.mode] = b.dataset.val;
+    $$('[data-mode="'+b.dataset.mode+'"]').forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    newExercise();
+  }));
+}
+
+function renderPath(){
+  const done = S.L.ok, path = $("#path");
+  if(!path) return;
+  let h = "";
+  for(let i=1;i<=GOAL;i++){
+    if(i > 1) h += '<div class="link '+(i<=done?"on":"")+'"></div>';
+    const meta = (i%4 === 0);
+    h += '<div class="node '+(meta?"meta ":"")+(i<=done?"on":"")+'" data-n="'+i+'">'+(meta ? (i===GOAL?"🏁":"★") : "")+'</div>';
+  }
+  path.innerHTML = h;
+  $("#pcount").textContent = done + " / " + GOAL;
+}
+
+function renderTabla(){
+  const w = $("#tablaWrap");
+  if(!w) return;
+  const ex = S.L.ex;
+  if(S.L.id !== 4 || !S.prefs.showTable || !ex || !ex.divisor){ w.innerHTML = ""; return; }
+  let g = "";
+  for(let i=1;i<=9;i++) g += "<div>"+ex.divisor+" × "+i+" = "+(ex.divisor*i)+"</div>";
+  w.innerHTML = '<div class="tabla"><h4>TABLA DEL '+ex.divisor+'</h4><div class="tgrid">'+g+"</div></div>";
+}
+
+/* =========================================================
+   GENERADORES DE EJERCICIOS
+   ========================================================= */
+function newExercise(){
+  const id = S.L.id;
+  const ex = id === 1 ? gen1() : id === 2 ? gen2() : id === 5 ? gen5() : genAlgo(id);
+  S.L.ex = ex;
+  S.L.order = ex.order;
+  $("#exbox").innerHTML = '<div class="exlabel">'+ex.label+"</div>" + ex.html;
+  renderTabla();
+  sizeCells();
+  if(window.matchMedia("(min-width:900px)").matches){
+    const f = $("#exbox").querySelector("input");
+    if(f) f.focus();
+  }
+}
+
+function tableOf(key){
+  const v = S.prefs[key];
+  return v === "mix" ? rnd(2,12) : Number(v);
+}
+
+function gen1(){
+  const a = tableOf("t1"), b = rnd(2,12);
+  return {
+    kind:"simple", label:"Multiplica",
+    html:'<div class="simple">'+a+' <span style="color:var(--oro)">×</span> '+b+' = '+
+         '<input class="bigbox" data-k="a" inputmode="numeric" maxlength="3" autocomplete="off"></div>',
+    order:[{key:"a", val:String(a*b)}],
+    explain: a+" × "+b+" = "+(a*b)+". Son "+b+" grupos de "+a+".",
+    hint: "Ve avanzando en la tabla del "+a+": "+a+" × "+(b-1)+" = "+(a*(b-1))+", y sumando "+a+" más llegas al resultado."
+  };
+}
+function gen2(){
+  const b = tableOf("t2"), q = rnd(2,12), a = b*q;
+  return {
+    kind:"simple", label:"Divide",
+    html:'<div class="simple">'+a+' <span style="color:var(--teal)">÷</span> '+b+' = '+
+         '<input class="bigbox" data-k="a" inputmode="numeric" maxlength="3" autocomplete="off"></div>',
+    order:[{key:"a", val:String(q)}],
+    explain: a+" ÷ "+b+" = "+q+", porque "+b+" × "+q+" = "+a+".",
+    hint: "Pregúntate: ¿por cuál número multiplico "+b+" para obtener "+a+"? Repasa la tabla del "+b+"."
+  };
+}
+function gen5(){
+  const b = tableOf("t5"), q = rnd(2,12), a = b*q;
+  const tipo = pick(["res","num","den"]);
+  const box = '<input class="midbox" data-k="a" inputmode="numeric" maxlength="3" autocomplete="off">';
+  const N = tipo === "num" ? box : '<div class="num">'+a+"</div>";
+  const D = tipo === "den" ? box : '<div class="den">'+b+"</div>";
+  const R = tipo === "res" ? box : '<div class="num" style="color:var(--verde)">'+q+"</div>";
+  const val = tipo === "num" ? a : tipo === "den" ? b : q;
+  const html = '<div class="simple" style="gap:16px">'+
+      '<div class="frac">'+N+'<div class="bar"></div>'+D+"</div>"+
+      "<span>=</span>"+R+"</div>";
+  const hints = {
+    res:"Lee la fracción como una división: "+a+" ÷ "+b+". ¿Cuántas veces cabe "+b+" en "+a+"?",
+    num:"El numerador es el total. Multiplica el denominador por el resultado: "+b+" × "+q+".",
+    den:"El denominador dice en cuántas partes iguales se reparte. Busca el número que multiplicado por "+q+" da "+a+"."
+  };
+  return {
+    kind:"simple", label: tipo === "res" ? "¿Cuánto vale la fracción?" : "Completa la casilla",
+    html, order:[{key:"a", val:String(val)}],
+    explain: a+"/"+b+" = "+q+", porque "+b+" × "+q+" = "+a+".",
+    hint: hints[tipo]
+  };
+}
+
+/* ---- Algoritmo ---- */
+function divide(dividendo, divisor){
+  const ds = String(dividendo).split("").map(Number);
+  const steps = []; const qd = [];
+  let r = 0, started = false;
+  for(let j=0;j<ds.length;j++){
+    const cur = r*10 + ds[j];
+    const q = Math.floor(cur/divisor);
+    const rem = cur % divisor;
+    if(q === 0 && !started){ r = rem; continue; }
+    started = true; qd.push(q);
+    steps.push({ col:j, cur, q, prod:q*divisor, rem, bring: j+1 < ds.length ? ds[j+1] : null });
+    r = rem;
+  }
+  return { dividendo, divisor, ds, steps, qd, cociente:Number(qd.join("")), residuo:r };
+}
+
+function genAlgo(id){
+  let e;
+  for(let guard=0; guard<800; guard++){
+    let divisor, dividendo;
+    if(id === 3){
+      divisor = rnd(2,9);
+      dividendo = rnd(divisor*10, 999);
+    }else{
+      divisor = rnd(11,49);
+      dividendo = Math.random() < .45 ? rnd(divisor*10, 999) : rnd(1000, 9999);
+      if(dividendo < divisor*10) continue;
+    }
+    const d = divide(dividendo, divisor);
+    if(d.qd.length < 2) continue;
+    if(d.qd.some(x => x === 0)) continue;   // evitamos ceros intermedios
+    if(String(d.dividendo).length < 2) continue;
+    e = d; break;
+  }
+  if(!e) e = divide(9687, 23);
+  const mode = S.prefs["m" + id];
+  return buildAlgo(e, mode, id);
+}
+
+function buildAlgo(e, mode, id){
+  const n = e.ds.length, order = [];
+  const inp = (k, row, col, extra) =>
+    '<input class="cell '+(extra||"")+'" data-k="'+k+'" data-one="1" inputmode="numeric" maxlength="2" autocomplete="off"'+
+    (row ? ' style="grid-row:'+row+';grid-column:'+col+'"' : "")+">";
+
+  let left = "";
+  e.ds.forEach((d,j) => { left += '<div class="cell given" style="grid-row:1;grid-column:'+(j+2)+'">'+d+"</div>"; });
+
+  // cociente (panel derecho) — el orden de revisión intercala cociente y pasos
+  const qInputs = e.qd.map((q,i) => inp("q"+i)).join("");
+
+  let row = 1;
+  if(mode === "restas"){
+    e.steps.forEach((s,i) => {
+      order.push({key:"q"+i, val:String(s.q), type:"quot", i});
+      const prod = String(s.prod), pStart = s.col - prod.length + 1;
+      row++;
+      left += '<div class="sign" style="grid-row:'+row+';grid-column:1">−</div>';
+      for(let k=0;k<prod.length;k++){
+        const key = "p"+i+"_"+k;
+        order.push({key, val:prod[k], type:"prod", i});
+        left += inp(key, row, pStart+k+2, "sub");
+      }
+      const rem = String(s.rem), rStart = s.col - rem.length + 1;
+      row++;
+      for(let k=0;k<rem.length;k++){
+        const key = "d"+i+"_"+k;
+        order.push({key, val:rem[k], type:"rest", i});
+        left += inp(key, row, rStart+k+2);
+      }
+      if(s.bring !== null){
+        const key = "b"+i;
+        order.push({key, val:String(s.bring), type:"bring", i});
+        left += inp(key, row, s.col+3);
+      }
+    });
+  }else{
+    e.steps.forEach((s,i) => order.push({key:"q"+i, val:String(s.q), type:"quot", i}));
+    order.push({key:"res", val:String(e.residuo), type:"resid", i:e.steps.length-1});
+  }
+
+  const resDigits = String(e.residuo).length;
+  const resBoxes = mode === "mental"
+    ? '<div class="residuo"><span>Residuo</span>'+
+      '<input class="cell" data-k="res" inputmode="numeric" maxlength="'+resDigits+'" autocomplete="off" '+
+      'style="width:calc(var(--cell) * '+(resDigits*0.9)+');height:calc(var(--cell) - 4px)"></div>'
+    : "";
+
+  const html =
+    '<div class="caja" style="--cols:'+n+'">'+
+      '<div class="left" id="leftgrid">'+left+"</div>"+
+      '<div class="right"><div class="divisor">'+
+        String(e.divisor).split("").map(d => '<div class="cell given">'+d+"</div>").join("")+
+      "</div>"+
+      '<div class="quot">'+qInputs+"</div></div>"+
+    "</div>"+ resBoxes +
+    '<p style="text-align:center;color:#94A0B8;font-weight:700;font-size:13px;margin:10px 0 0">'+
+      (mode === "restas" ? "Escribe cada producto, cada resta y la cifra que bajas." : "Escribe solo el cociente y el residuo. Las restas van en tu cabeza.")+"</p>";
+
+  return {
+    kind:"algo", label:(mode === "restas" ? "División con restas" : "División mental"),
+    html, order, mode,
+    divisor:e.divisor, e,
+    explain:"Comprobación: "+e.divisor+" × "+e.cociente+(e.residuo ? " + "+e.residuo : "")+" = "+e.dividendo+".",
+    hintFor(o){
+      const s = e.steps[o.i] || e.steps[e.steps.length-1];
+      if(o.type === "quot") return "Revisa el cociente: ¿cuántas veces cabe "+e.divisor+" en "+s.cur+"? Busca el mayor número que multiplicado por "+e.divisor+" no se pase de "+s.cur+".";
+      if(o.type === "prod") return "Revisa la multiplicación: "+s.q+" × "+e.divisor+". Ese producto se escribe debajo de "+s.cur+" para restarlo.";
+      if(o.type === "rest") return "Revisa la resta: "+s.cur+" − "+s.prod+". Lo que sobra siempre debe ser menor que "+e.divisor+".";
+      if(o.type === "bring") return "Ahora baja la siguiente cifra del dividendo: el "+s.bring+", y ponla junto a lo que sobró.";
+      return "Revisa el residuo: es lo que sobra al final y tiene que ser menor que "+e.divisor+". Calcula "+e.dividendo+" − "+e.divisor+" × cociente.";
+    }
+  };
+}
+
+/* Ajusta el tamaño de casilla al ancho disponible */
+function sizeCells(){
+  const box = $("#exbox");
+  if(!box) return;
+  const caja = box.querySelector(".caja");
+  if(!caja) return;
+  const cols = Number(caja.style.getPropertyValue("--cols")) || 4;
+  const ex = S.L.ex;
+  const rightCols = Math.max(String(ex.divisor).length, ex.e.qd.length);
+  const total = 0.62 + cols + rightCols + 0.9;
+  const avail = box.clientWidth - 34;
+  const size = Math.max(30, Math.min(50, Math.floor(avail/total)));
+  caja.style.setProperty("--cell", size+"px");
+  const res = box.querySelector('[data-k="res"]');
+  if(res) res.style.setProperty("--cell", size+"px");
+}
+window.addEventListener("resize", () => { if(S.L && S.L.ex && S.L.ex.kind === "algo") sizeCells(); });
+
+/* =========================================================
+   ENTRADA DE DATOS
+   ========================================================= */
+document.addEventListener("focusin", e => {
+  if(e.target.matches("input.cell, .bigbox, .midbox")) setTimeout(() => e.target.select(), 0);
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if(!t.matches("input.cell, .bigbox, .midbox")) return;
+  t.value = t.value.replace(/\D/g,"");
+  const one = t.dataset.one === "1";
+  if(one && t.value.length > 1) t.value = t.value.slice(-1);
+  t.classList.remove("bad","good");
+  t.classList.toggle("filled", t.value !== "");
+  if(one && t.value.length === 1) focusStep(t, 1);
+});
+document.addEventListener("keydown", e => {
+  const t = e.target;
+  if(!t.matches("input.cell, .bigbox, .midbox")) return;
+  if(e.key === "Enter"){ e.preventDefault(); check(); }
+  if(e.key === "Backspace" && t.value === "") focusStep(t, -1);
+  if(e.key === "ArrowRight") focusStep(t, 1);
+  if(e.key === "ArrowLeft") focusStep(t, -1);
+});
+function focusStep(el, dir){
+  const order = S.L ? S.L.order : [];
+  const i = order.findIndex(o => o.key === el.dataset.k);
+  const next = order[i + dir];
+  if(!next) return;
+  const n = document.querySelector('[data-k="'+next.key+'"]');
+  if(n) n.focus();
+}
+
+function clearAll(){
+  $$("#exbox input").forEach(i => { i.value=""; i.classList.remove("bad","good","filled"); });
+  const f = $("#exbox").querySelector("input");
+  if(f) f.focus();
+}
+
+/* =========================================================
+   COMPROBAR
+   ========================================================= */
+function check(){
+  const ex = S.L.ex, order = S.L.order;
+  const els = {};
+  for(const o of order){ els[o.key] = document.querySelector('[data-k="'+o.key+'"]'); }
+  const vacio = order.some(o => !els[o.key] || els[o.key].value.trim() === "");
+  if(vacio){
+    toast("✏️ Completa todas las casillas antes de comprobar");
+    const em = order.find(o => els[o.key] && els[o.key].value.trim() === "");
+    if(em) els[em.key].focus();
+    return;
+  }
+  let malo = null;
+  for(const o of order){
+    if(els[o.key].value.trim() !== o.val){ malo = o; break; }
+  }
+  if(malo){
+    for(const o of order){
+      if(o.key === malo.key) break;
+      els[o.key].classList.add("good");
+    }
+    els[malo.key].classList.add("bad");
+    S.no++; S.L.no++; S.L.streak = 0; syncCounters();
+    const pista = ex.kind === "algo" ? ex.hintFor(malo) : ex.hint;
+    feedback(false, "✖ Inténtalo nuevamente", "Casi. Hay una casilla marcada en rojo: revísala y corrige solo esa parte.", pista, () => {
+      els[malo.key].classList.remove("bad");
+      els[malo.key].value = "";
+      els[malo.key].focus();
+    });
+  }else{
+    order.forEach(o => els[o.key].classList.add("good"));
+    S.ok++; S.L.ok++; S.L.streak++; syncCounters();
+    S.progress[S.L.id] = Math.max(S.progress[S.L.id], S.L.ok);
+    const extra = S.L.streak >= 3 ? " " + pick(MOTIVA) : "";
+    feedback(true, "✔ Excelente", "Muy bien. Has resuelto correctamente el ejercicio." + extra, ex.explain, () => {
+      renderPath();
+      const nodo = document.querySelector('[data-n="'+S.L.ok+'"]');
+      if(nodo) nodo.classList.add("pop");
+      if(S.L.ok >= GOAL){ setTimeout(finish, 420); return; }
+      if(S.L.ok === 4 || S.L.ok === 8)
+        toast("🎯 ¡Meta "+S.L.ok+"! "+(S.L.ok === 4 ? "Ya llevas un tercio del camino." : "Solo te faltan 4. ¡Vas volando!"));
+      newExercise();
+    });
+  }
+}
+
+/* =========================================================
+   MODALES
+   ========================================================= */
+function feedback(ok, title, text, hint, onClose){
+  const ov = document.createElement("div");
+  ov.className = "overlay";
+  ov.innerHTML =
+    '<div class="sheet">'+
+      '<div class="fbicon '+(ok?"ok":"no")+'">'+(ok?"✔":"✖")+"</div>"+
+      "<h3>"+title+"</h3><p>"+text+"</p>"+
+      '<div class="hintbox"><b>'+(ok?"Por qué está bien":"Pista para corregir")+"</b>"+hint+"</div>"+
+      '<button class="btn wide '+(ok?"green":"red")+'">'+(ok?"Continuar":"Volver a intentar")+"</button>"+
+    "</div>";
+  document.body.appendChild(ov);
+  const b = ov.querySelector("button");
+  b.focus();
+  const close = () => { ov.remove(); if(onClose) onClose(); };
+  b.addEventListener("click", close);
+  ov.addEventListener("click", ev => { if(ev.target === ov) close(); });
+}
+
+let toastT = null;
+function toast(msg){
+  const old = document.querySelector(".toast");
+  if(old) old.remove();
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t);
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 300); }, 2600);
+}
+
+function confetti(){
+  const cols = ["#F5B301","#E8483F","#12A17A","#2F5BD9","#7B4DD8","#E0518A"];
+  const c = document.createElement("div");
+  c.className = "confetti";
+  let h = "";
+  for(let i=0;i<48;i++){
+    h += '<i style="left:'+rnd(0,100)+'%;background:'+pick(cols)+';animation-duration:'+(1.6+Math.random()*1.6).toFixed(2)+'s;animation-delay:'+(Math.random()*.6).toFixed(2)+'s"></i>';
+  }
+  c.innerHTML = h;
+  document.body.appendChild(c);
+  setTimeout(() => c.remove(), 4200);
+}
+
+function finish(){
+  const L = S.L, tot = L.ok + L.no;
+  const pct = tot ? Math.round(L.ok/tot*100) : 100;
+  const tiempo = fmt(Date.now() - L.t0);
+  S.progress[L.id] = GOAL;
+  confetti();
+  const ov = document.createElement("div");
+  ov.className = "overlay";
+  ov.innerHTML =
+    '<div class="sheet">'+
+      '<div class="trophy">🎉</div>'+
+      "<h3>¡Lección completada!</h3>"+
+      '<p style="font-weight:800;color:var(--ink)">'+esc(LESSONS[L.id].t)+"</p>"+
+      '<div class="stats">'+
+        '<div class="stat"><small>Estudiante</small><b style="font-size:15px;font-family:Nunito">'+esc(S.name)+"</b></div>"+
+        '<div class="stat"><small>Grado</small><b style="font-size:15px;font-family:Nunito">'+esc(S.grade)+"</b></div>"+
+        '<div class="stat"><small>Tiempo</small><b>'+tiempo+"</b></div>"+
+        '<div class="stat"><small>Aciertos</small><b style="color:var(--verde)">✔ '+L.ok+"</b></div>"+
+        '<div class="stat"><small>Errores</small><b style="color:var(--rojo)">✖ '+L.no+"</b></div>"+
+        '<div class="stat"><small>Precisión</small><b>'+pct+"%</b></div>"+
+      "</div>"+
+      '<div class="hintbox" style="background:#E4F8F1;border-color:#A8E5D2;color:#0B6B52"><b style="color:#0E8A69">Mensaje para ti</b>'+pick(CIERRE)+"</div>"+
+      '<button class="btn wide green" id="btnNext">'+(L.id < 5 ? "Continuar con la lección "+(L.id+1) : "Volver al menú")+"</button>"+
+      '<button class="btn wide ghost" id="btnMenu" style="margin-top:9px">Menú principal</button>'+
+    "</div>";
+  document.body.appendChild(ov);
+  ov.querySelector("#btnNext").addEventListener("click", () => {
+    ov.remove();
+    if(L.id < 5) openLesson(L.id+1); else goMenu();
+  });
+  ov.querySelector("#btnMenu").addEventListener("click", () => { ov.remove(); goMenu(); });
+}
+</script>
+</body>
+</html>
