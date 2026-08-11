@@ -214,8 +214,32 @@ input.cell{
 }
 input.cell:focus{border-color:var(--azul);background:#fff;box-shadow:0 0 0 4px rgba(47,91,217,.16)}
 input.cell.filled{border-color:#9FB4DE;background:#fff}
+.ddig{color:#2F80C7}
+.vdig{color:#E09B0E}
+.qdig{color:#12784F}
+.rdig{color:#D4453C}
+input.cell.qbox{border-color:#A9DCC1;background:#F4FBF7;color:#12784F}
+input.cell.rembox{border-color:#F2BDB9;background:#FFF7F6;color:#D4453C}
+input.cell.bringbox{border-color:#B7D4F0;background:#F4F9FF;color:#2F80C7}
+input.cell.prodbox{color:#5A6B8C}
+.legend{text-align:center;font-size:11.5px;font-weight:800;color:#94A0B8;margin:12px 0 0;letter-spacing:.02em}
+.legend b{font-weight:800}
+.howto{text-align:center;color:#94A0B8;font-weight:700;font-size:13px;margin:6px 0 0;line-height:1.4}
+.howto b{color:#67748F}
+.schips{display:flex;align-items:center;gap:7px;justify-content:center;margin:-4px 0 14px;flex-wrap:wrap}
+.schips span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#94A0B8;font-weight:800}
+.schip{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;
+  background:#EEF1F7;color:#8A97AF;transition:.25s}
+.schip.on{background:var(--verde);color:#fff;box-shadow:0 0 0 4px rgba(18,161,122,.14)}
+.stepmsg{background:#E9F9F2;border:2px solid #A8E5D2;border-radius:16px;padding:12px 14px;margin-top:14px;
+  font-weight:700;color:#0B6B52;font-size:14.5px;line-height:1.45;animation:up .3s}
+.stepmsg b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#0E8A69;margin-bottom:3px}
+.prueba{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;text-align:center;margin-top:8px;
+  background:#fff;border-radius:14px;padding:10px 6px;border:2px solid var(--line)}
+.hintnote{font-size:12.5px;color:#94A0B8;font-weight:700;text-align:center;margin:9px 0 0}
 input.cell.bad{border-color:var(--rojo);background:#FFF0EF;animation:shake .42s}
 input.cell.good{border-color:var(--verde);background:#EFFBF6}
+input.cell.lock{border-color:var(--verde);background:#E9F9F2;color:#0B6B52;cursor:default}
 input.cell.sub{border-bottom:3px solid var(--ink);border-bottom-left-radius:0;border-bottom-right-radius:0}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .right{padding-left:10px;margin-left:2px;border-left:5px solid var(--rojo)}
@@ -464,8 +488,9 @@ function renderLesson(){
     '<div class="exercise" id="exbox"></div>'+
     '<div class="actions">'+
       '<button class="btn green" id="btnCheck">✅ Comprobar respuesta</button>'+
-      '<button class="btn ghost" id="btnClear" title="Borrar">🗑</button>'+
-    '</div>';
+      '<button class="btn ghost" id="btnClear" title="Borrar todo el ejercicio">🗑</button>'+
+    '</div>'+
+    '<p class="hintnote">Puedes comprobar cuando quieras: se revisa solo lo que llevas escrito.</p>';
   renderPath();
   $("#btnCheck").addEventListener("click", check);
   $("#btnClear").addEventListener("click", clearAll);
@@ -520,7 +545,10 @@ function newExercise(){
   const ex = id === 1 ? gen1() : id === 2 ? gen2() : id === 5 ? gen5() : genAlgo(id);
   S.L.ex = ex;
   S.L.order = ex.order;
-  $("#exbox").innerHTML = '<div class="exlabel">'+ex.label+"</div>" + ex.html;
+  S.L.blocksOk = 0;
+  $("#exbox").innerHTML = '<div class="exlabel">'+ex.label+"</div>" +
+    '<div id="stepchips"></div>' + ex.html + '<div id="stepmsg"></div>';
+  renderChips();
   renderTabla();
   sizeCells();
   if(window.matchMedia("(min-width:900px)").matches){
@@ -603,14 +631,19 @@ function genAlgo(id){
     let divisor, dividendo;
     if(id === 3){
       divisor = rnd(2,9);
-      dividendo = rnd(divisor*10, 999);
+      if(Math.random() < .3){                       // caso corto tipo 27 ÷ 5 (un solo paso)
+        dividendo = rnd(Math.max(10, divisor*2), divisor*10 - 1);
+      }else{
+        dividendo = rnd(divisor*10, 999);
+      }
     }else{
       divisor = rnd(11,49);
       dividendo = Math.random() < .45 ? rnd(divisor*10, 999) : rnd(1000, 9999);
       if(dividendo < divisor*10) continue;
     }
     const d = divide(dividendo, divisor);
-    if(d.qd.length < 2) continue;
+    const minQ = (id === 3 && dividendo < divisor*10) ? 1 : 2;
+    if(d.qd.length < minQ) continue;
     if(d.qd.some(x => x === 0)) continue;   // evitamos ceros intermedios
     if(String(d.dividendo).length < 2) continue;
     e = d; break;
@@ -620,78 +653,102 @@ function genAlgo(id){
   return buildAlgo(e, mode, id);
 }
 
+function prueba(e){
+  return '<div class="prueba"><span class="ddig">'+e.dividendo+'</span> = '+
+    '<span class="qdig">'+e.cociente+'</span> × <span class="vdig">'+e.divisor+'</span>'+
+    (e.residuo ? ' + <span class="rdig">'+e.residuo+'</span>' : "")+"</div>";
+}
+
 function buildAlgo(e, mode, id){
-  const n = e.ds.length, order = [];
-  const inp = (k, row, col, extra) =>
-    '<input class="cell '+(extra||"")+'" data-k="'+k+'" data-one="1" inputmode="numeric" maxlength="2" autocomplete="off"'+
+  const n = e.ds.length, order = [], mental = (mode === "mental");
+  const inp = (k, cls, row, col) =>
+    '<input class="cell '+(cls||"")+'" data-k="'+k+'" data-one="1" inputmode="numeric" maxlength="2" autocomplete="off"'+
     (row ? ' style="grid-row:'+row+';grid-column:'+col+'"' : "")+">";
 
   let left = "";
-  e.ds.forEach((d,j) => { left += '<div class="cell given" style="grid-row:1;grid-column:'+(j+2)+'">'+d+"</div>"; });
+  e.ds.forEach((d,j) => { left += '<div class="cell given ddig" style="grid-row:1;grid-column:'+(j+2)+'">'+d+"</div>"; });
 
-  // cociente (panel derecho) — el orden de revisión intercala cociente y pasos
-  const qInputs = e.qd.map((q,i) => inp("q"+i)).join("");
+  const qInputs = e.qd.map((q,i) => inp("q"+i, "qbox")).join("");
 
   let row = 1;
-  if(mode === "restas"){
-    e.steps.forEach((s,i) => {
-      order.push({key:"q"+i, val:String(s.q), type:"quot", i});
-      const prod = String(s.prod), pStart = s.col - prod.length + 1;
+  e.steps.forEach((s,i) => {
+    order.push({key:"q"+i, val:String(s.q), type:"quot", i, b:i});
+    if(!mental){
+      const prod = String(s.prod), pS = s.col - prod.length + 1;
       row++;
       left += '<div class="sign" style="grid-row:'+row+';grid-column:1">−</div>';
       for(let k=0;k<prod.length;k++){
         const key = "p"+i+"_"+k;
-        order.push({key, val:prod[k], type:"prod", i});
-        left += inp(key, row, pStart+k+2, "sub");
+        order.push({key, val:prod[k], type:"prod", i, b:i});
+        left += inp(key, "sub prodbox", row, pS+k+2);
       }
-      const rem = String(s.rem), rStart = s.col - rem.length + 1;
-      row++;
-      for(let k=0;k<rem.length;k++){
-        const key = "d"+i+"_"+k;
-        order.push({key, val:rem[k], type:"rest", i});
-        left += inp(key, row, rStart+k+2);
-      }
-      if(s.bring !== null){
-        const key = "b"+i;
-        order.push({key, val:String(s.bring), type:"bring", i});
-        left += inp(key, row, s.col+3);
-      }
-    });
-  }else{
-    e.steps.forEach((s,i) => order.push({key:"q"+i, val:String(s.q), type:"quot", i}));
-    order.push({key:"res", val:String(e.residuo), type:"resid", i:e.steps.length-1});
-  }
-
-  const resDigits = String(e.residuo).length;
-  const resBoxes = mode === "mental"
-    ? '<div class="residuo"><span>Residuo</span>'+
-      '<input class="cell" data-k="res" inputmode="numeric" maxlength="'+resDigits+'" autocomplete="off" '+
-      'style="width:calc(var(--cell) * '+(resDigits*0.9)+');height:calc(var(--cell) - 4px)"></div>'
-    : "";
+    }
+    const rem = String(s.rem), rS = s.col - rem.length + 1;
+    row++;
+    for(let k=0;k<rem.length;k++){
+      const key = "d"+i+"_"+k;
+      order.push({key, val:rem[k], type:"rest", i, b:i});
+      left += inp(key, "rembox", row, rS+k+2);
+    }
+    if(s.bring !== null){
+      const key = "b"+i;
+      order.push({key, val:String(s.bring), type:"bring", i, b:i});
+      left += inp(key, "bringbox", row, s.col+3);
+    }
+  });
 
   const html =
     '<div class="caja" style="--cols:'+n+'">'+
-      '<div class="left" id="leftgrid">'+left+"</div>"+
+      '<div class="left">'+left+"</div>"+
       '<div class="right"><div class="divisor">'+
-        String(e.divisor).split("").map(d => '<div class="cell given">'+d+"</div>").join("")+
+        String(e.divisor).split("").map(d => '<div class="cell given vdig">'+d+"</div>").join("")+
       "</div>"+
       '<div class="quot">'+qInputs+"</div></div>"+
-    "</div>"+ resBoxes +
-    '<p style="text-align:center;color:#94A0B8;font-weight:700;font-size:13px;margin:10px 0 0">'+
-      (mode === "restas" ? "Escribe cada producto, cada resta y la cifra que bajas." : "Escribe solo el cociente y el residuo. Las restas van en tu cabeza.")+"</p>";
+    "</div>"+
+    '<p class="legend"><b class="ddig">dividendo</b> · <b class="vdig">divisor</b> · <b class="qdig">cociente</b> · <b class="rdig">lo que falta</b></p>'+
+    '<p class="howto">'+(mental
+      ? 'Elige la cifra del cociente y escribe debajo <b>cuánto le falta</b> al producto para llegar. Sin restas escritas.'
+      : 'Escribe el producto, hazle la resta y baja la siguiente cifra.')+"</p>";
+
+  const explicaPaso = i => {
+    const s = e.steps[i];
+    let t = mental
+      ? s.q+" × "+e.divisor+" = "+s.prod+", y de "+s.prod+" a "+s.cur+" faltan "+s.rem+"."
+      : s.q+" × "+e.divisor+" = "+s.prod+", y "+s.cur+" − "+s.prod+" = "+s.rem+".";
+    if(s.bring !== null && e.steps[i+1]) t += " Al bajar el "+s.bring+" formas "+e.steps[i+1].cur+".";
+    return t;
+  };
 
   return {
-    kind:"algo", label:(mode === "restas" ? "División con restas" : "División mental"),
-    html, order, mode,
-    divisor:e.divisor, e,
-    explain:"Comprobación: "+e.divisor+" × "+e.cociente+(e.residuo ? " + "+e.residuo : "")+" = "+e.dividendo+".",
-    hintFor(o){
-      const s = e.steps[o.i] || e.steps[e.steps.length-1];
-      if(o.type === "quot") return "Revisa el cociente: ¿cuántas veces cabe "+e.divisor+" en "+s.cur+"? Busca el mayor número que multiplicado por "+e.divisor+" no se pase de "+s.cur+".";
-      if(o.type === "prod") return "Revisa la multiplicación: "+s.q+" × "+e.divisor+". Ese producto se escribe debajo de "+s.cur+" para restarlo.";
-      if(o.type === "rest") return "Revisa la resta: "+s.cur+" − "+s.prod+". Lo que sobra siempre debe ser menor que "+e.divisor+".";
-      if(o.type === "bring") return "Ahora baja la siguiente cifra del dividendo: el "+s.bring+", y ponla junto a lo que sobró.";
-      return "Revisa el residuo: es lo que sobra al final y tiene que ser menor que "+e.divisor+". Calcula "+e.dividendo+" − "+e.divisor+" × cociente.";
+    kind:"algo", label:(mental ? "División mental · sin restar" : "División con restas"),
+    html, order, mode, mental, blocks:e.steps.length, divisor:e.divisor, e, explicaPaso,
+    explain:"La división quedó completa. Compruébala así:" + prueba(e),
+    microMsg(o){
+      const s = e.steps[o.i] || e.steps[0];
+      if(o.type === "quot") return mental
+        ? "La cifra "+s.q+" del cociente es la correcta. Ahora piensa: "+s.q+" × "+e.divisor+" = "+s.prod+", ¿cuánto le falta para llegar a "+s.cur+"?"
+        : "La cifra "+s.q+" del cociente es la correcta. Ahora escribe el producto "+s.q+" × "+e.divisor+" debajo de "+s.cur+".";
+      if(o.type === "prod") return "El producto "+s.q+" × "+e.divisor+" = "+s.prod+" está bien. Ahora haz la resta "+s.cur+" − "+s.prod+".";
+      if(o.type === "rest") return (mental
+        ? "Correcto: de "+s.prod+" a "+s.cur+" faltan "+s.rem+"."
+        : "La resta está bien: quedan "+s.rem+".")+(s.bring !== null ? " Ahora baja el "+s.bring+"." : "");
+      if(o.type === "bring") return "Bien, bajaste el "+s.bring+".";
+      return "Lo que llevas escrito está correcto.";
+    },
+    hintFor(o, val){
+      const s = e.steps[o.i] || e.steps[0];
+      const v = Number(val);
+      if(o.type === "quot"){
+        if(val !== "" && v > s.q) return "Con "+v+" te pasas: "+v+" × "+e.divisor+" = "+(v*e.divisor)+", y eso es mayor que "+s.cur+". Prueba con una cifra menor.";
+        if(val !== "" && v < s.q) return v+" × "+e.divisor+" = "+(v*e.divisor)+", y a "+s.cur+" todavía le sobran "+(s.cur-v*e.divisor)+", que alcanza para otro "+e.divisor+". Cabe una vez más.";
+        return "Busca en la tabla del "+e.divisor+" el resultado que más se acerque a "+s.cur+" sin pasarse.";
+      }
+      if(o.type === "prod") return "Revisa la multiplicación "+s.q+" × "+e.divisor+". Ese producto se escribe debajo de "+s.cur+" para restarlo.";
+      if(o.type === "rest") return mental
+        ? "Piensa así: "+s.q+" × "+e.divisor+" = "+s.prod+". ¿Cuánto le falta a "+s.prod+" para llegar a "+s.cur+"? Ese número va en la casilla, y siempre es menor que "+e.divisor+"."
+        : "Revisa la resta "+s.cur+" − "+s.prod+". Lo que sobra siempre debe ser menor que "+e.divisor+".";
+      if(o.type === "bring") return "Ahora baja la siguiente cifra del dividendo: el "+s.bring+", y ponla junto a lo que te faltaba.";
+      return "Revisa el residuo: debe ser menor que "+e.divisor+".";
     }
   };
 }
@@ -728,6 +785,7 @@ document.addEventListener("input", e => {
   if(one && t.value.length > 1) t.value = t.value.slice(-1);
   t.classList.remove("bad","good");
   t.classList.toggle("filled", t.value !== "");
+  stepMsg("");
   if(one && t.value.length === 1) focusStep(t, 1);
 });
 document.addEventListener("keydown", e => {
@@ -740,15 +798,38 @@ document.addEventListener("keydown", e => {
 });
 function focusStep(el, dir){
   const order = S.L ? S.L.order : [];
-  const i = order.findIndex(o => o.key === el.dataset.k);
-  const next = order[i + dir];
-  if(!next) return;
-  const n = document.querySelector('[data-k="'+next.key+'"]');
-  if(n) n.focus();
+  let i = order.findIndex(o => o.key === el.dataset.k) + dir;
+  while(order[i]){
+    const n = document.querySelector('[data-k="'+order[i].key+'"]');
+    if(n && !n.readOnly){ n.focus(); return; }
+    i += dir;
+  }
+}
+function focusNextEmpty(){
+  if(!S.L) return;
+  for(const o of S.L.order){
+    const n = document.querySelector('[data-k="'+o.key+'"]');
+    if(n && !n.readOnly && n.value.trim() === ""){ n.focus(); return; }
+  }
+}
+function renderChips(){
+  const w = $("#stepchips");
+  if(!w || !S.L || !S.L.ex) return;
+  const total = S.L.ex.blocks || 1;
+  if(total < 2){ w.innerHTML = ""; return; }
+  let h = "";
+  for(let i=0;i<total;i++) h += '<div class="schip '+(i < S.L.blocksOk ? "on" : "")+'">'+(i < S.L.blocksOk ? "✓" : (i+1))+"</div>";
+  w.innerHTML = '<div class="schips"><span>Pasos</span>'+h+"</div>";
+}
+function stepMsg(html){
+  const w = $("#stepmsg");
+  if(w) w.innerHTML = html ? '<div class="stepmsg">'+html+"</div>" : "";
 }
 
 function clearAll(){
-  $$("#exbox input").forEach(i => { i.value=""; i.classList.remove("bad","good","filled"); });
+  $$("#exbox input").forEach(i => { i.value=""; i.readOnly=false; i.classList.remove("bad","good","filled","lock"); });
+  if(S.L){ S.L.blocksOk = 0; }
+  renderChips(); stepMsg("");
   const f = $("#exbox").querySelector("input");
   if(f) f.focus();
 }
@@ -760,45 +841,87 @@ function check(){
   const ex = S.L.ex, order = S.L.order;
   const els = {};
   for(const o of order){ els[o.key] = document.querySelector('[data-k="'+o.key+'"]'); }
-  const vacio = order.some(o => !els[o.key] || els[o.key].value.trim() === "");
-  if(vacio){
-    toast("✏️ Completa todas las casillas antes de comprobar");
-    const em = order.find(o => els[o.key] && els[o.key].value.trim() === "");
-    if(em) els[em.key].focus();
+
+  // Se revisa SOLO lo que el estudiante lleva escrito: comprobación paso a paso.
+  let limit = order.length;
+  for(let i=0;i<order.length;i++){
+    if(!els[order[i].key] || els[order[i].key].value.trim() === ""){ limit = i; break; }
+  }
+  if(limit === 0){
+    toast("✏️ Escribe al menos la primera casilla");
+    focusNextEmpty();
     return;
   }
+
   let malo = null;
-  for(const o of order){
+  for(let i=0;i<limit;i++){
+    const o = order[i];
     if(els[o.key].value.trim() !== o.val){ malo = o; break; }
   }
+
   if(malo){
     for(const o of order){
       if(o.key === malo.key) break;
       els[o.key].classList.add("good");
     }
+    const dado = els[malo.key].value.trim();
     els[malo.key].classList.add("bad");
     S.no++; S.L.no++; S.L.streak = 0; syncCounters();
-    const pista = ex.kind === "algo" ? ex.hintFor(malo) : ex.hint;
-    feedback(false, "✖ Inténtalo nuevamente", "Casi. Hay una casilla marcada en rojo: revísala y corrige solo esa parte.", pista, () => {
+    const pista = ex.kind === "algo" ? ex.hintFor(malo, dado) : ex.hint;
+    const cabeza = S.L.blocksOk > 0
+      ? "Los pasos anteriores siguen bien. Solo hay que corregir la casilla roja."
+      : "Casi. Hay una casilla marcada en rojo: revísala y corrige solo esa parte.";
+    feedback(false, "✖ Inténtalo nuevamente", cabeza, pista, () => {
       els[malo.key].classList.remove("bad");
       els[malo.key].value = "";
+      els[malo.key].classList.remove("filled");
       els[malo.key].focus();
     });
-  }else{
-    order.forEach(o => els[o.key].classList.add("good"));
-    S.ok++; S.L.ok++; S.L.streak++; syncCounters();
-    S.progress[S.L.id] = Math.max(S.progress[S.L.id], S.L.ok);
-    const extra = S.L.streak >= 3 ? " " + pick(MOTIVA) : "";
-    feedback(true, "✔ Excelente", "Muy bien. Has resuelto correctamente el ejercicio." + extra, ex.explain, () => {
-      renderPath();
-      const nodo = document.querySelector('[data-n="'+S.L.ok+'"]');
-      if(nodo) nodo.classList.add("pop");
-      if(S.L.ok >= GOAL){ setTimeout(finish, 420); return; }
-      if(S.L.ok === 4 || S.L.ok === 8)
-        toast("🎯 ¡Meta "+S.L.ok+"! "+(S.L.ok === 4 ? "Ya llevas un tercio del camino." : "Solo te faltan 4. ¡Vas volando!"));
-      newExercise();
-    });
+    return;
   }
+
+  // Todo lo escrito está bien: se asegura y se marca en verde.
+  for(let i=0;i<limit;i++){
+    const el = els[order[i].key];
+    el.classList.add("good","lock");
+    el.readOnly = true;
+  }
+
+  if(limit < order.length){
+    // Avance parcial correcto
+    const bloque = order[limit-1].b;
+    const cerrado = order[limit].b !== bloque;
+    S.L.blocksOk = cerrado ? bloque+1 : bloque;
+    renderChips();
+    if(ex.kind === "algo" && cerrado){
+      stepMsg("<b>✔ Paso "+(bloque+1)+" correcto</b>"+ex.explicaPaso(bloque));
+      toast("✔ Paso "+(bloque+1)+" correcto. Sigue con el siguiente.");
+    }else if(ex.kind === "algo"){
+      stepMsg("<b>✔ Vas bien</b>"+ex.microMsg(order[limit-1]));
+      toast("✔ Correcto hasta aquí");
+    }else{
+      stepMsg("<b>✔ Vas bien</b>Lo que llevas escrito está correcto. Continúa con las casillas que faltan.");
+      toast("✔ Vas bien hasta aquí");
+    }
+    focusNextEmpty();
+    return;
+  }
+
+  // Ejercicio completo y correcto
+  S.L.blocksOk = ex.blocks || 1;
+  renderChips(); stepMsg("");
+  S.ok++; S.L.ok++; S.L.streak++; syncCounters();
+  S.progress[S.L.id] = Math.max(S.progress[S.L.id], S.L.ok);
+  const extra = S.L.streak >= 3 ? " " + pick(MOTIVA) : "";
+  feedback(true, "✔ Excelente", "Muy bien. Has resuelto correctamente el ejercicio." + extra, ex.explain, () => {
+    renderPath();
+    const nodo = document.querySelector('[data-n="'+S.L.ok+'"]');
+    if(nodo) nodo.classList.add("pop");
+    if(S.L.ok >= GOAL){ setTimeout(finish, 420); return; }
+    if(S.L.ok === 4 || S.L.ok === 8)
+      toast("🎯 ¡Meta "+S.L.ok+"! "+(S.L.ok === 4 ? "Ya llevas un tercio del camino." : "Solo te faltan 4. ¡Vas volando!"));
+    newExercise();
+  });
 }
 
 /* =========================================================
