@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4A2FD1">
+<title>Signo &amp; Tabla · Matemáticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --tinta:#141033;
+  --tinta2:#5A5580;
+  --papel:#FFFFFF;
+  --nube:#F4F3FE;
+  --borde:#E6E3F7;
+  --violeta:#4A2FD1;
+  --violeta-suave:#EDE9FF;
+  --mas:#0E9E76;
+  --mas-suave:#DFF6EE;
+  --menos:#EE3F66;
+  --menos-suave:#FFE4EA;
+  --mango:#FFB020;
+  --mango-suave:#FFF1D6;
+  --sombra:0 8px 24px rgba(20,16,51,.10);
+  --sombra-alta:0 18px 45px rgba(20,16,51,.22);
+  --r:20px;
+  --barra-h:104px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Nunito',system-ui,-apple-system,sans-serif;
+  color:var(--tinta);
+  background:#DEDAF6;
+  background-image:radial-gradient(circle at 12% 8%, #EDE9FF 0, transparent 45%),
+                   radial-gradient(circle at 88% 92%, #D9F1EA 0, transparent 45%);
+  background-attachment:fixed;
+  font-size:17px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.cifra,.num{font-family:'Space Grotesk',system-ui,sans-serif;font-variant-numeric:tabular-nums}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--violeta);outline-offset:2px}
+
+/* ============ CARCASA ============ */
+.app{
+  max-width:480px;margin:0 auto;min-height:100dvh;
+  background:var(--papel);
+  box-shadow:var(--sombra-alta);
+  position:relative;overflow-x:hidden;
+  display:flex;flex-direction:column;
+}
+@media(min-width:900px){
+  body{padding:22px 0}
+  .app{max-width:940px;min-height:calc(100dvh - 44px);border-radius:32px;overflow:hidden}
+}
+main{flex:1;padding:18px 18px 40px}
+@media(min-width:900px){ main{padding:26px 34px 54px} }
+
+/* ============ BARRA SUPERIOR ============ */
+.barra{
+  position:sticky;top:0;z-index:60;
+  background:linear-gradient(135deg,#4A2FD1 0%,#6B3FE0 55%,#8A46D6 100%);
+  color:#fff;padding:12px 16px 10px;
+  border-radius:0 0 24px 24px;
+  box-shadow:0 6px 18px rgba(74,47,209,.28);
+}
+.barra.oculta{display:none}
+.barra-fila{display:flex;align-items:center;gap:12px}
+.avatar{
+  width:44px;height:44px;border-radius:14px;flex:0 0 auto;
+  background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.35);
+  display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:20px;
+}
+.quien{flex:1;min-width:0}
+.quien b{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quien span{display:block;font-size:13px;opacity:.85;font-weight:600}
+.casa{
+  width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.16);
+  display:grid;place-items:center;font-size:22px;transition:transform .18s, background .18s;
+}
+.casa:active{transform:scale(.9)}
+.casa:hover{background:rgba(255,255,255,.3)}
+.marcadores{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.chip-m{
+  background:rgba(255,255,255,.16);border-radius:12px;padding:6px 12px;
+  font-family:'Space Grotesk';font-weight:700;font-size:15px;
+  display:flex;align-items:center;gap:6px;letter-spacing:.3px;
+}
+.chip-m.ok{background:rgba(255,255,255,.24)}
+.chip-m.pulso{animation:pulso .45s ease}
+@keyframes pulso{0%{transform:scale(1)}45%{transform:scale(1.22)}100%{transform:scale(1)}}
+@media(min-width:900px){
+  .barra{display:flex;align-items:center;gap:20px;padding:14px 34px}
+  .barra-fila{flex:1}
+  .marcadores{margin-top:0}
+}
+
+/* ============ TIPOGRAFÍA ============ */
+.titulo{font-size:27px;font-weight:700;letter-spacing:-.6px;margin:6px 0 4px}
+.sub{color:var(--tinta2);font-size:15px;margin:0 0 18px;font-weight:600}
+.eyebrow{
+  font-family:'Space Grotesk';font-size:12px;letter-spacing:2.2px;text-transform:uppercase;
+  color:var(--violeta);font-weight:700;margin-bottom:2px;
+}
+
+/* ============ BOTONES ============ */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:17px 18px;border-radius:18px;
+  font-weight:800;font-size:18px;
+  background:var(--violeta);color:#fff;
+  box-shadow:0 6px 0 #35209C;
+  transition:transform .12s, box-shadow .12s, filter .15s;
+}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #35209C}
+.btn.verde{background:var(--mas);box-shadow:0 6px 0 #0A6E52}
+.btn.verde:active{box-shadow:0 2px 0 #0A6E52}
+.btn.gris{background:var(--nube);color:var(--tinta2);box-shadow:0 6px 0 var(--borde)}
+.btn.gris:active{box-shadow:0 2px 0 var(--borde)}
+.btn.mango{background:var(--mango);color:#4A3000;box-shadow:0 6px 0 #C9871A}
+.btn.mango:active{box-shadow:0 2px 0 #C9871A}
+.btn:disabled{opacity:.45;pointer-events:none}
+.fila-btn{display:flex;gap:12px;margin-top:14px}
+.fila-btn .btn{flex:1}
+
+/* ============ TARJETAS ============ */
+.rejilla{display:grid;gap:14px}
+@media(min-width:900px){ .rejilla.dos{grid-template-columns:1fr 1fr} }
+.card{
+  background:var(--papel);border:2px solid var(--borde);border-radius:var(--r);
+  padding:18px;box-shadow:var(--sombra);
+  display:flex;gap:14px;align-items:center;text-align:left;width:100%;
+  transition:transform .16s, box-shadow .16s, border-color .16s;
+  animation:entra .4s ease both;
+}
+.card:hover{transform:translateY(-3px);border-color:#CFC7F5;box-shadow:0 14px 30px rgba(20,16,51,.14)}
+.card:active{transform:scale(.985)}
+.card .ico{
+  width:56px;height:56px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;
+  font-size:28px;background:var(--violeta-suave);
+}
+.card .txt b{display:block;font-size:18px;font-weight:800;letter-spacing:-.2px}
+.card .txt span{display:block;font-size:14px;color:var(--tinta2);font-weight:600;line-height:1.35}
+.card .flecha{margin-left:auto;color:#B8B1E0;font-size:24px;font-weight:700}
+.card.v .ico{background:var(--mas-suave)}
+.card.r .ico{background:var(--menos-suave)}
+.card.a .ico{background:var(--mango-suave)}
+
+.panel{background:var(--nube);border-radius:var(--r);padding:16px;margin-bottom:16px;border:2px solid var(--borde)}
+.panel h3{margin:0 0 4px;font-size:17px}
+.panel .ayuda{font-size:13.5px;color:var(--tinta2);font-weight:600;margin:0 0 12px}
+
+/* ============ CHIPS DE CONFIGURACIÓN ============ */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  min-width:52px;padding:11px 14px;border-radius:14px;background:var(--papel);
+  border:2px solid var(--borde);font-weight:800;font-family:'Space Grotesk';font-size:16px;
+  color:var(--tinta2);transition:.15s;
+}
+.chip:hover{border-color:#C8BFF2}
+.chip[aria-pressed="true"]{background:var(--violeta);color:#fff;border-color:var(--violeta);transform:translateY(-2px)}
+.chip.ancho{min-width:auto;flex:1}
+
+/* ============ CAMINO DE PROGRESO ============ */
+.progreso{margin:6px 0 18px}
+.progreso-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.progreso-top b{font-family:'Space Grotesk';font-size:15px}
+.progreso-top span{font-size:13px;color:var(--tinta2);font-weight:700}
+.camino{position:relative;height:34px}
+.riel{position:absolute;top:14px;left:4.1%;right:4.1%;height:7px;background:var(--borde);border-radius:99px;overflow:hidden}
+.riel-fill{height:100%;background:linear-gradient(90deg,var(--violeta),#8A46D6);border-radius:99px;transition:width .55s cubic-bezier(.34,1.4,.64,1)}
+.nodos{position:absolute;inset:0;display:flex}
+.nodo{flex:1;display:grid;place-items:center}
+.nodo i{
+  width:12px;height:12px;border-radius:50%;background:var(--borde);display:block;
+  transition:.35s cubic-bezier(.34,1.6,.64,1);font-style:normal;
+}
+.nodo.hito i{width:26px;height:26px;background:var(--papel);border:3px solid var(--borde);
+  display:grid;place-items:center;font-size:13px;color:transparent}
+.nodo.hecho i{background:var(--violeta)}
+.nodo.hito.hecho i{background:var(--mango);border-color:#E39A12;color:#7A4B00;transform:scale(1.12)}
+
+/* ============ EJERCICIO ============ */
+.escenario{
+  background:linear-gradient(160deg,#F7F5FF,#EFECFE);
+  border:2px solid var(--borde);border-radius:24px;padding:26px 18px;text-align:center;margin-bottom:16px;
+  animation:entra .35s ease both;
+}
+.enunciado{font-size:14px;color:var(--tinta2);font-weight:700;margin-bottom:12px}
+.operacion{
+  font-family:'Space Grotesk';font-weight:700;font-size:40px;letter-spacing:-1px;
+  display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+}
+@media(min-width:900px){ .operacion{font-size:52px} }
+.op-neg{color:var(--menos)}
+.op-pos{color:var(--mas)}
+.caja{
+  min-width:110px;height:74px;border-radius:18px;background:var(--papel);
+  border:3px dashed #BEB4EE;display:grid;place-items:center;
+  font-family:'Space Grotesk';font-weight:700;font-size:38px;color:var(--violeta);
+  transition:.18s;padding:0 10px;
+}
+.caja.activa{border-style:solid;border-color:var(--violeta);box-shadow:0 0 0 6px rgba(74,47,209,.14)}
+.caja.vacia{color:#C9C2EC}
+.caja.mal{animation:temblor .4s;border-color:var(--menos);color:var(--menos)}
+.caja.bien{border-color:var(--mas);color:var(--mas);border-style:solid}
+@keyframes temblor{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+/* ============ OPCIONES (modo juego) ============ */
+.opciones{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
+.opcion{
+  padding:22px 10px;border-radius:18px;border:3px solid var(--borde);background:var(--papel);
+  font-family:'Space Grotesk';font-weight:700;font-size:30px;transition:.15s;
+}
+.opcion:hover{border-color:#C8BFF2;transform:translateY(-2px)}
+.opcion[aria-pressed="true"]{border-color:var(--violeta);background:var(--violeta-suave);color:var(--violeta);transform:translateY(-3px)}
+
+/* ============ TECLADO ============ */
+.teclado{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 4px}
+@media(min-width:900px){ .teclado{max-width:420px;margin-left:auto;margin-right:auto} }
+.tecla{
+  padding:16px 0;border-radius:16px;background:var(--nube);border:2px solid var(--borde);
+  font-family:'Space Grotesk';font-weight:700;font-size:26px;transition:.1s;
+}
+.tecla:hover{background:var(--violeta-suave)}
+.tecla:active{transform:scale(.94);background:var(--violeta);color:#fff}
+.tecla.sig{color:var(--menos)}
+.tecla.del{color:var(--tinta2);font-size:22px}
+
+/* ============ RETROALIMENTACIÓN ============ */
+.feedback{
+  border-radius:20px;padding:16px 18px;margin-top:4px;animation:sube .35s cubic-bezier(.34,1.3,.64,1) both;
+  border:2px solid transparent;
+}
+.feedback.ok{background:var(--mas-suave);border-color:#A9E3D0}
+.feedback.ok h4{color:var(--mas)}
+.feedback h4{margin:0 0 6px;font-size:19px;display:flex;align-items:center;gap:8px}
+.feedback p{margin:0;font-size:15px;font-weight:600;color:var(--tinta)}
+@keyframes sube{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.animar-vista{animation:entra .3s ease both}
+
+.tostada{
+  position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:200;
+  background:var(--tinta);color:#fff;padding:12px 20px;border-radius:99px;font-weight:800;
+  box-shadow:var(--sombra-alta);animation:tost 2.2s ease both;pointer-events:none;font-size:16px;
+}
+@keyframes tost{0%{opacity:0;transform:translate(-50%,-24px)}12%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-14px)}}
+
+/* ============ CAPA / MODALES ============ */
+.capa{
+  position:fixed;inset:0;z-index:150;background:rgba(20,16,51,.55);
+  display:grid;place-items:center;padding:20px;animation:fundir .2s ease both;
+  backdrop-filter:blur(3px);
+}
+@keyframes fundir{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--papel);border-radius:28px;padding:26px 22px;max-width:420px;width:100%;
+  text-align:center;box-shadow:var(--sombra-alta);animation:brinca .42s cubic-bezier(.34,1.5,.64,1) both;
+  max-height:88dvh;overflow:auto;
+}
+@keyframes brinca{from{opacity:0;transform:scale(.86) translateY(20px)}to{opacity:1;transform:none}}
+.modal .emoji{font-size:56px;line-height:1;display:block;margin-bottom:6px;animation:brote .6s cubic-bezier(.34,1.6,.64,1) both}
+@keyframes brote{0%{transform:scale(0) rotate(-25deg)}70%{transform:scale(1.18) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+.modal h2{margin:0 0 8px;font-size:25px;letter-spacing:-.5px}
+.modal p{margin:0 0 6px;font-weight:600;color:var(--tinta2);font-size:15.5px}
+.modal .pista{
+  background:var(--mango-suave);border-radius:16px;padding:14px;margin:14px 0 4px;
+  text-align:left;font-weight:700;font-size:15px;color:#6B4A00;
+  border-left:6px solid var(--mango);
+}
+.modal .donde{background:var(--nube);border-radius:16px;padding:14px;text-align:left;margin-top:14px;font-size:15px;font-weight:600}
+
+/* ============ RESULTADOS / LOGRO ============ */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.stat{background:var(--nube);border-radius:16px;padding:12px}
+.stat b{display:block;font-family:'Space Grotesk';font-size:24px}
+.stat span{font-size:12.5px;color:var(--tinta2);font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+.stat.v b{color:var(--mas)} .stat.r b{color:var(--menos)} .stat.p b{color:var(--violeta)}
+.confeti{position:fixed;inset:0;pointer-events:none;z-index:190;overflow:hidden}
+.papelito{position:absolute;width:11px;height:16px;border-radius:2px;animation:caer linear forwards}
+@keyframes caer{from{transform:translateY(-40px) rotate(0)}to{transform:translateY(105vh) rotate(720deg)}}
+
+/* ============ SECCIÓN VISUAL ============ */
+.recta{margin:22px 0 10px;overflow-x:auto;overflow-y:visible;padding-bottom:4px}
+.recta-inner{position:relative;padding-top:58px}
+.recta-linea{display:flex;position:relative}
+.tick{flex:1;min-width:34px;text-align:center;position:relative;padding-top:15px;font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--tinta2)}
+.tick::before{content:"";position:absolute;top:0;left:50%;width:2px;height:11px;background:#CFC9EA;transform:translateX(-50%)}
+.tick.cero{color:var(--violeta)}
+.tick.cero::before{background:var(--violeta);height:17px;width:3px}
+.recta-barra{position:absolute;top:57px;left:0;right:0;height:3px;background:#CFC9EA;border-radius:99px}
+.ficha-mov{
+  position:absolute;top:6px;width:44px;height:44px;border-radius:50%;background:var(--violeta);color:#fff;
+  display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:17px;
+  transform:translateX(-50%);transition:left .32s cubic-bezier(.4,1.2,.5,1);box-shadow:0 6px 14px rgba(74,47,209,.4);z-index:2;
+}
+.ficha-mov::after{content:"";position:absolute;bottom:-14px;left:50%;width:3px;height:14px;background:var(--violeta);transform:translateX(-50%);border-radius:2px}
+.paso-txt{text-align:center;font-weight:700;color:var(--tinta2);min-height:26px;margin-top:8px;font-size:15px}
+
+.fichas{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:18px 0;min-height:60px}
+.ficha{
+  width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font-family:'Space Grotesk';font-weight:700;font-size:22px;color:#fff;
+  animation:brote .35s cubic-bezier(.34,1.5,.64,1) both;
+}
+.ficha.p{background:var(--mas)} .ficha.n{background:var(--menos)}
+.ficha.anula{animation:desaparece .5s ease forwards}
+@keyframes desaparece{40%{transform:scale(1.25)}100%{opacity:0;transform:scale(0) rotate(90deg)}}
+
+.termo-wrap{display:flex;gap:22px;align-items:center;justify-content:center;margin:16px 0}
+.termo{width:56px;height:230px;background:var(--nube);border:3px solid var(--borde);border-radius:99px;position:relative;overflow:hidden}
+.termo-fill{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,var(--menos),#FF7A94);transition:height .6s cubic-bezier(.4,1.1,.5,1)}
+.termo-fill.frio{background:linear-gradient(180deg,#5AA9FF,#2F6BD8)}
+.termo-cero{position:absolute;left:0;right:0;height:2px;background:var(--tinta);opacity:.4}
+.termo-val{font-family:'Space Grotesk';font-weight:700;font-size:34px}
+
+.matriz{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.celda{
+  border-radius:16px;padding:14px 8px;text-align:center;font-family:'Space Grotesk';font-weight:700;
+  background:var(--nube);border:2px solid var(--borde);font-size:19px;transition:.25s;
+}
+.celda.on{transform:scale(1.05);box-shadow:var(--sombra)}
+.celda.on.pos{background:var(--mas-suave);border-color:var(--mas);color:var(--mas)}
+.celda.on.neg{background:var(--menos-suave);border-color:var(--menos);color:var(--menos)}
+.selector-signo{display:flex;gap:10px;justify-content:center;align-items:center;margin:14px 0;flex-wrap:wrap}
+.sbtn{width:64px;height:64px;border-radius:20px;border:3px solid var(--borde);background:var(--papel);
+  font-family:'Space Grotesk';font-weight:700;font-size:30px;transition:.15s}
+.sbtn[aria-pressed="true"].mas{background:var(--mas);color:#fff;border-color:var(--mas)}
+.sbtn[aria-pressed="true"].men{background:var(--menos);color:#fff;border-color:var(--menos)}
+.resultado-signo{font-family:'Space Grotesk';font-weight:700;font-size:44px;text-align:center;margin:6px 0}
+
+/* ============ HOJA DE EVALUACIÓN ============ */
+.hoja{display:grid;gap:10px}
+@media(min-width:900px){ .hoja{grid-template-columns:1fr 1fr} }
+.reng{
+  display:flex;align-items:center;gap:12px;background:var(--papel);border:2px solid var(--borde);
+  border-radius:16px;padding:10px 12px;
+}
+.reng .n{width:28px;height:28px;flex:0 0 auto;border-radius:9px;background:var(--violeta-suave);color:var(--violeta);
+  display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:14px}
+.reng .op{flex:1;font-family:'Space Grotesk';font-weight:700;font-size:20px}
+.reng .cj{
+  width:88px;height:52px;border-radius:13px;border:3px dashed #BEB4EE;display:grid;place-items:center;
+  font-family:'Space Grotesk';font-weight:700;font-size:23px;color:var(--violeta);flex:0 0 auto;
+}
+.reng.sel .cj{border-style:solid;border-color:var(--violeta);box-shadow:0 0 0 5px rgba(74,47,209,.13)}
+.reng.ok{background:var(--mas-suave);border-color:#A9E3D0}
+.reng.no{background:var(--menos-suave);border-color:#FFC0CE}
+.reng .marca{font-size:22px;font-weight:800}
+.reng .cj.fija{border-style:solid;background:var(--papel)}
+.correcta{font-size:13px;color:var(--tinta2);font-weight:700}
+
+.aviso{background:var(--mango-suave);border-left:6px solid var(--mango);border-radius:14px;padding:12px 14px;
+  font-size:14.5px;font-weight:700;color:#6B4A00;margin-bottom:14px}
+.volver{display:inline-flex;align-items:center;gap:6px;color:var(--violeta);font-weight:800;font-size:15px;margin-bottom:6px;padding:6px 0}
+
+.leyenda{display:flex;gap:14px;justify-content:center;font-size:13px;font-weight:700;color:var(--tinta2);margin-top:8px}
+.leyenda i{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:-2px}
+
+/* ============ INICIO ============ */
+.hero{text-align:center;padding:34px 20px 10px}
+.marca{
+  font-family:'Space Grotesk';font-weight:700;font-size:34px;letter-spacing:-1px;line-height:1.1;margin:14px 0 6px;
+}
+.marca .p{color:var(--mas)} .marca .m{color:var(--menos)}
+.logo-anillo{
+  width:104px;height:104px;margin:0 auto;border-radius:32px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--violeta),#8A46D6);color:#fff;font-family:'Space Grotesk';
+  font-weight:700;font-size:42px;box-shadow:0 14px 30px rgba(74,47,209,.35);
+  animation:flota 3.4s ease-in-out infinite;
+}
+@keyframes flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.campo{margin-bottom:14px}
+.campo label{display:block;font-weight:800;font-size:15px;margin-bottom:7px}
+.campo input{
+  width:100%;padding:16px 16px;border-radius:16px;border:2px solid var(--borde);background:var(--nube);
+  font-family:inherit;font-size:18px;font-weight:700;color:var(--tinta);
+}
+.campo input::placeholder{color:#ADA6D0;font-weight:600}
+.campo input:focus{border-color:var(--violeta);background:#fff}
+.error-campo{color:var(--menos);font-weight:800;font-size:14px;margin-top:6px;display:none}
+.error-campo.ver{display:block;animation:temblor .4s}
+.grados{display:flex;flex-wrap:wrap;gap:8px}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="barra oculta" id="barra">
+    <div class="barra-fila">
+      <div class="avatar" id="avatar">?</div>
+      <div class="quien">
+        <b id="bNombre">Estudiante</b>
+        <span id="bGrado">Grado</span>
+      </div>
+      <button class="casa" data-a="inicio" aria-label="Volver al menú principal" title="Menú principal">🏠</button>
+    </div>
+    <div class="marcadores">
+      <div class="chip-m" id="chipTiempo" title="Tiempo transcurrido">⏱ <span id="tiempo">00:00</span></div>
+      <div class="chip-m ok" id="chipOk" title="Aciertos">✔ <span id="nOk">0</span></div>
+      <div class="chip-m" id="chipNo" title="Errores">✖ <span id="nNo">0</span></div>
+    </div>
+  </header>
+  <main id="vista"></main>
+</div>
+
+<div id="capa"></div>
+<div id="tostadas"></div>
+
+<script>
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const E = {
+  nombre:'', grado:'', inicio:0,
+  ok:0, no:0,
+  racha:0,
+  config:{ nivel:'facil', tablas:[2,3,4,5,10], ops:['suma','resta','mult'] },
+  leccion:null,
+  eval:null,
+  pantalla:'bienvenida'
+};
+
+const META = 12;
+const NIVELES = {
+  facil:  { nom:'Sencillo', ico:'🌱', rango:12, tablas:[2,3,4,5,10], desc:'Sumas y restas del 1 al 12 · Tablas 2, 3, 4, 5 y 10' },
+  medio:  { nom:'Medio',    ico:'🔥', rango:15, tablas:[4,5,6],       desc:'Sumas y restas del 1 al 15 · Tablas 4, 5 y 6' },
+  dificil:{ nom:'Difícil',  ico:'🚀', rango:20, tablas:[4,6,7,8,9],   desc:'Sumas y restas del 1 al 20 · Tablas 4, 6, 7, 8 y 9' }
+};
+const NOM_OP = { suma:'Suma', resta:'Resta', mult:'Multiplicación' };
+
+const ANIMOS = ['¡Excelente!','¡Sigue así!','Cada vez eres mejor.','¡Buen trabajo!','Vas muy bien.','¡No te rindas!','Lo estás logrando.'];
+const CIERRES = [
+  'Excelente trabajo. Cada día mejoras más en matemáticas.',
+  'Lo lograste con constancia. Así se aprende de verdad.',
+  'Tu esfuerzo se nota. Sigue practicando con esa misma energía.',
+  'Muy bien. Los errores que corregiste hoy son aprendizaje real.'
+];
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const az = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const elige = a => a[az(0,a.length-1)];
+const barajar = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+const signoAz = () => Math.random()<0.5 ? -1 : 1;
+const fmt = n => (n<0 ? '−' : '') + Math.abs(n);
+const par = n => n<0 ? '<span class="op-neg">(−'+Math.abs(n)+')</span>' : '<span class="op-pos">(+'+n+')</span>';
+
+function pintar(html){
+  const v = $('#vista');
+  v.innerHTML = '<div class="animar-vista">'+html+'</div>';
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function tostar(txt){
+  const t = document.createElement('div');
+  t.className='tostada'; t.textContent = txt;
+  $('#tostadas').appendChild(t);
+  setTimeout(()=>t.remove(), 2300);
+}
+function cerrarCapa(){ $('#capa').innerHTML=''; }
+
+/* =========================================================
+   BARRA SUPERIOR
+   ========================================================= */
+function refrescarBarra(){
+  $('#bNombre').textContent = E.nombre;
+  $('#bGrado').textContent = E.grado;
+  $('#avatar').textContent = (E.nombre.trim()[0]||'?').toUpperCase();
+  $('#nOk').textContent = E.ok;
+  $('#nNo').textContent = E.no;
+}
+function latir(id){
+  const c = $(id); c.classList.remove('pulso'); void c.offsetWidth; c.classList.add('pulso');
+}
+setInterval(()=>{
+  if(!E.inicio) return;
+  const s = Math.floor((Date.now()-E.inicio)/1000);
+  const m = String(Math.floor(s/60)).padStart(2,'0');
+  $('#tiempo').textContent = m+':'+String(s%60).padStart(2,'0');
+}, 500);
+function reloj(ms){
+  const s = Math.floor(ms/1000);
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+/* =========================================================
+   GENERADORES DE EJERCICIOS
+   ========================================================= */
+function ejTabla(tablas){
+  const a = elige(tablas), b = az(2,12);
+  const r = a*b;
+  return {
+    tipo:'tabla', texto:`${a} × ${b}`, plano:`${a} x ${b}`, resp:r,
+    expl:`Es la tabla del ${a}: ${a} × ${b} = ${r}. También puedes verlo como sumar ${a} un total de ${b} veces.`,
+    donde:'Revisa la multiplicación.',
+    pista:`Cuenta de ${a} en ${a}: ${a}, ${a*2}, ${a*3}… y detente en el lugar ${b}.`
+  };
+}
+
+function ejSuma(rango){
+  const a = signoAz()*az(1,rango), b = signoAz()*az(1,rango);
+  const r = a+b;
+  const igual = (a<0)===(b<0);
+  return {
+    tipo:'suma', texto:`${par(a)} + ${par(b)}`, plano:`${fmt(a)} + ${fmt(b)}`, resp:r,
+    expl: igual
+      ? `Los dos números tienen el mismo signo: sumas ${Math.abs(a)} + ${Math.abs(b)} = ${Math.abs(r)} y conservas el signo ${a<0?'−':'+'}.`
+      : `Signos distintos: restas ${Math.max(Math.abs(a),Math.abs(b))} − ${Math.min(Math.abs(a),Math.abs(b))} = ${Math.abs(r)} y se queda el signo del número de mayor valor absoluto (${Math.abs(a)>Math.abs(b) ? (a<0?'−':'+') : (b<0?'−':'+')}).`,
+    donde: igual ? 'Los dos signos son iguales.' : 'Los signos son distintos.',
+    pista: igual
+      ? `Signos iguales: suma los valores y conserva ese mismo signo.`
+      : `Signos distintos: resta el valor menor al mayor y quédate con el signo del número más grande.`
+  };
+}
+
+function ejResta(rango){
+  const a = signoAz()*az(1,rango), b = signoAz()*az(1,rango);
+  const r = a-b;
+  const op = -b;
+  return {
+    tipo:'resta', texto:`${par(a)} − ${par(b)}`, plano:`${fmt(a)} - ${fmt(b)}`, resp:r,
+    expl:`Restar es sumar el opuesto: ${fmt(a)} − ${fmt(b)} se convierte en ${fmt(a)} + ${fmt(op)} = ${fmt(r)}.`,
+    donde:'Observa el signo de la resta.',
+    pista:`Cambia la resta por una suma del opuesto: ${par(a)} − ${par(b)} es lo mismo que ${par(a)} + ${par(op)}.`
+  };
+}
+
+function ejMult(tablas){
+  const sa = signoAz(), sb = signoAz();
+  const a = sa*elige(tablas), b = sb*az(2,12);
+  const r = a*b;
+  const igual = sa===sb;
+  return {
+    tipo:'mult', texto:`${par(a)} × ${par(b)}`, plano:`${fmt(a)} x ${fmt(b)}`, resp:r,
+    expl:`${sa<0?'−':'+'} × ${sb<0?'−':'+'} = ${igual?'+':'−'}. Multiplicas ${Math.abs(a)} × ${Math.abs(b)} = ${Math.abs(r)} y el resultado queda ${igual?'positivo':'negativo'}.`,
+    donde: igual ? 'Los dos factores tienen el mismo signo.' : 'Los factores tienen signos distintos.',
+    pista: igual
+      ? 'Signos iguales al multiplicar dan resultado positivo. Verifica también la multiplicación.'
+      : 'Signos distintos al multiplicar dan resultado negativo. Verifica también la multiplicación.'
+  };
+}
+
+function generar(cfg){
+  const N = NIVELES[cfg.nivel] || NIVELES.facil;
+  const tablas = cfg.tablas.length ? cfg.tablas : N.tablas;
+  const ops = cfg.ops.length ? cfg.ops : ['suma','resta','mult'];
+  if(cfg.tipo==='tabla') return ejTabla(tablas);
+  const lista = cfg.tipo==='mixto' ? barajar(['tabla'].concat(ops))  : ops;
+  const op = elige(lista);
+  if(op==='tabla') return ejTabla(tablas);
+  if(op==='suma') return ejSuma(N.rango);
+  if(op==='resta') return ejResta(N.rango);
+  return ejMult(tablas);
+}
+
+/* =========================================================
+   PANTALLA: BIENVENIDA
+   ========================================================= */
+function pBienvenida(){
+  $('#barra').classList.add('oculta');
+  E.pantalla='bienvenida';
+  const grados = ['6°','7°','8°','9°','10°','11°'];
+  pintar(`
+    <div class="hero">
+      <div class="logo-anillo">±×</div>
+      <div class="marca">Signo <span class="m">−</span> Tabla <span class="p">+</span></div>
+      <p class="sub" style="margin-bottom:22px">Practica las tablas de multiplicar y la ley de los signos. Cada error es una oportunidad para aprender.</p>
+    </div>
+    <div class="campo">
+      <label for="inNombre">¿Cómo te llamas?</label>
+      <input id="inNombre" type="text" placeholder="Escribe tu nombre completo" autocomplete="name" maxlength="34">
+      <div class="error-campo" id="errNombre">Escribe tu nombre para continuar.</div>
+    </div>
+    <div class="campo">
+      <label>¿En qué grado estás?</label>
+      <div class="grados chips" id="chipsGrado">
+        ${grados.map(g=>`<button class="chip ancho" data-a="grado" data-v="${g}" aria-pressed="false">${g}</button>`).join('')}
+      </div>
+      <div class="error-campo" id="errGrado">Selecciona tu grado.</div>
+    </div>
+    <button class="btn" data-a="comenzar" style="margin-top:20px">Comenzar ▸</button>
+    <p class="sub" style="text-align:center;margin-top:16px;font-size:13px">Tus datos solo se usan dentro de esta actividad.</p>
+  `);
+  setTimeout(()=>$('#inNombre')?.focus(), 250);
+}
+
+/* =========================================================
+   PANTALLA: MENÚ
+   ========================================================= */
+function pMenu(){
+  $('#barra').classList.remove('oculta');
+  E.pantalla='menu'; E.leccion=null; E.eval=null;
+  refrescarBarra();
+  pintar(`
+    <p class="eyebrow">Menú principal</p>
+    <h1 class="titulo">Hola, ${escapar(E.nombre.split(' ')[0])} 👋</h1>
+    <p class="sub">Elige la sección con la que quieres trabajar hoy.</p>
+    <div class="rejilla dos">
+      <button class="card" data-a="sec-tablas">
+        <div class="ico">✖️</div>
+        <div class="txt"><b>Tablas de multiplicar</b><span>Generador de tablas y modo juego</span></div>
+        <div class="flecha">›</div>
+      </button>
+      <button class="card v" data-a="sec-visual">
+        <div class="ico">👀</div>
+        <div class="txt"><b>Entender los signos</b><span>Recta, fichas, termómetro y la regla</span></div>
+        <div class="flecha">›</div>
+      </button>
+      <button class="card r" data-a="sec-signos">
+        <div class="ico">±</div>
+        <div class="txt"><b>Ley de los signos</b><span>Práctica en 3 niveles de dificultad</span></div>
+        <div class="flecha">›</div>
+      </button>
+      <button class="card a" data-a="sec-eval">
+        <div class="ico">📋</div>
+        <div class="txt"><b>Lista de operaciones</b><span>Evaluación de 10 puntos sobre 50</span></div>
+        <div class="flecha">›</div>
+      </button>
+    </div>
+  `);
+}
+function escapar(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+
+/* =========================================================
+   SECCIÓN 1 · TABLAS
+   ========================================================= */
+function pTablas(){
+  E.pantalla='tablas';
+  pintar(`
+    <button class="volver" data-a="inicio">‹ Menú principal</button>
+    <p class="eyebrow">Sección 1</p>
+    <h1 class="titulo">Tablas de multiplicar</h1>
+    <p class="sub">Dos formas de trabajarlas: primero mirarlas con calma, después ponerlas a prueba.</p>
+    <div class="rejilla dos">
+      <button class="card" data-a="tab-generador">
+        <div class="ico">📖</div>
+        <div class="txt"><b>Generador de tablas</b><span>Mira cualquier tabla completa y ocúltala para autoevaluarte</span></div>
+        <div class="flecha">›</div>
+      </button>
+      <button class="card a" data-a="tab-juego-cfg">
+        <div class="ico">🎯</div>
+        <div class="txt"><b>Modo juego</b><span>Elige el resultado correcto y llega a 12 aciertos</span></div>
+        <div class="flecha">›</div>
+      </button>
+    </div>
+  `);
+}
+
+function pGenerador(t){
+  E.pantalla='generador';
+  const tabla = t || 2;
+  const filas = [];
+  for(let i=1;i<=12;i++) filas.push(i);
+  pintar(`
+    <button class="volver" data-a="sec-tablas">‹ Tablas de multiplicar</button>
+    <h1 class="titulo">Generador de tablas</h1>
+    <p class="sub">Toca un número para ver su tabla. Usa <b>Ocultar resultados</b> para practicar de memoria.</p>
+    <div class="panel">
+      <h3>Tabla del</h3>
+      <p class="ayuda">Elige el número que quieres estudiar.</p>
+      <div class="chips">
+        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<button class="chip" data-a="ver-tabla" data-v="${n}" aria-pressed="${n===tabla}">${n}</button>`).join('')}
+      </div>
+    </div>
+    <div class="fila-btn" style="margin-top:0">
+      <button class="btn gris" data-a="toggle-res" id="btnRes">🙈 Ocultar resultados</button>
+    </div>
+    <div class="hoja" id="tablaLista" style="margin-top:16px">
+      ${filas.map((i,k)=>`
+        <div class="reng" style="animation:entra .3s ${k*0.035}s both">
+          <div class="n">${i}</div>
+          <div class="op">${tabla} × ${i} =</div>
+          <div class="cj fija res">${tabla*i}</div>
+        </div>`).join('')}
+    </div>
+    <div class="aviso" style="margin-top:18px">💡 Truco: la tabla del ${tabla} avanza de ${tabla} en ${tabla}. Cada fila suma ${tabla} a la anterior.</div>
+    <button class="btn mango" data-a="tab-juego-cfg" style="margin-top:6px">🎯 Ponerla a prueba en el juego</button>
+  `);
+}
+
+/* =========================================================
+   CONFIGURACIÓN (docente)
+   ========================================================= */
+function chipsTablas(){
+  return [1,2,3,4,5,6,7,8,9,10,11,12].map(n=>
+    `<button class="chip" data-a="cfg-tabla" data-v="${n}" aria-pressed="${E.config.tablas.includes(n)}">${n}</button>`).join('');
+}
+function chipsOps(){
+  return ['suma','resta','mult'].map(o=>
+    `<button class="chip ancho" data-a="cfg-op" data-v="${o}" aria-pressed="${E.config.ops.includes(o)}">${NOM_OP[o]}</button>`).join('');
+}
+function chipsNivel(){
+  return Object.keys(NIVELES).map(k=>
+    `<button class="chip ancho" data-a="cfg-nivel" data-v="${k}" aria-pressed="${E.config.nivel===k}">${NIVELES[k].ico} ${NIVELES[k].nom}</button>`).join('');
+}
+
+function pJuegoCfg(){
+  E.pantalla='juego-cfg';
+  pintar(`
+    <button class="volver" data-a="sec-tablas">‹ Tablas de multiplicar</button>
+    <p class="eyebrow">Modo juego</p>
+    <h1 class="titulo">¿Con qué tablas juegas?</h1>
+    <p class="sub">El docente o el estudiante puede elegir exactamente qué tablas se evalúan.</p>
+    <div class="panel">
+      <h3>Tablas seleccionadas</h3>
+      <p class="ayuda">Toca para activar o desactivar. Debes dejar al menos una.</p>
+      <div class="chips" id="cTablas">${chipsTablas()}</div>
+      <div class="fila-btn">
+        <button class="btn gris" data-a="tablas-todas">Todas</button>
+        <button class="btn gris" data-a="tablas-nivel">Las del nivel</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Nivel de dificultad</h3>
+      <p class="ayuda">Define el rango de las tablas sugeridas.</p>
+      <div class="chips">${chipsNivel()}</div>
+    </div>
+    <button class="btn mango" data-a="iniciar-juego">🎯 Empezar el juego</button>
+  `);
+}
+
+function pSignosCfg(){
+  E.pantalla='signos-cfg';
+  const N = NIVELES[E.config.nivel];
+  pintar(`
+    <button class="volver" data-a="inicio">‹ Menú principal</button>
+    <p class="eyebrow">Sección 3</p>
+    <h1 class="titulo">Ley de los signos</h1>
+    <p class="sub">Elige el nivel y las operaciones que se van a evaluar.</p>
+    <div class="rejilla" style="margin-bottom:16px">
+      ${Object.keys(NIVELES).map(k=>`
+        <button class="card ${k==='medio'?'a':(k==='dificil'?'r':'v')}" data-a="cfg-nivel" data-v="${k}" style="${E.config.nivel===k?'border-color:var(--violeta);box-shadow:0 0 0 4px rgba(74,47,209,.12)':''}">
+          <div class="ico">${NIVELES[k].ico}</div>
+          <div class="txt"><b>${NIVELES[k].nom}</b><span>${NIVELES[k].desc}</span></div>
+          <div class="flecha">${E.config.nivel===k?'✓':'›'}</div>
+        </button>`).join('')}
+    </div>
+    <div class="panel">
+      <h3>Operaciones a evaluar</h3>
+      <p class="ayuda">Puedes trabajar una sola operación o combinarlas.</p>
+      <div class="chips">${chipsOps()}</div>
+    </div>
+    <div class="panel">
+      <h3>Tablas para la multiplicación</h3>
+      <p class="ayuda">Nivel ${N.nom}: ${N.desc}</p>
+      <div class="chips">${chipsTablas()}</div>
+    </div>
+    <button class="btn" data-a="iniciar-signos">▸ Empezar la práctica</button>
+    <button class="btn gris" data-a="sec-visual" style="margin-top:12px">👀 Primero quiero entenderlo</button>
+  `);
+}
+
+/* =========================================================
+   MOTOR DE LECCIÓN
+   ========================================================= */
+function iniciarLeccion(cfg){
+  E.leccion = {
+    cfg, ok:0, no:0, intentos:0, t0:Date.now(),
+    ej:null, valor:'', sel:null, estado:'responde'
+  };
+  nuevoEjercicio();
+}
+function nuevoEjercicio(){
+  const L = E.leccion;
+  L.ej = (L.cfg.lista && L.cfg.lista.length) ? L.cfg.lista.shift() : generar(L.cfg);
+  L.valor=''; L.sel=null; L.estado='responde';
+  if(L.cfg.formato==='opciones') L.ops = opcionesPara(L.ej);
+  pLeccion();
+}
+function opcionesPara(ej){
+  const r = ej.resp;
+  const set = new Set([r]);
+  let guard=0;
+  while(set.size<4 && guard++<80){
+    const d = elige([-1,1])*elige([1,2,3,4,5,6,10]);
+    const c = r + d;
+    if(c===r) continue;
+    if(ej.tipo==='tabla' && c<1) continue;
+    set.add(c);
+  }
+  return barajar([...set]);
+}
+
+function pLeccion(){
+  const L = E.leccion, ej = L.ej;
+  E.pantalla='leccion';
+  const esOpc = L.cfg.formato==='opciones';
+  pintar(`
+    <button class="volver" data-a="salir-leccion">‹ Salir de la lección</button>
+    <p class="eyebrow">${L.cfg.titulo}</p>
+    ${caminoHTML(L.ok)}
+    <div class="escenario">
+      <div class="enunciado">${L.cfg.enunciado}</div>
+      <div class="operacion">
+        <span>${ej.texto}</span><span>=</span>
+        ${esOpc ? `<span class="caja ${L.sel===null?'vacia':'activa'}" id="caja">${L.sel===null?'?':fmt(L.sel)}</span>`
+                : `<span class="caja activa ${L.valor===''?'vacia':''}" id="caja" data-a="foco-caja">${L.valor===''?'?':L.valor.replace('-','−')}</span>`}
+      </div>
+    </div>
+    ${esOpc ? `
+      <div class="opciones">
+        ${L.ops.map(o=>`<button class="opcion" data-a="elegir-op" data-v="${o}" aria-pressed="${L.sel===o}">${fmt(o)}</button>`).join('')}
+      </div>`
+    : teclado()}
+    <div class="fila-btn">
+      <button class="btn gris" data-a="borrar">🗑 Borrar</button>
+      <button class="btn verde" data-a="comprobar">✅ Comprobar</button>
+    </div>
+    <div id="zonaFeedback"></div>
+  `);
+}
+
+function teclado(){
+  const t = ['1','2','3','4','5','6','7','8','9','±','0','del'];
+  return `<div class="teclado">${t.map(k=>`
+    <button class="tecla ${k==='±'?'sig':''} ${k==='del'?'del':''}" data-a="tecla" data-v="${k}">${k==='del'?'⌫':k}</button>`).join('')}</div>`;
+}
+
+function caminoHTML(hechos){
+  let nodos='';
+  for(let i=1;i<=META;i++){
+    const hito = i%4===0;
+    nodos += `<div class="nodo ${hito?'hito':''} ${i<=hechos?'hecho':''}"><i>${hito?'★':''}</i></div>`;
+  }
+  const pct = hechos<=1 ? 0 : ((hechos-1)/(META-1))*100;
+  return `
+  <div class="progreso">
+    <div class="progreso-top"><b>Tu recorrido</b><span>${hechos} de ${META} aciertos</span></div>
+    <div class="camino">
+      <div class="riel"><div class="riel-fill" style="width:${pct}%"></div></div>
+      <div class="nodos">${nodos}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- entrada de datos ---------- */
+function escribir(k){
+  const L = E.leccion;
+  if(!L || L.estado!=='responde') return;
+  let v = L.valor;
+  if(k==='del') v = v.slice(0,-1);
+  else if(k==='±') v = v.startsWith('-') ? v.slice(1) : '-'+v;
+  else {
+    if(L.reemplazar){ v = v.startsWith('-') ? '-' : ''; L.reemplazar=false; }
+    const digitos = v.replace('-','').length;
+    if(digitos<4) v = v + k;
+  }
+  L.valor = v;
+  const c = $('#caja');
+  if(c){
+    c.textContent = v==='' ? '?' : v.replace('-','−');
+    c.classList.toggle('vacia', v==='');
+    c.classList.remove('mal');
+  }
+}
+document.addEventListener('keydown', e=>{
+  if(E.pantalla==='bienvenida'){ if(e.key==='Enter') accion('comenzar'); return; }
+  if(E.pantalla==='leccion' && E.leccion && E.leccion.cfg.formato==='opciones' && e.key==='Enter'){ comprobar(); e.preventDefault(); }
+  if(E.pantalla==='leccion' && E.leccion && E.leccion.cfg.formato!=='opciones'){
+    if(/^[0-9]$/.test(e.key)) { escribir(e.key); e.preventDefault(); }
+    else if(e.key==='Backspace'){ escribir('del'); e.preventDefault(); }
+    else if(e.key==='-' || e.key==='+'){ escribir('±'); e.preventDefault(); }
+    else if(e.key==='Enter'){ comprobar(); e.preventDefault(); }
+  }
+  if(E.pantalla==='evaluacion' && E.eval && E.eval.activo!==null){
+    if(/^[0-9]$/.test(e.key)) { escribirEval(e.key); e.preventDefault(); }
+    else if(e.key==='Backspace'){ escribirEval('del'); e.preventDefault(); }
+    else if(e.key==='-' || e.key==='+'){ escribirEval('±'); e.preventDefault(); }
+  }
+  if(e.key==='Escape') cerrarCapa();
+});
+
+/* ---------- comprobación ---------- */
+function comprobar(){
+  const L = E.leccion; if(!L || L.estado!=='responde') return;
+  const esOpc = L.cfg.formato==='opciones';
+  const dado = esOpc ? L.sel : (L.valor==='' || L.valor==='-' ? null : parseInt(L.valor,10));
+  if(dado===null || isNaN(dado)){
+    tostar(esOpc ? 'Elige una opción primero' : 'Escribe tu respuesta primero');
+    return;
+  }
+  L.intentos++;
+  if(dado === L.ej.resp) acierto();
+  else fallo(dado);
+}
+
+function acierto(){
+  const L = E.leccion;
+  L.estado='resuelto'; L.ok++; E.ok++; E.racha++;
+  refrescarBarra(); latir('#chipOk');
+  const c = $('#caja'); if(c){ c.classList.add('bien'); c.classList.remove('activa'); }
+  document.querySelectorAll('.opcion').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.tecla').forEach(b=>b.disabled=true);
+
+  const esUltimo = L.ok>=META;
+  $('#zonaFeedback').innerHTML = `
+    <div class="feedback ok">
+      <h4>✔ ¡Correcto!</h4>
+      <p>${L.ej.expl}</p>
+    </div>
+    <button class="btn" data-a="siguiente-ej" style="margin-top:14px">${esUltimo?'Ver mis resultados 🎉':'Siguiente ejercicio ▸'}</button>
+  `;
+  actualizarCamino(L.ok);
+  if(E.racha>0 && E.racha%3===0 && !esUltimo) tostar(elige(ANIMOS));
+  if(L.ok===4) setTimeout(()=>modalLogro(4), 550);
+  else if(L.ok===8) setTimeout(()=>modalLogro(8), 550);
+  else if(L.ok>=META) setTimeout(()=>completarLeccion(), 500);
+}
+
+function actualizarCamino(ok){
+  const nodos = document.querySelectorAll('.nodo');
+  nodos.forEach((n,i)=>{ if(i<ok) n.classList.add('hecho'); });
+  const f = document.querySelector('.riel-fill');
+  if(f) f.style.width = (ok<=1?0:((ok-1)/(META-1))*100)+'%';
+  const et = document.querySelector('.progreso-top span');
+  if(et) et.textContent = `${ok} de ${META} aciertos`;
+}
+
+function fallo(dado){
+  const L = E.leccion, ej = L.ej;
+  L.no++; E.no++; E.racha=0;
+  refrescarBarra(); latir('#chipNo');
+  const c = $('#caja'); if(c){ c.classList.remove('bien'); c.classList.add('mal'); }
+
+  let donde = ej.donde;
+  let pista = ej.pista;
+  if(Math.abs(dado)===Math.abs(ej.resp) && dado!==ej.resp){
+    donde = 'El número está bien, el signo no.';
+    pista = ej.tipo==='mult'
+      ? 'Signos iguales dan +, signos distintos dan −. Vuelve a mirar los dos factores.'
+      : 'Revisa qué signo debe quedar en el resultado antes de escribirlo.';
+  } else if(ej.tipo==='tabla' && Math.abs(dado-ej.resp)<=ej.resp/6){
+    donde = 'Te acercaste mucho.';
+  }
+
+  $('#capa').innerHTML = `
+    <div class="capa">
+      <div class="modal" role="alertdialog" aria-modal="true">
+        <span class="emoji">🤔</span>
+        <h2>✖ Inténtalo nuevamente</h2>
+        <p>Escribiste <b style="font-family:'Space Grotesk'">${fmt(dado)}</b> en <b style="font-family:'Space Grotesk'">${ej.plano}</b>.</p>
+        <div class="donde"><b>Dónde revisar:</b> ${donde}</div>
+        <div class="pista">💡 <b>Pista:</b> ${pista}</div>
+        <button class="btn mango" data-a="reintentar" style="margin-top:18px">Volver a intentarlo</button>
+        <p style="margin-top:12px;font-size:13.5px">Equivocarse no te quita puntos. Solo cuenta que lo resuelvas.</p>
+      </div>
+    </div>`;
+}
+
+function reintentar(){
+  cerrarCapa();
+  const L = E.leccion;
+  L.valor=''; L.sel=null; L.reemplazar=false;
+  const c = $('#caja');
+  if(c){ c.textContent='?'; c.classList.add('vacia','activa'); c.classList.remove('mal','bien'); }
+  document.querySelectorAll('.opcion').forEach(b=>b.setAttribute('aria-pressed','false'));
+}
+
+/* ---------- logros ---------- */
+function modalLogro(n){
+  const msg = n===4
+    ? {e:'⭐', t:'¡Primera meta lograda!', p:'Ya llevas 4 aciertos. Vas por buen camino, mantén el ritmo.'}
+    : {e:'🔥', t:'¡Dos tercios del camino!', p:'8 aciertos. Te faltan solo 4 para completar la lección.'};
+  $('#capa').innerHTML = `
+    <div class="capa">
+      <div class="modal">
+        <span class="emoji">${msg.e}</span>
+        <h2>${msg.t}</h2>
+        <p>${msg.p}</p>
+        <button class="btn mango" data-a="cerrar" style="margin-top:18px">Seguir practicando ▸</button>
+      </div>
+    </div>`;
+  confeti(24);
+}
+
+function confeti(n){
+  const cols = ['#4A2FD1','#FFB020','#0E9E76','#EE3F66','#8A46D6'];
+  const c = document.createElement('div'); c.className='confeti';
+  for(let i=0;i<n;i++){
+    const p = document.createElement('div'); p.className='papelito';
+    p.style.left = Math.random()*100+'%';
+    p.style.background = elige(cols);
+    p.style.animationDuration = (1.6+Math.random()*1.4)+'s';
+    p.style.animationDelay = (Math.random()*.5)+'s';
+    c.appendChild(p);
+  }
+  document.body.appendChild(c);
+  setTimeout(()=>c.remove(), 3600);
+}
+
+/* ---------- lección completada ---------- */
+function completarLeccion(){
+  const L = E.leccion;
+  const total = L.ok + L.no;
+  const pct = Math.round(L.ok/Math.max(total,1)*100);
+  const t = reloj(Date.now()-L.t0);
+  confeti(70);
+  $('#capa').innerHTML = `
+    <div class="capa">
+      <div class="modal">
+        <span class="emoji">🎉</span>
+        <h2>¡Lección completada!</h2>
+        <p>${escapar(E.nombre)} · ${escapar(E.grado)}</p>
+        <div class="stats">
+          <div class="stat"><b>${t}</b><span>Tiempo</span></div>
+          <div class="stat p"><b>${pct}%</b><span>Efectividad</span></div>
+          <div class="stat v"><b>✔ ${L.ok}</b><span>Aciertos</span></div>
+          <div class="stat r"><b>✖ ${L.no}</b><span>Errores</span></div>
+        </div>
+        <div class="pista">🌟 ${elige(CIERRES)}</div>
+        <button class="btn verde" data-a="siguiente-leccion" style="margin-top:18px">Continuar con la siguiente lección ▸</button>
+        <button class="btn gris" data-a="cerrar-menu" style="margin-top:12px">Volver al menú</button>
+      </div>
+    </div>`;
+}
+
+function siguienteLeccion(){
+  cerrarCapa();
+  const L = E.leccion;
+  if(L.cfg.tipo==='tabla'){
+    E.config.nivel = 'facil';
+    iniciarLeccion(cfgSignos());
+    tostar('Nueva lección: ley de los signos');
+  } else {
+    const orden = ['facil','medio','dificil'];
+    const i = orden.indexOf(E.config.nivel);
+    E.config.nivel = orden[Math.min(i+1, orden.length-1)];
+    E.config.tablas = NIVELES[E.config.nivel].tablas.slice();
+    iniciarLeccion(cfgSignos());
+    tostar('Nivel '+NIVELES[E.config.nivel].nom);
+  }
+}
+
+function cfgSignos(){
+  const N = NIVELES[E.config.nivel];
+  return {
+    tipo:'signos', formato:'entrada',
+    titulo:`Ley de los signos · Nivel ${N.nom}`,
+    enunciado:'Resuelve la operación. Recuerda incluir el signo.',
+    nivel:E.config.nivel, tablas:E.config.tablas.slice(), ops:E.config.ops.slice()
+  };
+}
+function cfgTablas(){
+  return {
+    tipo:'tabla', formato:'opciones',
+    titulo:'Tablas de multiplicar · Modo juego',
+    enunciado:'Toca el resultado correcto y luego comprueba.',
+    nivel:E.config.nivel, tablas:E.config.tablas.slice(), ops:[]
+  };
+}
+
+/* =========================================================
+   SECCIÓN 2 · ENTENDER LOS SIGNOS
+   ========================================================= */
+function pVisual(){
+  E.pantalla='visual';
+  pintar(`
+    <button class="volver" data-a="inicio">‹ Menú principal</button>
+    <p class="eyebrow">Sección 2</p>
+    <h1 class="titulo">Entender los signos</h1>
+    <p class="sub">Cuatro maneras distintas de ver lo mismo. Explora sin presión: aquí no se cuentan aciertos ni errores.</p>
+    <div class="rejilla dos">
+      <button class="card" data-a="vis-recta">
+        <div class="ico">📏</div>
+        <div class="txt"><b>La recta numérica</b><span>Sumar avanza, restar retrocede</span></div><div class="flecha">›</div>
+      </button>
+      <button class="card v" data-a="vis-fichas">
+        <div class="ico">🟢</div>
+        <div class="txt"><b>Fichas de colores</b><span>Un positivo y un negativo se anulan</span></div><div class="flecha">›</div>
+      </button>
+      <button class="card r" data-a="vis-termo">
+        <div class="ico">🌡️</div>
+        <div class="txt"><b>El termómetro</b><span>Temperaturas bajo cero en situaciones reales</span></div><div class="flecha">›</div>
+      </button>
+      <button class="card a" data-a="vis-regla">
+        <div class="ico">⚖️</div>
+        <div class="txt"><b>La regla de los signos</b><span>Arma la multiplicación y descubre el signo</span></div><div class="flecha">›</div>
+      </button>
+    </div>
+  `);
+}
+
+/* ---------- Recta numérica ---------- */
+let RECTA = null;
+function pRecta(){
+  E.pantalla='recta';
+  nuevaRecta(true);
+}
+function nuevaRecta(primera){
+  const suma = Math.random()<0.5;
+  const a = signoAz()*az(1,7);
+  const b = signoAz()*az(1,7);
+  const r = suma ? a+b : a-b;
+  const efectivo = suma ? b : -b;
+  RECTA = {a,b,r,suma,efectivo,paso:0};
+  dibujarRecta(primera ? '' : '');
+}
+function dibujarRecta(txtPaso){
+  const {a,b,r,suma,efectivo} = RECTA;
+  const min = Math.min(a,r,0)-2, max = Math.max(a,r,0)+2;
+  const n = max-min+1;
+  let ticks='';
+  for(let v=min; v<=max; v++) ticks += `<div class="tick ${v===0?'cero':''}">${fmt(v)}</div>`;
+  const pos = v => ((v-min+0.5)/n)*100;
+  pintar(`
+    <button class="volver" data-a="sec-visual">‹ Entender los signos</button>
+    <h1 class="titulo">La recta numérica</h1>
+    <p class="sub">Sumar un positivo mueve a la derecha. Sumar un negativo mueve a la izquierda.</p>
+    <div class="escenario">
+      <div class="enunciado">${suma?'Suma':'Resta'} de números con signo</div>
+      <div class="operacion"><span>${par(a)}</span><span>${suma?'+':'−'}</span><span>${par(b)}</span></div>
+    </div>
+    ${!suma ? `<div class="aviso">🔁 Restar es sumar el opuesto: ${fmt(a)} − ${fmt(b)} se convierte en ${fmt(a)} + ${fmt(efectivo)}.</div>`:''}
+    <div class="recta" id="rectaScroll">
+      <div class="recta-inner" style="min-width:${n*36}px">
+        <div class="recta-barra"></div>
+        <div class="ficha-mov" id="fichaMov" style="left:${pos(a)}%">${fmt(a)}</div>
+        <div class="recta-linea">${ticks}</div>
+      </div>
+    </div>
+    <div class="paso-txt" id="pasoTxt">${txtPaso || 'Empiezo en '+fmt(a)+'. Toca «Paso a paso» para moverme.'}</div>
+    <div class="fila-btn">
+      <button class="btn gris" data-a="recta-nueva">🔄 Otro ejemplo</button>
+      <button class="btn" data-a="recta-anim">▸ Paso a paso</button>
+    </div>
+    <div class="panel" style="margin-top:18px">
+      <h3>Lo que muestra la recta</h3>
+      <p class="ayuda" style="margin:0">Moverse ${efectivo<0?'a la izquierda':'a la derecha'} ${Math.abs(efectivo)} lugares desde ${fmt(a)} lleva hasta <b style="color:var(--violeta)">${fmt(r)}</b>.</p>
+    </div>
+  `);
+  RECTA.pos = pos;
+}
+function animarRecta(){
+  const {a, efectivo, r, pos} = RECTA;
+  const ficha = $('#fichaMov'), txt = $('#pasoTxt');
+  if(!ficha) return;
+  const dir = efectivo<0 ? -1 : 1;
+  const total = Math.abs(efectivo);
+  let i = 0;
+  txt.textContent = 'Empiezo en '+fmt(a)+'.';
+  const tick = ()=>{
+    if(i>=total){
+      txt.innerHTML = `Llego a <b style="color:var(--violeta)">${fmt(r)}</b>. Ese es el resultado.`;
+      ficha.style.background = 'var(--mango)'; ficha.style.color='#4A3000';
+      return;
+    }
+    i++;
+    const v = a + dir*i;
+    ficha.style.left = pos(v)+'%';
+    ficha.textContent = fmt(v);
+    const sc = $('#rectaScroll');
+    if(sc) sc.scrollTo({left: ficha.offsetLeft - sc.clientWidth/2, behavior:'smooth'});
+    txt.textContent = `Paso ${i} de ${total}: me muevo ${dir<0?'a la izquierda':'a la derecha'} hasta ${fmt(v)}.`;
+    setTimeout(tick, 420);
+  };
+  setTimeout(tick, 250);
+}
+
+/* ---------- Fichas ---------- */
+let FICH = null;
+function pFichas(){
+  E.pantalla='fichas';
+  const a = signoAz()*az(2,8), b = signoAz()*az(2,8);
+  FICH = {a,b,r:a+b};
+  dibujarFichas();
+}
+function dibujarFichas(){
+  const {a,b,r} = FICH;
+  const f = [];
+  for(let i=0;i<Math.abs(a);i++) f.push({s:Math.sign(a), g:'a', i});
+  for(let i=0;i<Math.abs(b);i++) f.push({s:Math.sign(b), g:'b', i});
+  const igual = (a<0)===(b<0);
+  pintar(`
+    <button class="volver" data-a="sec-visual">‹ Entender los signos</button>
+    <h1 class="titulo">Fichas de colores</h1>
+    <p class="sub">Cada ficha verde vale +1 y cada ficha roja vale −1. Una verde y una roja juntas valen cero: se anulan.</p>
+    <div class="escenario">
+      <div class="enunciado">Represento la operación con fichas</div>
+      <div class="operacion"><span>${par(a)}</span><span>+</span><span>${par(b)}</span></div>
+    </div>
+    <div class="fichas" id="zonaFichas">
+      ${f.map((x,k)=>`<div class="ficha ${x.s>0?'p':'n'}" data-s="${x.s}" style="animation-delay:${k*0.03}s">${x.s>0?'+':'−'}</div>`).join('')}
+    </div>
+    <div class="leyenda"><span><i style="background:var(--mas)"></i>positivo (+1)</span><span><i style="background:var(--menos)"></i>negativo (−1)</span></div>
+    <div class="paso-txt" id="pasoFichas" style="margin-top:14px">${igual
+      ? 'Todas las fichas son del mismo color: no hay parejas que se anulen, solo se juntan.'
+      : 'Hay fichas de los dos colores. Toca «Anular parejas» para ver qué sobra.'}</div>
+    <div class="fila-btn">
+      <button class="btn gris" data-a="fichas-nueva">🔄 Otro ejemplo</button>
+      <button class="btn" data-a="fichas-anular">⚡ Anular parejas</button>
+    </div>
+    <div class="panel" style="margin-top:18px">
+      <h3>La idea</h3>
+      <p class="ayuda" style="margin:0">${igual
+        ? `Como los dos tienen el mismo signo, sumas las cantidades: ${Math.abs(a)} + ${Math.abs(b)} = ${Math.abs(r)}, y el resultado conserva el signo ${a<0?'negativo':'positivo'}.`
+        : `Se anulan ${Math.min(Math.abs(a),Math.abs(b))} parejas. Quedan ${Math.abs(r)} fichas ${r<0?'rojas':(r===0?'':'verdes')}, así que el resultado es ${fmt(r)}.`}</p>
+    </div>
+  `);
+}
+function anularFichas(){
+  const zona = $('#zonaFichas'); if(!zona) return;
+  const pos = [...zona.querySelectorAll('.ficha[data-s="1"]:not(.anula)')];
+  const neg = [...zona.querySelectorAll('.ficha[data-s="-1"]:not(.anula)')];
+  const parejas = Math.min(pos.length, neg.length);
+  if(parejas===0){ $('#pasoFichas').textContent='No hay parejas que anular: todas son del mismo color.'; return; }
+  for(let i=0;i<parejas;i++){
+    setTimeout(()=>{ pos[i].classList.add('anula'); neg[i].classList.add('anula'); }, i*180);
+  }
+  setTimeout(()=>{
+    const r = FICH.r;
+    $('#pasoFichas').innerHTML = `Se anularon ${parejas} parejas. Quedan <b style="color:var(--violeta)">${Math.abs(r)}</b> fichas ${r<0?'rojas':(r===0?'(ninguna)':'verdes')}: el resultado es <b style="color:var(--violeta)">${fmt(r)}</b>.`;
+  }, parejas*180+520);
+}
+
+/* ---------- Termómetro ---------- */
+let TERMO = null;
+function pTermo(){
+  E.pantalla='termo';
+  const a = signoAz()*az(1,15);
+  const sube = Math.random()<0.5;
+  const b = az(2,15);
+  TERMO = {a,b,sube,r: sube ? a+b : a-b, revelado:false};
+  dibujarTermo();
+}
+function dibujarTermo(){
+  const {a,b,sube,r,revelado} = TERMO;
+  const alto = v => ((Math.max(-20,Math.min(20,v))+20)/40)*100;
+  const v = revelado ? r : a;
+  pintar(`
+    <button class="volver" data-a="sec-visual">‹ Entender los signos</button>
+    <h1 class="titulo">El termómetro</h1>
+    <p class="sub">Bajo cero los números son negativos. Subir es sumar, bajar es restar.</p>
+    <div class="escenario">
+      <div class="enunciado">Situación</div>
+      <p style="font-size:18px;font-weight:700;margin:0">La temperatura marcaba <b style="color:${a<0?'var(--menos)':'var(--mas)'}">${fmt(a)} °C</b> y ${sube?'subió':'bajó'} <b>${b} °C</b>. ¿Cuánto marca ahora?</p>
+      <div class="operacion" style="font-size:30px;margin-top:14px"><span>${par(a)}</span><span>${sube?'+':'−'}</span><span>${par(b)}</span></div>
+    </div>
+    <div class="termo-wrap">
+      <div class="termo">
+        <div class="termo-cero" style="bottom:50%"></div>
+        <div class="termo-fill ${v<0?'frio':''}" style="height:${alto(v)}%"></div>
+      </div>
+      <div>
+        <div class="termo-val" style="color:${v<0?'#2F6BD8':'var(--menos)'}">${fmt(v)} °C</div>
+        <div class="correcta">${revelado?'Temperatura final':'Temperatura inicial'}</div>
+      </div>
+    </div>
+    <div class="paso-txt">${revelado
+      ? `${sube?'Subir':'Bajar'} ${b} grados desde ${fmt(a)} deja el termómetro en ${fmt(r)} °C.`
+      : 'Piensa la respuesta y luego revélala.'}</div>
+    <div class="fila-btn">
+      <button class="btn gris" data-a="termo-nuevo">🔄 Otra situación</button>
+      <button class="btn ${revelado?'gris':''}" data-a="termo-revelar" ${revelado?'disabled':''}>👁 Revelar</button>
+    </div>
+    ${revelado?`<div class="panel" style="margin-top:18px"><h3>En lenguaje matemático</h3><p class="ayuda" style="margin:0">${par(a)} ${sube?'+':'−'} ${par(b)} = ${fmt(r)}. ${sube?'Sumar un positivo hace subir la temperatura.':'Restar un positivo hace bajar la temperatura, y puede pasar por debajo del cero.'}</p></div>`:''}
+  `);
+}
+
+/* ---------- Regla de los signos ---------- */
+let REGLA = {sa:1, sb:1, op:'mult'};
+function pRegla(){
+  E.pantalla='regla';
+  dibujarRegla();
+}
+function dibujarRegla(){
+  const {sa,sb} = REGLA;
+  const sr = sa*sb;
+  const a = 6, b = 4;
+  pintar(`
+    <button class="volver" data-a="sec-visual">‹ Entender los signos</button>
+    <h1 class="titulo">La regla de los signos</h1>
+    <p class="sub">Elige el signo de cada factor y observa qué pasa con el resultado.</p>
+    <div class="selector-signo">
+      <div>
+        <div style="font-size:13px;font-weight:800;text-align:center;margin-bottom:6px;color:var(--tinta2)">1° factor</div>
+        <div style="display:flex;gap:8px">
+          <button class="sbtn mas" data-a="regla-sa" data-v="1" aria-pressed="${sa===1}">+</button>
+          <button class="sbtn men" data-a="regla-sa" data-v="-1" aria-pressed="${sa===-1}">−</button>
+        </div>
+      </div>
+      <div style="font-size:30px;font-family:'Space Grotesk';font-weight:700;padding-top:24px">×</div>
+      <div>
+        <div style="font-size:13px;font-weight:800;text-align:center;margin-bottom:6px;color:var(--tinta2)">2° factor</div>
+        <div style="display:flex;gap:8px">
+          <button class="sbtn mas" data-a="regla-sb" data-v="1" aria-pressed="${sb===1}">+</button>
+          <button class="sbtn men" data-a="regla-sb" data-v="-1" aria-pressed="${sb===-1}">−</button>
+        </div>
+      </div>
+    </div>
+    <div class="escenario">
+      <div class="enunciado">Resultado</div>
+      <div class="resultado-signo" style="color:${sr>0?'var(--mas)':'var(--menos)'}">
+        ${sa>0?'+':'−'} × ${sb>0?'+':'−'} = ${sr>0?'+':'−'}
+      </div>
+      <p style="font-weight:700;margin:0;font-size:17px">Con números: ${par(sa*a)} × ${par(sb*b)} = <b style="color:${sr>0?'var(--mas)':'var(--menos)'}">${fmt(sr*a*b)}</b></p>
+    </div>
+    <div class="aviso">${sa===sb
+      ? '🟰 Signos <b>iguales</b> → el resultado es <b>positivo</b>. Si los dos son negativos, lo contrario de lo contrario vuelve al principio.'
+      : '↔️ Signos <b>distintos</b> → el resultado es <b>negativo</b>.'}</div>
+    <div class="panel">
+      <h3>Las cuatro combinaciones</h3>
+      <p class="ayuda">Solo existen estas cuatro. La que elegiste está resaltada.</p>
+      <div class="matriz">
+        <div class="celda ${sa===1&&sb===1?'on pos':''}">+ × + = +</div>
+        <div class="celda ${sa===1&&sb===-1?'on neg':''}">+ × − = −</div>
+        <div class="celda ${sa===-1&&sb===1?'on neg':''}">− × + = −</div>
+        <div class="celda ${sa===-1&&sb===-1?'on pos':''}">− × − = +</div>
+      </div>
+    </div>
+    <button class="btn" data-a="sec-signos">▸ Practicar la ley de los signos</button>
+  `);
+}
+
+/* =========================================================
+   SECCIÓN 4 · LISTA DE OPERACIONES (evaluación)
+   ========================================================= */
+function pEvalCfg(){
+  E.pantalla='eval-cfg';
+  pintar(`
+    <button class="volver" data-a="inicio">‹ Menú principal</button>
+    <p class="eyebrow">Sección 4</p>
+    <h1 class="titulo">Lista de operaciones</h1>
+    <p class="sub">10 operaciones que mezclan tablas de multiplicar y ley de los signos. Cada una vale 5 puntos: la calificación es sobre 50.</p>
+    <div class="rejilla" style="margin-bottom:16px">
+      ${Object.keys(NIVELES).map(k=>`
+        <button class="card ${k==='medio'?'a':(k==='dificil'?'r':'v')}" data-a="cfg-nivel-eval" data-v="${k}" style="${E.config.nivel===k?'border-color:var(--violeta);box-shadow:0 0 0 4px rgba(74,47,209,.12)':''}">
+          <div class="ico">${NIVELES[k].ico}</div>
+          <div class="txt"><b>Nivel ${NIVELES[k].nom}</b><span>${NIVELES[k].desc}</span></div>
+          <div class="flecha">${E.config.nivel===k?'✓':'›'}</div>
+        </button>`).join('')}
+    </div>
+    <div class="panel">
+      <h3>Operaciones incluidas</h3>
+      <p class="ayuda">Las tablas siempre entran. Elige qué operaciones con signo se evalúan.</p>
+      <div class="chips">${chipsOps()}</div>
+    </div>
+    <div class="panel">
+      <h3>Tablas que entran</h3>
+      <p class="ayuda">Selección del docente.</p>
+      <div class="chips">${chipsTablas()}</div>
+    </div>
+    <div class="aviso">📝 Aquí no hay pistas mientras resuelves: comprueba todas al final. Después podrás corregir los errores.</div>
+    <button class="btn mango" data-a="iniciar-eval">📋 Empezar la lista</button>
+  `);
+}
+
+function iniciarEval(){
+  const cfg = { tipo:'mixto', nivel:E.config.nivel, tablas:E.config.tablas.slice(), ops:E.config.ops.slice() };
+  const items = [];
+  for(let i=0;i<10;i++){
+    const ej = i<4 ? ejTabla(cfg.tablas.length?cfg.tablas:NIVELES[cfg.nivel].tablas) : generar({...cfg, tipo:'signos'});
+    items.push({ej, val:''});
+  }
+  E.eval = { items:barajar(items), activo:0, t0:Date.now(), entregada:false };
+  pEval();
+}
+
+function pEval(){
+  E.pantalla='evaluacion';
+  const V = E.eval;
+  pintar(`
+    <button class="volver" data-a="salir-eval">‹ Salir de la lista</button>
+    <p class="eyebrow">Nivel ${NIVELES[E.config.nivel].nom} · 50 puntos</p>
+    <h1 class="titulo">Resuelve las 10 operaciones</h1>
+    <p class="sub">Toca una casilla para activarla y escribe con el teclado de abajo.</p>
+    <div class="hoja" id="hoja">
+      ${V.items.map((it,i)=>`
+        <div class="reng ${V.activo===i?'sel':''}" data-a="sel-reng" data-v="${i}">
+          <div class="n">${i+1}</div>
+          <div class="op">${it.ej.texto} =</div>
+          <div class="cj">${it.val===''?'?':it.val.replace('-','−')}</div>
+        </div>`).join('')}
+    </div>
+    ${tecladoEval()}
+    <div class="fila-btn">
+      <button class="btn gris" data-a="borrar-eval">🗑 Borrar</button>
+      <button class="btn verde" data-a="entregar">✅ Comprobar respuestas</button>
+    </div>
+  `);
+}
+function tecladoEval(){
+  const t = ['1','2','3','4','5','6','7','8','9','±','0','del'];
+  return `<div class="teclado">${t.map(k=>`
+    <button class="tecla ${k==='±'?'sig':''} ${k==='del'?'del':''}" data-a="tecla-eval" data-v="${k}">${k==='del'?'⌫':k}</button>`).join('')}</div>`;
+}
+function escribirEval(k){
+  const V = E.eval; if(!V || V.entregada) return;
+  const it = V.items[V.activo]; if(!it) return;
+  let v = it.val;
+  if(k==='del') v = v.slice(0,-1);
+  else if(k==='±') v = v.startsWith('-') ? v.slice(1) : '-'+v;
+  else {
+    if(it.reemplazar){ v = v.startsWith('-')?'-':''; it.reemplazar=false; }
+    if(v.replace('-','').length<4) v += k;
+  }
+  it.val = v;
+  const cj = document.querySelectorAll('#hoja .reng')[V.activo].querySelector('.cj');
+  cj.textContent = v===''?'?':v.replace('-','−');
+}
+
+function entregar(){
+  const V = E.eval;
+  const faltan = V.items.filter(i=>i.val===''||i.val==='-').length;
+  if(faltan>0){
+    $('#capa').innerHTML = `
+      <div class="capa"><div class="modal">
+        <span class="emoji">✋</span>
+        <h2>Te faltan ${faltan} operaciones</h2>
+        <p>Puedes completarlas antes de comprobar. Si comprobas ahora, esas quedarán como incorrectas.</p>
+        <button class="btn mango" data-a="cerrar" style="margin-top:16px">Volver a completarlas</button>
+        <button class="btn gris" data-a="entregar-igual" style="margin-top:12px">Comprobar así</button>
+      </div></div>`;
+    return;
+  }
+  entregarIgual();
+}
+
+function entregarIgual(){
+  cerrarCapa();
+  const V = E.eval; V.entregada = true;
+  let buenas = 0;
+  V.items.forEach(it=>{
+    const dado = (it.val===''||it.val==='-') ? null : parseInt(it.val,10);
+    it.dado = dado;
+    it.bien = dado === it.ej.resp;
+    if(it.bien){ buenas++; E.ok++; } else { E.no++; }
+  });
+  refrescarBarra();
+  const puntos = buenas*5;
+  const nota = (puntos/10).toFixed(1);
+  const t = reloj(Date.now()-V.t0);
+  if(buenas>=7) confeti(60);
+  const msg = buenas>=9 ? 'Dominio excelente. Estás listo para el siguiente nivel.'
+    : buenas>=7 ? 'Buen resultado. Revisa las que fallaste y lo tendrás completo.'
+    : buenas>=5 ? 'Vas por buen camino. Corrige los errores y vuelve a intentarlo.'
+    : 'Todavía no está, y está bien. Repasa la sección visual y vuelve: aquí se aprende corrigiendo.';
+  E.pantalla='eval-res';
+  pintar(`
+    <p class="eyebrow">Resultados</p>
+    <h1 class="titulo">${escapar(E.nombre)} · ${escapar(E.grado)}</h1>
+    <div class="escenario">
+      <div class="enunciado">Calificación sobre 50 puntos</div>
+      <div class="operacion" style="justify-content:center"><span style="color:${puntos>=35?'var(--mas)':'var(--menos)'}">${puntos}</span><span style="font-size:26px;color:var(--tinta2)">/ 50</span></div>
+      <p style="font-weight:800;margin:10px 0 0;font-size:17px">Nota: ${nota} sobre 5.0</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${t}</b><span>Tiempo</span></div>
+      <div class="stat p"><b>${Math.round(buenas/10*100)}%</b><span>Efectividad</span></div>
+      <div class="stat v"><b>✔ ${buenas}</b><span>Correctas</span></div>
+      <div class="stat r"><b>✖ ${10-buenas}</b><span>Por corregir</span></div>
+    </div>
+    <div class="pista">🌟 ${msg}</div>
+    <h3 style="margin:22px 0 10px">Revisión operación por operación</h3>
+    <div class="hoja">
+      ${V.items.map((it,i)=>`
+        <div class="reng ${it.bien?'ok':'no'}">
+          <div class="n">${i+1}</div>
+          <div class="op">${it.ej.texto} = ${it.dado===null?'—':fmt(it.dado)}
+            ${it.bien?'':`<div class="correcta">Respuesta correcta: ${fmt(it.ej.resp)} · ${it.ej.pista}</div>`}</div>
+          <div class="marca">${it.bien?'✔':'✖'}</div>
+        </div>`).join('')}
+    </div>
+    <div class="fila-btn">
+      <button class="btn gris" data-a="inicio">🏠 Menú</button>
+      <button class="btn" data-a="repetir-eval">🔁 Otra lista</button>
+    </div>
+    ${buenas<10?`<button class="btn mango" data-a="corregir" style="margin-top:12px">✏️ Practicar lo que fallé</button>`:''}
+  `);
+}
+
+/* =========================================================
+   ENRUTADOR DE ACCIONES
+   ========================================================= */
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-a]');
+  if(!b) return;
+  accion(b.dataset.a, b.dataset.v, b);
+});
+
+function accion(a, v, btn){
+  switch(a){
+    /* inicio */
+    case 'grado':
+      document.querySelectorAll('#chipsGrado .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+      btn.setAttribute('aria-pressed','true');
+      E.grado = 'Grado '+v;
+      $('#errGrado').classList.remove('ver');
+      break;
+    case 'comenzar': {
+      const n = ($('#inNombre')?.value||'').trim();
+      let ok = true;
+      if(n.length<2){ $('#errNombre').classList.add('ver'); ok=false; } else $('#errNombre').classList.remove('ver');
+      if(!E.grado){ $('#errGrado').classList.add('ver'); ok=false; }
+      if(!ok) return;
+      E.nombre = n; E.inicio = Date.now();
+      refrescarBarra();
+      pMenu();
+      tostar('¡Bienvenido, '+n.split(' ')[0]+'!');
+      break;
+    }
+    case 'inicio': pMenu(); break;
+    case 'cerrar': cerrarCapa(); break;
+    case 'cerrar-menu': cerrarCapa(); pMenu(); break;
+
+    /* sección 1 */
+    case 'sec-tablas': pTablas(); break;
+    case 'tab-generador': pGenerador(2); break;
+    case 'ver-tabla': pGenerador(+v); break;
+    case 'toggle-res': {
+      const ocultas = document.querySelector('.res').style.color === 'transparent';
+      document.querySelectorAll('.res').forEach(r=>{ r.style.color = ocultas ? 'var(--violeta)' : 'transparent'; });
+      $('#btnRes').textContent = ocultas ? '🙈 Ocultar resultados' : '👁 Mostrar resultados';
+      break;
+    }
+    case 'tab-juego-cfg': pJuegoCfg(); break;
+    case 'tablas-todas': E.config.tablas=[1,2,3,4,5,6,7,8,9,10,11,12]; pJuegoCfg(); break;
+    case 'tablas-nivel': E.config.tablas=NIVELES[E.config.nivel].tablas.slice(); pJuegoCfg(); break;
+    case 'iniciar-juego':
+      if(!E.config.tablas.length){ tostar('Elige al menos una tabla'); return; }
+      iniciarLeccion(cfgTablas()); break;
+
+    /* configuración */
+    case 'cfg-tabla': {
+      const n = +v;
+      const i = E.config.tablas.indexOf(n);
+      if(i>=0){ if(E.config.tablas.length===1){ tostar('Debe quedar al menos una tabla'); return; } E.config.tablas.splice(i,1); }
+      else E.config.tablas.push(n);
+      E.config.tablas.sort((x,y)=>x-y);
+      btn.setAttribute('aria-pressed', E.config.tablas.includes(n));
+      break;
+    }
+    case 'cfg-op': {
+      const i = E.config.ops.indexOf(v);
+      if(i>=0){ if(E.config.ops.length===1){ tostar('Debe quedar al menos una operación'); return; } E.config.ops.splice(i,1); }
+      else E.config.ops.push(v);
+      btn.setAttribute('aria-pressed', E.config.ops.includes(v));
+      break;
+    }
+    case 'cfg-nivel':
+      E.config.nivel = v;
+      E.config.tablas = NIVELES[v].tablas.slice();
+      if(E.pantalla==='juego-cfg') pJuegoCfg(); else pSignosCfg();
+      break;
+    case 'cfg-nivel-eval':
+      E.config.nivel = v; E.config.tablas = NIVELES[v].tablas.slice(); pEvalCfg(); break;
+
+    /* lección */
+    case 'sec-signos': pSignosCfg(); break;
+    case 'iniciar-signos': iniciarLeccion(cfgSignos()); break;
+    case 'tecla': escribir(v); break;
+    case 'foco-caja': if(E.leccion) E.leccion.reemplazar = true; break;
+    case 'elegir-op': {
+      if(E.leccion.estado!=='responde') return;
+      E.leccion.sel = +v;
+      document.querySelectorAll('.opcion').forEach(o=>o.setAttribute('aria-pressed', o.dataset.v===v));
+      const cj = document.querySelector('.caja');
+      cj.textContent = fmt(+v); cj.classList.remove('vacia'); cj.classList.add('activa');
+      break;
+    }
+    case 'comprobar': comprobar(); break;
+    case 'borrar':
+      if(!E.leccion || E.leccion.estado!=='responde') return;
+      E.leccion.valor=''; E.leccion.sel=null;
+      document.querySelectorAll('.opcion').forEach(o=>o.setAttribute('aria-pressed','false'));
+      { const c=document.querySelector('.caja'); if(c){ c.textContent='?'; c.classList.add('vacia'); c.classList.remove('mal'); } }
+      break;
+    case 'reintentar': reintentar(); break;
+    case 'siguiente-ej': nuevoEjercicio(); break;
+    case 'siguiente-leccion': siguienteLeccion(); break;
+    case 'salir-leccion': confirmarSalida(); break;
+
+    /* visual */
+    case 'sec-visual': pVisual(); break;
+    case 'vis-recta': pRecta(); break;
+    case 'recta-nueva': nuevaRecta(); break;
+    case 'recta-anim': animarRecta(); break;
+    case 'vis-fichas': pFichas(); break;
+    case 'fichas-nueva': pFichas(); break;
+    case 'fichas-anular': anularFichas(); break;
+    case 'vis-termo': pTermo(); break;
+    case 'termo-nuevo': pTermo(); break;
+    case 'termo-revelar': TERMO.revelado=true; dibujarTermo(); break;
+    case 'vis-regla': pRegla(); break;
+    case 'regla-sa': REGLA.sa=+v; dibujarRegla(); break;
+    case 'regla-sb': REGLA.sb=+v; dibujarRegla(); break;
+
+    /* evaluación */
+    case 'sec-eval': pEvalCfg(); break;
+    case 'iniciar-eval': iniciarEval(); break;
+    case 'sel-reng': {
+      if(E.eval.entregada) return;
+      E.eval.activo = +v;
+      E.eval.items[+v].reemplazar = true;
+      document.querySelectorAll('#hoja .reng').forEach((r,i)=>r.classList.toggle('sel', i===+v));
+      break;
+    }
+    case 'tecla-eval': escribirEval(v); break;
+    case 'borrar-eval':
+      E.eval.items.forEach(i=>i.val='');
+      document.querySelectorAll('#hoja .cj').forEach(c=>c.textContent='?');
+      tostar('Hoja borrada');
+      break;
+    case 'entregar': entregar(); break;
+    case 'entregar-igual': entregarIgual(); break;
+    case 'repetir-eval': iniciarEval(); break;
+    case 'salir-eval': confirmarSalida(true); break;
+    case 'corregir': {
+      const malas = E.eval.items.filter(i=>!i.bien).map(m=>m.ej);
+      iniciarLeccion({...cfgSignos(), lista:malas, titulo:'Corrección de la lista', enunciado:'Vuelve a intentar las que fallaste. Aquí sí hay pistas.'});
+      break;
+    }
+  }
+}
+
+function confirmarSalida(esEval){
+  $('#capa').innerHTML = `
+    <div class="capa"><div class="modal">
+      <span class="emoji">🚪</span>
+      <h2>¿Salir de la actividad?</h2>
+      <p>Se perderá el avance de ${esEval?'esta lista':'esta lección'}, pero tus aciertos y errores de la sesión se conservan.</p>
+      <button class="btn gris" data-a="cerrar" style="margin-top:16px">Seguir aquí</button>
+      <button class="btn" data-a="cerrar-menu" style="margin-top:12px">Sí, ir al menú</button>
+    </div></div>`;
+}
+
+/* =========================================================
+   ARRANQUE
+   ========================================================= */
+pBienvenida();
+</script>
+</body>
+</html>
