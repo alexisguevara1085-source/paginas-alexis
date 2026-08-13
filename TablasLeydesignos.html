@@ -388,6 +388,81 @@ main{flex:1;padding:18px 18px 40px}
 .error-campo.ver{display:block;animation:temblor .4s}
 .grados{display:flex;flex-wrap:wrap;gap:8px}
 
+
+/* ============ CARRERA ============ */
+.pista-wrap{background:linear-gradient(160deg,#2F2A55,#453D7A);border-radius:24px;padding:14px;margin-bottom:16px;color:#fff;box-shadow:var(--sombra)}
+.marcador-carrera{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.marcador-carrera b{font-family:'Space Grotesk';font-size:18px}
+.estado-carrera{background:rgba(255,255,255,.16);padding:5px 12px;border-radius:99px;font-size:12.5px;font-weight:800}
+.pista{background:#5B5490;border-radius:16px;padding:8px;position:relative}
+.carril{position:relative;height:58px;border-radius:12px;background:#4A4372;margin:6px 0;overflow:hidden}
+.carril .linea{position:absolute;top:50%;left:0;right:22px;height:4px;transform:translateY(-50%);border-radius:9px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.5) 0 14px,transparent 14px 30px)}
+.carril .meta{position:absolute;right:0;top:0;bottom:0;width:20px;background:repeating-conic-gradient(#fff 0 25%,#1d1a35 0 50%) 0 0/10px 10px}
+.bandera{position:absolute;top:3px;font-size:14px;opacity:.9;transform:translateX(-50%);z-index:1}
+.auto{position:absolute;top:50%;font-size:33px;line-height:1;transform:translate(-50%,-50%) scaleX(-1);
+  transition:left .65s cubic-bezier(.3,1.2,.5,1);z-index:3;filter:drop-shadow(0 4px 7px rgba(0,0,0,.45))}
+.auto.boost{animation:boost .65s ease}
+@keyframes boost{0%{transform:translate(-50%,-50%) scaleX(-1)}35%{transform:translate(-50%,-58%) scaleX(-1.18) scaleY(.86)}100%{transform:translate(-50%,-50%) scaleX(-1)}}
+.km{text-align:center;font-size:12.5px;font-weight:800;opacity:.82;margin-top:9px;letter-spacing:.8px;text-transform:uppercase}
+.mas-uno{position:absolute;font-family:'Space Grotesk';font-weight:700;color:#FFD36B;font-size:21px;
+  animation:subeuno 1s ease forwards;z-index:6;pointer-events:none}
+@keyframes subeuno{0%{opacity:0;transform:translate(-50%,0)}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-38px)}}
+.humo{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);animation:humo .7s ease forwards;z-index:2}
+@keyframes humo{to{opacity:0;transform:translate(-26px,-14px) scale(2.4)}}
+
+/* ============ CASILLA EN SECCIÓN VISUAL ============ */
+.mini{background:var(--nube);border:2px solid var(--borde);border-radius:22px;padding:16px;margin-top:18px}
+.mini h3{margin:0 0 4px;font-size:17px;text-align:center}
+.mini .ayuda{text-align:center;margin:0 0 12px}
+.mini-caja{display:flex;justify-content:center;margin-bottom:6px}
+.nota-forma{text-align:center;font-size:13.5px;color:var(--tinta2);font-weight:700;margin-top:10px}
+
+
+/* ============ DOMINAR LAS TABLAS ============ */
+.dado{width:60px;height:60px;border-radius:15px;background:#fff;border:3px solid var(--borde);
+  box-shadow:0 5px 0 #D9D4F0;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px;transition:.18s}
+.dado .pip{width:11px;height:11px;border-radius:50%;background:var(--tinta);align-self:center;justify-self:center;opacity:0}
+.dado .pip.on{opacity:1}
+.dado.num{display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:30px;color:var(--tinta)}
+.dado.sel{border-color:var(--violeta);color:var(--violeta);transform:translateY(-7px);box-shadow:0 10px 0 #35209C33,0 12px 22px rgba(74,47,209,.25)}
+.dado.listo{border-color:var(--mas);background:var(--mas-suave);color:var(--mas);animation:brote .45s cubic-bezier(.34,1.5,.64,1)}
+.dado.mal{animation:temblor .4s;border-color:var(--menos)}
+.dado.rueda{animation:rueda .55s ease}
+@keyframes rueda{0%{transform:rotate(0) scale(1)}50%{transform:rotate(200deg) scale(.82)}100%{transform:rotate(360deg) scale(1)}}
+.dados-fila{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+
+.array-wrap{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:16px 0}
+.array{display:grid;gap:5px}
+.pt{width:13px;height:13px;border-radius:4px;background:var(--violeta);animation:brote .3s both}
+.pt.b{background:var(--mango)}
+.sep-mas{font-family:'Space Grotesk';font-weight:700;font-size:26px;color:var(--tinta2)}
+.etq-bloque{text-align:center;font-family:'Space Grotesk';font-weight:700;font-size:14px;margin-top:8px}
+
+.mapa{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin:14px 0}
+.mc{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-size:10px;font-weight:800;
+  background:var(--nube);color:#B4AEDB;font-family:'Space Grotesk'}
+.mc.hd{background:transparent;color:var(--tinta2);font-size:11px}
+.mc.dominada{background:var(--mas);color:#fff}
+.mc.lenta{background:var(--mango);color:#5A3A00}
+.mc.falla{background:var(--menos);color:#fff}
+.mapa-leyenda{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:12.5px;font-weight:700;color:var(--tinta2)}
+.mapa-leyenda i{width:13px;height:13px;border-radius:4px;display:inline-block;margin-right:5px;vertical-align:-2px}
+
+.barra-tiempo{height:9px;background:var(--borde);border-radius:99px;overflow:hidden;margin:8px 0 4px}
+.bt-fill{height:100%;width:0;background:linear-gradient(90deg,var(--mas),var(--mango));border-radius:99px;transition:width 1s linear}
+.cadena{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+.eslabon{background:var(--papel);border:2px solid var(--borde);border-radius:14px;padding:10px 14px;
+  font-family:'Space Grotesk';font-weight:700;font-size:18px;animation:entra .3s both}
+.eslabon.foco{border-color:var(--violeta);background:var(--violeta-suave);color:var(--violeta)}
+.eslabon.oculto{border-style:dashed;color:#C9C2EC}
+.flechita{color:var(--tinta2);font-weight:800;font-size:13px}
+.salto{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.paso-n{min-width:52px;padding:9px 8px;border-radius:12px;background:var(--violeta-suave);color:var(--violeta);
+  font-family:'Space Grotesk';font-weight:700;text-align:center;animation:entra .25s both}
+.paso-n.ult{background:var(--mango);color:#5A3A00}
+.paso-n.inc{background:var(--papel);border:2px dashed #BEB4EE;color:#C9C2EC}
+
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
 }
@@ -428,8 +503,29 @@ const E = {
   config:{ nivel:'facil', tablas:[2,3,4,5,10], ops:['suma','resta','mult'] },
   leccion:null,
   eval:null,
+  diag:{mapa:{}, fecha:null},
   pantalla:'bienvenida'
 };
+const K = (a,b) => Math.min(a,b)+'x'+Math.max(a,b);
+function cargarDiag(){ try{ const d=localStorage.getItem('signotabla_diag'); if(d) E.diag=JSON.parse(d); }catch(e){} }
+function guardarDiag(){ try{ E.diag.fecha=new Date().toLocaleDateString('es-CO'); localStorage.setItem('signotabla_diag',JSON.stringify(E.diag)); }catch(e){} }
+function contarDiag(){
+  let d=0,l=0,f=0;
+  for(const k in E.diag.mapa){ const s=E.diag.mapa[k]; if(s==='dominada')d++; else if(s==='lenta')l++; else f++; }
+  return {d,l,f,total:d+l+f};
+}
+function pistaTabla(a,b){
+  const [x,y] = a<=b ? [a,b] : [b,a];
+  if(y===10||x===10) return `Multiplicar por 10 es escribir el número y agregarle un cero: ${x===10?y:x} × 10 = ${x===10?y:x}0.`;
+  if(y===9) return `La del 9 sale de la del 10: ${x} × 10 = ${x*10}, y le quitas un ${x} → ${x*9}.`;
+  if(y===1||x===1) return `Multiplicar por 1 deja el número igual: 1 × ${y} = ${y}.`;
+  if(y===2||x===2){ const n = x===2?y:x; return `Multiplicar por 2 es el doble: ${n} + ${n} = ${n*2}.`; }
+  if(y===4) return `La del 4 es el doble del doble: ${x} × 2 = ${x*2}, y el doble de eso es ${x*4}.`;
+  if(y===8) return `La del 8 es doblar tres veces: ${x} × 2 = ${x*2} → ${x*4} → ${x*8}.`;
+  if(y===5) return `La del 5 es la mitad de la del 10: ${x} × 10 = ${x*10}, la mitad es ${x*5}.`;
+  if(y===3) return `Descompón: ${x} × 3 = ${x} × 2 + ${x} = ${x*2} + ${x} = ${x*3}.`;
+  return `Descompón el ${y}: ${x} × ${y} = ${x} × 5 + ${x} × ${y-5} = ${x*5} + ${x*(y-5)} = ${x*y}.`;
+}
 
 const META = 12;
 const NIVELES = {
@@ -457,6 +553,8 @@ const barajar = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v
 const signoAz = () => Math.random()<0.5 ? -1 : 1;
 const fmt = n => (n<0 ? '−' : '') + Math.abs(n);
 const par = n => n<0 ? '<span class="op-neg">(−'+Math.abs(n)+')</span>' : '<span class="op-pos">(+'+n+')</span>';
+const num = n => n<0 ? '<span class="op-neg">−'+Math.abs(n)+'</span>' : '<span>'+n+'</span>';
+const enPar = n => n<0 ? '(−'+Math.abs(n)+')' : '(+'+n+')';
 
 function pintar(html){
   const v = $('#vista');
@@ -502,67 +600,100 @@ function ejTabla(tablas){
   const a = elige(tablas), b = az(2,12);
   const r = a*b;
   return {
-    tipo:'tabla', texto:`${a} × ${b}`, plano:`${a} x ${b}`, resp:r,
+    tipo:'tabla', texto:`${a} × ${b}`, plano:`${a} × ${b}`, resp:r,
     expl:`Es la tabla del ${a}: ${a} × ${b} = ${r}. También puedes verlo como sumar ${a} un total de ${b} veces.`,
     donde:'Revisa la multiplicación.',
-    pista:`Cuenta de ${a} en ${a}: ${a}, ${a*2}, ${a*3}… y detente en el lugar ${b}.`
+    pista: pistaTabla(a,b)+` Si te trabas, cuenta de ${a} en ${a}: ${a}, ${a*2}, ${a*3}…`
   };
 }
 
-function ejSuma(rango){
-  const a = signoAz()*az(1,rango), b = signoAz()*az(1,rango);
-  const r = a+b;
+/* Suma y resta con signo.
+   Fácil y medio: sin paréntesis (−7 + 8). Difícil: paréntesis de forma aleatoria. */
+function ejSumaResta(nivel, esResta){
+  const N = NIVELES[nivel] || NIVELES.facil;
+  const conPar = (nivel==='dificil') && Math.random()<0.5;
+  const a = signoAz()*az(1,N.rango);
+  const b = conPar ? signoAz()*az(1,N.rango) : az(1,N.rango);
+  const resp = esResta ? a-b : a+b;
+  const b2 = esResta ? -b : b;
+  const sg = esResta ? '−' : '+';
+  const texto = conPar ? `${par(a)} ${sg} ${par(b)}` : `${num(a)} ${sg} ${num(b)}`;
+  const plano = conPar ? `${enPar(a)} ${sg} ${enPar(b)}` : `${fmt(a)} ${sg} ${b}`;
+  const igual = (a<0)===(b2<0);
+
+  let intro = '';
+  if(esResta) intro = (conPar && b<0)
+    ? `Restar ${enPar(b)} es lo mismo que sumar ${Math.abs(b)}. `
+    : `Restar ${b} es lo mismo que sumar ${fmt(-b)}. `;
+
+  let cuerpo;
+  if(resp===0) cuerpo = `${Math.abs(a)} y ${Math.abs(b2)} son opuestos: se anulan y el resultado es 0.`;
+  else if(igual) cuerpo = `Los dos términos tienen el mismo signo: sumas ${Math.abs(a)} + ${Math.abs(b2)} = ${Math.abs(resp)} y conservas el signo ${a<0?'negativo':'positivo'}. Resultado: ${fmt(resp)}.`;
+  else cuerpo = `Signos distintos: restas ${Math.max(Math.abs(a),Math.abs(b2))} − ${Math.min(Math.abs(a),Math.abs(b2))} = ${Math.abs(resp)} y queda el signo del número de mayor valor. Resultado: ${fmt(resp)}.`;
+
+  let donde, pista;
+  if(esResta && conPar && b<0){
+    donde = 'Hay dos signos menos seguidos.';
+    pista = `Cambia − ${enPar(b)} por + ${Math.abs(b)} y después resuelve la suma.`;
+  } else if(esResta){
+    donde = 'Observa el signo de la resta.';
+    pista = `Restar ${b} es retroceder ${b} lugares desde ${fmt(a)} en la recta numérica.`;
+  } else if(igual){
+    donde = 'Los dos signos son iguales.';
+    pista = 'Signos iguales: suma los valores y conserva ese mismo signo.';
+  } else {
+    donde = 'Los signos son distintos.';
+    pista = 'Signos distintos: resta el valor menor al mayor y quédate con el signo del número más grande.';
+  }
+  return { tipo: esResta?'resta':'suma', texto, plano, resp, expl:intro+cuerpo, donde, pista };
+}
+
+/* Multiplicación con signo, en cuatro notaciones distintas */
+const FORMATOS = ['equis','punto','juntos','pegado'];
+function ejMult(tablas, nivel){
+  const a = signoAz()*elige(tablas);
+  const b = signoAz()*az(2,12);
+  const resp = a*b;
+  const f = elige(FORMATOS);
+  let texto, plano, nota='';
+  if(f==='equis'){
+    texto = `${num(a)} × ${b<0?par(b):num(b)}`;
+    plano = `${fmt(a)} × ${b<0?enPar(b):b}`;
+  } else if(f==='punto'){
+    texto = `${num(a)} · ${b<0?par(b):num(b)}`;
+    plano = `${fmt(a)} · ${b<0?enPar(b):b}`;
+    nota = 'El punto entre los dos números significa multiplicar. ';
+  } else if(f==='juntos'){
+    texto = `${par(a)}${par(b)}`;
+    plano = `${enPar(a)}${enPar(b)}`;
+    nota = 'Dos paréntesis juntos, sin ningún signo entre ellos, significan multiplicar. ';
+  } else {
+    texto = `${num(a)}${par(b)}`;
+    plano = `${fmt(a)}${enPar(b)}`;
+    nota = 'Un número pegado a un paréntesis significa multiplicar. ';
+  }
   const igual = (a<0)===(b<0);
   return {
-    tipo:'suma', texto:`${par(a)} + ${par(b)}`, plano:`${fmt(a)} + ${fmt(b)}`, resp:r,
-    expl: igual
-      ? `Los dos números tienen el mismo signo: sumas ${Math.abs(a)} + ${Math.abs(b)} = ${Math.abs(r)} y conservas el signo ${a<0?'−':'+'}.`
-      : `Signos distintos: restas ${Math.max(Math.abs(a),Math.abs(b))} − ${Math.min(Math.abs(a),Math.abs(b))} = ${Math.abs(r)} y se queda el signo del número de mayor valor absoluto (${Math.abs(a)>Math.abs(b) ? (a<0?'−':'+') : (b<0?'−':'+')}).`,
-    donde: igual ? 'Los dos signos son iguales.' : 'Los signos son distintos.',
-    pista: igual
-      ? `Signos iguales: suma los valores y conserva ese mismo signo.`
-      : `Signos distintos: resta el valor menor al mayor y quédate con el signo del número más grande.`
-  };
-}
-
-function ejResta(rango){
-  const a = signoAz()*az(1,rango), b = signoAz()*az(1,rango);
-  const r = a-b;
-  const op = -b;
-  return {
-    tipo:'resta', texto:`${par(a)} − ${par(b)}`, plano:`${fmt(a)} - ${fmt(b)}`, resp:r,
-    expl:`Restar es sumar el opuesto: ${fmt(a)} − ${fmt(b)} se convierte en ${fmt(a)} + ${fmt(op)} = ${fmt(r)}.`,
-    donde:'Observa el signo de la resta.',
-    pista:`Cambia la resta por una suma del opuesto: ${par(a)} − ${par(b)} es lo mismo que ${par(a)} + ${par(op)}.`
-  };
-}
-
-function ejMult(tablas){
-  const sa = signoAz(), sb = signoAz();
-  const a = sa*elige(tablas), b = sb*az(2,12);
-  const r = a*b;
-  const igual = sa===sb;
-  return {
-    tipo:'mult', texto:`${par(a)} × ${par(b)}`, plano:`${fmt(a)} x ${fmt(b)}`, resp:r,
-    expl:`${sa<0?'−':'+'} × ${sb<0?'−':'+'} = ${igual?'+':'−'}. Multiplicas ${Math.abs(a)} × ${Math.abs(b)} = ${Math.abs(r)} y el resultado queda ${igual?'positivo':'negativo'}.`,
-    donde: igual ? 'Los dos factores tienen el mismo signo.' : 'Los factores tienen signos distintos.',
-    pista: igual
-      ? 'Signos iguales al multiplicar dan resultado positivo. Verifica también la multiplicación.'
-      : 'Signos distintos al multiplicar dan resultado negativo. Verifica también la multiplicación.'
+    tipo:'mult', texto, plano, resp,
+    expl: nota + `${a<0?'−':'+'} × ${b<0?'−':'+'} = ${igual?'+':'−'}. Multiplicas ${Math.abs(a)} × ${Math.abs(b)} = ${Math.abs(resp)} y el resultado queda ${igual?'positivo':'negativo'}: ${fmt(resp)}.`,
+    donde: nota ? 'Fíjate en cómo está escrita la multiplicación y en los signos.' : (igual?'Los dos factores tienen el mismo signo.':'Los factores tienen signos distintos.'),
+    pista: nota + (igual
+      ? 'Signos iguales al multiplicar dan resultado positivo. Verifica también la tabla.'
+      : 'Signos distintos al multiplicar dan resultado negativo. Verifica también la tabla.')
   };
 }
 
 function generar(cfg){
   const N = NIVELES[cfg.nivel] || NIVELES.facil;
-  const tablas = cfg.tablas.length ? cfg.tablas : N.tablas;
-  const ops = cfg.ops.length ? cfg.ops : ['suma','resta','mult'];
+  const tablas = (cfg.tablas && cfg.tablas.length) ? cfg.tablas : N.tablas;
+  const ops = (cfg.ops && cfg.ops.length) ? cfg.ops : ['suma','resta','mult'];
   if(cfg.tipo==='tabla') return ejTabla(tablas);
-  const lista = cfg.tipo==='mixto' ? barajar(['tabla'].concat(ops))  : ops;
+  const lista = cfg.tipo==='mixto' ? ['tabla'].concat(ops) : ops;
   const op = elige(lista);
   if(op==='tabla') return ejTabla(tablas);
-  if(op==='suma') return ejSuma(N.rango);
-  if(op==='resta') return ejResta(N.rango);
-  return ejMult(tablas);
+  if(op==='suma') return ejSumaResta(cfg.nivel, false);
+  if(op==='resta') return ejSumaResta(cfg.nivel, true);
+  return ejMult(tablas, cfg.nivel);
 }
 
 /* =========================================================
@@ -613,6 +744,11 @@ function pMenu(){
         <div class="txt"><b>Tablas de multiplicar</b><span>Generador de tablas y modo juego</span></div>
         <div class="flecha">›</div>
       </button>
+      <button class="card a" data-a="sec-dominar">
+        <div class="ico">🎲</div>
+        <div class="txt"><b>Dominar las tablas</b><span>Diagnóstico, estrategias, dados y práctica diaria</span></div>
+        <div class="flecha">›</div>
+      </button>
       <button class="card v" data-a="sec-visual">
         <div class="ico">👀</div>
         <div class="txt"><b>Entender los signos</b><span>Recta, fichas, termómetro y la regla</span></div>
@@ -650,8 +786,13 @@ function pTablas(){
         <div class="flecha">›</div>
       </button>
       <button class="card a" data-a="tab-juego-cfg">
-        <div class="ico">🎯</div>
-        <div class="txt"><b>Modo juego</b><span>Elige el resultado correcto y llega a 12 aciertos</span></div>
+        <div class="ico">🏎️</div>
+        <div class="txt"><b>Carrera de multiplicaciones</b><span>Corre contra el robot: cada acierto acelera tu carro</span></div>
+        <div class="flecha">›</div>
+      </button>
+      <button class="card a" data-a="sec-dominar">
+        <div class="ico">🎲</div>
+        <div class="txt"><b>Dominar las tablas</b><span>Si todavía no te las sabes: diagnóstico, estrategias y dados</span></div>
         <div class="flecha">›</div>
       </button>
     </div>
@@ -686,7 +827,7 @@ function pGenerador(t){
         </div>`).join('')}
     </div>
     <div class="aviso" style="margin-top:18px">💡 Truco: la tabla del ${tabla} avanza de ${tabla} en ${tabla}. Cada fila suma ${tabla} a la anterior.</div>
-    <button class="btn mango" data-a="tab-juego-cfg" style="margin-top:6px">🎯 Ponerla a prueba en el juego</button>
+    <button class="btn mango" data-a="tab-juego-cfg" style="margin-top:6px">🏎️ Ponerla a prueba en la carrera</button>
   `);
 }
 
@@ -710,9 +851,9 @@ function pJuegoCfg(){
   E.pantalla='juego-cfg';
   pintar(`
     <button class="volver" data-a="sec-tablas">‹ Tablas de multiplicar</button>
-    <p class="eyebrow">Modo juego</p>
-    <h1 class="titulo">¿Con qué tablas juegas?</h1>
-    <p class="sub">El docente o el estudiante puede elegir exactamente qué tablas se evalúan.</p>
+    <p class="eyebrow">🏎️ Carrera de multiplicaciones</p>
+    <h1 class="titulo">¿Con qué tablas corres?</h1>
+    <p class="sub">El docente o el estudiante elige con qué tablas se corre. Gana quien llegue primero a los 12 tramos.</p>
     <div class="panel">
       <h3>Tablas seleccionadas</h3>
       <p class="ayuda">Toca para activar o desactivar. Debes dejar al menos una.</p>
@@ -727,7 +868,7 @@ function pJuegoCfg(){
       <p class="ayuda">Define el rango de las tablas sugeridas.</p>
       <div class="chips">${chipsNivel()}</div>
     </div>
-    <button class="btn mango" data-a="iniciar-juego">🎯 Empezar el juego</button>
+    <button class="btn mango" data-a="iniciar-juego">🏁 ¡A la pista!</button>
   `);
 }
 
@@ -768,7 +909,8 @@ function pSignosCfg(){
 function iniciarLeccion(cfg){
   E.leccion = {
     cfg, ok:0, no:0, intentos:0, t0:Date.now(),
-    ej:null, valor:'', sel:null, estado:'responde'
+    ej:null, valor:'', sel:null, estado:'responde',
+    rival:0, rivalLlego:false
   };
   nuevoEjercicio();
 }
@@ -796,6 +938,7 @@ function opcionesPara(ej){
 function pLeccion(){
   const L = E.leccion, ej = L.ej;
   E.pantalla='leccion';
+  if(L.cfg.juego==='carrera') return pCarrera();
   const esOpc = L.cfg.formato==='opciones';
   pintar(`
     <button class="volver" data-a="salir-leccion">‹ Salir de la lección</button>
@@ -820,6 +963,99 @@ function pLeccion(){
     </div>
     <div id="zonaFeedback"></div>
   `);
+}
+
+/* ---------- JUEGO: CARRERA DE MULTIPLICACIONES ---------- */
+const posPct = p => 6 + (Math.min(p,META)/META)*84;
+
+function estadoCarrera(){
+  const L = E.leccion, d = L.ok - L.rival;
+  if(L.ok>=META) return '🏁 ¡Cruzaste la meta!';
+  if(L.rivalLlego) return '🤖 El robot ya llegó · termina tu vuelta';
+  if(d>=3) return '🔥 Vas ganando por '+d;
+  if(d>0) return '😎 Vas adelante por '+d;
+  if(d===0) return '⚡ Van empatados';
+  if(d===-1) return '😮 Te lleva 1 puesto';
+  return '💪 Te lleva '+(-d)+' · alcánzalo';
+}
+
+function pCarrera(){
+  const L = E.leccion, ej = L.ej;
+  return pintar(`
+    <button class="volver" data-a="salir-leccion">‹ Salir de la carrera</button>
+    <div class="pista-wrap">
+      <div class="marcador-carrera">
+        <span>🏎️ Tú <b id="posTu">${L.ok}</b></span>
+        <span class="estado-carrera" id="estadoCarrera">${estadoCarrera()}</span>
+        <span><b id="posRival">${L.rival}</b> 🚙 Robot</span>
+      </div>
+      <div class="pista">
+        <div class="carril" id="carrilTu">
+          <div class="linea"></div>
+          <span class="bandera" style="left:${posPct(4)}%">⭐</span>
+          <span class="bandera" style="left:${posPct(8)}%">⭐</span>
+          <div class="meta"></div>
+          <div class="auto" id="autoTu" style="left:${posPct(L.ok)}%">🏎️</div>
+        </div>
+        <div class="carril">
+          <div class="linea"></div>
+          <div class="meta"></div>
+          <div class="auto" id="autoRival" style="left:${posPct(L.rival)}%">🚙</div>
+        </div>
+      </div>
+      <div class="km">Tramo ${Math.min(L.ok+1,META)} de ${META}</div>
+    </div>
+    <div class="escenario">
+      <div class="enunciado">Responde bien y tu carro avanza un tramo</div>
+      <div class="operacion">
+        <span>${ej.texto}</span><span>=</span>
+        <span class="caja ${L.sel===null?'vacia':'activa'}" id="caja">${L.sel===null?'?':fmt(L.sel)}</span>
+      </div>
+    </div>
+    <div class="opciones">
+      ${L.ops.map(o=>`<button class="opcion" data-a="elegir-op" data-v="${o}" aria-pressed="${L.sel===o}">${fmt(o)}</button>`).join('')}
+    </div>
+    <div class="fila-btn">
+      <button class="btn gris" data-a="borrar">🗑 Borrar</button>
+      <button class="btn verde" data-a="comprobar">✅ Comprobar</button>
+    </div>
+    <div id="zonaFeedback"></div>
+  `);
+}
+
+function moverAutos(gane){
+  const L = E.leccion;
+  const tu = $('#autoTu'), riv = $('#autoRival'), carril = $('#carrilTu');
+  if(gane && tu){
+    tu.style.left = posPct(L.ok)+'%';
+    tu.classList.remove('boost'); void tu.offsetWidth; tu.classList.add('boost');
+    if(carril){
+      const p = document.createElement('div');
+      p.className='mas-uno'; p.textContent='+1';
+      p.style.left = posPct(L.ok)+'%'; p.style.top='6px';
+      carril.appendChild(p); setTimeout(()=>p.remove(),1000);
+      for(let i=0;i<3;i++){
+        const h=document.createElement('div'); h.className='humo';
+        h.style.left=posPct(L.ok)+'%'; h.style.animationDelay=(i*0.08)+'s';
+        carril.appendChild(h); setTimeout(()=>h.remove(),900);
+      }
+    }
+  }
+  // el robot avanza por su cuenta: nunca te quita puntos
+  if(!L.rivalLlego){
+    const avanza = gane ? Math.random()<0.5 : Math.random()<0.72;
+    if(avanza){
+      L.rival = Math.min(L.rival+1, META);
+      if(riv) riv.style.left = posPct(L.rival)+'%';
+      if(L.rival>=META){ L.rivalLlego=true; tostar('🤖 El robot llegó, pero tú puedes terminar'); }
+    }
+  }
+  const pt=$('#posTu'), pr=$('#posRival'), ec=$('#estadoCarrera');
+  if(pt) pt.textContent = L.ok;
+  if(pr) pr.textContent = L.rival;
+  if(ec) ec.textContent = estadoCarrera();
+  const km = document.querySelector('.km');
+  if(km) km.textContent = `Tramo ${Math.min(L.ok+1,META)} de ${META}`;
 }
 
 function teclado(){
@@ -879,6 +1115,12 @@ document.addEventListener('keydown', e=>{
     else if(e.key==='Backspace'){ escribirEval('del'); e.preventDefault(); }
     else if(e.key==='-' || e.key==='+'){ escribirEval('±'); e.preventDefault(); }
   }
+  if(['recta','fichas','termo','regla','diag','micro','dados-puntos','dados-diez','estr-secuencia','estr-dobles','estr-diez','estr-descomp','estr-conmut'].includes(E.pantalla) && VIS && !VIS.hecho){
+    if(/^[0-9]$/.test(e.key)) { escribirVis(e.key); e.preventDefault(); }
+    else if(e.key==='Backspace'){ escribirVis('del'); e.preventDefault(); }
+    else if(e.key==='-' || e.key==='+'){ escribirVis('±'); e.preventDefault(); }
+    else if(e.key==='Enter'){ comprobarVis(); e.preventDefault(); }
+  }
   if(e.key==='Escape') cerrarCapa();
 });
 
@@ -912,7 +1154,7 @@ function acierto(){
     </div>
     <button class="btn" data-a="siguiente-ej" style="margin-top:14px">${esUltimo?'Ver mis resultados 🎉':'Siguiente ejercicio ▸'}</button>
   `;
-  actualizarCamino(L.ok);
+  if(L.cfg.juego==='carrera') moverAutos(true); else actualizarCamino(L.ok);
   if(E.racha>0 && E.racha%3===0 && !esUltimo) tostar(elige(ANIMOS));
   if(L.ok===4) setTimeout(()=>modalLogro(4), 550);
   else if(L.ok===8) setTimeout(()=>modalLogro(8), 550);
@@ -933,6 +1175,7 @@ function fallo(dado){
   L.no++; E.no++; E.racha=0;
   refrescarBarra(); latir('#chipNo');
   const c = $('#caja'); if(c){ c.classList.remove('bien'); c.classList.add('mal'); }
+  if(L.cfg.juego==='carrera') moverAutos(false);
 
   let donde = ej.donde;
   let pista = ej.pista;
@@ -945,15 +1188,19 @@ function fallo(dado){
     donde = 'Te acercaste mucho.';
   }
 
+  modalError(dado, ej.plano, donde, pista, 'reintentar');
+}
+
+function modalError(dado, plano, donde, pista, accionBoton){
   $('#capa').innerHTML = `
     <div class="capa">
       <div class="modal" role="alertdialog" aria-modal="true">
         <span class="emoji">🤔</span>
         <h2>✖ Inténtalo nuevamente</h2>
-        <p>Escribiste <b style="font-family:'Space Grotesk'">${fmt(dado)}</b> en <b style="font-family:'Space Grotesk'">${ej.plano}</b>.</p>
+        <p>Escribiste <b style="font-family:'Space Grotesk'">${fmt(dado)}</b> en <b style="font-family:'Space Grotesk'">${plano}</b>.</p>
         <div class="donde"><b>Dónde revisar:</b> ${donde}</div>
         <div class="pista">💡 <b>Pista:</b> ${pista}</div>
-        <button class="btn mango" data-a="reintentar" style="margin-top:18px">Volver a intentarlo</button>
+        <button class="btn mango" data-a="${accionBoton}" style="margin-top:18px">Volver a intentarlo</button>
         <p style="margin-top:12px;font-size:13.5px">Equivocarse no te quita puntos. Solo cuenta que lo resuelvas.</p>
       </div>
     </div>`;
@@ -1006,6 +1253,10 @@ function completarLeccion(){
   const total = L.ok + L.no;
   const pct = Math.round(L.ok/Math.max(total,1)*100);
   const t = reloj(Date.now()-L.t0);
+  const carrera = L.cfg.juego==='carrera'
+    ? (L.rivalLlego ? '<div class="donde" style="text-align:center">🤖 El robot cruzó primero esta vez. Vuelve a retarlo: cada carrera te hace más rápido.</div>'
+                    : '<div class="donde" style="text-align:center">🏆 ¡Le ganaste al robot por '+(META-L.rival)+' tramos!</div>')
+    : '';
   confeti(70);
   $('#capa').innerHTML = `
     <div class="capa">
@@ -1019,6 +1270,7 @@ function completarLeccion(){
           <div class="stat v"><b>✔ ${L.ok}</b><span>Aciertos</span></div>
           <div class="stat r"><b>✖ ${L.no}</b><span>Errores</span></div>
         </div>
+        ${carrera}
         <div class="pista">🌟 ${elige(CIERRES)}</div>
         <button class="btn verde" data-a="siguiente-leccion" style="margin-top:18px">Continuar con la siguiente lección ▸</button>
         <button class="btn gris" data-a="cerrar-menu" style="margin-top:12px">Volver al menú</button>
@@ -1054,8 +1306,8 @@ function cfgSignos(){
 }
 function cfgTablas(){
   return {
-    tipo:'tabla', formato:'opciones',
-    titulo:'Tablas de multiplicar · Modo juego',
+    tipo:'tabla', formato:'opciones', juego:'carrera',
+    titulo:'Carrera de multiplicaciones',
     enunciado:'Toca el resultado correcto y luego comprueba.',
     nivel:E.config.nivel, tablas:E.config.tablas.slice(), ops:[]
   };
@@ -1070,7 +1322,7 @@ function pVisual(){
     <button class="volver" data-a="inicio">‹ Menú principal</button>
     <p class="eyebrow">Sección 2</p>
     <h1 class="titulo">Entender los signos</h1>
-    <p class="sub">Cuatro maneras distintas de ver lo mismo. Explora sin presión: aquí no se cuentan aciertos ni errores.</p>
+    <p class="sub">Cuatro maneras de ver lo mismo. En cada una predices el resultado, lo escribes y luego el modelo te muestra si acertaste.</p>
     <div class="rejilla dos">
       <button class="card" data-a="vis-recta">
         <div class="ico">📏</div>
@@ -1092,23 +1344,137 @@ function pVisual(){
   `);
 }
 
+/* ---------- casilla de respuesta compartida ---------- */
+let VIS = null;
+
+function tecladoVis(){
+  const t = ['1','2','3','4','5','6','7','8','9','±','0','del'];
+  return `<div class="teclado">${t.map(k=>`
+    <button class="tecla ${k==='±'?'sig':''} ${k==='del'?'del':''}" data-a="tecla-vis" data-v="${k}">${k==='del'?'⌫':k}</button>`).join('')}</div>`;
+}
+
+function bloqueVis(pregunta, ayuda){
+  if(VIS && VIS.hecho){
+    const lbl = VIS.otroLabel || '🔄 Otro ejemplo';
+    if(VIS.fallo){
+      return `<div class="mini">
+        <h3>${pregunta}</h3>
+        <div class="mini-caja"><span class="caja" style="border-color:var(--mas);color:var(--mas);border-style:solid">${fmt(VIS.resp)}</span></div>
+        <div class="feedback" style="background:var(--mango-suave);border-color:#F5D89B"><h4>Esta era la respuesta</h4><p>${VIS.expl}</p></div>
+        <button class="btn" data-a="${VIS.otro}" style="margin-top:14px">${lbl}</button>
+      </div>`;
+    }
+    return `<div class="mini">
+      <h3>${pregunta}</h3>
+      <div class="mini-caja"><span class="caja bien">${fmt(VIS.resp)}</span></div>
+      <div class="feedback ok"><h4>✔ ¡Correcto!</h4><p>${VIS.expl}</p></div>
+      <button class="btn" data-a="${VIS.otro}" style="margin-top:14px">${lbl}</button>
+    </div>`;
+  }
+  if(VIS && !VIS.t0) VIS.t0 = Date.now();
+  return `<div class="mini">
+    <h3>${pregunta}</h3>
+    <p class="ayuda">${ayuda||'Escribe tu respuesta, compruébala y compárala con lo que muestra el modelo.'}</p>
+    <div class="mini-caja"><span class="caja activa ${VIS.valor===''?'vacia':''}" id="cajaVis" data-a="foco-vis">${VIS.valor===''?'?':VIS.valor.replace('-','−')}</span></div>
+    ${tecladoVis()}
+    <div class="fila-btn">
+      <button class="btn gris" data-a="borrar-vis">🗑 Borrar</button>
+      <button class="btn verde" data-a="comprobar-vis">✅ Comprobar respuesta</button>
+    </div>
+    <div id="fbVis"></div>
+  </div>`;
+}
+
+function escribirVis(k){
+  if(!VIS || VIS.hecho) return;
+  let v = VIS.valor;
+  if(k==='del') v = v.slice(0,-1);
+  else if(k==='±') v = v.startsWith('-') ? v.slice(1) : '-'+v;
+  else {
+    if(VIS.reemplazar){ v = v.startsWith('-')?'-':''; VIS.reemplazar=false; }
+    if(v.replace('-','').length<4) v += k;
+  }
+  VIS.valor = v;
+  const c = $('#cajaVis');
+  if(c){ c.textContent = v===''?'?':v.replace('-','−'); c.classList.toggle('vacia', v===''); c.classList.remove('mal'); }
+}
+
+function comprobarVis(){
+  if(!VIS || VIS.hecho) return;
+  if(VIS.valor==='' || VIS.valor==='-'){ tostar('Escribe tu respuesta primero'); return; }
+  const dado = parseInt(VIS.valor,10);
+  const c = $('#cajaVis');
+  const ms = Date.now() - (VIS.t0 || Date.now());
+  if(dado === VIS.resp){
+    VIS.hecho = true; E.ok++; E.racha++;
+    refrescarBarra(); latir('#chipOk');
+    if(c){ c.classList.add('bien'); c.classList.remove('activa','mal'); }
+    const mini = document.querySelector('.mini');
+    if(mini){
+      mini.querySelector('.teclado')?.remove();
+      mini.querySelector('.fila-btn')?.remove();
+      mini.querySelector('.ayuda')?.remove();
+    }
+    $('#fbVis').innerHTML = `
+      <div class="feedback ok"><h4>✔ ¡Correcto!</h4><p>${VIS.expl}</p></div>
+      <button class="btn" data-a="${VIS.otro}" style="margin-top:14px">${VIS.otroLabel||'🔄 Otro ejemplo'}</button>`;
+    if(VIS.alAcertar) VIS.alAcertar(ms);
+  } else {
+    E.no++; E.racha=0; refrescarBarra(); latir('#chipNo');
+    if(c){ c.classList.add('mal'); }
+    if(VIS.alFallar) VIS.alFallar();
+    if(VIS.sinReintento){
+      VIS.hecho = true; VIS.fallo = true;
+      const mini = document.querySelector('.mini');
+      if(mini){ mini.querySelector('.teclado')?.remove(); mini.querySelector('.fila-btn')?.remove(); mini.querySelector('.ayuda')?.remove(); }
+      if(c){ c.classList.remove('mal'); c.textContent = fmt(VIS.resp); c.style.borderStyle='solid'; c.style.borderColor='var(--mas)'; c.style.color='var(--mas)'; }
+      $('#fbVis').innerHTML = `
+        <div class="feedback" style="background:var(--mango-suave);border-color:#F5D89B">
+          <h4>Esta era la respuesta</h4><p>${VIS.expl}</p></div>
+        <button class="btn" data-a="${VIS.otro}" style="margin-top:14px">${VIS.otroLabel||'Continuar ▸'}</button>`;
+      return;
+    }
+    let donde = VIS.donde, pista = VIS.pista;
+    if(Math.abs(dado)===Math.abs(VIS.resp) && dado!==VIS.resp){
+      donde = 'El número está bien, el signo no.';
+      pista = 'Vuelve a mirar el modelo: ¿el resultado queda por encima o por debajo del cero?';
+    }
+    modalError(dado, VIS.plano, donde, pista, 'reintentar-vis');
+  }
+}
+
+function reintentarVis(){
+  cerrarCapa();
+  if(!VIS) return;
+  VIS.valor=''; VIS.reemplazar=false;
+  const c = $('#cajaVis');
+  if(c){ c.textContent='?'; c.classList.add('vacia','activa'); c.classList.remove('mal'); }
+}
+
 /* ---------- Recta numérica ---------- */
 let RECTA = null;
-function pRecta(){
-  E.pantalla='recta';
-  nuevaRecta(true);
-}
-function nuevaRecta(primera){
-  const suma = Math.random()<0.5;
+function pRecta(){ E.pantalla='recta'; nuevaRecta(); }
+
+function nuevaRecta(){
+  const esResta = Math.random()<0.5;
   const a = signoAz()*az(1,7);
-  const b = signoAz()*az(1,7);
-  const r = suma ? a+b : a-b;
-  const efectivo = suma ? b : -b;
-  RECTA = {a,b,r,suma,efectivo,paso:0};
-  dibujarRecta(primera ? '' : '');
+  const b = az(1,7);
+  const r = esResta ? a-b : a+b;
+  const efectivo = esResta ? -b : b;
+  RECTA = {a,b,r,esResta,efectivo};
+  VIS = {
+    resp:r, valor:'', hecho:false, otro:'recta-nueva',
+    plano:`${fmt(a)} ${esResta?'−':'+'} ${b}`,
+    donde: esResta ? 'Restar hace retroceder en la recta.' : (b<0?'':'Sumar un positivo hace avanzar.'),
+    pista:`Ubícate en ${fmt(a)} y cuenta ${Math.abs(efectivo)} lugares hacia ${efectivo<0?'la izquierda':'la derecha'}.`,
+    expl:`Desde ${fmt(a)} te mueves ${Math.abs(efectivo)} lugares hacia ${efectivo<0?'la izquierda':'la derecha'} y llegas a ${fmt(r)}.`,
+    alAcertar: ()=>setTimeout(animarRecta, 250)
+  };
+  dibujarRecta();
 }
-function dibujarRecta(txtPaso){
-  const {a,b,r,suma,efectivo} = RECTA;
+
+function dibujarRecta(){
+  const {a,b,r,esResta,efectivo} = RECTA;
   const min = Math.min(a,r,0)-2, max = Math.max(a,r,0)+2;
   const n = max-min+1;
   let ticks='';
@@ -1117,12 +1483,12 @@ function dibujarRecta(txtPaso){
   pintar(`
     <button class="volver" data-a="sec-visual">‹ Entender los signos</button>
     <h1 class="titulo">La recta numérica</h1>
-    <p class="sub">Sumar un positivo mueve a la derecha. Sumar un negativo mueve a la izquierda.</p>
+    <p class="sub">Sumar mueve a la derecha. Restar mueve a la izquierda. Predice a dónde llegas antes de ver el recorrido.</p>
     <div class="escenario">
-      <div class="enunciado">${suma?'Suma':'Resta'} de números con signo</div>
-      <div class="operacion"><span>${par(a)}</span><span>${suma?'+':'−'}</span><span>${par(b)}</span></div>
+      <div class="enunciado">${esResta?'Resta':'Suma'} de números con signo</div>
+      <div class="operacion"><span>${num(a)}</span><span>${esResta?'−':'+'}</span><span>${num(b)}</span></div>
+      <p class="nota-forma">También se escribe así: ${par(a)} ${esResta?'−':'+'} ${par(b)}</p>
     </div>
-    ${!suma ? `<div class="aviso">🔁 Restar es sumar el opuesto: ${fmt(a)} − ${fmt(b)} se convierte en ${fmt(a)} + ${fmt(efectivo)}.</div>`:''}
     <div class="recta" id="rectaScroll">
       <div class="recta-inner" style="min-width:${n*36}px">
         <div class="recta-barra"></div>
@@ -1130,18 +1496,13 @@ function dibujarRecta(txtPaso){
         <div class="recta-linea">${ticks}</div>
       </div>
     </div>
-    <div class="paso-txt" id="pasoTxt">${txtPaso || 'Empiezo en '+fmt(a)+'. Toca «Paso a paso» para moverme.'}</div>
-    <div class="fila-btn">
-      <button class="btn gris" data-a="recta-nueva">🔄 Otro ejemplo</button>
-      <button class="btn" data-a="recta-anim">▸ Paso a paso</button>
-    </div>
-    <div class="panel" style="margin-top:18px">
-      <h3>Lo que muestra la recta</h3>
-      <p class="ayuda" style="margin:0">Moverse ${efectivo<0?'a la izquierda':'a la derecha'} ${Math.abs(efectivo)} lugares desde ${fmt(a)} lleva hasta <b style="color:var(--violeta)">${fmt(r)}</b>.</p>
-    </div>
+    <div class="paso-txt" id="pasoTxt">Empiezo en ${fmt(a)}.</div>
+    <button class="btn gris" data-a="recta-anim">▸ Ver el recorrido paso a paso</button>
+    ${bloqueVis('¿A qué número llego?')}
   `);
   RECTA.pos = pos;
 }
+
 function animarRecta(){
   const {a, efectivo, r, pos} = RECTA;
   const ficha = $('#fichaMov'), txt = $('#pasoTxt');
@@ -1160,9 +1521,9 @@ function animarRecta(){
     const v = a + dir*i;
     ficha.style.left = pos(v)+'%';
     ficha.textContent = fmt(v);
+    txt.textContent = `Paso ${i} de ${total}: me muevo ${dir<0?'a la izquierda':'a la derecha'} hasta ${fmt(v)}.`;
     const sc = $('#rectaScroll');
     if(sc) sc.scrollTo({left: ficha.offsetLeft - sc.clientWidth/2, behavior:'smooth'});
-    txt.textContent = `Paso ${i} de ${total}: me muevo ${dir<0?'a la izquierda':'a la derecha'} hasta ${fmt(v)}.`;
     setTimeout(tick, 420);
   };
   setTimeout(tick, 250);
@@ -1173,48 +1534,54 @@ let FICH = null;
 function pFichas(){
   E.pantalla='fichas';
   const a = signoAz()*az(2,8), b = signoAz()*az(2,8);
-  FICH = {a,b,r:a+b};
+  const r = a+b;
+  FICH = {a,b,r};
+  const igual = (a<0)===(b<0);
+  VIS = {
+    resp:r, valor:'', hecho:false, otro:'fichas-nueva',
+    plano:`${fmt(a)} + ${fmt(b)}`,
+    donde: igual ? 'Todas las fichas son del mismo color.' : 'Hay fichas de los dos colores.',
+    pista: igual
+      ? `No hay parejas que anular: junta las ${Math.abs(a)} y las ${Math.abs(b)} fichas y conserva el color.`
+      : `Se anulan ${Math.min(Math.abs(a),Math.abs(b))} parejas. Cuenta cuántas fichas quedan y de qué color.`,
+    expl: igual
+      ? `Como los dos tienen el mismo signo, sumas ${Math.abs(a)} + ${Math.abs(b)} = ${Math.abs(r)} y el resultado conserva el signo ${a<0?'negativo':'positivo'}.`
+      : `Se anulan ${Math.min(Math.abs(a),Math.abs(b))} parejas y quedan ${Math.abs(r)} fichas ${r<0?'rojas':(r===0?'':'verdes')}: el resultado es ${fmt(r)}.`,
+    alAcertar: ()=>setTimeout(anularFichas, 200)
+  };
   dibujarFichas();
 }
+
 function dibujarFichas(){
   const {a,b,r} = FICH;
   const f = [];
-  for(let i=0;i<Math.abs(a);i++) f.push({s:Math.sign(a), g:'a', i});
-  for(let i=0;i<Math.abs(b);i++) f.push({s:Math.sign(b), g:'b', i});
-  const igual = (a<0)===(b<0);
+  for(let i=0;i<Math.abs(a);i++) f.push(Math.sign(a));
+  for(let i=0;i<Math.abs(b);i++) f.push(Math.sign(b));
   pintar(`
     <button class="volver" data-a="sec-visual">‹ Entender los signos</button>
     <h1 class="titulo">Fichas de colores</h1>
     <p class="sub">Cada ficha verde vale +1 y cada ficha roja vale −1. Una verde y una roja juntas valen cero: se anulan.</p>
     <div class="escenario">
-      <div class="enunciado">Represento la operación con fichas</div>
-      <div class="operacion"><span>${par(a)}</span><span>+</span><span>${par(b)}</span></div>
+      <div class="enunciado">La operación con fichas</div>
+      <div class="operacion"><span>${num(a)}</span><span>+</span><span>${num(b)}</span></div>
+      <p class="nota-forma">También se escribe así: ${par(a)} + ${par(b)}</p>
     </div>
     <div class="fichas" id="zonaFichas">
-      ${f.map((x,k)=>`<div class="ficha ${x.s>0?'p':'n'}" data-s="${x.s}" style="animation-delay:${k*0.03}s">${x.s>0?'+':'−'}</div>`).join('')}
+      ${f.map((sg,k)=>`<div class="ficha ${sg>0?'p':'n'}" data-s="${sg}" style="animation-delay:${k*0.03}s">${sg>0?'+':'−'}</div>`).join('')}
     </div>
     <div class="leyenda"><span><i style="background:var(--mas)"></i>positivo (+1)</span><span><i style="background:var(--menos)"></i>negativo (−1)</span></div>
-    <div class="paso-txt" id="pasoFichas" style="margin-top:14px">${igual
-      ? 'Todas las fichas son del mismo color: no hay parejas que se anulen, solo se juntan.'
-      : 'Hay fichas de los dos colores. Toca «Anular parejas» para ver qué sobra.'}</div>
-    <div class="fila-btn">
-      <button class="btn gris" data-a="fichas-nueva">🔄 Otro ejemplo</button>
-      <button class="btn" data-a="fichas-anular">⚡ Anular parejas</button>
-    </div>
-    <div class="panel" style="margin-top:18px">
-      <h3>La idea</h3>
-      <p class="ayuda" style="margin:0">${igual
-        ? `Como los dos tienen el mismo signo, sumas las cantidades: ${Math.abs(a)} + ${Math.abs(b)} = ${Math.abs(r)}, y el resultado conserva el signo ${a<0?'negativo':'positivo'}.`
-        : `Se anulan ${Math.min(Math.abs(a),Math.abs(b))} parejas. Quedan ${Math.abs(r)} fichas ${r<0?'rojas':(r===0?'':'verdes')}, así que el resultado es ${fmt(r)}.`}</p>
-    </div>
+    <div class="paso-txt" id="pasoFichas" style="margin-top:14px"></div>
+    <button class="btn gris" data-a="fichas-anular">⚡ Anular las parejas</button>
+    ${bloqueVis('¿Cuántas fichas quedan y de qué signo?')}
   `);
 }
+
 function anularFichas(){
   const zona = $('#zonaFichas'); if(!zona) return;
   const pos = [...zona.querySelectorAll('.ficha[data-s="1"]:not(.anula)')];
   const neg = [...zona.querySelectorAll('.ficha[data-s="-1"]:not(.anula)')];
   const parejas = Math.min(pos.length, neg.length);
-  if(parejas===0){ $('#pasoFichas').textContent='No hay parejas que anular: todas son del mismo color.'; return; }
+  if(parejas===0){ $('#pasoFichas').textContent='No hay parejas que anular: todas son del mismo color, así que se juntan.'; return; }
   for(let i=0;i<parejas;i++){
     setTimeout(()=>{ pos[i].classList.add('anula'); neg[i].classList.add('anula'); }, i*180);
   }
@@ -1231,47 +1598,70 @@ function pTermo(){
   const a = signoAz()*az(1,15);
   const sube = Math.random()<0.5;
   const b = az(2,15);
-  TERMO = {a,b,sube,r: sube ? a+b : a-b, revelado:false};
+  const r = sube ? a+b : a-b;
+  TERMO = {a,b,sube,r};
+  VIS = {
+    resp:r, valor:'', hecho:false, otro:'termo-nuevo',
+    plano:`${fmt(a)} ${sube?'+':'−'} ${b}`,
+    donde: sube ? 'La temperatura sube.' : 'La temperatura baja y puede pasar el cero.',
+    pista: sube
+      ? `Desde ${fmt(a)} °C sube ${b} grados: cuenta hacia arriba en la escala.`
+      : `Desde ${fmt(a)} °C baja ${b} grados: cuenta hacia abajo, sin olvidar los números bajo cero.`,
+    expl:`${sube?'Subir':'Bajar'} ${b} grados desde ${fmt(a)} °C deja el termómetro en ${fmt(r)} °C. En lenguaje matemático: ${fmt(a)} ${sube?'+':'−'} ${b} = ${fmt(r)}.`,
+    alAcertar: ()=>moverTermo()
+  };
   dibujarTermo();
 }
+
+const altoTermo = v => ((Math.max(-20,Math.min(20,v))+20)/40)*100;
+
 function dibujarTermo(){
-  const {a,b,sube,r,revelado} = TERMO;
-  const alto = v => ((Math.max(-20,Math.min(20,v))+20)/40)*100;
-  const v = revelado ? r : a;
+  const {a,b,sube,r} = TERMO;
   pintar(`
     <button class="volver" data-a="sec-visual">‹ Entender los signos</button>
     <h1 class="titulo">El termómetro</h1>
     <p class="sub">Bajo cero los números son negativos. Subir es sumar, bajar es restar.</p>
     <div class="escenario">
       <div class="enunciado">Situación</div>
-      <p style="font-size:18px;font-weight:700;margin:0">La temperatura marcaba <b style="color:${a<0?'var(--menos)':'var(--mas)'}">${fmt(a)} °C</b> y ${sube?'subió':'bajó'} <b>${b} °C</b>. ¿Cuánto marca ahora?</p>
-      <div class="operacion" style="font-size:30px;margin-top:14px"><span>${par(a)}</span><span>${sube?'+':'−'}</span><span>${par(b)}</span></div>
+      <p style="font-size:18px;font-weight:700;margin:0">La temperatura marcaba <b style="color:${a<0?'#2F6BD8':'var(--menos)'}">${fmt(a)} °C</b> y ${sube?'subió':'bajó'} <b>${b} °C</b>. ¿Cuánto marca ahora?</p>
+      <div class="operacion" style="font-size:30px;margin-top:14px"><span>${num(a)}</span><span>${sube?'+':'−'}</span><span>${num(b)}</span></div>
     </div>
     <div class="termo-wrap">
       <div class="termo">
         <div class="termo-cero" style="bottom:50%"></div>
-        <div class="termo-fill ${v<0?'frio':''}" style="height:${alto(v)}%"></div>
+        <div class="termo-fill ${a<0?'frio':''}" id="termoFill" style="height:${altoTermo(a)}%"></div>
       </div>
       <div>
-        <div class="termo-val" style="color:${v<0?'#2F6BD8':'var(--menos)'}">${fmt(v)} °C</div>
-        <div class="correcta">${revelado?'Temperatura final':'Temperatura inicial'}</div>
+        <div class="termo-val" id="termoVal" style="color:${a<0?'#2F6BD8':'var(--menos)'}">${fmt(a)} °C</div>
+        <div class="correcta" id="termoEtq">Temperatura inicial</div>
       </div>
     </div>
-    <div class="paso-txt">${revelado
-      ? `${sube?'Subir':'Bajar'} ${b} grados desde ${fmt(a)} deja el termómetro en ${fmt(r)} °C.`
-      : 'Piensa la respuesta y luego revélala.'}</div>
-    <div class="fila-btn">
-      <button class="btn gris" data-a="termo-nuevo">🔄 Otra situación</button>
-      <button class="btn ${revelado?'gris':''}" data-a="termo-revelar" ${revelado?'disabled':''}>👁 Revelar</button>
-    </div>
-    ${revelado?`<div class="panel" style="margin-top:18px"><h3>En lenguaje matemático</h3><p class="ayuda" style="margin:0">${par(a)} ${sube?'+':'−'} ${par(b)} = ${fmt(r)}. ${sube?'Sumar un positivo hace subir la temperatura.':'Restar un positivo hace bajar la temperatura, y puede pasar por debajo del cero.'}</p></div>`:''}
+    ${bloqueVis('¿Qué temperatura marca ahora?', 'Escribe el resultado en grados (solo el número, con su signo).')}
   `);
 }
 
+function moverTermo(){
+  const {r} = TERMO;
+  const f = $('#termoFill'), v = $('#termoVal'), e = $('#termoEtq');
+  if(!f) return;
+  f.style.height = altoTermo(r)+'%';
+  f.classList.toggle('frio', r<0);
+  v.textContent = fmt(r)+' °C';
+  v.style.color = r<0 ? '#2F6BD8' : 'var(--menos)';
+  e.textContent = 'Temperatura final';
+}
+
 /* ---------- Regla de los signos ---------- */
-let REGLA = {sa:1, sb:1, op:'mult'};
+let REGLA = {sa:1, sb:1, reto:null};
 function pRegla(){
   E.pantalla='regla';
+  nuevoReto();
+}
+function nuevoReto(){
+  REGLA.reto = ejMult([2,3,4,5,6,7,8,9], 'medio');
+  const e = REGLA.reto;
+  VIS = { resp:e.resp, valor:'', hecho:false, otro:'regla-nuevo',
+          plano:e.plano, donde:e.donde, pista:e.pista, expl:e.expl };
   dibujarRegla();
 }
 function dibujarRegla(){
@@ -1304,7 +1694,7 @@ function dibujarRegla(){
       <div class="resultado-signo" style="color:${sr>0?'var(--mas)':'var(--menos)'}">
         ${sa>0?'+':'−'} × ${sb>0?'+':'−'} = ${sr>0?'+':'−'}
       </div>
-      <p style="font-weight:700;margin:0;font-size:17px">Con números: ${par(sa*a)} × ${par(sb*b)} = <b style="color:${sr>0?'var(--mas)':'var(--menos)'}">${fmt(sr*a*b)}</b></p>
+      <p style="font-weight:700;margin:0;font-size:17px">Con números: ${par(sa*a)}${par(sb*b)} = <b style="color:${sr>0?'var(--mas)':'var(--menos)'}">${fmt(sr*a*b)}</b></p>
     </div>
     <div class="aviso">${sa===sb
       ? '🟰 Signos <b>iguales</b> → el resultado es <b>positivo</b>. Si los dos son negativos, lo contrario de lo contrario vuelve al principio.'
@@ -1319,7 +1709,601 @@ function dibujarRegla(){
         <div class="celda ${sa===-1&&sb===-1?'on pos':''}">− × − = +</div>
       </div>
     </div>
-    <button class="btn" data-a="sec-signos">▸ Practicar la ley de los signos</button>
+    <div class="panel" style="background:var(--mango-suave);border-color:#F5D89B">
+      <h3>🎯 Tu reto</h3>
+      <p class="ayuda">Una multiplicación escrita en una de sus cuatro formas.</p>
+      <div class="operacion" style="font-size:34px;margin:6px 0">${REGLA.reto.texto}</div>
+    </div>
+    ${bloqueVis('¿Cuál es el resultado del reto?')}
+    <button class="btn" data-a="sec-signos" style="margin-top:16px">▸ Practicar la ley de los signos</button>
+  `);
+}
+
+/* =========================================================
+   SECCIÓN 5 · DOMINAR LAS TABLAS
+   diagnóstico → estrategias → dados → micro-práctica
+   ========================================================= */
+const PIPS = {1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+function dadoPuntos(n, extra){
+  let c='';
+  for(let i=1;i<=9;i++) c += `<span class="pip ${PIPS[n].includes(i)?'on':''}"></span>`;
+  return `<div class="dado ${extra||''}">${c}</div>`;
+}
+function dadoNum(n, extra, accion, idx){
+  return `<div class="dado num ${extra||''}" ${accion?`data-a="${accion}" data-v="${idx}"`:''}>${n}</div>`;
+}
+function bloqueArray(filas, cols, clase){
+  let h='';
+  for(let r=0;r<filas;r++) for(let c=0;c<cols;c++)
+    h += `<span class="pt ${clase||''}" style="animation-delay:${(r*cols+c)*0.006}s"></span>`;
+  return `<div class="array" style="grid-template-columns:repeat(${cols},1fr)">${h}</div>`;
+}
+
+function pDominar(){
+  E.pantalla='dominar';
+  const c = contarDiag();
+  const resumen = c.total
+    ? `<div class="panel"><h3>Tu mapa de tablas</h3>
+        <p class="ayuda">Última revisión: ${E.diag.fecha||'hoy'}</p>
+        <div class="stats" style="margin:0">
+          <div class="stat v"><b>${c.d}</b><span>Ya salen solas</span></div>
+          <div class="stat a" style="background:var(--mango-suave)"><b style="color:#B07300">${c.l}</b><span>Las piensas</span></div>
+          <div class="stat r"><b>${c.f}</b><span>Por trabajar</span></div>
+          <div class="stat p"><b>${c.total}</b><span>Revisadas</span></div>
+        </div></div>`
+    : `<div class="aviso">🔍 Empieza por el diagnóstico. No hay que repasar las 100 combinaciones: casi siempre el problema real está en unas 15 o 20.</div>`;
+  pintar(`
+    <button class="volver" data-a="inicio">‹ Menú principal</button>
+    <p class="eyebrow">Sección 5</p>
+    <h1 class="titulo">Dominar las tablas</h1>
+    <p class="sub">Cuatro modos que se apoyan entre sí: primero descubres qué falla, luego aprendes a deducirlo, lo juegas y lo automatizas en tandas cortas.</p>
+    ${resumen}
+    <div class="rejilla dos">
+      <button class="card" data-a="diag-cfg">
+        <div class="ico">🔍</div>
+        <div class="txt"><b>1 · Diagnóstico</b><span>Encuentra exactamente qué combinaciones fallan</span></div><div class="flecha">›</div>
+      </button>
+      <button class="card v" data-a="sec-estrategias">
+        <div class="ico">🧠</div>
+        <div class="txt"><b>2 · Estrategias</b><span>Deducir en vez de adivinar: dobles, ×10, descomposición</span></div><div class="flecha">›</div>
+      </button>
+      <button class="card a" data-a="sec-dados">
+        <div class="ico">🎲</div>
+        <div class="txt"><b>3 · Juegos de dados</b><span>Grupos y puntos, y la fábrica del diez</span></div><div class="flecha">›</div>
+      </button>
+      <button class="card r" data-a="micro-cfg">
+        <div class="ico">⏱️</div>
+        <div class="txt"><b>4 · Micro-práctica</b><span>Tres minutos diarios con tus combinaciones débiles</span></div><div class="flecha">›</div>
+      </button>
+    </div>
+  `);
+}
+
+/* ---------- 1 · DIAGNÓSTICO ---------- */
+let DIAG = null;
+function pDiagCfg(){
+  E.pantalla='diag-cfg';
+  pintar(`
+    <button class="volver" data-a="sec-dominar">‹ Dominar las tablas</button>
+    <p class="eyebrow">Modo 1</p>
+    <h1 class="titulo">Diagnóstico</h1>
+    <p class="sub">Unas 20 preguntas, tres minutos. Aquí no se corrige nada: solo queremos ver cuáles ya te salen solas y cuáles todavía piensas.</p>
+    <div class="panel">
+      <h3>Tablas a revisar</h3>
+      <p class="ayuda">El docente elige el rango. Se usa la propiedad conmutativa, así que 7 × 8 y 8 × 7 cuentan como una sola.</p>
+      <div class="chips">${chipsTablas()}</div>
+      <div class="fila-btn">
+        <button class="btn gris" data-a="tablas-todas-d">Todas</button>
+        <button class="btn gris" data-a="tablas-dificiles">Solo las difíciles</button>
+      </div>
+    </div>
+    <div class="aviso">⏳ Se mide el tiempo de cada respuesta, pero no hay cronómetro a la vista ni penalización. Sirve para separar lo que ya es automático de lo que todavía se calcula.</div>
+    <button class="btn" data-a="diag-inicio">🔍 Empezar el diagnóstico</button>
+  `);
+}
+
+function listaCombos(tablas){
+  const vistos = new Set(), duras = [], suaves = [];
+  tablas.forEach(a=>{
+    for(let b=2;b<=10;b++){
+      const k = K(a,b);
+      if(vistos.has(k)) continue;
+      vistos.add(k);
+      const x=Math.min(a,b), y=Math.max(a,b);
+      ((x>=3 && y>=3 && x!==5 && y!==5 && y!==10) ? duras : suaves).push([x,y]);
+    }
+  });
+  return barajar(barajar(duras).slice(0,16).concat(barajar(suaves).slice(0,6)));
+}
+
+function iniciarDiag(){
+  const t = E.config.tablas.length ? E.config.tablas : [3,4,6,7,8,9];
+  DIAG = { lista: listaCombos(t), i:0 };
+  if(!DIAG.lista.length){ tostar('Elige al menos una tabla'); return; }
+  itemDiag();
+}
+
+function itemDiag(){
+  if(DIAG.i >= DIAG.lista.length){ guardarDiag(); return pDiagResultado(); }
+  E.pantalla='diag';
+  const [a,b] = DIAG.lista[DIAG.i];
+  const orden = Math.random()<0.5 ? [a,b] : [b,a];
+  VIS = {
+    resp: a*b, valor:'', hecho:false, fallo:false, t0:0,
+    otro:'diag-siguiente', otroLabel:'Continuar ▸', sinReintento:true,
+    plano:`${orden[0]} × ${orden[1]}`,
+    expl:`${orden[0]} × ${orden[1]} = ${a*b}. ${pistaTabla(a,b)}`,
+    donde:'', pista:'',
+    alAcertar:(ms)=>{ E.diag.mapa[K(a,b)] = ms<3500 ? 'dominada' : 'lenta'; },
+    alFallar:()=>{ E.diag.mapa[K(a,b)] = 'falla'; }
+  };
+  const pct = Math.round(DIAG.i/DIAG.lista.length*100);
+  pintar(`
+    <button class="volver" data-a="sec-dominar">‹ Salir del diagnóstico</button>
+    <div class="progreso">
+      <div class="progreso-top"><b>Diagnóstico</b><span>${DIAG.i+1} de ${DIAG.lista.length}</span></div>
+      <div class="riel" style="position:relative;left:0;right:0"><div class="riel-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="escenario">
+      <div class="enunciado">Responde con lo primero que te salga</div>
+      <div class="operacion"><span>${orden[0]} × ${orden[1]}</span><span>=</span></div>
+    </div>
+    ${bloqueVis('Tu respuesta', 'Si no la recuerdas, escribe lo que creas: eso también nos sirve.')}
+  `);
+}
+
+function pDiagResultado(){
+  E.pantalla='diag-res';
+  const c = contarDiag();
+  let mapa = '<div class="mc hd">×</div>';
+  for(let j=1;j<=10;j++) mapa += `<div class="mc hd">${j}</div>`;
+  for(let i=1;i<=10;i++){
+    mapa += `<div class="mc hd">${i}</div>`;
+    for(let j=1;j<=10;j++){
+      const st = E.diag.mapa[K(i,j)] || '';
+      mapa += `<div class="mc ${st}" title="${i} × ${j}">${st==='dominada'?'✓':(st==='falla'?'✕':(st==='lenta'?'~':''))}</div>`;
+    }
+  }
+  const porTrabajar = c.f + c.l;
+  pintar(`
+    <p class="eyebrow">Resultado del diagnóstico</p>
+    <h1 class="titulo">${porTrabajar===0?'No queda nada pendiente 🎉':'Tienes '+porTrabajar+' combinaciones por trabajar'}</h1>
+    <p class="sub">De las ${c.total} que revisamos. No hace falta repasar toda la tabla: solo estas.</p>
+    <div class="mapa">${mapa}</div>
+    <div class="mapa-leyenda">
+      <span><i style="background:var(--mas)"></i>ya sale sola</span>
+      <span><i style="background:var(--mango)"></i>la piensas</span>
+      <span><i style="background:var(--menos)"></i>por trabajar</span>
+      <span><i style="background:var(--nube)"></i>sin revisar</span>
+    </div>
+    <div class="pista" style="margin-top:18px">🌟 Lo que tardas importa tanto como acertar: si una combinación te toma varios segundos, todavía la estás calculando y ocupa espacio mental que necesitas para lo demás.</div>
+    <div class="fila-btn">
+      <button class="btn gris" data-a="sec-estrategias">🧠 Ver estrategias</button>
+      <button class="btn" data-a="micro-inicio">⏱️ Practicar esas</button>
+    </div>
+    <button class="btn gris" data-a="sec-dominar" style="margin-top:12px">Volver a la sección</button>
+  `);
+}
+
+/* ---------- 2 · ESTRATEGIAS ---------- */
+function pEstrategias(){
+  E.pantalla='estrategias';
+  pintar(`
+    <button class="volver" data-a="sec-dominar">‹ Dominar las tablas</button>
+    <p class="eyebrow">Modo 2</p>
+    <h1 class="titulo">Estrategias para deducir</h1>
+    <p class="sub">Cinco formas de llegar al resultado cuando la memoria no responde. Sirven de plan B hoy y, con la repetición, terminan memorizándose solas.</p>
+    <div class="rejilla dos">
+      <button class="card" data-a="estr-secuencia">
+        <div class="ico">🪜</div><div class="txt"><b>La secuencia</b><span>Contar de 7 en 7 hasta llegar</span></div><div class="flecha">›</div></button>
+      <button class="card v" data-a="estr-dobles">
+        <div class="ico">🔁</div><div class="txt"><b>Dobles encadenados</b><span>Del 2 sale el 4, y del 4 sale el 8</span></div><div class="flecha">›</div></button>
+      <button class="card a" data-a="estr-diez">
+        <div class="ico">🔟</div><div class="txt"><b>Por 10, por 9 y por 5</b><span>Agregar un cero y ajustar</span></div><div class="flecha">›</div></button>
+      <button class="card r" data-a="estr-descomp">
+        <div class="ico">🧩</div><div class="txt"><b>Descomposición</b><span>Partir un factor en dos trozos fáciles</span></div><div class="flecha">›</div></button>
+      <button class="card" data-a="estr-conmut">
+        <div class="ico">🔄</div><div class="txt"><b>Conmutativa</b><span>7 × 8 y 8 × 7 son la misma</span></div><div class="flecha">›</div></button>
+    </div>
+  `);
+}
+
+function tablaFoco(){
+  const t = E.config.tablas.length ? E.config.tablas : [3,4,6,7,8,9];
+  return elige(t);
+}
+
+function pEstrSecuencia(){
+  E.pantalla='estr-secuencia';
+  const a = tablaFoco(), b = az(4,9);
+  VIS = { resp:a*b, valor:'', hecho:false, fallo:false, t0:0, otro:'estr-secuencia',
+    plano:`${a} × ${b}`,
+    expl:`Contando de ${a} en ${a} llegas a ${a*b} en el paso ${b}. Con el tiempo la respuesta debe salir sin contar: la secuencia es el puente, no la meta.`,
+    donde:'Cuenta un salto más.',
+    pista:`Ya vas en ${a*(b-1)} (paso ${b-1}). Súmale ${a} una vez más.` };
+  let pasos='';
+  for(let i=1;i<=b;i++) pasos += `<div class="paso-n ${i===b?'inc':''}">${i===b?'?':a*i}</div>`;
+  pintar(`
+    <button class="volver" data-a="sec-estrategias">‹ Estrategias</button>
+    <h1 class="titulo">La secuencia</h1>
+    <p class="sub">Contar de ${a} en ${a} y ver en qué paso caes. Es la estrategia de rescate cuando te trabas.</p>
+    <div class="escenario">
+      <div class="enunciado">Tabla del ${a}, paso ${b}</div>
+      <div class="operacion"><span>${a} × ${b}</span><span>=</span></div>
+    </div>
+    <div class="salto">${pasos}</div>
+    <div class="aviso">🪜 Ojo: contar toda la secuencia funciona, pero es lento. Úsala para construir la tabla y para salir de un apuro, no como método definitivo.</div>
+    ${bloqueVis('¿En qué número cae el paso '+b+'?')}
+  `);
+}
+
+function pEstrDobles(){
+  E.pantalla='estr-dobles';
+  const a = tablaFoco();
+  const meta = elige([4,8]);
+  VIS = { resp:a*meta, valor:'', hecho:false, fallo:false, t0:0, otro:'estr-dobles',
+    plano:`${a} × ${meta}`,
+    expl: meta===4
+      ? `${a} × 4 es el doble de ${a} × 2: doblas ${a*2} y obtienes ${a*4}.`
+      : `${a} × 8 es doblar tres veces: ${a*2}, después ${a*4} y por último ${a*8}.`,
+    donde:'Revisa el último doble.',
+    pista:`Vas bien hasta ${meta===4?a*2:a*4}. Ahora dóblalo: ${meta===4?a*2:a*4} + ${meta===4?a*2:a*4}.` };
+  const cad = meta===4
+    ? [[2,a*2,'foco'],[4,'?','oculto']]
+    : [[2,a*2,'foco'],[4,a*4,'foco'],[8,'?','oculto']];
+  pintar(`
+    <button class="volver" data-a="sec-estrategias">‹ Estrategias</button>
+    <h1 class="titulo">Dobles encadenados</h1>
+    <p class="sub">Si sabes la tabla del 2, ya tienes la del 4 y la del 8 sin memorizar nada nuevo.</p>
+    <div class="escenario">
+      <div class="enunciado">Encadena los dobles</div>
+      <div class="operacion"><span>${a} × ${meta}</span><span>=</span></div>
+    </div>
+    <div class="cadena">
+      ${cad.map((c,i)=>`${i?'<span class="flechita">doble →</span>':''}<div class="eslabon ${c[2]}">${a} × ${c[0]} = ${c[1]}</div>`).join('')}
+    </div>
+    <div class="aviso">🔁 Doblar es sumar el número consigo mismo. Tres dobles seguidos te llevan del 2 al 8.</div>
+    ${bloqueVis('¿Cuánto da '+a+' × '+meta+'?')}
+  `);
+}
+
+function pEstrDiez(){
+  E.pantalla='estr-diez';
+  const a = tablaFoco();
+  const caso = elige([9,5,10]);
+  const textos = {
+    10:{ t:`${a} × 10`, r:a*10, ex:`Multiplicar por 10 es escribir el ${a} y agregarle un cero: ${a*10}.`, pi:`Solo agrega un cero al ${a}.` },
+    9: { t:`${a} × 9`,  r:a*9,  ex:`${a} × 10 = ${a*10}. Como el 9 es un grupo menos, le quitas un ${a}: ${a*10} − ${a} = ${a*9}.`, pi:`Ya tienes ${a} × 10 = ${a*10}. Réstale ${a}.` },
+    5: { t:`${a} × 5`,  r:a*5,  ex:`${a} × 10 = ${a*10}, y el 5 es la mitad del 10: la mitad de ${a*10} es ${a*5}.`, pi:`Calcula ${a} × 10 = ${a*10} y pártelo por la mitad.` }
+  };
+  const c = textos[caso];
+  VIS = { resp:c.r, valor:'', hecho:false, fallo:false, t0:0, otro:'estr-diez',
+    plano:c.t, expl:c.ex, donde:'Revisa el ajuste después del ×10.', pista:c.pi };
+  pintar(`
+    <button class="volver" data-a="sec-estrategias">‹ Estrategias</button>
+    <h1 class="titulo">Por 10, por 9 y por 5</h1>
+    <p class="sub">La tabla del 10 es la más fácil de todas. Las del 9 y del 5 salen de ella con un pequeño ajuste.</p>
+    <div class="escenario">
+      <div class="enunciado">${caso===10?'Agregar un cero':(caso===9?'Un grupo menos':'La mitad del 10')}</div>
+      <div class="operacion"><span>${c.t}</span><span>=</span></div>
+    </div>
+    <div class="cadena">
+      <div class="eslabon foco">${a} × 10 = ${a*10}</div>
+      ${caso===10?'':`<span class="flechita">${caso===9?'− '+a:'la mitad'} →</span><div class="eslabon oculto">${a} × ${caso} = ?</div>`}
+    </div>
+    <div class="aviso">🔟 ${caso===9?'Nueve grupos son diez grupos menos uno.':(caso===5?'Cinco grupos son la mitad de diez grupos.':'Diez grupos del mismo número siempre terminan en cero.')}</div>
+    ${bloqueVis('¿Cuánto da '+c.t+'?')}
+  `);
+}
+
+let DESC = null;
+function pEstrDescomp(nuevo){
+  E.pantalla='estr-descomp';
+  if(nuevo || !DESC){
+    const a = tablaFoco();
+    const b = az(6,9);
+    DESC = {a, b, corte: 5};
+    VIS = { resp:a*b, valor:'', hecho:false, fallo:false, t0:0, otro:'estr-descomp-nuevo',
+      plano:`${a} × ${b}`,
+      expl:`Partiendo el ${b} en ${DESC.corte} + ${b-DESC.corte}: ${a}×${DESC.corte} = ${a*DESC.corte} y ${a}×${b-DESC.corte} = ${a*(b-DESC.corte)}. Sumas los dos trozos: ${a*b}.`,
+      donde:'Revisa la suma de los dos trozos.',
+      pista:`Suma los dos rectángulos: ${a*DESC.corte} + ${a*(b-DESC.corte)}.` };
+  }
+  const {a,b,corte} = DESC;
+  const c2 = b-corte;
+  if(VIS){
+    VIS.expl = `Partiendo el ${b} en ${corte} + ${c2}: ${a}×${corte} = ${a*corte} y ${a}×${c2} = ${a*c2}. Sumas los dos trozos: ${a*b}.`;
+    VIS.pista = `Suma los dos rectángulos: ${a*corte} + ${a*c2}.`;
+  }
+  const cortes = [];
+  for(let i=1;i<b;i++) cortes.push(i);
+  pintar(`
+    <button class="volver" data-a="sec-estrategias">‹ Estrategias</button>
+    <h1 class="titulo">Descomposición</h1>
+    <p class="sub">Partir un factor en dos trozos fáciles y sumar los resultados. Es la propiedad distributiva, vista como un rectángulo que se corta.</p>
+    <div class="escenario">
+      <div class="enunciado">${a} filas de ${b}</div>
+      <div class="operacion"><span>${a} × ${b}</span><span>=</span></div>
+    </div>
+    <div class="panel">
+      <h3>¿Por dónde lo cortas?</h3>
+      <p class="ayuda">Elige el corte más cómodo para ti.</p>
+      <div class="chips">${cortes.map(i=>`<button class="chip" data-a="corte" data-v="${i}" aria-pressed="${i===corte}">${i} + ${b-i}</button>`).join('')}</div>
+    </div>
+    <div class="array-wrap">
+      <div>${bloqueArray(a,corte)}<div class="etq-bloque" style="color:var(--violeta)">${a} × ${corte} = ${a*corte}</div></div>
+      <div class="sep-mas">+</div>
+      <div>${bloqueArray(a,c2,'b')}<div class="etq-bloque" style="color:#B07300">${a} × ${c2} = ${a*c2}</div></div>
+    </div>
+    <div class="aviso">🧩 ${a} × ${b} = (${a} × ${corte}) + (${a} × ${c2}) = ${a*corte} + ${a*c2}</div>
+    ${bloqueVis('¿Cuánto da '+a+' × '+b+' en total?')}
+  `);
+}
+
+let CONM = null;
+function pEstrConmut(nuevo){
+  E.pantalla='estr-conmut';
+  if(nuevo || !CONM){
+    const a = tablaFoco(), b = az(3,9);
+    CONM = {a, b, girado:false};
+    VIS = { resp:a*b, valor:'', hecho:false, fallo:false, t0:0, otro:'estr-conmut-nuevo',
+      plano:`${a} × ${b}`,
+      expl:`${a} × ${b} y ${b} × ${a} dan lo mismo: ${a*b}. Cada vez que aprendes una, aprendes dos.`,
+      donde:'Revisa el conteo de puntos.',
+      pista: pistaTabla(a,b) };
+  }
+  const {a,b,girado} = CONM;
+  const f = girado ? b : a, c = girado ? a : b;
+  pintar(`
+    <button class="volver" data-a="sec-estrategias">‹ Estrategias</button>
+    <h1 class="titulo">La conmutativa</h1>
+    <p class="sub">Girar el rectángulo no cambia cuántos puntos hay. Por eso solo tienes que aprender la mitad de las combinaciones.</p>
+    <div class="escenario">
+      <div class="enunciado">${f} filas de ${c}</div>
+      <div class="operacion"><span>${f} × ${c}</span><span>=</span></div>
+    </div>
+    <div class="array-wrap"><div>${bloqueArray(f,c)}</div></div>
+    <button class="btn gris" data-a="girar">🔄 Girar el rectángulo</button>
+    <div class="aviso" style="margin-top:14px">🔄 ${a} × ${b} = ${b} × ${a}. Si ya te sabes una de las dos, la otra viene gratis.</div>
+    ${bloqueVis('¿Cuántos puntos hay en total?')}
+  `);
+}
+
+/* ---------- 3 · DADOS ---------- */
+function pDados(){
+  E.pantalla='dados';
+  pintar(`
+    <button class="volver" data-a="sec-dominar">‹ Dominar las tablas</button>
+    <p class="eyebrow">Modo 3</p>
+    <h1 class="titulo">Juegos de dados</h1>
+    <p class="sub">El azar decide la operación. Dos juegos según lo que necesites reforzar.</p>
+    <div class="rejilla dos">
+      <button class="card a" data-a="dados-puntos">
+        <div class="ico">🎲</div>
+        <div class="txt"><b>Grupos y puntos</b><span>Para empezar: dos dados y un rectángulo de puntos que se puede contar</span></div><div class="flecha">›</div></button>
+      <button class="card v" data-a="dados-diez">
+        <div class="ico">🔟</div>
+        <div class="txt"><b>La fábrica del diez</b><span>Forma 10 con la pareja de dados y usa el atajo para resolver</span></div><div class="flecha">›</div></button>
+    </div>
+    <div class="aviso" style="margin-top:16px">🎲 El primero funciona bien en primaria y con quien recién empieza. El segundo es para secundaria: enseña a apoyarse en el 10 para resolver las tablas difíciles.</div>
+  `);
+}
+
+let DP = null;
+function pDadosPuntos(){
+  E.pantalla='dados-puntos';
+  const a = az(1,6), b = az(1,6);
+  DP = {a,b};
+  VIS = { resp:a*b, valor:'', hecho:false, fallo:false, t0:0, otro:'dados-puntos',
+    plano:`${a} × ${b}`,
+    expl:`${a} grupos de ${b} son ${a*b} puntos. Contando de ${b} en ${b}: ${Array.from({length:a},(_,i)=>b*(i+1)).join(', ')}.`,
+    donde:'Cuenta otra vez las filas de puntos.',
+    pista:`Cuenta de ${b} en ${b}, una vez por cada fila: hay ${a} filas.` };
+  pintar(`
+    <button class="volver" data-a="sec-dados">‹ Juegos de dados</button>
+    <h1 class="titulo">Grupos y puntos</h1>
+    <p class="sub">El primer dado dice cuántos grupos hay. El segundo, cuántos puntos tiene cada grupo.</p>
+    <div class="dados-fila">
+      ${dadoPuntos(a,'rueda')}<div class="sep-mas">×</div>${dadoPuntos(b,'rueda')}
+    </div>
+    <div class="escenario">
+      <div class="enunciado">${a} ${a===1?'grupo':'grupos'} de ${b}</div>
+      <div class="operacion"><span>${a} × ${b}</span><span>=</span></div>
+    </div>
+    <div class="array-wrap"><div>${bloqueArray(a,b)}</div></div>
+    ${bloqueVis('¿Cuántos puntos hay en total?', 'Puedes contarlos si lo necesitas, pero intenta primero de memoria.')}
+  `);
+}
+
+let DD = null;
+function pDadosDiez(){
+  E.pantalla='dados-diez';
+  const a = az(3,9);
+  const b = elige([6,7,8,9]);
+  const comp = 10-b;
+  const otros = barajar([1,2,3,4,5,6,7,8,9].filter(x=>x!==b && x!==comp)).slice(0,3);
+  DD = { a, b, comp, dados: barajar([b, comp].concat(otros)), sel:[], fase:'dados' };
+  dibujarDD('Toca los dos dados que juntos suman 10. Uno de ellos debe ser el '+b+'.');
+}
+
+function dibujarDD(msg){
+  const {a,b,comp,dados,sel,fase} = DD;
+  const listo = fase==='pasos';
+  if(listo && (!VIS || VIS.resp!==a*b)){
+    VIS = { resp:a*b, valor:'', hecho:false, fallo:false, t0:0, otro:'dados-diez',
+      plano:`${a} × ${b}`,
+      expl:`${a} × 10 = ${a*10} son ${comp===1?'un grupo':comp+' grupos'} de más. Le quitas ${a} × ${comp} = ${a*comp} y queda ${a*b}.`,
+      donde:'Revisa la resta final.',
+      pista:`${a*10} − ${a*comp}. Resta primero las decenas si te ayuda.` };
+  }
+  pintar(`
+    <button class="volver" data-a="sec-dados">‹ Juegos de dados</button>
+    <h1 class="titulo">La fábrica del diez</h1>
+    <p class="sub">Multiplicar por 10 es lo más fácil que hay. La idea es llegar al 10 y después quitar lo que sobra.</p>
+    <div class="escenario">
+      <div class="enunciado">Operación de esta ronda</div>
+      <div class="operacion"><span>${a} × ${b}</span><span>=</span>${listo?`<span class="caja vacia">?</span>`:''}</div>
+    </div>
+    <div class="panel">
+      <h3>${listo?'✔ Pareja formada: '+b+' + '+comp+' = 10':'Forma 10 con una pareja de dados'}</h3>
+      <p class="ayuda" id="msgDD">${msg||''}</p>
+      <div class="dados-fila">
+        ${dados.map((d,i)=>dadoNum(d, sel.includes(i)?'sel':(listo?( (d===b||d===comp)?'listo':'') :''), listo?'':'dado-sel', i)).join('')}
+      </div>
+    </div>
+    ${listo ? `
+      <div class="cadena">
+        <div class="eslabon foco">${a} × 10 = ${a*10}</div>
+        <span class="flechita">quitar →</span>
+        <div class="eslabon">${a} × ${comp} = ${a*comp}</div>
+        <span class="flechita">=</span>
+        <div class="eslabon oculto">${a*10} − ${a*comp} = ?</div>
+      </div>
+      <div class="aviso">🔟 ${b} grupos son ${comp===1?'un grupo':comp+' grupos'} menos que 10 grupos. Por eso a ${a*10} le quitas ${a*comp}.</div>
+      ${bloqueVis('¿Cuánto da '+a+' × '+b+'?')}
+    ` : `<div class="aviso">🎯 Busca el dado que le falta al ${b} para llegar a 10. Esa pareja es la que convierte la operación difícil en una fácil.</div>`}
+  `);
+}
+
+function seleccionarDado(i){
+  const {dados, sel, b} = DD;
+  if(DD.fase!=='dados') return;
+  const pos = sel.indexOf(i);
+  if(pos>=0){ sel.splice(pos,1); return dibujarDD('Toca los dos dados que juntos suman 10.'); }
+  if(sel.length>=2) return;
+  sel.push(i);
+  if(sel.length===2){
+    const suma = dados[sel[0]] + dados[sel[1]];
+    const incluyeB = dados[sel[0]]===b || dados[sel[1]]===b;
+    if(suma===10 && incluyeB){
+      DD.fase='pasos';
+      VIS = null;
+      dibujarDD('');
+      confeti(18);
+      return;
+    }
+    dibujarDD(suma===10 ? `Suman 10, pero uno de los dados debe ser el ${b}. Inténtalo otra vez.` : `Esos dos suman ${suma}. Necesitas que sumen exactamente 10.`);
+    setTimeout(()=>{
+      document.querySelectorAll('.dado.sel').forEach(d=>d.classList.add('mal'));
+      DD.sel=[];
+      setTimeout(()=>dibujarDD(`Toca el dado del ${b} y el que lo completa hasta 10.`), 450);
+    }, 60);
+    return;
+  }
+  dibujarDD('Ahora el segundo dado.');
+}
+
+/* ---------- 4 · MICRO-PRÁCTICA ---------- */
+let MP = null;
+function pMicroCfg(){
+  E.pantalla='micro-cfg';
+  const c = contarDiag();
+  pintar(`
+    <button class="volver" data-a="sec-dominar">‹ Dominar las tablas</button>
+    <p class="eyebrow">Modo 4</p>
+    <h1 class="titulo">Micro-práctica de 3 minutos</h1>
+    <p class="sub">Tandas cortas y diarias rinden más que una sesión larga a la semana. Tres minutos al empezar la clase son suficientes.</p>
+    <div class="panel">
+      <h3>Qué vas a practicar</h3>
+      <p class="ayuda" style="margin:0">${c.total
+        ? `Tus ${c.f+c.l} combinaciones pendientes, intercaladas con algunas que ya dominas. Mezclar lo conocido con lo nuevo mejora la retención y evita la frustración.`
+        : `Todavía no has hecho el diagnóstico, así que se practicarán las tablas seleccionadas (${(E.config.tablas.length?E.config.tablas:[3,4,6,7,8,9]).join(', ')}). Haz el diagnóstico para enfocar mejor el tiempo.`}</p>
+    </div>
+    <div class="aviso">⏱️ El tiempo corre en una barra suave, sin cuenta regresiva. Si te equivocas puedes reintentar las veces que necesites: el reloj no te castiga.</div>
+    <button class="btn" data-a="micro-inicio">▸ Empezar los 3 minutos</button>
+    ${c.total?'':'<button class="btn gris" data-a="diag-cfg" style="margin-top:12px">🔍 Hacer primero el diagnóstico</button>'}
+  `);
+}
+
+function colaMicro(){
+  const debiles=[], fuertes=[];
+  for(const k in E.diag.mapa){
+    const [x,y] = k.split('x').map(Number);
+    (E.diag.mapa[k]==='dominada' ? fuertes : debiles).push([x,y]);
+  }
+  if(!debiles.length){
+    const t = E.config.tablas.length ? E.config.tablas : [3,4,6,7,8,9];
+    t.forEach(a=>{ for(let b=2;b<=10;b++) debiles.push([a,b]); });
+  }
+  const cola=[]; let d=0, f=0;
+  const bd = barajar(debiles), bf = barajar(fuertes);
+  for(let i=0;i<45;i++){
+    // dos débiles por cada dominada: práctica intercalada
+    if(bf.length && i%3===2) cola.push(bf[f++ % bf.length]);
+    else cola.push(bd[d++ % bd.length]);
+  }
+  return cola;
+}
+
+function iniciarMicro(){
+  MP = { cola: colaMicro(), i:0, ok:0, no:0, t0:Date.now(), dur:180, timer:null, mejoradas:0 };
+  MP.timer = setInterval(()=>{
+    if(E.pantalla!=='micro'){ clearInterval(MP.timer); return; }
+    const seg = Math.floor((Date.now()-MP.t0)/1000);
+    const f = $('#btFill');
+    if(f) f.style.width = Math.min(100, seg/MP.dur*100)+'%';
+    const r = $('#mpReloj');
+    if(r) r.textContent = reloj(Math.max(0,(MP.dur-seg))*1000);
+    if(seg>=MP.dur){ clearInterval(MP.timer); finMicro(); }
+  }, 1000);
+  itemMicro();
+}
+
+function itemMicro(){
+  E.pantalla='micro';
+  const [a,b] = MP.cola[MP.i % MP.cola.length];
+  const orden = Math.random()<0.5 ? [a,b] : [b,a];
+  VIS = { resp:a*b, valor:'', hecho:false, fallo:false, t0:0,
+    otro:'micro-siguiente', otroLabel:'Siguiente ▸',
+    plano:`${orden[0]} × ${orden[1]}`,
+    expl:`${orden[0]} × ${orden[1]} = ${a*b}.`,
+    donde:'Revisa la multiplicación.',
+    pista: pistaTabla(a,b),
+    alAcertar:(ms)=>{
+      MP.ok++;
+      const antes = E.diag.mapa[K(a,b)];
+      const nuevo = ms<3500 ? 'dominada' : 'lenta';
+      if(antes!=='dominada' && nuevo==='dominada') MP.mejoradas++;
+      E.diag.mapa[K(a,b)] = nuevo;
+    },
+    alFallar:()=>{ MP.no++; E.diag.mapa[K(a,b)] = 'falla'; }
+  };
+  const seg = Math.floor((Date.now()-MP.t0)/1000);
+  pintar(`
+    <button class="volver" data-a="micro-fin">‹ Terminar antes</button>
+    <div class="progreso-top"><b>⏱️ Micro-práctica</b><span id="mpReloj">${reloj(Math.max(0,MP.dur-seg)*1000)}</span></div>
+    <div class="barra-tiempo"><div class="bt-fill" id="btFill" style="width:${Math.min(100,seg/MP.dur*100)}%"></div></div>
+    <p class="sub" style="margin:6px 0 14px">Resueltas: ${MP.ok} · Sin prisa, lo que importa es responder bien.</p>
+    <div class="escenario">
+      <div class="enunciado">Combinación ${MP.i+1}</div>
+      <div class="operacion"><span>${orden[0]} × ${orden[1]}</span><span>=</span></div>
+    </div>
+    ${bloqueVis('Tu respuesta')}
+  `);
+}
+
+function finMicro(){
+  if(MP.timer) clearInterval(MP.timer);
+  guardarDiag();
+  E.pantalla='micro-fin';
+  const c = contarDiag();
+  const t = reloj(Math.min(MP.dur*1000, Date.now()-MP.t0));
+  confeti(40);
+  pintar(`
+    <p class="eyebrow">Tanda terminada</p>
+    <h1 class="titulo">${MP.mejoradas>0 ? MP.mejoradas+' combinaciones pasaron a automáticas' : 'Tanda completada'}</h1>
+    <p class="sub">${escapar(E.nombre)} · ${escapar(E.grado)}</p>
+    <div class="stats">
+      <div class="stat"><b>${t}</b><span>Tiempo</span></div>
+      <div class="stat p"><b>${MP.ok}</b><span>Resueltas</span></div>
+      <div class="stat v"><b>${c.d}</b><span>Ya salen solas</span></div>
+      <div class="stat r"><b>${c.f+c.l}</b><span>Aún por trabajar</span></div>
+    </div>
+    <div class="pista">🌟 Vuelve mañana con otros tres minutos. La práctica repartida en días distintos fija mucho más que una sesión larga de vez en cuando.</div>
+    <div class="fila-btn">
+      <button class="btn gris" data-a="sec-dominar">Volver a la sección</button>
+      <button class="btn" data-a="micro-inicio">🔁 Otra tanda</button>
+    </div>
   `);
 }
 
@@ -1510,7 +2494,7 @@ function accion(a, v, btn){
       tostar('¡Bienvenido, '+n.split(' ')[0]+'!');
       break;
     }
-    case 'inicio': pMenu(); break;
+    case 'inicio': if(MP && MP.timer) clearInterval(MP.timer); pMenu(); break;
     case 'cerrar': cerrarCapa(); break;
     case 'cerrar-menu': cerrarCapa(); pMenu(); break;
 
@@ -1591,10 +2575,45 @@ function accion(a, v, btn){
     case 'fichas-anular': anularFichas(); break;
     case 'vis-termo': pTermo(); break;
     case 'termo-nuevo': pTermo(); break;
-    case 'termo-revelar': TERMO.revelado=true; dibujarTermo(); break;
     case 'vis-regla': pRegla(); break;
+    case 'regla-nuevo': nuevoReto(); break;
+    case 'tecla-vis': escribirVis(v); break;
+    case 'foco-vis': if(VIS) VIS.reemplazar = true; break;
+    case 'comprobar-vis': comprobarVis(); break;
+    case 'reintentar-vis': reintentarVis(); break;
+    case 'borrar-vis':
+      if(!VIS || VIS.hecho) return;
+      VIS.valor=''; VIS.reemplazar=false;
+      { const c=$('#cajaVis'); if(c){ c.textContent='?'; c.classList.add('vacia'); c.classList.remove('mal'); } }
+      break;
     case 'regla-sa': REGLA.sa=+v; dibujarRegla(); break;
     case 'regla-sb': REGLA.sb=+v; dibujarRegla(); break;
+
+    /* dominar las tablas */
+    case 'sec-dominar': pDominar(); break;
+    case 'diag-cfg': pDiagCfg(); break;
+    case 'tablas-todas-d': E.config.tablas=[2,3,4,5,6,7,8,9,10]; pDiagCfg(); break;
+    case 'tablas-dificiles': E.config.tablas=[3,4,6,7,8,9]; pDiagCfg(); break;
+    case 'diag-inicio': iniciarDiag(); break;
+    case 'diag-siguiente': DIAG.i++; itemDiag(); break;
+    case 'sec-estrategias': pEstrategias(); break;
+    case 'estr-secuencia': pEstrSecuencia(); break;
+    case 'estr-dobles': pEstrDobles(); break;
+    case 'estr-diez': pEstrDiez(); break;
+    case 'estr-descomp': pEstrDescomp(true); break;
+    case 'estr-descomp-nuevo': pEstrDescomp(true); break;
+    case 'corte': DESC.corte = +v; pEstrDescomp(false); break;
+    case 'estr-conmut': pEstrConmut(true); break;
+    case 'estr-conmut-nuevo': pEstrConmut(true); break;
+    case 'girar': CONM.girado = !CONM.girado; pEstrConmut(false); break;
+    case 'sec-dados': pDados(); break;
+    case 'dados-puntos': pDadosPuntos(); break;
+    case 'dados-diez': pDadosDiez(); break;
+    case 'dado-sel': seleccionarDado(+v); break;
+    case 'micro-cfg': pMicroCfg(); break;
+    case 'micro-inicio': iniciarMicro(); break;
+    case 'micro-siguiente': MP.i++; itemMicro(); break;
+    case 'micro-fin': finMicro(); break;
 
     /* evaluación */
     case 'sec-eval': pEvalCfg(); break;
@@ -1638,6 +2657,7 @@ function confirmarSalida(esEval){
 /* =========================================================
    ARRANQUE
    ========================================================= */
+cargarDiag();
 pBienvenida();
 </script>
 </body>
