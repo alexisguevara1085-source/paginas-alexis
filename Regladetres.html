@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+<meta name="theme-color" content="#F3F0FA">
+<title>Proporción · Regla de tres directa e inversa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --ink:#1E1533;
+  --ink-2:#5B5170;
+  --ink-3:#8C84A3;
+  --paper:#FFFFFF;
+  --bg:#F1EEF9;
+  --line:#E7E2F4;
+  --brand:#5B3DF5;
+  --brand-soft:#EFEBFF;
+  --directa:#2563EB;
+  --directa-soft:#E5EDFF;
+  --inversa:#E8710A;
+  --inversa-soft:#FFF0E0;
+  --ok:#12A05C;
+  --ok-soft:#E3F7EC;
+  --bad:#D92D3E;
+  --bad-soft:#FDE9EB;
+  --gold:#F5A524;
+  --gold-soft:#FFF3DC;
+  --r-l:26px; --r-m:18px; --r-s:12px;
+  --shadow-s:0 2px 6px rgba(30,21,51,.06);
+  --shadow-m:0 8px 20px rgba(30,21,51,.09);
+  --shadow-l:0 18px 44px rgba(30,21,51,.16);
+  --display:"Fraunces",Georgia,serif;
+  --body:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;font-family:var(--body);color:var(--ink);background:var(--bg);
+  font-size:17px;line-height:1.45;overflow:hidden;
+  background-image:
+    radial-gradient(700px 420px at 12% -8%, #E3DBFF 0%, transparent 60%),
+    radial-gradient(620px 420px at 96% 8%, #DCE8FF 0%, transparent 60%),
+    linear-gradient(rgba(91,61,245,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,61,245,.045) 1px, transparent 1px);
+  background-size:auto,auto,26px 26px,26px 26px;
+}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+
+/* ============ ESTRUCTURA ============ */
+#shell{display:flex;justify-content:center;align-items:center;gap:26px;height:100dvh;padding:0}
+#aside{display:none}
+#phone{
+  position:relative;display:flex;flex-direction:column;width:100%;height:100dvh;
+  background:var(--paper);overflow:hidden;
+}
+#content{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:16px 16px 30px}
+.screen{display:none;animation:fadeUp .32s ease both}
+.screen.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ============ BARRA SUPERIOR ============ */
+#topbar{
+  flex:0 0 auto;background:var(--paper);border-bottom:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;z-index:20;box-shadow:var(--shadow-s)
+}
+#topbar.hidden{display:none}
+.tb-row{display:flex;align-items:center;gap:10px}
+.avatar{
+  width:42px;height:42px;flex:0 0 auto;border-radius:14px;background:linear-gradient(140deg,var(--brand),#8E7BFF);
+  color:#fff;font-weight:800;font-size:19px;display:grid;place-items:center;box-shadow:var(--shadow-s)
+}
+.tb-id{min-width:0;flex:1}
+.tb-name{font-weight:700;font-size:16px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-grade{font-size:13px;color:var(--ink-2);font-weight:500}
+.home-btn{
+  width:46px;height:46px;flex:0 0 auto;border-radius:15px;background:var(--brand-soft);color:var(--brand);
+  font-size:22px;display:grid;place-items:center;transition:transform .15s ease,background .15s ease
+}
+.home-btn:active{transform:scale(.92)}
+.tb-chips{display:flex;gap:7px;margin-top:9px}
+.chip{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:5px;height:34px;border-radius:11px;
+  font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;background:var(--bg);color:var(--ink-2)
+}
+.chip.time{background:var(--brand-soft);color:var(--brand)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip .n{font-size:16px}
+.pulse{animation:pulseChip .5s ease}
+@keyframes pulseChip{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* ============ TIPOGRAFÍA ============ */
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.01em}
+h1{font-size:34px;font-weight:900;line-height:1.05}
+h2{font-size:24px;font-weight:700}
+h3{font-size:19px;font-weight:700}
+.eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.muted{color:var(--ink-2)}
+.small{font-size:14.5px}
+
+/* ============ BOTONES ============ */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:58px;
+  border-radius:var(--r-m);font-weight:700;font-size:18px;transition:transform .12s ease,box-shadow .12s ease,background .15s ease
+}
+.btn:active{transform:translateY(2px) scale(.99)}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 5px 0 #3F27C7}
+.btn-primary:active{box-shadow:0 2px 0 #3F27C7}
+.btn-ok{background:var(--ok);color:#fff;box-shadow:0 5px 0 #0B7743}
+.btn-ok:active{box-shadow:0 2px 0 #0B7743}
+.btn-ghost{background:var(--bg);color:var(--ink-2);font-weight:600;min-height:52px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.actions{display:flex;gap:10px;margin-top:16px}
+.actions .btn-ghost{flex:0 0 116px}
+.actions .btn-ok{flex:1}
+
+/* ============ BIENVENIDA ============ */
+.welcome{padding:6px 4px 20px;text-align:center}
+.logo-mark{width:100px;height:100px;margin:14px auto 18px}
+.field{text-align:left;margin-top:16px}
+.field label{display:block;font-weight:700;font-size:15px;margin-bottom:7px}
+.field input,.field select{
+  width:100%;min-height:58px;border-radius:var(--r-m);border:2px solid var(--line);background:#FBFAFF;
+  padding:0 16px;font-size:18px;font-weight:600;color:var(--ink)
+}
+.field input:focus,.field select:focus{border-color:var(--brand);background:#fff;outline:none}
+.hintline{font-size:13.5px;color:var(--ink-3);margin-top:7px}
+
+/* ============ TARJETAS DE LECCIÓN ============ */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--shadow-s)}
+.lesson-card{
+  display:flex;gap:14px;align-items:center;width:100%;text-align:left;padding:15px;margin-bottom:12px;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);box-shadow:var(--shadow-s);
+  transition:transform .14s ease,box-shadow .14s ease
+}
+.lesson-card:active{transform:scale(.985)}
+.lesson-card .num{
+  width:52px;height:52px;flex:0 0 auto;border-radius:17px;display:grid;place-items:center;font-size:25px;
+  background:var(--brand-soft)
+}
+.lesson-card .body{flex:1;min-width:0}
+.lesson-card .t{font-weight:700;font-size:17px;line-height:1.2}
+.lesson-card .d{font-size:13.5px;color:var(--ink-2);margin-top:3px}
+.tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.tag{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--ink-2)}
+.tag.help{background:var(--gold-soft);color:#9A6200}
+.tag.solo{background:var(--brand-soft);color:var(--brand)}
+.tag.done{background:var(--ok-soft);color:var(--ok)}
+.mini-bar{height:7px;border-radius:99px;background:var(--bg);margin-top:9px;overflow:hidden}
+.mini-bar i{display:block;height:100%;border-radius:99px;background:var(--brand);transition:width .5s ease}
+
+/* ============ CAMINO DE PROGRESO ============ */
+.path-wrap{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);padding:14px 14px 12px;box-shadow:var(--shadow-s);margin-bottom:14px}
+.path-head{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;font-weight:700;color:var(--ink-2);margin-bottom:11px}
+.path{display:flex;align-items:center}
+.node{
+  width:15px;height:15px;flex:0 0 auto;border-radius:50%;background:var(--bg);border:2px solid var(--line);
+  transition:transform .3s ease,background .3s ease,border-color .3s ease
+}
+.node.big{width:26px;height:26px;display:grid;place-items:center;font-size:13px;color:var(--ink-3)}
+.node.fill{background:var(--brand);border-color:var(--brand)}
+.node.big.fill{background:var(--gold);border-color:var(--gold);color:#fff}
+.node.pop{animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.5)}100%{transform:scale(1)}}
+.link{flex:1;height:4px;background:var(--line);position:relative;overflow:hidden}
+.link i{position:absolute;inset:0;width:0;background:var(--brand);transition:width .45s ease}
+
+/* ============ PREGUNTA ============ */
+.lesson-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.lesson-head .t{flex:1}
+.help-toggle{
+  display:flex;align-items:center;gap:7px;padding:9px 13px;border-radius:14px;font-size:13.5px;font-weight:700;
+  background:var(--bg);color:var(--ink-2);white-space:nowrap
+}
+.help-toggle.on{background:var(--gold-soft);color:#8A5800}
+.help-panel{
+  background:var(--gold-soft);border:1px solid #F6E2BC;border-radius:var(--r-m);padding:13px 15px;margin-bottom:14px;
+  font-size:15px;color:#6E4A05;animation:fadeUp .3s ease both
+}
+.help-panel b{color:#4A3103}
+.help-panel .fx{font-family:var(--display);font-size:17px}
+.qcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-l);padding:18px 16px;box-shadow:var(--shadow-m)}
+.q-label{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+.q-text{font-size:19px;font-weight:600;line-height:1.35}
+.q-sub{font-size:15px;color:var(--ink-2);margin:14px 0 8px;font-weight:600}
+.enunciado{background:#FBFAFF;border-left:4px solid var(--brand);border-radius:0 14px 14px 0;padding:13px 15px;font-size:17px;line-height:1.4}
+
+/* opciones */
+.opts{display:grid;gap:10px;margin-top:14px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt{
+  min-height:60px;border-radius:var(--r-m);border:2px solid var(--line);background:#FBFAFF;padding:10px 14px;
+  font-weight:700;font-size:16.5px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;
+  transition:transform .12s ease,border-color .15s ease,background .15s ease
+}
+.opt:active{transform:scale(.97)}
+.opt.sel{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}
+.opt .ic{font-size:22px}
+.opt.tall{flex-direction:column;gap:2px;min-height:96px;justify-content:center}
+.opt.tall .sub{font-size:12.5px;font-weight:600;color:var(--ink-3)}
+.opt.sel .sub{color:var(--brand)}
+
+/* cajas de respuesta */
+.box{
+  width:78px;height:64px;border-radius:16px;border:2.5px dashed #CFC6EC;background:#FBFAFF;text-align:center;
+  font-family:var(--display);font-size:26px;font-weight:700;color:var(--ink);padding:0 4px
+}
+.box:focus{border-style:solid;border-color:var(--brand);background:#fff;outline:none}
+.box.sm{width:80px;height:56px;font-size:20px}
+.box.wide{width:118px}
+
+/* tabla de proporción */
+.tabla{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin:6px auto 4px;max-width:330px}
+.tabla .th{font-family:var(--display);font-weight:700;font-size:16px;text-align:center;color:var(--ink-2);padding-bottom:2px;border-bottom:2px solid var(--line)}
+.tabla .td{
+  font-family:var(--display);font-size:23px;font-weight:700;text-align:center;padding:11px 4px;border-radius:14px;background:#FBFAFF
+}
+.tabla .td.x{color:var(--brand);background:var(--brand-soft)}
+.tabla .cell{display:flex;justify-content:center;align-items:center;padding:3px 0}
+.cruz{position:absolute;inset:34px 0 0;width:100%;height:calc(100% - 34px);pointer-events:none}
+.cruz path{fill:none;stroke:#F062A8;stroke-width:2.2;stroke-linecap:round;vector-effect:non-scaling-stroke;
+  stroke-dasharray:200;stroke-dashoffset:200;animation:draw 1s .25s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.arrowhead{fill:#F062A8;opacity:0;animation:showHead .3s 1.1s ease forwards}
+@keyframes showHead{to{opacity:1}}
+
+/* fracción */
+.fraccion{display:flex;align-items:center;justify-content:center;gap:12px;margin:18px 0 6px;flex-wrap:wrap}
+.fraccion .xlab{font-family:var(--display);font-size:30px;font-weight:700}
+.frac{display:inline-flex;flex-direction:column;align-items:center;gap:6px}
+.frac .num,.frac .den{display:flex;align-items:center;gap:8px;justify-content:center}
+.frac .bar{width:100%;min-width:170px;height:3px;background:var(--ink);border-radius:2px}
+.times{font-family:var(--display);font-size:22px;color:var(--ink-2)}
+.res-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+
+/* tabla valores (sección 2) */
+.valtable{width:100%;border-collapse:separate;border-spacing:0 6px;margin-top:14px}
+.valtable th{font-size:14px;font-weight:700;color:var(--ink-2);padding:0 8px 4px;text-align:center}
+.valtable td{
+  font-family:var(--display);font-size:24px;font-weight:700;text-align:center;background:#FBFAFF;padding:12px 6px
+}
+.valtable tr td:first-child{border-radius:14px 0 0 14px}
+.valtable tr td:last-child{border-radius:0 14px 14px 0}
+.valtable td.q{color:var(--brand);background:var(--brand-soft)}
+.trend{display:inline-flex;align-items:center;gap:4px;font-family:var(--body);font-size:13px;font-weight:700;color:var(--ink-3)}
+
+/* gráficas */
+.graphbox{display:flex;justify-content:center;margin-top:12px}
+.graphbox svg{max-width:100%;height:auto;background:#FBFAFF;border-radius:18px;border:1px solid var(--line)}
+.opts.graphs{grid-template-columns:1fr 1fr}
+.opt.graph{min-height:auto;padding:8px;flex-direction:column;gap:6px}
+.opt.graph svg{width:100%;height:auto}
+
+/* ============ MODALES ============ */
+#layer{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(30,21,51,.45);backdrop-filter:blur(3px);padding:0}
+#layer.on{display:flex}
+.sheet{
+  width:100%;max-width:460px;background:var(--paper);border-radius:28px 28px 0 0;padding:22px 20px calc(env(safe-area-inset-bottom) + 20px);
+  animation:slideUp .3s cubic-bezier(.2,.9,.3,1.1) both;max-height:88dvh;overflow-y:auto
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.sheet .badge{width:74px;height:74px;border-radius:26px;display:grid;place-items:center;font-size:38px;margin:0 auto 14px;animation:bounceIn .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes bounceIn{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.badge.gold{background:var(--gold-soft);color:var(--gold)}
+.sheet h2{text-align:center;margin-bottom:8px}
+.sheet .why{background:var(--bg);border-radius:var(--r-m);padding:13px 15px;font-size:15.5px;line-height:1.45;margin-top:12px}
+.sheet .why b{color:var(--ink)}
+.sheet .why.tip{background:var(--gold-soft);color:#6E4A05}
+.sheet .why.tip b{color:#4A3103}
+.sheet .btn{margin-top:16px}
+
+/* toast */
+#toast{
+  position:absolute;left:50%;top:14px;transform:translate(-50%,-140%);z-index:60;background:var(--ink);color:#fff;
+  padding:12px 20px;border-radius:999px;font-weight:700;font-size:15.5px;box-shadow:var(--shadow-l);white-space:nowrap;
+  opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .2s ease
+}
+#toast.on{transform:translate(-50%,0);opacity:1}
+
+/* resultados */
+.result-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.stat{background:#FBFAFF;border:1px solid var(--line);border-radius:var(--r-m);padding:12px}
+.stat .k{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.stat .v{font-family:var(--display);font-size:27px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.ring{display:block;margin:6px auto 0}
+.motiv{background:var(--brand-soft);color:#3B2A9E;border-radius:var(--r-m);padding:14px 16px;margin-top:16px;font-size:16px;font-weight:600;text-align:center}
+
+/* confeti */
+#confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:90}
+#confetti i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.1}}
+
+/* ============ ESCRITORIO ============ */
+@media (min-width:1000px){
+  #shell{padding:20px}
+  #phone{width:452px;height:min(898px,96dvh);border-radius:38px;box-shadow:var(--shadow-l);border:1px solid #fff}
+  #aside{display:block;width:340px;align-self:center}
+  .aside-card{background:rgba(255,255,255,.75);backdrop-filter:blur(6px);border:1px solid #fff;border-radius:var(--r-l);padding:20px;box-shadow:var(--shadow-m)}
+  .aside-card + .aside-card{margin-top:16px}
+  .a-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:15px}
+  .a-row:last-child{border:none}
+  .a-row .n{font-weight:700;font-variant-numeric:tabular-nums}
+  .a-lesson{display:flex;align-items:center;gap:10px;padding:7px 0}
+  .a-lesson .ic{width:34px;height:34px;border-radius:11px;background:var(--brand-soft);display:grid;place-items:center;font-size:17px;flex:0 0 auto}
+  .a-lesson .nm{flex:1;font-size:14.5px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .a-lesson .pg{font-size:13px;font-weight:700;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  #layer{align-items:center;padding:20px}
+  .sheet{border-radius:28px;max-width:430px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+  <!-- ===== PANEL LATERAL (solo escritorio) ===== -->
+  <aside id="aside">
+    <div class="aside-card">
+      <div class="eyebrow">Matemáticas · 6.º a 9.º</div>
+      <h2 style="margin:6px 0 4px">Proporción</h2>
+      <p class="small muted" style="margin:0">Regla de tres directa e inversa, paso a paso.</p>
+    </div>
+    <div class="aside-card">
+      <h3 style="margin-bottom:8px">Tu sesión</h3>
+      <div class="a-row"><span class="muted">Estudiante</span><span class="n" id="a-name">—</span></div>
+      <div class="a-row"><span class="muted">Grado</span><span class="n" id="a-grade">—</span></div>
+      <div class="a-row"><span class="muted">Tiempo total</span><span class="n" id="a-time">00:00</span></div>
+      <div class="a-row"><span class="muted">Aciertos</span><span class="n" style="color:var(--ok)" id="a-ok">0</span></div>
+      <div class="a-row"><span class="muted">Errores</span><span class="n" style="color:var(--bad)" id="a-bad">0</span></div>
+      <div class="a-row"><span class="muted">Precisión</span><span class="n" id="a-pct">—</span></div>
+    </div>
+    <div class="aside-card">
+      <h3 style="margin-bottom:6px">Tu recorrido</h3>
+      <div id="a-lessons"></div>
+    </div>
+  </aside>
+
+  <!-- ===== APLICACIÓN ===== -->
+  <div id="phone">
+
+    <header id="topbar" class="hidden">
+      <div class="tb-row">
+        <div class="avatar" id="tb-ini">?</div>
+        <div class="tb-id">
+          <div class="tb-name" id="tb-name">Estudiante</div>
+          <div class="tb-grade" id="tb-grade">Grado</div>
+        </div>
+        <button class="home-btn" id="btn-home" aria-label="Ir al menú principal">🏠</button>
+      </div>
+      <div class="tb-chips">
+        <div class="chip time">⏱ <span class="n" id="tb-time">00:00</span></div>
+        <div class="chip ok">✔ <span class="n" id="tb-ok">0</span></div>
+        <div class="chip bad">✖ <span class="n" id="tb-bad">0</span></div>
+      </div>
+    </header>
+
+    <div id="content">
+
+      <!-- BIENVENIDA -->
+      <section class="screen on" id="scr-welcome">
+        <div class="welcome">
+          <svg class="logo-mark" viewBox="0 0 100 100" aria-hidden="true">
+            <rect x="6" y="6" width="88" height="88" rx="26" fill="#EFEBFF"/>
+            <line x1="24" y1="34" x2="76" y2="34" stroke="#5B3DF5" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="34" cy="52" r="9" fill="#2563EB"/>
+            <circle cx="66" cy="52" r="9" fill="#E8710A"/>
+            <line x1="24" y1="72" x2="76" y2="72" stroke="#5B3DF5" stroke-width="5" stroke-linecap="round"/>
+            <path d="M30 40 L70 66" stroke="#F062A8" stroke-width="3.5" stroke-linecap="round"/>
+          </svg>
+          <div class="eyebrow">Regla de tres</div>
+          <h1 style="margin:6px 0 8px">Directa e inversa</h1>
+          <p class="muted" style="margin:0 4px">Seis lecciones para entender la proporcionalidad, no solo para calcularla.</p>
+
+          <div class="field">
+            <label for="in-name">¿Cómo te llamas?</label>
+            <input id="in-name" type="text" placeholder="Escribe tu nombre" autocomplete="name" maxlength="28">
+          </div>
+          <div class="field">
+            <label for="in-grade">¿En qué grado estás?</label>
+            <select id="in-grade">
+              <option value="">Selecciona tu grado</option>
+              <option>Grado 6°</option><option>Grado 7°</option><option>Grado 8°</option>
+              <option>Grado 9°</option><option>Grado 10°</option><option>Grado 11°</option>
+            </select>
+          </div>
+          <p class="hintline" id="welcome-hint">Tu nombre y tu grado aparecerán en la barra durante toda la actividad.</p>
+          <button class="btn btn-primary" id="btn-start" style="margin-top:16px">Comenzar</button>
+        </div>
+      </section>
+
+      <!-- MENÚ -->
+      <section class="screen" id="scr-home">
+        <div style="margin:4px 0 16px">
+          <div class="eyebrow">Menú principal</div>
+          <h2 style="margin-top:4px" id="hi">Hola 👋</h2>
+          <p class="small muted" style="margin:4px 0 0">Elige una lección. Cada una se completa con <b>12 respuestas correctas</b>.</p>
+        </div>
+        <div id="lesson-list"></div>
+      </section>
+
+      <!-- LECCIÓN -->
+      <section class="screen" id="scr-lesson">
+        <div class="lesson-head">
+          <div class="t">
+            <div class="eyebrow" id="l-eyebrow">Lección</div>
+            <h3 id="l-title" style="margin-top:2px">Título</h3>
+          </div>
+          <button class="help-toggle" id="btn-help">💡 Ayuda</button>
+        </div>
+
+        <div class="path-wrap">
+          <div class="path-head"><span>Tu recorrido</span><span id="p-count">0 / 12</span></div>
+          <div class="path" id="path"></div>
+        </div>
+
+        <div id="help-slot"></div>
+        <div class="qcard" id="qcard"></div>
+
+        <div class="actions">
+          <button class="btn btn-ghost" id="btn-clear">🗑 Borrar</button>
+          <button class="btn btn-ok" id="btn-check">✅ Comprobar</button>
+        </div>
+      </section>
+
+      <!-- RESULTADO -->
+      <section class="screen" id="scr-result">
+        <div style="text-align:center;padding-top:8px">
+          <div class="badge gold" style="width:88px;height:88px;font-size:46px;border-radius:30px;margin:0 auto 14px">🎉</div>
+          <h1 style="font-size:29px">¡Lección completada!</h1>
+          <p class="muted small" id="r-lesson" style="margin:6px 0 0">Lección</p>
+        </div>
+        <div class="result-stats">
+          <div class="stat"><div class="k">Estudiante</div><div class="v" style="font-size:19px" id="r-name">—</div></div>
+          <div class="stat"><div class="k">Grado</div><div class="v" style="font-size:19px" id="r-grade">—</div></div>
+          <div class="stat"><div class="k">Tiempo</div><div class="v" id="r-time">00:00</div></div>
+          <div class="stat"><div class="k">Porcentaje</div><div class="v" id="r-pct">0%</div></div>
+          <div class="stat"><div class="k">Aciertos</div><div class="v" style="color:var(--ok)" id="r-ok">0</div></div>
+          <div class="stat"><div class="k">Errores</div><div class="v" style="color:var(--bad)" id="r-bad">0</div></div>
+        </div>
+        <div class="motiv" id="r-msg">Excelente trabajo.</div>
+        <button class="btn btn-primary" id="btn-next" style="margin-top:16px">Siguiente lección</button>
+        <button class="btn btn-ghost" id="btn-menu" style="margin-top:10px">Volver al menú</button>
+      </section>
+
+    </div><!-- /content -->
+
+    <div id="toast"></div>
+    <div id="confetti"></div>
+  </div><!-- /phone -->
+</div><!-- /shell -->
+
+<div id="layer"><div class="sheet" id="sheet"></div></div>
+
+<script>
+"use strict";
+/* =========================================================
+   ESTADO
+========================================================= */
+const S = {
+  nombre:"", grado:"", t0:0, tick:null,
+  aciertos:0, errores:0,
+  lección:null, lCorrect:0, lWrong:0, lT0:0, streak:0,
+  ayuda:{}, progreso:{}, hechas:{}, est:{}, q:null, lastKey:""
+};
+const META = 12;
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick = a => a[rnd(0,a.length-1)];
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(p=>p[1]);
+const fmt = n => n.toLocaleString("es-CO");
+const mmss = ms => {
+  const s = Math.floor(ms/1000);
+  return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+};
+
+const MOTIVA = ["¡Excelente!","¡Sigue así!","Cada vez eres mejor.","Buen trabajo.","¡Vas muy bien!","¡No te rindas!","Lo estás entendiendo."];
+const CIERRE = [
+  "Excelente trabajo. Cada día mejoras más en matemáticas.",
+  "Lo lograste. Entender la proporción te servirá toda la vida.",
+  "Muy bien. Los errores que corregiste también son aprendizaje.",
+  "Gran esfuerzo. Ya sabes leer cuándo una cantidad sube y cuándo baja."
+];
+
+/* =========================================================
+   NÚMEROS
+========================================================= */
+function toNum(str){
+  if(str===undefined||str===null) return NaN;
+  let s = String(str).trim().replace(/\s|%|\$/g,"");
+  if(s==="") return NaN;
+  if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) s = s.replace(/\./g,"").replace(",",".");
+  else s = s.replace(",",".");
+  return parseFloat(s);
+}
+const eq = (str,val) => { const n = toNum(str); return isFinite(n) && Math.abs(n-val) < 0.011; };
+
+/* =========================================================
+   LECCIONES
+========================================================= */
+const LECCIONES = [
+  {id:0, ic:"🧭", t:"Directa o inversa", d:"Entiende la diferencia entre las dos proporcionalidades.", help:true, tag:"Con ayuda"},
+  {id:1, ic:"📊", t:"¿Sube o baja?", d:"Observa los valores y clasifica la proporcionalidad.", help:true, tag:"Con ayuda"},
+  {id:2, ic:"✖️", t:"El procedimiento", d:"Arma la operación y encuentra el valor de x.", help:true, tag:"Con ayuda"},
+  {id:3, ic:"🛒", t:"Problemas simples", d:"Ubica los valores en la tabla y resuelve.", help:true, tag:"Con ayuda"},
+  {id:4, ic:"🏗️", t:"Problemas complejos", d:"Identifica variables, decide el tipo y calcula.", help:false, tag:"Ayuda opcional"},
+  {id:5, ic:"📈", t:"Gráficas", d:"Reconoce la proporcionalidad en una gráfica.", help:false, tag:"Ayuda opcional"}
+];
+LECCIONES.forEach(l => {
+  S.ayuda[l.id] = l.help; S.progreso[l.id] = 0; S.hechas[l.id] = false;
+  S.est[l.id] = {c:0, w:0, ms:0};
+});
+
+/* =========================================================
+   PANTALLAS
+========================================================= */
+function show(id){
+  $$(".screen").forEach(s=>s.classList.remove("on"));
+  $("#scr-"+id).classList.add("on");
+  $("#content").scrollTop = 0;
+}
+
+/* =========================================================
+   BARRA SUPERIOR
+========================================================= */
+function startClock(){
+  S.t0 = Date.now();
+  clearInterval(S.tick);
+  S.tick = setInterval(()=>{
+    const t = mmss(Date.now()-S.t0);
+    $("#tb-time").textContent = t;
+    const a = $("#a-time"); if(a) a.textContent = t;
+  },500);
+}
+function bump(el){ el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse"); }
+function paintStats(){
+  $("#tb-ok").textContent = S.aciertos;
+  $("#tb-bad").textContent = S.errores;
+  const tot = S.aciertos+S.errores;
+  $("#a-name").textContent = S.nombre;
+  $("#a-grade").textContent = S.grado;
+  $("#a-ok").textContent = S.aciertos;
+  $("#a-bad").textContent = S.errores;
+  $("#a-pct").textContent = tot ? Math.round(S.aciertos/tot*100)+"%" : "—";
+  const box = $("#a-lessons");
+  box.innerHTML = LECCIONES.map(l=>
+    `<div class="a-lesson"><div class="ic">${l.ic}</div><div class="nm">${l.t}</div>
+     <div class="pg">${S.progreso[l.id]}/${META}</div></div>`).join("");
+}
+
+/* =========================================================
+   INICIO
+========================================================= */
+$("#btn-start").addEventListener("click", ()=>{
+  const n = $("#in-name").value.trim(), g = $("#in-grade").value;
+  if(n.length < 2 || !g){
+    $("#welcome-hint").innerHTML = "<b style='color:var(--bad)'>Escribe tu nombre y elige tu grado para comenzar.</b>";
+    return;
+  }
+  S.nombre = n; S.grado = g;
+  $("#tb-name").textContent = n;
+  $("#tb-grade").textContent = g;
+  $("#tb-ini").textContent = n[0].toUpperCase();
+  $("#topbar").classList.remove("hidden");
+  $("#hi").textContent = "Hola, " + n.split(" ")[0] + " 👋";
+  startClock(); paintStats(); renderMenu(); show("home");
+});
+$("#in-name").addEventListener("keydown", e=>{ if(e.key==="Enter") $("#in-grade").focus(); });
+
+$("#btn-home").addEventListener("click", ()=>{ pausarTiempo(); renderMenu(); show("home"); });
+$("#btn-menu").addEventListener("click", ()=>{ pausarTiempo(); renderMenu(); show("home"); });
+$("#btn-next").addEventListener("click", ()=>{
+  const n = (S.lección + 1) % LECCIONES.length;
+  abrirLección(n);
+});
+
+/* =========================================================
+   MENÚ
+========================================================= */
+function renderMenu(){
+  paintStats();
+  $("#lesson-list").innerHTML = LECCIONES.map(l=>{
+    const p = S.progreso[l.id], pct = Math.round(p/META*100);
+    return `<button class="lesson-card" data-l="${l.id}">
+      <div class="num" style="${S.hechas[l.id]?'background:var(--ok-soft)':''}">${S.hechas[l.id]?"✅":l.ic}</div>
+      <div class="body">
+        <div class="t">${l.id+1}. ${l.t}</div>
+        <div class="d">${l.d}</div>
+        <div class="tags">
+          <span class="tag ${l.help?'help':'solo'}">${l.tag}</span>
+          ${S.hechas[l.id]?'<span class="tag done">Completada</span>':''}
+          <span class="tag">${p}/${META}</span>
+        </div>
+        <div class="mini-bar"><i style="width:${pct}%"></i></div>
+      </div>
+    </button>`;
+  }).join("");
+  $$("#lesson-list .lesson-card").forEach(b=>
+    b.addEventListener("click", ()=> abrirLección(+b.dataset.l)));
+}
+
+/* =========================================================
+   LECCIÓN
+========================================================= */
+function pausarTiempo(){
+  if(S.lección !== null && S.lT0){
+    S.est[S.lección].ms += Date.now() - S.lT0;
+    S.est[S.lección].c = S.lCorrect;
+    S.est[S.lección].w = S.lWrong;
+    S.lT0 = 0;
+  }
+}
+function abrirLección(id){
+  pausarTiempo();
+  if(S.hechas[id]) S.est[id] = {c:0, w:0, ms:0};   // repasar desde cero
+  const e = S.est[id];
+  S.lección = id; S.lCorrect = e.c; S.lWrong = e.w; S.lT0 = Date.now(); S.streak = 0; S.lastKey = "";
+  S.progreso[id] = S.lCorrect;
+  const L = LECCIONES[id];
+  $("#l-eyebrow").textContent = "Lección " + (id+1);
+  $("#l-title").textContent = L.t;
+  paintHelpToggle();
+  buildPath();
+  show("lesson");
+  nuevaPregunta();
+}
+function paintHelpToggle(){
+  const on = S.ayuda[S.lección];
+  const b = $("#btn-help");
+  b.classList.toggle("on", on);
+  b.textContent = on ? "💡 Ayuda activa" : "💡 Ayuda";
+}
+$("#btn-help").addEventListener("click", ()=>{
+  S.ayuda[S.lección] = !S.ayuda[S.lección];
+  paintHelpToggle();
+  $("#help-slot").innerHTML = S.ayuda[S.lección] && S.q ? `<div class="help-panel">${S.q.help}</div>` : "";
+});
+
+function buildPath(){
+  const p = $("#path"); p.innerHTML = "";
+  for(let i=1;i<=META;i++){
+    const big = i%4===0;
+    const n = document.createElement("div");
+    n.className = "node" + (big?" big":"");
+    n.dataset.i = i;
+    if(big) n.textContent = "★";
+    p.appendChild(n);
+    if(i<META){
+      const l = document.createElement("div");
+      l.className = "link"; l.dataset.i = i;
+      l.innerHTML = "<i></i>";
+      p.appendChild(l);
+    }
+  }
+  paintPath(false);
+}
+function paintPath(anim){
+  const c = S.lCorrect;
+  $("#p-count").textContent = c + " / " + META;
+  $$("#path .node").forEach(n=>{
+    const i = +n.dataset.i;
+    const was = n.classList.contains("fill");
+    n.classList.toggle("fill", i<=c);
+    if(anim && !was && i===c) { n.classList.remove("pop"); void n.offsetWidth; n.classList.add("pop"); }
+  });
+  $$("#path .link").forEach(l=>{
+    l.querySelector("i").style.width = (+l.dataset.i < c ? "100%" : "0");
+  });
+}
+
+/* =========================================================
+   PREGUNTAS: helpers de lectura
+========================================================= */
+function leer(){
+  const o = {};
+  $$("#qcard input[data-name]").forEach(i=> o[i.dataset.name] = i.value.trim());
+  $$("#qcard [data-group]").forEach(g=>{
+    const s = g.querySelector(".opt.sel");
+    o[g.dataset.group] = s ? s.dataset.val : "";
+  });
+  return o;
+}
+function vacío(){
+  const a = leer();
+  return Object.values(a).every(v => v === "");
+}
+$("#btn-clear").addEventListener("click", ()=>{
+  $$("#qcard input[data-name]").forEach(i=> i.value = "");
+  $$("#qcard .opt.sel").forEach(o=> o.classList.remove("sel"));
+  toast("Respuestas borradas");
+});
+$("#qcard").addEventListener("click", e=>{
+  const o = e.target.closest(".opt");
+  if(!o) return;
+  const g = o.closest("[data-group]");
+  if(!g) return;
+  g.querySelectorAll(".opt").forEach(x=> x.classList.remove("sel"));
+  o.classList.add("sel");
+});
+$("#qcard").addEventListener("focusin", e=>{
+  if(e.target.matches("input[data-name]")) setTimeout(()=>{ try{ e.target.select(); }catch(_){} }, 0);
+});
+
+const box = (name, cls) => `<input class="box ${cls||''}" data-name="${name}" inputmode="decimal" autocomplete="off" aria-label="Casilla ${name}">`;
+
+/* =========================================================
+   LECCIÓN 1 · Concepto
+========================================================= */
+const FRASES = [
+  ["A más cuadernos compras, más dinero pagas.","d","Si los cuadernos suben, el precio sube. Las dos cantidades cambian en el mismo sentido."],
+  ["A más obreros trabajando, menos días tarda la obra.","i","Una sube y la otra baja: más obreros reparten el trabajo, así que el tiempo se reduce."],
+  ["A mayor velocidad, menos tiempo para recorrer la misma distancia.","i","Si vas más rápido llegas antes: mientras una sube, la otra baja."],
+  ["A más horas trabajadas, más dinero recibes.","d","Las dos cantidades crecen juntas."],
+  ["A más personas comparten un pastel, menos porción para cada una.","i","El pastel es el mismo: si hay más personas, cada porción se hace más pequeña."],
+  ["A más kilómetros recorridos, más gasolina gastas.","d","Ambas suben al mismo tiempo."],
+  ["A más llaves abiertas, menos minutos para llenar el tanque.","i","Más llaves llenan más rápido, así que el tiempo baja."],
+  ["A más metros de tela, mayor es el costo.","d","Si la tela aumenta, el costo aumenta en la misma proporción."],
+  ["A más máquinas empacando, menos horas para terminar el pedido.","i","El trabajo se reparte entre más máquinas y el tiempo disminuye."],
+  ["A más días ahorrando, más dinero acumulado.","d","Las dos cantidades avanzan juntas."],
+  ["A más buses disponibles, menos estudiantes en cada bus.","i","El total de estudiantes no cambia: se reparte entre más buses."],
+  ["A más invitados a la fiesta, más panes se necesitan.","d","Si sube el número de invitados, sube el número de panes."],
+  ["A mayor número de páginas, más tinta usa la impresora.","d","Ambas cantidades aumentan a la vez."],
+  ["A más grifos llenando la piscina, menos tiempo de espera.","i","La piscina es la misma: más grifos, menos tiempo."]
+];
+const CONCEPTOS = [
+  ["En una proporcionalidad <b>directa</b>, si una cantidad se duplica, la otra…",
+   ["también se duplica","se reduce a la mitad","no cambia"], 0,
+   "En la directa las dos cantidades se multiplican por el mismo número.",
+   "Si 2 cuadernos cuestan $3.000, ¿cuánto cuestan 4 cuadernos?"],
+  ["En una proporcionalidad <b>inversa</b>, si una cantidad se triplica, la otra…",
+   ["se reduce a la tercera parte","también se triplica","no cambia"], 0,
+   "En la inversa, lo que una cantidad crece, la otra decrece en la misma proporción.",
+   "Si 2 obreros tardan 9 días, ¿6 obreros tardarán más o menos?"],
+  ["En la proporcionalidad <b>directa</b>, ¿qué se mantiene constante?",
+   ["el cociente a ÷ b","el producto a × b","la resta a − b"], 0,
+   "Al dividir cada pareja de valores siempre obtienes el mismo número (la constante).",
+   "Prueba con 2→6 y 4→12: divide 6÷2 y 12÷4."],
+  ["En la proporcionalidad <b>inversa</b>, ¿qué se mantiene constante?",
+   ["el producto a × b","el cociente a ÷ b","la suma a + b"], 0,
+   "Al multiplicar cada pareja de valores obtienes siempre el mismo número.",
+   "Prueba con 2→12 y 4→6: multiplica 2×12 y 4×6."],
+  ["Si al aumentar una cantidad la otra <b>disminuye</b> en la misma proporción, se trata de…",
+   ["proporcionalidad inversa","proporcionalidad directa","ninguna proporcionalidad"], 0,
+   "Ese comportamiento opuesto es exactamente la definición de proporcionalidad inversa.",
+   "Piensa en velocidad y tiempo de viaje."]
+];
+const AYUDA1 = `<b>Guía rápida</b><br>
+<b>Directa:</b> las dos cantidades <b>suben juntas</b> o <b>bajan juntas</b> (más cuadernos → más precio).<br>
+<b>Inversa:</b> una <b>sube</b> y la otra <b>baja</b> (más obreros → menos días).<br>
+Pregúntate siempre: <span class="fx">si esta cantidad aumenta, ¿la otra aumenta o disminuye?</span>`;
+
+function q_leccion1(){
+  if(Math.random() < .65){
+    const f = pick(FRASES);
+    return {
+      key:"f"+f[0],
+      help:AYUDA1,
+      body:`<div class="q-label">Clasifica la situación</div>
+        <div class="enunciado">${f[0]}</div>
+        <div class="q-sub">¿Qué tipo de proporcionalidad es?</div>
+        <div class="opts two" data-group="tipo">
+          <button class="opt tall" data-val="d"><span class="ic">↗↗</span>Directa<span class="sub">las dos suben</span></button>
+          <button class="opt tall" data-val="i"><span class="ic">↗↘</span>Inversa<span class="sub">una sube, otra baja</span></button>
+        </div>`,
+      check(a){
+        if(a.tipo === f[1]) return {ok:true, why:f[2]};
+        return {
+          ok:false,
+          where:"Elegiste <b>"+(a.tipo==="d"?"directa":"inversa")+"</b> y la respuesta correcta es otra.",
+          hint:"Lee la frase de nuevo y subraya las dos cantidades. Luego pregúntate si la segunda sube o baja cuando la primera sube."
+        };
+      }
+    };
+  }
+  const c = pick(CONCEPTOS);
+  const opts = shuffle(c[1].map((t,i)=>({t, ok:i===c[2]})));
+  return {
+    key:"c"+c[0],
+    help:AYUDA1,
+    body:`<div class="q-label">Completa la idea</div>
+      <div class="q-text">${c[0]}</div>
+      <div class="opts" data-group="op">
+        ${opts.map((o,i)=>`<button class="opt" data-val="${o.ok?'ok':'no'+i}">${o.t}</button>`).join("")}
+      </div>`,
+    check(a){
+      if(a.op === "ok") return {ok:true, why:c[3]};
+      return {ok:false, where:"Esa opción no describe lo que ocurre.", hint:c[4]};
+    }
+  };
+}
+
+/* =========================================================
+   LECCIÓN 2 · ¿Sube o baja?
+========================================================= */
+const PARES_D = [
+  ["Cuadernos","Precio (pesos)",3,4000],["Horas de trabajo","Pago (pesos)",2,15000],
+  ["Litros de pintura","Metros pintados",2,9],["Kilos de arroz","Costo (pesos)",2,3500],
+  ["Camisetas","Costo (pesos)",3,12000],["Días de ahorro","Dinero ahorrado",4,2000]
+];
+const PARES_I = [
+  ["Obreros","Días de obra",2,15],["Velocidad (km/h)","Horas de viaje",20,6],
+  ["Llaves abiertas","Minutos para llenar",2,20],["Buses","Estudiantes por bus",2,30],
+  ["Máquinas","Horas de trabajo",3,12],["Personas","Porción (g) para cada una",4,150]
+];
+const AYUDA2 = `<b>Cómo leer la tabla</b><br>
+1. Mira la <b>primera columna</b>: ¿sube o baja?<br>
+2. Mira la <b>segunda columna</b>: ¿sube o baja?<br>
+3. Si van en el <b>mismo sentido</b> → <b>directa</b>. Si van en <b>sentido contrario</b> → <b>inversa</b>.`;
+
+function q_leccion2(){
+  const inv = Math.random() < .5;
+  const p = inv ? pick(PARES_I) : pick(PARES_D);
+  const f = pick([2,3,4]);
+  const asc = Math.random() < .5;
+  let a1 = p[2], a2 = p[2]*f;
+  if(!asc){ const t = a1; a1 = a2; a2 = t; }
+  const b1 = p[3]*f;
+  const sube = asc ? !inv : inv;
+  const b2 = sube ? b1*f : b1/f;
+  return {
+    key:"t"+p[0]+a1+a2+b1,
+    help:AYUDA2,
+    body:`<div class="q-label">Observa los valores</div>
+      <div class="q-text">Estos son dos momentos de la misma situación.</div>
+      <table class="valtable">
+        <tr><th>${p[0]}</th><th>${p[1]}</th></tr>
+        <tr><td>${fmt(a1)}</td><td>${fmt(b1)}</td></tr>
+        <tr><td>${fmt(a2)}</td><td class="q">?</td></tr>
+      </table>
+      <p class="small muted" style="text-align:center;margin:2px 0 0">
+        La primera columna ${asc?"<b>sube</b> ⬆":"<b>baja</b> ⬇"} (de ${fmt(a1)} a ${fmt(a2)}).</p>
+      <div class="q-sub">1. ¿Qué pasa con «${p[1]}»?</div>
+      <div class="opts two" data-group="mov">
+        <button class="opt" data-val="sube"><span class="ic">⬆</span>Sube</button>
+        <button class="opt" data-val="baja"><span class="ic">⬇</span>Baja</button>
+      </div>
+      <div class="q-sub">2. Entonces la proporcionalidad es…</div>
+      <div class="opts two" data-group="tipo">
+        <button class="opt" data-val="d">Directa</button>
+        <button class="opt" data-val="i">Inversa</button>
+      </div>`,
+    check(a){
+      const movOK = a.mov === (sube?"sube":"baja");
+      const tipoOK = a.tipo === (inv?"i":"d");
+      if(movOK && tipoOK) return {
+        ok:true,
+        why:`Si ${p[0].toLowerCase()} ${asc?"aumenta":"disminuye"}, ${p[1].toLowerCase()} ${sube?"aumenta":"disminuye"}: van en sentido ${inv?"<b>contrario</b>, así que es inversa":"<b>igual</b>, así que es directa"}. El valor que falta es <b>${fmt(b2)}</b>.`
+      };
+      if(!movOK) return {
+        ok:false,
+        where:"El movimiento de la segunda columna no es el correcto.",
+        hint:`Piensa en la situación real: si hay ${asc?"más":"menos"} ${p[0].toLowerCase()}, ¿${p[1].toLowerCase()} debe aumentar o disminuir?`
+      };
+      return {
+        ok:false,
+        where:"Acertaste el movimiento, pero no el tipo de proporcionalidad.",
+        hint:"Mismo sentido (las dos suben o las dos bajan) = directa. Sentido contrario = inversa."
+      };
+    }
+  };
+}
+
+/* =========================================================
+   LECCIÓN 3 · El procedimiento
+========================================================= */
+const CTX3 = [
+  ["Cantidad","Porcentaje","%"],["Cuadernos","Precio",""],["Kilos","Costo",""],
+  ["Metros","Pesos",""],["Litros","Minutos",""],["Obreros","Días",""]
+];
+const AYUDA3 = `<b>Recuerda el procedimiento</b><br>
+<b>Directa:</b> multiplica en <b>diagonal</b> y divide por el valor que queda.<br>
+<span class="fx">x = (a × d) ÷ b</span><br>
+<b>Inversa:</b> multiplica en <b>la misma fila</b> completa y divide por el otro valor.<br>
+<span class="fx">x = (a × b) ÷ d</span>`;
+
+function q_leccion3(){
+  const inv = Math.random() < .35;
+  let A1,B1,B2,x,c;
+  if(!inv){
+    c = pick([CTX3[0],CTX3[1],CTX3[2],CTX3[3]]);
+    if(c === CTX3[0]){
+      A1 = pick([40,60,80,120,200,240]); B1 = 100; B2 = pick([10,25,50,75,20]);
+    } else {
+      const u = pick([2,3,4,5]); B1 = pick([2,3,4,5]); A1 = u*B1; B2 = pick([6,8,9,10,12]);
+      const esc = 1000;                       // precios realistas: el factor se simplifica solo
+      B1 *= esc; B2 *= esc;
+    }
+    x = A1*B2/B1;
+  } else {
+    c = pick([CTX3[4],CTX3[5]]);
+    const k = pick([48,60,72,120,144]);
+    B1 = pick([2,3,4,6]); A1 = k/B1;
+    const opciones = [2,3,4,5,6,8,10,12].filter(v => v !== B1 && k % v === 0);
+    B2 = pick(opciones);
+    x = k/B2;
+  }
+  const sufijo = c[2] ? " " + c[2] : "";
+  const n1 = A1, n2 = inv ? B1 : B2, den = inv ? B2 : B1;
+  const cruz = inv
+    ? `<path d="M 26 41 Q 50 50 72 41"/><polygon class="arrowhead" points="75,40 67,38 68,45"/>`
+    : `<path d="M 30 33 Q 52 48 69 62"/><polygon class="arrowhead" points="73,66 64,62 67,57"/>`;
+  return {
+    key:"p"+A1+B1+B2+inv,
+    help:AYUDA3,
+    body:`<div class="q-label">Arma la operación</div>
+      <div class="q-text">Proporcionalidad <b style="color:${inv?'var(--inversa)':'var(--directa)'}">${inv?"inversa":"directa"}</b>. Encuentra el valor de x.</div>
+      <div class="tabla">
+        <div class="th">${c[0]}</div><div class="th">${c[1]}</div>
+        <div class="td">${fmt(A1)}</div><div class="td">${fmt(B1)}${sufijo}</div>
+        <div class="td x">x</div><div class="td">${fmt(B2)}${sufijo}</div>
+        <svg class="cruz" viewBox="0 0 100 100" preserveAspectRatio="none">${cruz}</svg>
+      </div>
+      <p class="small muted" style="text-align:center;margin:6px 0 0">
+        ${inv ? "En la inversa se multiplica la fila completa." : "En la directa se multiplica en diagonal."}</p>
+      <div class="fraccion">
+        <span class="xlab">x =</span>
+        <div class="frac">
+          <div class="num">${box("n1","sm")}<span class="times">×</span>${box("n2","sm")}</div>
+          <div class="bar"></div>
+          <div class="den">${box("den","sm")}</div>
+        </div>
+      </div>
+      <div class="res-row"><span class="xlab" style="font-family:var(--display);font-size:26px;font-weight:700">x =</span>${box("res","wide")}</div>`,
+    check(a){
+      const nums = [toNum(a.n1), toNum(a.n2)].sort((p,q)=>p-q);
+      const esperado = [n1,n2].sort((p,q)=>p-q);
+      const numOK = Math.abs(nums[0]-esperado[0])<0.011 && Math.abs(nums[1]-esperado[1])<0.011;
+      const denOK = eq(a.den, den);
+      const resOK = eq(a.res, x);
+      if(numOK && denOK && resOK) return {
+        ok:true,
+        why:`x = (${fmt(n1)} × ${fmt(n2)}) ÷ ${fmt(den)} = ${fmt(n1*n2)} ÷ ${fmt(den)} = <b>${fmt(x)}</b>. ${inv?"Al ser inversa, multiplicaste la fila completa.":"Al ser directa, multiplicaste en diagonal."}`
+      };
+      if(!numOK) return {
+        ok:false,
+        where:"Los valores de arriba (el numerador) no son los correctos.",
+        hint: inv
+          ? `Es inversa: multiplica los dos valores de la <b>fila completa que sí conoces</b> (${fmt(A1)} y ${fmt(B1)}${sufijo}).`
+          : `Es directa: multiplica en <b>diagonal</b>, es decir ${fmt(A1)} por ${fmt(B2)}${sufijo}.`
+      };
+      if(!denOK) return {
+        ok:false,
+        where:"El valor de abajo (el denominador) no es el correcto.",
+        hint:`Divide por el único valor que aún no usaste: <b>${fmt(den)}</b>.`
+      };
+      return {
+        ok:false,
+        where:"La operación está bien planteada, pero el resultado no coincide.",
+        hint:`Primero multiplica ${fmt(n1)} × ${fmt(n2)} = ${fmt(n1*n2)}. Después divide ese producto entre ${fmt(den)}.`
+      };
+    }
+  };
+}
+
+/* =========================================================
+   LECCIÓN 4 · Problemas simples
+========================================================= */
+const PROB4 = [
+  {t:"3 cuadernos cuestan $12.000. ¿Cuánto cuestan 7 cuadernos?", c:["Cuadernos","Precio"], a:3,b:12000,d:7, inv:false},
+  {t:"5 kilos de arroz cuestan $17.500. ¿Cuánto cuestan 8 kilos?", c:["Kilos","Precio"], a:5,b:17500,d:8, inv:false},
+  {t:"Con 4 litros de pintura se cubren 18 metros. ¿Cuántos metros se cubren con 10 litros?", c:["Litros","Metros"], a:4,b:18,d:10, inv:false},
+  {t:"Una moto recorre 90 km con 3 galones. ¿Cuántos km recorre con 7 galones?", c:["Galones","Kilómetros"], a:3,b:90,d:7, inv:false},
+  {t:"6 empanadas cuestan $9.000. ¿Cuánto cuestan 10 empanadas?", c:["Empanadas","Precio"], a:6,b:9000,d:10, inv:false},
+  {t:"En 4 horas una llave suelta 240 litros. ¿Cuántos litros suelta en 7 horas?", c:["Horas","Litros"], a:4,b:240,d:7, inv:false},
+  {t:"2 obreros pintan una casa en 18 días. ¿Cuántos días tardan 6 obreros?", c:["Obreros","Días"], a:2,b:18,d:6, inv:true},
+  {t:"4 máquinas terminan un pedido en 15 horas. ¿Cuántas horas tardan 10 máquinas?", c:["Máquinas","Horas"], a:4,b:15,d:10, inv:true},
+  {t:"Un dulce se reparte entre 6 niños y a cada uno le tocan 24 gramos. ¿Cuántos gramos le tocan a cada uno si son 8 niños?", c:["Niños","Gramos"], a:6,b:24,d:8, inv:true},
+  {t:"12 estudiantes limpian el salón en 20 minutos. ¿Cuántos minutos tardan 15 estudiantes?", c:["Estudiantes","Minutos"], a:12,b:20,d:15, inv:true}
+];
+const AYUDA4 = `<b>Tres pasos</b><br>
+1. Escribe en la <b>primera fila</b> los dos datos que van juntos.<br>
+2. Escribe en la <b>segunda fila</b> el dato nuevo, frente a la x.<br>
+3. Opera: directa → diagonal; inversa → fila completa.`;
+
+function q_leccion4(){
+  const p = pick(PROB4);
+  const x = p.inv ? p.a*p.b/p.d : p.b*p.d/p.a;
+  return {
+    key:"s"+p.t,
+    help:AYUDA4,
+    body:`<div class="q-label">Problema</div>
+      <div class="enunciado">${p.t}</div>
+      <div class="q-sub">1. Coloca los valores en la tabla</div>
+      <div class="tabla">
+        <div class="th">${p.c[0]}</div><div class="th">${p.c[1]}</div>
+        <div class="cell">${box("a","sm")}</div><div class="cell">${box("b","sm")}</div>
+        <div class="cell">${box("d","sm")}</div><div class="td x">x</div>
+      </div>
+      <div class="q-sub">2. Calcula el valor de x</div>
+      <div class="res-row" style="border:none;padding-top:0;margin-top:6px">
+        <span style="font-family:var(--display);font-size:26px;font-weight:700">x =</span>${box("res","wide")}</div>`,
+    check(a){
+      const okA = eq(a.a,p.a), okB = eq(a.b,p.b), okD = eq(a.d,p.d);
+      if(!(okA&&okB&&okD)) return {
+        ok:false,
+        where:"Algún valor de la tabla no está en su lugar.",
+        hint:`En la primera fila van los dos datos que aparecen juntos en el problema (${fmt(p.a)} y ${fmt(p.b)}). En la segunda fila va el dato nuevo (${fmt(p.d)}), justo frente a la x.`
+      };
+      if(!eq(a.res,x)) return {
+        ok:false,
+        where:"La tabla está bien, pero el valor de x no coincide.",
+        hint: p.inv
+          ? `Es inversa: si ${p.c[0].toLowerCase()} aumenta, ${p.c[1].toLowerCase()} disminuye. Calcula (${fmt(p.a)} × ${fmt(p.b)}) ÷ ${fmt(p.d)}.`
+          : `Es directa: multiplica en diagonal, (${fmt(p.b)} × ${fmt(p.d)}) ÷ ${fmt(p.a)}.`
+      };
+      return {
+        ok:true,
+        why: p.inv
+          ? `Es inversa: x = (${fmt(p.a)} × ${fmt(p.b)}) ÷ ${fmt(p.d)} = <b>${fmt(x)}</b>. Al aumentar ${p.c[0].toLowerCase()}, ${p.c[1].toLowerCase()} disminuye.`
+          : `Es directa: x = (${fmt(p.b)} × ${fmt(p.d)}) ÷ ${fmt(p.a)} = <b>${fmt(x)}</b>. Las dos cantidades crecen juntas.`
+      };
+    }
+  };
+}
+
+/* =========================================================
+   LECCIÓN 5 · Problemas complejos
+========================================================= */
+const PROB5 = [
+  {t:"Un carro viaja a 60 km/h y tarda 4 horas en llegar a Popayán. Si viajara a 80 km/h, ¿cuánto tardaría en el mismo recorrido?", c:["Velocidad (km/h)","Horas"], a:60,b:4,d:80, inv:true, u:"horas"},
+  {t:"6 obreros construyen un muro en 15 días. Si se contratan 10 obreros con el mismo ritmo, ¿en cuántos días terminan?", c:["Obreros","Días"], a:6,b:15,d:10, inv:true, u:"días"},
+  {t:"Un depósito se llena con 5 llaves iguales en 12 horas. Si solo se abren 4 llaves, ¿cuánto tiempo tardará en llenarse?", c:["Llaves","Horas"], a:5,b:12,d:4, inv:true, u:"horas"},
+  {t:"Una receta para 8 personas lleva 600 g de harina. ¿Cuánta harina se necesita para 14 personas?", c:["Personas","Harina (g)"], a:8,b:600,d:14, inv:false, u:"gramos"},
+  {t:"En un mapa, 3 cm representan 45 km reales. ¿Cuántos kilómetros representan 8 cm en ese mismo mapa?", c:["Centímetros","Kilómetros"], a:3,b:45,d:8, inv:false, u:"km"},
+  {t:"12 impresoras iguales imprimen un pedido en 10 horas. ¿Cuántas impresoras se necesitan para terminarlo en 6 horas?", c:["Impresoras","Horas"], a:12,b:10,d:6, inv:true, u:"impresoras", swap:true},
+  {t:"Un tanque de 900 litros se vacía en 30 minutos con una bomba. Con una bomba que trabaja el doble de rápido, el trabajo se hace en la mitad del tiempo. Si el caudal es de 30 litros por minuto, ¿cuántos minutos toma vaciar 1.200 litros?", c:["Litros","Minutos"], a:900,b:30,d:1200, inv:false, u:"minutos"},
+  {t:"El alimento de una granja alcanza para 40 gallinas durante 18 días. Si llegan 20 gallinas más, ¿para cuántos días alcanzará el mismo alimento?", c:["Gallinas","Días"], a:40,b:18,d:60, inv:true, u:"días"},
+  {t:"Con $24.000 se compran 8 pasajes de bus urbano. ¿Cuántos pasajes se compran con $39.000?", c:["Pesos","Pasajes"], a:24000,b:8,d:39000, inv:false, u:"pasajes"},
+  {t:"Un ciclista recorre 36 km en 90 minutos manteniendo la misma velocidad. ¿Cuántos minutos tardará en recorrer 60 km?", c:["Kilómetros","Minutos"], a:36,b:90,d:60, inv:false, u:"minutos"}
+];
+const AYUDA5 = `<b>Estrategia</b><br>
+1. Nombra las <b>dos variables</b> del problema.<br>
+2. Decide: si una sube, ¿la otra sube o baja?<br>
+3. Ubica los datos y opera. <span class="fx">directa → diagonal · inversa → fila</span>`;
+
+function q_leccion5(){
+  const p = pick(PROB5);
+  const x = p.inv ? p.a*p.b/p.d : p.b*p.d/p.a;
+  return {
+    key:"c5"+p.t,
+    help:AYUDA5,
+    body:`<div class="q-label">Problema</div>
+      <div class="enunciado">${p.t}</div>
+      <div class="q-sub">1. ¿Qué tipo de proporcionalidad hay?</div>
+      <div class="opts two" data-group="tipo">
+        <button class="opt" data-val="d">Directa</button>
+        <button class="opt" data-val="i">Inversa</button>
+      </div>
+      <div class="q-sub">2. Organiza los datos</div>
+      <div class="tabla">
+        <div class="th">${p.c[0]}</div><div class="th">${p.c[1]}</div>
+        <div class="cell">${box("a","sm")}</div><div class="cell">${box("b","sm")}</div>
+        <div class="cell">${box("d","sm")}</div><div class="td x">x</div>
+      </div>
+      <div class="q-sub">3. Escribe la respuesta (${p.u})</div>
+      <div class="res-row" style="border:none;padding-top:0;margin-top:6px">
+        <span style="font-family:var(--display);font-size:26px;font-weight:700">x =</span>${box("res","wide")}</div>`,
+    check(a){
+      const tipoOK = a.tipo === (p.inv?"i":"d");
+      if(!tipoOK) return {
+        ok:false,
+        where:"El tipo de proporcionalidad no es el correcto.",
+        hint:`Pregúntate: si ${p.c[0].toLowerCase()} aumenta, ¿${p.c[1].toLowerCase()} aumenta o disminuye? ${p.inv?"Aquí el total del trabajo no cambia, así que se reparte.":"Aquí las dos cantidades crecen al mismo ritmo."}`
+      };
+      const okTab = eq(a.a,p.a) && eq(a.b,p.b) && eq(a.d,p.d);
+      if(!okTab) return {
+        ok:false,
+        where:"Los datos no están ubicados correctamente en la tabla.",
+        hint:`Primera fila: la pareja de datos que ya conoces (${fmt(p.a)} y ${fmt(p.b)}). Segunda fila: el dato nuevo (${fmt(p.d)}) frente a la x.`
+      };
+      if(!eq(a.res,x)) return {
+        ok:false,
+        where:"El planteamiento está bien, pero el resultado no coincide.",
+        hint: p.inv
+          ? `Multiplica la fila completa: ${fmt(p.a)} × ${fmt(p.b)} = ${fmt(p.a*p.b)}. Luego divide entre ${fmt(p.d)}.`
+          : `Multiplica en diagonal: ${fmt(p.b)} × ${fmt(p.d)} = ${fmt(p.b*p.d)}. Luego divide entre ${fmt(p.a)}.`
+      };
+      return {
+        ok:true,
+        why:`Es ${p.inv?"<b>inversa</b>":"<b>directa</b>"}, así que x = (${fmt(p.inv?p.a:p.b)} × ${fmt(p.inv?p.b:p.d)}) ÷ ${fmt(p.inv?p.d:p.a)} = <b>${fmt(x)} ${p.u}</b>.`
+      };
+    }
+  };
+}
+
+/* =========================================================
+   LECCIÓN 6 · Gráficas
+========================================================= */
+function graf(kind, k, opt){
+  opt = opt || {};
+  const W = opt.w || 300, H = opt.h || 220, P = 32, R = 12;
+  const X = v => P + (v/10)*(W-P-R);
+  const Y = v => H-P - (v/10)*(H-P-R);
+  let grid = "";
+  for(let i=1;i<=10;i++){
+    grid += `<line x1="${X(i)}" y1="${Y(0)}" x2="${X(i)}" y2="${Y(10)}" stroke="#E7E2F4" stroke-width="1"/>`;
+    grid += `<line x1="${X(0)}" y1="${Y(i)}" x2="${X(10)}" y2="${Y(i)}" stroke="#E7E2F4" stroke-width="1"/>`;
+  }
+  let curva = "", color = kind==="d" ? "#2563EB" : "#E8710A";
+  if(kind === "d"){
+    const xm = Math.min(10, 10/k);
+    curva = `<line x1="${X(0)}" y1="${Y(0)}" x2="${X(xm)}" y2="${Y(k*xm)}" stroke="${color}" stroke-width="3.4" stroke-linecap="round"/>`;
+  } else {
+    let pts = [];
+    for(let x = Math.max(k/10, .6); x <= 10.01; x += .2) pts.push(X(x)+","+Y(Math.min(10,k/x)));
+    curva = `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="3.4" stroke-linecap="round"/>`;
+  }
+  let marks = "";
+  (opt.pts||[]).forEach(pt=>{
+    marks += `<line x1="${X(pt[0])}" y1="${Y(0)}" x2="${X(pt[0])}" y2="${Y(pt[1])}" stroke="${color}" stroke-width="1.6" stroke-dasharray="4 4" opacity=".7"/>`;
+    marks += `<line x1="${X(0)}" y1="${Y(pt[1])}" x2="${X(pt[0])}" y2="${Y(pt[1])}" stroke="${color}" stroke-width="1.6" stroke-dasharray="4 4" opacity=".7"/>`;
+    marks += `<circle cx="${X(pt[0])}" cy="${Y(pt[1])}" r="6" fill="${color}"/>`;
+    marks += `<text x="${X(pt[0])+8}" y="${Y(pt[1])-8}" font-size="13" font-weight="700" fill="#1E1533">(${pt[0]} , ${pt[2]!==undefined?pt[2]:pt[1]})</text>`;
+  });
+  (opt.ask||[]).forEach(pt=>{
+    marks += `<line x1="${X(pt[0])}" y1="${Y(0)}" x2="${X(pt[0])}" y2="${Y(10)}" stroke="#5B3DF5" stroke-width="1.8" stroke-dasharray="5 4"/>`;
+    marks += `<text x="${X(pt[0])-4}" y="${Y(0)+17}" font-size="13" font-weight="800" fill="#5B3DF5">${pt[0]}</text>`;
+  });
+  let ticks = "";
+  if(opt.ticks){
+    for(let i=2;i<=10;i+=2){
+      ticks += `<text x="${X(i)}" y="${Y(0)+16}" font-size="11" fill="#8C84A3" text-anchor="middle">${i}</text>`;
+      ticks += `<text x="${X(0)-7}" y="${Y(i)+4}" font-size="11" fill="#8C84A3" text-anchor="end">${i}</text>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="gráfica">
+    ${grid}
+    <line x1="${X(0)}" y1="${Y(0)}" x2="${X(10)+6}" y2="${Y(0)}" stroke="#1E1533" stroke-width="2.2"/>
+    <line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(10)-6}" stroke="#1E1533" stroke-width="2.2"/>
+    ${curva}${marks}${ticks}
+    <text x="${X(10)+2}" y="${Y(0)+18}" font-size="13" font-weight="700" fill="#5B5170">x</text>
+    <text x="${X(0)-16}" y="${Y(10)-4}" font-size="13" font-weight="700" fill="#5B5170">y</text>
+  </svg>`;
+}
+const AYUDA6 = `<b>Cómo se ven</b><br>
+<b>Directa:</b> una <b>línea recta</b> que sale del origen (0,0) y sube. Se cumple <span class="fx">y ÷ x = k</span>.<br>
+<b>Inversa:</b> una <b>curva</b> que baja y nunca toca los ejes (hipérbola). Se cumple <span class="fx">x × y = k</span>.`;
+
+function q_leccion6(){
+  const modo = rnd(1,3);
+
+  if(modo === 1){
+    const inv = Math.random() < .5;
+    const k = inv ? pick([8,12,16,20]) : pick([0.5,1,1.5,2]);
+    return {
+      key:"g1"+inv+k,
+      help:AYUDA6,
+      body:`<div class="q-label">Lee la gráfica</div>
+        <div class="q-text">¿Qué tipo de proporcionalidad representa?</div>
+        <div class="graphbox">${graf(inv?"i":"d", k, {ticks:true})}</div>
+        <div class="opts two" data-group="tipo">
+          <button class="opt tall" data-val="d">Directa<span class="sub">recta desde el origen</span></button>
+          <button class="opt tall" data-val="i">Inversa<span class="sub">curva descendente</span></button>
+        </div>`,
+      check(a){
+        if(a.tipo === (inv?"i":"d")) return {
+          ok:true,
+          why: inv
+            ? "Es una curva que desciende y se acerca a los ejes sin tocarlos: al aumentar x, y disminuye. Eso es proporcionalidad inversa."
+            : "Es una línea recta que pasa por el origen: cuando x aumenta, y aumenta en la misma proporción. Eso es proporcionalidad directa."
+        };
+        return {
+          ok:false,
+          where:"Ese no es el tipo que muestra la gráfica.",
+          hint:"Fíjate en la forma: si es una <b>recta</b> que arranca en (0,0), es directa. Si es una <b>curva</b> que baja, es inversa."
+        };
+      }
+    };
+  }
+
+  if(modo === 2){
+    const inv = Math.random() < .5;
+    const k = inv ? 12 : 2;
+    const xs = inv ? [2,3,4,6] : [1,2,3,4];
+    const filas = xs.map(x => [x, inv ? 12/x : 2*x]);
+    const gA = graf("d", 2, {w:150,h:120});
+    const gB = graf("i", 12, {w:150,h:120});
+    return {
+      key:"g2"+inv,
+      help:AYUDA6,
+      body:`<div class="q-label">Relaciona tabla y gráfica</div>
+        <div class="q-text">¿Cuál gráfica representa esta tabla de valores?</div>
+        <table class="valtable">
+          <tr><th>x</th><th>y</th></tr>
+          ${filas.map(f=>`<tr><td>${f[0]}</td><td>${f[1]}</td></tr>`).join("")}
+        </table>
+        <div class="opts graphs" data-group="g">
+          <button class="opt graph" data-val="d">${gA}<span>Gráfica A</span></button>
+          <button class="opt graph" data-val="i">${gB}<span>Gráfica B</span></button>
+        </div>`,
+      check(a){
+        if(a.g === (inv?"i":"d")) return {
+          ok:true,
+          why: inv
+            ? `En la tabla, x × y siempre da ${k} (${filas[0][0]}×${filas[0][1]} = ${k}). Producto constante = inversa = curva.`
+            : `En la tabla, y ÷ x siempre da ${k} (${filas[0][1]}÷${filas[0][0]} = ${k}). Cociente constante = directa = recta.`
+        };
+        return {
+          ok:false,
+          where:"Esa gráfica no corresponde a la tabla.",
+          hint:`Prueba con la primera fila: multiplica ${filas[0][0]} × ${filas[0][1]} y divide ${filas[0][1]} ÷ ${filas[0][0]}. Repite con otra fila y mira cuál operación da siempre el mismo resultado.`
+        };
+      }
+    };
+  }
+
+  const inv = Math.random() < .5;
+  if(inv){
+    const OPC = {12:[2,3,4,6], 16:[2,4,8], 24:[3,4,6,8]};
+    const k = pick([12,16,24]);
+    const cand = OPC[k];
+    const x1 = pick(cand);
+    let x2 = pick(cand), guard = 0;
+    while(x2 === x1 && guard++ < 30) x2 = pick(cand);
+    const y1 = k/x1, y2 = k/x2;
+    return {
+      key:"g3i"+k+x1+x2,
+      help:AYUDA6 + `<br><b>Truco:</b> en la inversa, multiplica el punto conocido para hallar k, y luego divide k entre el nuevo valor de x.`,
+      body:`<div class="q-label">Calcula con la gráfica</div>
+        <div class="q-text">La gráfica es <b style="color:var(--inversa)">inversa</b>. Usando el punto marcado, ¿cuánto vale y cuando x = ${x2}?</div>
+        <div class="graphbox">${graf("i", k, {ticks:true, pts:[[x1,y1]], ask:[[x2]]})}</div>
+        <div class="res-row" style="border:none;margin-top:14px;padding-top:0">
+          <span style="font-family:var(--display);font-size:26px;font-weight:700">y =</span>${box("y","wide")}</div>`,
+      check(a){
+        if(eq(a.y,y2)) return {ok:true, why:`En la inversa el producto es constante: ${x1} × ${y1} = ${k}. Entonces y = ${k} ÷ ${x2} = <b>${y2}</b>.`};
+        return {
+          ok:false,
+          where:"Ese valor no está sobre la curva.",
+          hint:`Primero halla la constante multiplicando el punto marcado: ${x1} × ${y1}. Después divide esa constante entre ${x2}.`
+        };
+      }
+    };
+  }
+  const k = pick([1,2,3]);
+  const x1 = pick([2,3]).valueOf();
+  const y1 = k*x1;
+  let x2 = pick([1,2,3,4,5,6,7,8]);
+  let guard = 0;
+  while((x2 === x1 || k*x2 > 10) && guard++ < 30) x2 = pick([1,2,3,4,5,6,7,8]);
+  const y2 = k*x2;
+  return {
+    key:"g3d"+k+x1+x2,
+    help:AYUDA6 + `<br><b>Truco:</b> en la directa, divide el punto conocido (y ÷ x) para hallar k, y luego multiplica k por el nuevo valor de x.`,
+    body:`<div class="q-label">Calcula con la gráfica</div>
+      <div class="q-text">La gráfica es <b style="color:var(--directa)">directa</b>. Usando el punto marcado, ¿cuánto vale y cuando x = ${x2}?</div>
+      <div class="graphbox">${graf("d", k, {ticks:true, pts:[[x1,y1]], ask:[[x2]]})}</div>
+      <div class="res-row" style="border:none;margin-top:14px;padding-top:0">
+        <span style="font-family:var(--display);font-size:26px;font-weight:700">y =</span>${box("y","wide")}</div>`,
+    check(a){
+      if(eq(a.y,y2)) return {ok:true, why:`En la directa el cociente es constante: ${y1} ÷ ${x1} = ${k}. Entonces y = ${k} × ${x2} = <b>${y2}</b>.`};
+      return {
+        ok:false,
+        where:"Ese valor no está sobre la recta.",
+        hint:`Halla la constante dividiendo el punto marcado: ${y1} ÷ ${x1}. Después multiplícala por ${x2}.`
+      };
+    }
+  };
+}
+
+const GEN = [q_leccion1, q_leccion2, q_leccion3, q_leccion4, q_leccion5, q_leccion6];
+
+/* =========================================================
+   CICLO DE PREGUNTAS
+========================================================= */
+function nuevaPregunta(){
+  let q, i = 0;
+  do { q = GEN[S.lección](); i++; } while(q.key === S.lastKey && i < 12);
+  S.lastKey = q.key;
+  S.q = q;
+  $("#qcard").innerHTML = q.body;
+  $("#help-slot").innerHTML = S.ayuda[S.lección] ? `<div class="help-panel">${q.help}</div>` : "";
+  $("#content").scrollTop = 0;
+}
+
+$("#btn-check").addEventListener("click", ()=>{
+  if(!S.q) return;
+  if(vacío()){ toast("Escribe o elige tu respuesta"); return; }
+  const r = S.q.check(leer());
+  if(r.ok) acierto(r); else error(r);
+});
+
+function acierto(r){
+  S.aciertos++; S.lCorrect++; S.streak++;
+  S.progreso[S.lección] = S.lCorrect;
+  paintStats(); bump($("#tb-ok"));
+  paintPath(true);
+  const titulo = S.streak >= 3 ? pick(MOTIVA) : "¡Muy bien!";
+  sheet({
+    badge:"ok", icon:"✔", title:titulo,
+    text:"Has resuelto correctamente el ejercicio.",
+    why:r.why, whyLabel:"Por qué está bien",
+    btn: S.lCorrect >= META ? "Ver resultados" : "Siguiente ejercicio",
+    onClose(){
+      if(S.lCorrect >= META){ finLección(); return; }
+      if(S.lCorrect === 4 || S.lCorrect === 8) logro(S.lCorrect);
+      else nuevaPregunta();
+    }
+  });
+}
+function error(r){
+  S.errores++; S.lWrong++; S.streak = 0;
+  paintStats(); bump($("#tb-bad"));
+  sheet({
+    badge:"bad", icon:"✖", title:"Inténtalo nuevamente",
+    text:"Estás muy cerca. Revisa el ejercicio con esta pista.",
+    why:r.where, whyLabel:"Dónde estuvo el error",
+    tip:r.hint, tipLabel:"Pista",
+    btn:"Volver al ejercicio",
+    onClose(){ /* mismo ejercicio, respuestas conservadas */ }
+  });
+}
+
+function logro(n){
+  confeti(22);
+  const msg = n === 4
+    ? "¡Primera meta alcanzada! Ya llevas 4 ejercicios correctos."
+    : "¡Vas por 8! Solo faltan 4 para completar la lección.";
+  sheet({
+    badge:"gold", icon:"★", title: n===4 ? "¡Logro desbloqueado!" : "¡Casi lo logras!",
+    text:msg, btn:"Continuar",
+    onClose(){ nuevaPregunta(); }
+  });
+}
+
+function finLección(){
+  S.hechas[S.lección] = true;
+  const tot = S.lCorrect + S.lWrong;
+  const pct = Math.round(S.lCorrect/tot*100);
+  $("#r-lesson").textContent = "Lección " + (S.lección+1) + " · " + LECCIONES[S.lección].t;
+  $("#r-name").textContent = S.nombre.split(" ")[0];
+  $("#r-grade").textContent = S.grado.replace("Grado ","");
+  $("#r-time").textContent = mmss(S.est[S.lección].ms + (S.lT0 ? Date.now()-S.lT0 : 0));
+  $("#r-ok").textContent = S.lCorrect;
+  $("#r-bad").textContent = S.lWrong;
+  $("#r-pct").textContent = pct + "%";
+  $("#r-msg").textContent = pct === 100
+    ? "Perfecto: doce ejercicios sin un solo error. " + pick(CIERRE)
+    : pick(CIERRE);
+  $("#btn-next").textContent = S.lección < LECCIONES.length-1
+    ? "Siguiente lección: " + LECCIONES[S.lección+1].t
+    : "Repasar desde la lección 1";
+  paintStats();
+  show("result");
+  confeti(46);
+}
+
+/* =========================================================
+   MODAL / TOAST / CONFETI
+========================================================= */
+function sheet(o){
+  $("#sheet").innerHTML = `
+    <div class="badge ${o.badge}">${o.icon}</div>
+    <h2>${o.title}</h2>
+    <p class="small muted" style="text-align:center;margin:0 6px">${o.text||""}</p>
+    ${o.why?`<div class="why"><b>${o.whyLabel}</b><br>${o.why}</div>`:""}
+    ${o.tip?`<div class="why tip"><b>${o.tipLabel}</b><br>${o.tip}</div>`:""}
+    <button class="btn ${o.badge==='bad'?'btn-primary':'btn-ok'}" id="sheet-btn">${o.btn}</button>`;
+  $("#layer").classList.add("on");
+  $("#sheet-btn").addEventListener("click", ()=>{
+    $("#layer").classList.remove("on");
+    if(o.onClose) o.onClose();
+  });
+  setTimeout(()=>{ const b = $("#sheet-btn"); if(b) b.focus(); }, 60);
+}
+let toastT;
+function toast(msg){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(toastT);
+  toastT = setTimeout(()=> t.classList.remove("on"), 1900);
+}
+function confeti(n){
+  const c = $("#confetti");
+  const cols = ["#5B3DF5","#2563EB","#E8710A","#F5A524","#12A05C","#F062A8"];
+  for(let i=0;i<n;i++){
+    const s = document.createElement("i");
+    s.style.left = Math.random()*100 + "%";
+    s.style.background = pick(cols);
+    s.style.animationDuration = (1.5 + Math.random()*1.3) + "s";
+    s.style.animationDelay = (Math.random()*.35) + "s";
+    c.appendChild(s);
+    setTimeout(()=> s.remove(), 3200);
+  }
+}
+</script>
+</body>
+</html>
