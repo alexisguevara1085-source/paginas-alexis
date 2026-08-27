@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4F46E5">
+<meta name="description" content="App interactiva para aprender media, varianza, desviación estándar, coeficiente de variación, percentiles y cuartiles paso a paso.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>DatosGo · Estadística para secundaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ================= TOKENS ================= */
+:root{
+  --tinta:#14183D; --suave:#5C658E; --lienzo:#EEF1FA; --papel:#FFF; --linea:#E2E7F5;
+  --indigo:#4F46E5; --violeta:#7C3AED; --menta:#12A971; --menta-luz:#E3F7EF;
+  --coral:#E5484D; --coral-luz:#FDECEC; --ambar:#F5A623; --ambar-luz:#FFF4E0;
+  --r:20px; --r-lg:28px; --sombra:0 8px 22px rgba(20,30,80,.08); --sombra-alta:0 18px 44px rgba(20,30,80,.18);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--tinta);
+  background:linear-gradient(180deg,#E9EDFB,#F5F2FD);font-size:17px;line-height:1.45;overflow:hidden}
+h1,h2,h3,.display{font-family:'Fredoka','Nunito',sans-serif;font-weight:600;letter-spacing:.2px}
+button,input{font-family:inherit;font-size:inherit}
+::selection{background:#DCD8FF}
+
+/* ================= ESTRUCTURA ================= */
+.app{width:100%;max-width:520px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;
+  background:var(--lienzo);position:relative;overflow:hidden;
+  background-image:linear-gradient(rgba(79,70,229,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(79,70,229,.045) 1px,transparent 1px);
+  background-size:26px 26px}
+@media(min-width:1024px){
+  body{display:flex;align-items:center;justify-content:center;padding:22px}
+  .app{max-width:1080px;height:min(900px,calc(100dvh - 44px));border-radius:34px;box-shadow:var(--sombra-alta);border:1px solid #fff}
+}
+.contenido{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 16px 44px;scroll-behavior:smooth}
+@media(min-width:1024px){
+  .contenido{padding:26px 30px 50px}
+  .contenido>*{max-width:780px;margin-left:auto;margin-right:auto}
+}
+.contenido::-webkit-scrollbar{width:8px}
+.contenido::-webkit-scrollbar-thumb{background:#CFD6EE;border-radius:8px}
+
+/* ================= BARRA ================= */
+.barra{flex:none;background:linear-gradient(120deg,var(--indigo),var(--violeta));color:#fff;
+  padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;box-shadow:0 6px 20px rgba(79,70,229,.28);z-index:30}
+.barra-fila{display:flex;align-items:center;gap:10px}
+.avatar{width:40px;height:40px;border-radius:14px;background:rgba(255,255,255,.2);display:grid;place-items:center;
+  font-size:18px;font-weight:800;flex:none;border:2px solid rgba(255,255,255,.35)}
+.ident{min-width:0;flex:1}
+.ident b{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.ident span{font-size:13px;opacity:.85;font-weight:700}
+.casa{width:44px;height:44px;border-radius:14px;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:21px;cursor:pointer;transition:.2s;flex:none}
+.casa:hover{background:rgba(255,255,255,.32)}
+.chips-barra{display:flex;gap:8px;margin-top:9px}
+.chip-b{flex:1;background:rgba(255,255,255,.16);border-radius:13px;padding:6px 4px;text-align:center;font-weight:800;font-size:15px;border:1px solid rgba(255,255,255,.14)}
+.chip-b small{display:block;font-size:10px;opacity:.85;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+@media(min-width:1024px){
+  .barra{padding:12px 22px}
+  .barra-wrap{display:flex;align-items:center;gap:18px}
+  .barra-wrap .barra-fila{flex:1}
+  .chips-barra{margin-top:0;width:340px;flex:none}
+}
+.pop-num{animation:popNum .45s ease}
+@keyframes popNum{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+/* ================= TARJETAS ================= */
+.card{background:var(--papel);border-radius:var(--r-lg);padding:18px;box-shadow:var(--sombra);border:1px solid #fff;margin-bottom:14px}
+.entra{animation:entra .38s cubic-bezier(.2,.8,.3,1) both}
+@keyframes entra{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.entra-2{animation-delay:.06s}.entra-3{animation-delay:.12s}.entra-4{animation-delay:.18s}
+.eyebrow{font-size:12px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;color:var(--violeta)}
+.titulo{font-size:24px;margin:4px 0 2px}
+.sub{color:var(--suave);font-weight:600;font-size:15px;margin:0}
+
+/* ================= BOTONES ================= */
+.btn{width:100%;min-height:58px;border:0;border-radius:18px;cursor:pointer;font-weight:800;font-size:18px;color:#fff;
+  background:linear-gradient(120deg,var(--indigo),var(--violeta));box-shadow:0 6px 0 rgba(60,50,170,.35);
+  transition:transform .12s,box-shadow .12s,filter .2s;display:flex;align-items:center;justify-content:center;gap:9px;padding:10px 16px}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(60,50,170,.35)}
+.btn.ok{background:linear-gradient(120deg,#16BE84,#0E9E68);box-shadow:0 6px 0 rgba(11,120,79,.35)}
+.btn.ambar{background:linear-gradient(120deg,#FFC85C,#F5A623);box-shadow:0 6px 0 rgba(180,120,10,.35);color:#4A3000}
+.btn.ghost{background:#fff;color:var(--tinta);border:2px solid var(--linea);box-shadow:0 4px 0 #DEE4F4}
+.btn.ghost:active{box-shadow:0 1px 0 #DEE4F4}
+.btn.chico{min-height:48px;font-size:16px}
+.fila-btn{display:flex;gap:10px}
+.fila-btn .btn{flex:1}
+.link{background:none;border:0;color:var(--violeta);font-weight:800;font-size:16px;cursor:pointer;padding:10px 0;text-decoration:underline;text-underline-offset:3px}
+.mini-btn{background:#fff;border:2px solid var(--linea);border-radius:11px;padding:4px 9px;font-size:13px;font-weight:800;color:var(--suave);cursor:pointer}
+.mini-btn:hover{border-color:var(--indigo);color:var(--indigo)}
+
+/* ================= MATEMÁTICAS ================= */
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px;line-height:1.12}
+.frac>span:first-child{padding:0 8px 3px;border-bottom:2.5px solid currentColor;white-space:nowrap}
+.frac>span:last-child{padding:3px 8px 0;white-space:nowrap}
+.raiz{display:inline-flex;align-items:flex-start;margin:0 3px}
+.raiz .sig{font-size:1.35em;line-height:.95}
+.raiz .rad{border-top:2.5px solid currentColor;padding:4px 7px 0;margin-top:2px}
+.expr{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;
+  font-family:'Fredoka',sans-serif;font-weight:500;font-size:20px;color:var(--tinta);
+  background:#F7F9FF;border:2px solid var(--linea);border-radius:16px;padding:14px 12px}
+.filas{display:grid;gap:9px}
+.fila-expr{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;
+  font-family:'Fredoka',sans-serif;font-weight:500;font-size:19px;background:#F7F9FF;border:2px solid var(--linea);border-radius:14px;padding:9px 8px}
+.formula-caja{background:#F8F5FF;border:2px dashed #D9CDFB;border-radius:16px;padding:14px 12px;text-align:center;
+  font-family:'Fredoka',sans-serif;font-weight:500;font-size:21px;color:var(--violeta);margin-bottom:14px;
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px}
+.val{background:#fff;border:2px solid var(--menta);border-radius:10px;padding:1px 9px;color:#0B6E4A;font-weight:600}
+.val.gris{border-color:#CFD6EE;color:var(--suave)}
+
+/* ================= ENTRADAS ================= */
+.caja{width:100%;height:64px;border:3px solid var(--linea);border-radius:18px;background:#FBFCFF;text-align:center;
+  font-size:26px;font-family:'Fredoka',sans-serif;font-weight:600;color:var(--tinta)}
+.caja.mini{width:100px;height:54px;font-size:23px;display:inline-block;vertical-align:middle;border-radius:14px}
+.caja:focus{outline:0;border-color:var(--indigo);background:#fff;box-shadow:0 0 0 5px rgba(79,70,229,.12)}
+.caja.mal{border-color:var(--coral);background:var(--coral-luz);animation:tiembla .4s}
+.caja.bien{border-color:var(--menta);background:var(--menta-luz)}
+@keyframes tiembla{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.opciones{display:grid;gap:10px}
+.op{display:flex;align-items:center;gap:12px;text-align:left;width:100%;min-height:60px;padding:12px 14px;border:3px solid var(--linea);
+  border-radius:18px;background:#FBFCFF;cursor:pointer;font-weight:700;font-size:16.5px;color:var(--tinta);transition:.15s}
+.op:hover{border-color:#C7CEEA}
+.op b{width:32px;height:32px;flex:none;border-radius:10px;background:#E9ECFB;color:var(--indigo);display:grid;place-items:center;font-family:'Fredoka';font-weight:600}
+.op[aria-pressed=true]{border-color:var(--indigo);background:#F2F1FE}
+.op[aria-pressed=true] b{background:var(--indigo);color:#fff}
+
+/* ================= EJERCICIO ================= */
+.etiqueta-ej{display:inline-block;background:#EEF0FE;color:var(--indigo);font-weight:900;font-size:11.5px;letter-spacing:1.3px;
+  text-transform:uppercase;padding:5px 11px;border-radius:9px;margin-bottom:9px}
+.enunciado{font-size:18px;font-weight:700;margin:0 0 12px;line-height:1.35}
+.datos{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px;justify-content:center}
+.dato{background:#F2F5FF;border:2px solid #DFE5FA;border-radius:12px;min-width:46px;padding:7px 10px;text-align:center;
+  font-family:'Fredoka';font-weight:600;font-size:18px;color:var(--indigo)}
+.datos.numerados .dato{display:flex;flex-direction:column;gap:1px;padding:6px 9px}
+.datos.numerados .dato small{font-size:10px;color:var(--suave);font-weight:800;font-family:'Nunito';letter-spacing:.3px}
+.paso-cab{display:flex;align-items:center;gap:10px;margin:4px 0 11px}
+.paso-cab .n{width:34px;height:34px;flex:none;border-radius:12px;background:linear-gradient(140deg,var(--indigo),var(--violeta));
+  color:#fff;display:grid;place-items:center;font-family:'Fredoka';font-weight:600;font-size:16px}
+.paso-cab b{font-size:16.5px;line-height:1.2}
+.paso-nota{font-size:14.5px;color:var(--suave);font-weight:700;margin:-4px 0 11px;padding-left:44px}
+.hechos{display:grid;gap:8px;margin-bottom:12px}
+.hecho{background:var(--menta-luz);border:2px solid #C6EBDA;border-radius:16px;padding:9px 11px}
+.hecho-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.hecho-top span{font-size:12.5px;font-weight:900;color:#0B6E4A;letter-spacing:.3px}
+.hecho .expr,.hecho .fila-expr{background:transparent;border:0;padding:2px;font-size:16px;gap:5px}
+.hecho .filas{gap:2px}
+.ayuda-caja{background:var(--ambar-luz);border:2px solid #FFE3B4;border-radius:15px;padding:12px;font-weight:700;color:#8A5B00;margin-top:12px;font-size:15.5px}
+.acciones{display:grid;gap:10px;margin-top:4px}
+
+/* ================= GRÁFICAS ================= */
+.graf{margin:0 auto 14px;max-width:320px}
+.graf svg{width:100%;height:auto;display:block;background:#FBFCFF;border-radius:16px;border:2px solid var(--linea)}
+.pie-graf{font-size:13px;color:var(--suave);font-weight:700;text-align:center;margin:7px 4px 0;line-height:1.3}
+.g-val{font-family:'Nunito';font-size:11.5px;font-weight:900;fill:#2B3161;text-anchor:middle}
+.g-pos{font-family:'Nunito';font-size:10px;font-weight:800;fill:#8189AE;text-anchor:middle}
+.g-dev{font-family:'Nunito';font-size:11px;font-weight:900;fill:#C93A3F;text-anchor:middle}
+.g-chip{font-family:'Nunito';font-size:10.5px;font-weight:900;fill:#fff;text-anchor:middle}
+.g-tick{font-family:'Nunito';font-size:9.5px;font-weight:800;fill:#8189AE;text-anchor:middle}
+
+/* ================= CAMINO ================= */
+.camino-caja{background:var(--papel);border-radius:var(--r);padding:16px 14px 12px;box-shadow:var(--sombra);margin-bottom:14px;border:1px solid #fff}
+.camino-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.camino-top b{font-size:15px}
+.camino-top span{font-family:'Fredoka';font-weight:600;color:var(--indigo);font-size:16px}
+.camino{position:relative;display:flex;align-items:center;justify-content:space-between;padding:6px 2px}
+.camino .via{position:absolute;left:6px;right:6px;top:50%;height:6px;background:#E7EBF8;border-radius:6px;transform:translateY(-50%)}
+.camino .via i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#16BE84,#12A971);transition:width .6s cubic-bezier(.3,1,.4,1)}
+.nodo{position:relative;width:15px;height:15px;border-radius:50%;background:#D6DCF0;border:3px solid #fff;z-index:2;transition:.35s}
+.nodo.hito{width:30px;height:30px;font-size:15px;display:grid;place-items:center;background:#E7EBF8;color:#A9B2D4}
+.nodo.lleno{background:var(--menta);box-shadow:0 0 0 4px rgba(18,169,113,.18)}
+.nodo.hito.lleno{background:linear-gradient(140deg,#FFCB52,#F5A623);color:#fff;box-shadow:0 0 0 5px rgba(245,166,35,.22)}
+.nodo.actual{animation:latido 1.5s infinite}
+@keyframes latido{0%,100%{box-shadow:0 0 0 0 rgba(79,70,229,.45)}50%{box-shadow:0 0 0 9px rgba(79,70,229,0)}}
+
+/* ================= BIENVENIDA ================= */
+.hero{border-radius:var(--r-lg);padding:26px 20px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(140deg,#4F46E5,#7C3AED 55%,#9333EA);box-shadow:0 18px 40px rgba(79,70,229,.35);margin-bottom:16px}
+.hero h1{font-size:34px;margin:8px 0 6px;line-height:1.05}
+.hero p{margin:0;opacity:.92;font-weight:700;font-size:16px}
+.hero .marca{font-size:13px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;opacity:.85}
+.hero-viz{display:flex;align-items:flex-end;gap:6px;height:64px;margin-top:18px}
+.hero-viz i{flex:1;background:rgba(255,255,255,.55);border-radius:6px 6px 3px 3px;display:block;animation:sube .9s cubic-bezier(.2,.9,.3,1) both}
+.hero-viz i:nth-child(odd){background:rgba(255,255,255,.85)}
+@keyframes sube{from{height:4px;opacity:0}to{opacity:1}}
+.hero-linea{height:2px;background:rgba(255,255,255,.9);border-radius:2px;margin-top:-2px;position:relative}
+.hero-linea span{position:absolute;right:0;top:-22px;font-size:12px;font-weight:900;letter-spacing:1px}
+.campo{margin-bottom:14px}
+.campo label{display:block;font-weight:800;margin-bottom:7px;font-size:16px}
+.campo input[type=text]{width:100%;min-height:60px;border:3px solid var(--linea);border-radius:18px;padding:0 16px;font-size:19px;font-weight:700;background:#FBFCFF;color:var(--tinta)}
+.campo input:focus{outline:0;border-color:var(--indigo);background:#fff;box-shadow:0 0 0 5px rgba(79,70,229,.12)}
+.grados{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.grado-op{min-height:56px;border-radius:16px;border:3px solid var(--linea);background:#FBFCFF;font-weight:900;font-size:18px;color:var(--suave);cursor:pointer;transition:.15s}
+.grado-op[aria-pressed=true]{background:linear-gradient(120deg,var(--indigo),var(--violeta));color:#fff;border-color:transparent;transform:translateY(-2px);box-shadow:0 8px 18px rgba(79,70,229,.3)}
+.aviso{background:var(--ambar-luz);border:2px solid #FFE0AC;color:#8A5B00;border-radius:14px;padding:10px 12px;font-weight:700;font-size:15px;margin-bottom:12px}
+
+/* ================= MENÚ ================= */
+.saludo{display:flex;align-items:center;gap:14px}
+.saludo .emoji{font-size:38px}
+.stats-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.stat-mini{background:#F7F9FF;border:2px solid var(--linea);border-radius:15px;padding:9px 4px;text-align:center}
+.stat-mini b{display:block;font-size:19px;font-family:'Fredoka';font-weight:600}
+.stat-mini small{font-size:10.5px;color:var(--suave);font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.lista-lecciones{display:grid;gap:12px}
+@media(min-width:1024px){.lista-lecciones{grid-template-columns:1fr 1fr}}
+.lec{display:flex;gap:14px;align-items:center;width:100%;text-align:left;cursor:pointer;background:var(--papel);
+  border:2px solid #fff;border-radius:var(--r);padding:14px;box-shadow:var(--sombra);transition:transform .16s,box-shadow .16s}
+.lec:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(20,30,80,.14)}
+.lec-icono{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:26px;flex:none;color:#fff}
+.lec-txt{flex:1;min-width:0}
+.lec-txt b{display:block;font-size:17.5px;font-family:'Fredoka';font-weight:600}
+.lec-txt span{font-size:13.5px;color:var(--suave);font-weight:700;display:block;line-height:1.25}
+.lec-barra{height:8px;background:#EDF0FA;border-radius:8px;margin-top:8px;overflow:hidden}
+.lec-barra i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--indigo),var(--violeta));transition:width .5s}
+.lec-estado{font-size:12px;font-weight:900;color:var(--suave);margin-top:5px;display:block}
+.medalla{font-size:24px;flex:none}
+.cabecera-lec{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.cabecera-lec .lec-icono{width:60px;height:60px;font-size:29px}
+.tabs{display:flex;background:#E3E8F7;border-radius:16px;padding:5px;gap:5px;margin-bottom:14px}
+.tabs button{flex:1;min-height:46px;border:0;border-radius:12px;background:transparent;font-weight:800;font-size:16px;color:var(--suave);cursor:pointer;transition:.18s}
+.tabs button[aria-selected=true]{background:#fff;color:var(--indigo);box-shadow:0 3px 10px rgba(20,30,80,.12)}
+
+/* ================= TEORÍA ================= */
+.paso{display:flex;gap:12px;margin-bottom:11px;align-items:flex-start}
+.paso .n{width:32px;height:32px;flex:none;border-radius:11px;background:linear-gradient(140deg,var(--indigo),var(--violeta));color:#fff;display:grid;place-items:center;font-family:'Fredoka';font-weight:600;font-size:16px}
+.paso p{margin:3px 0 0;font-weight:600;font-size:16px}
+.destaque{background:#F2F5FF;border-left:5px solid var(--indigo);border-radius:0 14px 14px 0;padding:11px 13px;font-weight:700;margin:12px 0;font-size:16px}
+.tip{background:var(--menta-luz);border-left:5px solid var(--menta);border-radius:0 14px 14px 0;padding:11px 13px;font-weight:700;margin:12px 0;font-size:15.5px;color:#0B6E4A}
+.ejemplo{border:2px solid var(--linea);border-radius:18px;padding:13px;margin-top:12px;background:#FBFCFF}
+.ejemplo h4{margin:0 0 9px;font-size:15px;font-family:'Fredoka';font-weight:600;color:var(--violeta);letter-spacing:.3px}
+.sliders{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(min-width:1024px){.sliders{grid-template-columns:repeat(6,1fr)}}
+.slider-c{text-align:center}
+.slider-c b{display:block;font-family:'Fredoka';font-weight:600;color:var(--indigo);font-size:16px}
+input[type=range]{width:100%;height:30px;-webkit-appearance:none;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px;background:#E3E8F7;border-radius:8px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(140deg,var(--indigo),var(--violeta));border:3px solid #fff;box-shadow:0 3px 8px rgba(79,70,229,.4);margin-top:-9px}
+input[type=range]::-moz-range-track{height:8px;background:#E3E8F7;border-radius:8px}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border:3px solid #fff;border-radius:50%;background:var(--indigo)}
+.marcador{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.marca{background:#F7F9FF;border:2px solid var(--linea);border-radius:14px;padding:9px 5px;text-align:center}
+.marca b{display:block;font-family:'Fredoka';font-weight:600;font-size:17px}
+.marca small{font-size:10.5px;font-weight:800;color:var(--suave)}
+
+/* ================= MODALES ================= */
+.capa{position:fixed;inset:0;background:rgba(16,20,50,.55);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;z-index:20;animation:fade .2s}
+@media(min-width:1024px){.capa{align-items:center;padding:20px}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{width:100%;max-width:500px;background:var(--papel);border-radius:28px 28px 0 0;
+  padding:22px 20px calc(env(safe-area-inset-bottom) + 20px);animation:sube-m .34s cubic-bezier(.2,.9,.3,1);
+  box-shadow:0 -10px 40px rgba(0,0,0,.2);max-height:86dvh;overflow-y:auto}
+@media(min-width:1024px){.modal{border-radius:28px;animation:pop .3s cubic-bezier(.2,.9,.3,1)}}
+@keyframes sube-m{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.modal-icono{width:74px;height:74px;border-radius:26px;display:grid;place-items:center;font-size:38px;margin:0 auto 12px;animation:sello .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes sello{0%{transform:scale(.4) rotate(-14deg);opacity:0}60%{transform:scale(1.12) rotate(4deg)}100%{transform:none;opacity:1}}
+.modal h2{text-align:center;margin:0 0 6px;font-size:25px}
+.modal .razon{background:#F7F9FF;border-radius:16px;padding:13px;font-weight:700;font-size:15.5px;margin:12px 0}
+.modal .razon .rot{display:block;font-size:11.5px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:var(--suave);margin-bottom:4px}
+.modal.bien .modal-icono{background:var(--menta-luz);color:var(--menta)}
+.modal.mal .modal-icono{background:var(--coral-luz);color:var(--coral)}
+.modal.hito .modal-icono{background:var(--ambar-luz)}
+.centro{text-align:center}
+.frase{text-align:center;font-weight:800;color:var(--violeta);font-size:17px;margin:10px 0 0}
+.confeti{position:fixed;inset:0;pointer-events:none;z-index:120;overflow:hidden}
+.confeti i{position:absolute;width:11px;height:16px;border-radius:3px;animation:caer 2.1s linear forwards}
+@keyframes caer{0%{transform:translateY(-40px) rotate(0);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:.1}}
+
+/* ================= LOGRO ================= */
+.logro-card{text-align:center;background:linear-gradient(150deg,#4F46E5,#7C3AED 60%,#9333EA);color:#fff;border-radius:var(--r-lg);padding:26px 20px;box-shadow:0 20px 44px rgba(79,70,229,.36)}
+.logro-card .trofeo{font-size:62px;display:block;animation:sello .6s cubic-bezier(.2,1.4,.4,1)}
+.logro-card h2{font-size:28px;margin:6px 0 2px}
+.logro-card p{margin:0;opacity:.92;font-weight:700}
+.rejilla{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+@media(min-width:1024px){.rejilla{grid-template-columns:repeat(3,1fr)}}
+.res{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:11px 8px}
+.res b{display:block;font-family:'Fredoka';font-weight:600;font-size:22px;line-height:1.1}
+.res small{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;opacity:.85}
+.form-item{border:2px solid var(--linea);border-radius:18px;padding:14px;margin-bottom:11px;background:#FBFCFF}
+.form-item h3{margin:0 0 6px;font-size:18px}
+.form-item p{margin:0;font-size:14.5px;font-weight:600;color:var(--suave)}
+.pie{text-align:center;color:var(--suave);font-size:13px;font-weight:700;padding:8px 0 4px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="barra" id="barra" hidden></header>
+  <main class="contenido" id="contenido"></main>
+</div>
+<div id="capa"></div>
+
+<script>
+/* =========================================================
+   1. ESTADO
+========================================================= */
+const S={nombre:'',grado:'',inicio:0,reloj:null,aciertos:0,errores:0,
+  prog:{},lecStats:{},completadas:{},hitos:{},leccion:null,tab:'aprende',
+  ej:null,seleccion:null,ayudaVisible:false,resuelto:false,ultimoTipo:'',
+  lab:{datos:[6,9,4,11,7,13],k:50,a:{m:50,s:5},b:{m:12,s:3}}};
+
+/* =========================================================
+   2. UTILIDADES
+========================================================= */
+const ent=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const elegir=a=>a[ent(0,a.length-1)];
+const suma=a=>a.reduce((s,x)=>s+x,0);
+const media=a=>suma(a)/a.length;
+const sumaCuad=a=>{const m=media(a);return a.reduce((s,x)=>s+(x-m)**2,0);};
+const varianzaP=a=>sumaCuad(a)/a.length;
+const desvP=a=>Math.sqrt(varianzaP(a));
+const r2=x=>Math.round(x*100)/100;
+const fmt=x=>String(r2(x)).replace('.',',');
+const ordenar=a=>[...a].sort((x,y)=>x-y);
+function mezclar(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=ent(0,i);[b[i],b[j]]=[b[j],b[i]];}return b;}
+function percentil(d0,k){const d=ordenar(d0),n=d.length,p=k*n/100;
+  return Number.isInteger(p)?(d[p-1]+d[p])/2:d[Math.ceil(p)-1];}
+const esCuadrado=v=>Number.isInteger(v)&&Number.isInteger(Math.sqrt(v));
+function datosMediaEntera(n,min,max){
+  for(let i=0;i<5000;i++){const d=Array.from({length:n},()=>ent(min,max));
+    if(new Set(d).size>=n-1&&suma(d)%n===0)return d;}
+  return n===4?[4,6,8,10]:[4,6,8,10,12];}
+function datosVarEntera(n,min,max,mx){
+  for(let i=0;i<8000;i++){const d=Array.from({length:n},()=>ent(min,max));
+    if(new Set(d).size<n-1||suma(d)%n!==0)continue;
+    const v=varianzaP(d); if(Number.isInteger(v)&&v>0&&v<=mx)return d;}
+  return n===4?[3,5,9,11]:[2,4,6,8,10];}
+function datosDesvEntera(n,min,max){
+  for(let i=0;i<9000;i++){const d=Array.from({length:n},()=>ent(min,max));
+    if(new Set(d).size<n-1||suma(d)%n!==0)continue;
+    const v=varianzaP(d); if(esCuadrado(v)&&v>0&&v<=100)return d;}
+  return [10,12,13,14,16];}
+function datosDistintos(n,min,max){const s=new Set();while(s.size<n)s.add(ent(min,max));return ordenar([...s]);}
+
+/* Fracciones y raíces en HTML */
+const frac=(n,d)=>'<span class="frac"><span>'+n+'</span><span>'+d+'</span></span>';
+const raiz=x=>'<span class="raiz"><span class="sig">√</span><span class="rad">'+x+'</span></span>';
+const expr=h=>'<div class="expr">'+h+'</div>';
+const filas=a=>'<div class="filas">'+a.map(t=>'<div class="fila-expr">'+t+'</div>').join('')+'</div>';
+const F={
+  media:'x̄ = '+frac('Σx','n'),
+  varianza:'s² = '+frac('Σ(x − x̄)²','n'),
+  desv:'s = '+raiz(frac('Σ(x − x̄)²','n')),
+  desv2:'s = '+raiz('s²'),
+  cv:'CV = '+frac('s','x̄')+' × 100',
+  pos:'posición = '+frac('k × n','100')
+};
+
+const FRASES=['¡Excelente!','¡Sigue así!','Cada vez eres mejor.','¡Buen trabajo!','Ya casi completas esta lección.','¡Vas muy bien!','Tu esfuerzo se nota.','¡Ese paso quedó perfecto!'];
+const ANIMOS=['No te rindas, así se aprende.','Revisar el error es parte de aprender.','Un intento más y lo logras.','Los buenos matemáticos también se equivocan.','Vuelve a leer con calma, tú puedes.'];
+const CIERRE=['Excelente trabajo. Cada día mejoras más en matemáticas.','Lo lograste. Ahora dominas mucho mejor este tema.','Gran constancia. Los datos ya no tienen secretos para ti.','Muy bien. Analizar datos es una habilidad para toda la vida.'];
+const CONTEXTOS=[['puntos en un juego','puntos'],['minutos de lectura al día','min'],['goles por partido','goles'],['temperaturas del mediodía (°C)','°C'],['aciertos en un quiz','aciertos'],['páginas leídas por día','págs']];
+
+/* =========================================================
+   3. GRÁFICAS (pequeñas, sin textos superpuestos)
+========================================================= */
+function graf(svg,pie){return '<div class="graf">'+svg+(pie?'<p class="pie-graf">'+pie+'</p>':'')+'</div>';}
+
+/* modo: 'simple' | 'media' | 'varianza' | 'desviacion' */
+function svgBarras(d,modo){
+  const conMedia=modo!=='simple', conDev=modo==='varianza';
+  const W=300, H=conDev?162:146;
+  const izq=10, der=conMedia?54:10;
+  const arriba=20, base=conDev?H-26:H-12;
+  const ancho=(W-izq-der)/d.length;
+  const max=Math.max(...d,4)*1.2;
+  const m=media(d), s=desvP(d);
+  const y=v=>base-(v/max)*(base-arriba);
+  let g='';
+  if(modo==='desviacion'){
+    const y1=y(Math.min(m+s,max)), y2=y(Math.max(m-s,0));
+    g+='<rect x="'+izq+'" y="'+y1.toFixed(1)+'" width="'+(W-izq-der)+'" height="'+Math.max(3,y2-y1).toFixed(1)+'" fill="rgba(18,169,113,.16)" rx="6"/>';
+  }
+  d.forEach((v,i)=>{
+    const x=izq+i*ancho+ancho*0.2, w=ancho*0.6, yy=y(v);
+    g+='<rect x="'+x.toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+(base-yy).toFixed(1)+'" rx="6" fill="url(#gb)"/>';
+    g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(yy-6).toFixed(1)+'" class="g-val">'+v+'</text>';
+    if(conDev){
+      const dev=r2(v-m);
+      if(Math.abs(y(m)-yy)>3)
+        g+='<line x1="'+(x+w/2).toFixed(1)+'" y1="'+yy.toFixed(1)+'" x2="'+(x+w/2).toFixed(1)+'" y2="'+y(m).toFixed(1)+'" stroke="#E5484D" stroke-width="1.8" stroke-dasharray="3 3"/>';
+      g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(base+16)+'" class="g-dev">'+(dev>0?'+':'')+fmt(dev)+'</text>';
+    }
+  });
+  g+='<line x1="'+izq+'" y1="'+base+'" x2="'+(W-der)+'" y2="'+base+'" stroke="#C9D0E8" stroke-width="2"/>';
+  if(conMedia){
+    const ym=y(m);
+    g+='<line x1="'+izq+'" y1="'+ym.toFixed(1)+'" x2="'+(W-der+4)+'" y2="'+ym.toFixed(1)+'" stroke="#4F46E5" stroke-width="2.2" stroke-dasharray="6 4"/>';
+    const cy=Math.min(Math.max(ym,14),base-8);
+    g+='<rect x="'+(W-der+6)+'" y="'+(cy-9).toFixed(1)+'" width="44" height="18" rx="9" fill="#4F46E5"/>';
+    g+='<text x="'+(W-der+28)+'" y="'+(cy+4).toFixed(1)+'" class="g-chip">x̄ '+fmt(m)+'</text>';
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img"><defs><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#4F46E5"/></linearGradient></defs>'+g+'</svg>';
+}
+
+/* Puntos ordenados con número de posición. marca = posición resaltada (1..n) */
+function svgPuntos(d0,marca,rotulo){
+  const d=ordenar(d0), n=d.length, W=300, H=marca?104:88, y=marca?62:52;
+  const paso=(W-40)/(n-1||1);
+  let g='<line x1="16" y1="'+y+'" x2="'+(W-16)+'" y2="'+y+'" stroke="#C9D0E8" stroke-width="2.5" stroke-linecap="round"/>';
+  d.forEach((v,i)=>{
+    const x=20+i*paso, act=(marca===i+1);
+    g+='<circle cx="'+x.toFixed(1)+'" cy="'+y+'" r="'+(act?8:6)+'" fill="'+(act?'#F5A623':'#4F46E5')+'" stroke="#fff" stroke-width="2.5"/>';
+    g+='<text x="'+x.toFixed(1)+'" y="'+(y-13)+'" class="g-val">'+v+'</text>';
+    g+='<text x="'+x.toFixed(1)+'" y="'+(y+20)+'" class="g-pos">'+(i+1)+'</text>';
+  });
+  if(marca){
+    const x=20+(marca-1)*paso;
+    g+='<line x1="'+x.toFixed(1)+'" y1="26" x2="'+x.toFixed(1)+'" y2="'+(y-18)+'" stroke="#F5A623" stroke-width="2.5"/>';
+    const cx=Math.min(Math.max(x,32),W-32);
+    g+='<rect x="'+(cx-30)+'" y="8" width="60" height="18" rx="9" fill="#F5A623"/>';
+    g+='<text x="'+cx+'" y="21" class="g-chip">'+(rotulo||'')+'</text>';
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img">'+g+'</svg>';
+}
+
+/* Diagrama de caja. etiquetas=true muestra rótulos Q1,Q2,Q3 */
+function svgCaja(d0,etiquetas){
+  const d=ordenar(d0), W=300, H=etiquetas?126:118, yc=etiquetas?58:52, alto=34;
+  const min=d[0], max=d[d.length-1];
+  const q1=percentil(d,25), q2=percentil(d,50), q3=percentil(d,75);
+  const lo=min-1, hi=max+1, r=(hi-lo)||1;
+  const X=v=>22+((v-lo)/r)*(W-44);
+  let g='';
+  g+='<line x1="'+X(min)+'" y1="'+yc+'" x2="'+X(q1)+'" y2="'+yc+'" stroke="#9AA2C4" stroke-width="2"/>';
+  g+='<line x1="'+X(q3)+'" y1="'+yc+'" x2="'+X(max)+'" y2="'+yc+'" stroke="#9AA2C4" stroke-width="2"/>';
+  [min,max].forEach(v=>{g+='<line x1="'+X(v)+'" y1="'+(yc-11)+'" x2="'+X(v)+'" y2="'+(yc+11)+'" stroke="#9AA2C4" stroke-width="3" stroke-linecap="round"/>';});
+  g+='<rect x="'+X(q1)+'" y="'+(yc-alto/2)+'" width="'+Math.max(6,X(q3)-X(q1))+'" height="'+alto+'" rx="7" fill="rgba(79,70,229,.15)" stroke="#4F46E5" stroke-width="2.2"/>';
+  g+='<line x1="'+X(q2)+'" y1="'+(yc-alto/2)+'" x2="'+X(q2)+'" y2="'+(yc+alto/2)+'" stroke="#F5A623" stroke-width="3.5" stroke-linecap="round"/>';
+  if(etiquetas){
+    g+='<text x="'+X(q1)+'" y="'+(yc-alto/2-7)+'" class="g-val" style="fill:#4F46E5">Q₁</text>';
+    g+='<text x="'+X(q3)+'" y="'+(yc-alto/2-7)+'" class="g-val" style="fill:#4F46E5">Q₃</text>';
+    g+='<text x="'+X(q2)+'" y="'+(yc+alto/2+15)+'" class="g-val" style="fill:#B87400">Q₂</text>';
+  }
+  const yb=H-12;
+  g+='<line x1="16" y1="'+yb+'" x2="'+(W-16)+'" y2="'+yb+'" stroke="#DCE1F2" stroke-width="1.5"/>';
+  const paso=(hi-lo)>14?2:1;
+  for(let v=Math.ceil(lo);v<=Math.floor(hi);v++){
+    if((v-Math.ceil(lo))%paso!==0)continue;
+    g+='<line x1="'+X(v)+'" y1="'+(yb-4)+'" x2="'+X(v)+'" y2="'+yb+'" stroke="#C9D0E8" stroke-width="1.5"/>';
+    g+='<text x="'+X(v)+'" y="'+(yb+10)+'" class="g-tick">'+v+'</text>';
+  }
+  return '<svg viewBox="0 0 '+W+' '+(H+4)+'" role="img">'+g+'</svg>';
+}
+
+/* Comparación de dos coeficientes de variación */
+function svgCV(cvA,cvB,nomA,nomB){
+  const W=300,H=104, maxCV=Math.max(cvA,cvB,8)*1.25;
+  const barra=(cv,y,color,nom)=>{
+    const w=Math.max(8,(cv/maxCV)*(W-130));
+    return '<text x="12" y="'+(y+16)+'" class="g-val" style="text-anchor:start">'+nom+'</text>'+
+      '<rect x="70" y="'+y+'" width="'+w.toFixed(1)+'" height="24" rx="8" fill="'+color+'"/>'+
+      '<text x="'+(76+w).toFixed(1)+'" y="'+(y+16)+'" class="g-val" style="text-anchor:start">'+fmt(cv)+'%</text>';
+  };
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img">'+barra(cvA,18,'#4F46E5',nomA||'A')+barra(cvB,60,'#F5A623',nomB||'B')+'</svg>';
+}
+
+/* =========================================================
+   4. CONSTRUCTOR DE EJERCICIOS GUIADOS
+========================================================= */
+function ejercicio(o){o.pasoIdx=0;o.res=[];o.contados=[];return o;}
+function chips(d){return '<div class="datos">'+d.map(x=>'<span class="dato">'+x+'</span>').join('')+'</div>';}
+function chipsPos(d){return '<div class="datos numerados">'+ordenar(d).map((x,i)=>
+  '<span class="dato">'+x+'<small>pos '+(i+1)+'</small></span>').join('')+'</div>';}
+
+/* =========================================================
+   5. GENERADORES POR TEMA
+========================================================= */
+/* ---------- MEDIA ---------- */
+function genMedia(){
+  const t=elegir(['guiada','guiada','falta','comparar','concepto']);
+  const ctx=elegir(CONTEXTOS);
+  if(t==='guiada'){
+    const n=elegir([4,5]), d=datosMediaEntera(n,2,20), sm=suma(d), m=sm/n;
+    return ejercicio({etiqueta:'Media paso a paso',
+      enunciado:'Estos son los '+ctx[0]+' de '+n+' estudiantes. Calcula la media siguiendo los pasos.',
+      datos:d, formula:F.media,
+      grafico:e=>graf(svgBarras(d,e.pasoIdx>=2?'media':'simple'),
+        e.pasoIdx>=2?'La línea morada es la media: la altura que tendrían todas las barras si repartieras por igual.'
+                    :'Cada barra es un dato. Busca la altura que equilibra a todas.'),
+      pasos:[
+        {titulo:'Suma todos los datos',nota:'Escribe el total en la casilla.',
+         plantilla:expr(d.join(' + ')+' = {0}'),campos:[{resp:sm}],
+         explicacion:'La suma de los '+n+' datos es '+sm+'.',
+         pista:'Suma de dos en dos: '+d[0]+' + '+d[1]+' = '+(d[0]+d[1])+', y sigue con el siguiente dato.',
+         ayuda:'Ve sumando en orden, sin saltarte ninguna ficha.',
+         diagnostico:v=>v>sm?'El total te quedó grande: revisa si sumaste algún dato dos veces.':(v<sm?'El total te quedó pequeño: quizá te faltó sumar un dato.':null)},
+        {titulo:'Cuenta cuántos datos hay',nota:'A esa cantidad la llamamos n.',
+         plantilla:expr('n = {0}'),campos:[{resp:n}],
+         explicacion:'Hay '+n+' datos, entonces n = '+n+'.',
+         pista:'Cuenta las fichas de arriba una por una. n no es la suma, es la cantidad.',
+         ayuda:'n = cantidad de fichas de datos.'},
+        {titulo:'Divide la suma entre n',nota:'Así obtienes la media.',
+         plantilla:expr('x̄ = '+frac(sm,n)+' = {0}'),campos:[{resp:m}],
+         explicacion:sm+' entre '+n+' da '+fmt(m)+'. Esa es la media del grupo.',
+         pista:'Piensa: ¿qué número multiplicado por '+n+' da '+sm+'?',
+         ayuda:'Es una división: '+sm+' repartido en '+n+' partes iguales.',
+         diagnostico:v=>Math.abs(v-sm)<0.01?'Escribiste la suma otra vez. Falta hacer la división entre '+n+'.':null,
+         visualFinal:()=>graf(svgBarras(d,'media'),'Así se ve la media dentro de los datos.')}
+      ]});
+  }
+  if(t==='falta'){
+    const n=4,m=ent(5,14);let d;
+    do{d=[ent(2,18),ent(2,18),ent(2,18)];}while(n*m-suma(d)<1||n*m-suma(d)>20);
+    const total=n*m, falta=total-suma(d);
+    return ejercicio({etiqueta:'Dato que falta',
+      enunciado:'La media de 4 notas es '+m+'. Estas son tres de las notas y falta una.',
+      datos:[...d,'?'], formula:'Σx = x̄ × n',
+      grafico:()=>graf(svgBarras([...d,falta].map((x,i)=>i===3?0:x),'simple'),'La cuarta barra está vacía: ese es el dato que buscas.'),
+      pasos:[
+        {titulo:'¿Cuánto deben sumar las 4 notas?',nota:'Usa la media multiplicada por la cantidad de datos.',
+         plantilla:expr('Σx = '+m+' × 4 = {0}'),campos:[{resp:total}],
+         explicacion:'Si la media es '+m+' y hay 4 notas, el total debe ser '+total+'.',
+         pista:'Multiplica la media por el número de datos.',ayuda:'Σx = x̄ × n = '+m+' × 4.'},
+        {titulo:'Suma las tres notas conocidas',
+         plantilla:expr(d.join(' + ')+' = {0}'),campos:[{resp:suma(d)}],
+         explicacion:'Las tres notas conocidas suman '+suma(d)+'.',
+         pista:'Suma solo las notas que ya conoces.',ayuda:'No incluyas todavía la nota que falta.'},
+        {titulo:'Resta para hallar la nota que falta',
+         plantilla:expr(total+' − '+suma(d)+' = {0}'),campos:[{resp:falta}],
+         explicacion:'La nota que falta es '+falta+', porque '+suma(d)+' + '+falta+' = '+total+'.',
+         pista:'Al total que debía dar réstale lo que ya tienes.',ayuda:'Es una resta: total menos lo que ya sumaste.'}
+      ]});
+  }
+  if(t==='comparar'){
+    const a=datosMediaEntera(4,2,16), b=datosMediaEntera(4,2,16);
+    if(media(a)===media(b))return genMedia();
+    const ma=media(a), mb=media(b), mayor=ma>mb?'El grupo A':'El grupo B';
+    return ejercicio({etiqueta:'Comparar dos grupos',
+      enunciado:'Dos grupos jugaron el mismo reto.<br><b>Grupo A:</b> '+a.join(', ')+'<br><b>Grupo B:</b> '+b.join(', '),
+      formula:F.media,
+      grafico:e=>e.pasoIdx>=2?graf(svgBarras(a,'media'),'Media del grupo A (la del grupo B la comparas con tu resultado).'):
+                             graf(svgBarras(a,'simple'),'Barras del grupo A.'),
+      pasos:[
+        {titulo:'Media del grupo A',plantilla:expr('x̄<sub>A</sub> = '+frac(a.join(' + '),4)+' = {0}'),campos:[{resp:ma}],
+         explicacion:'El grupo A suma '+suma(a)+' y al dividir entre 4 da '+fmt(ma)+'.',
+         pista:'Primero suma los 4 datos de A y luego divide entre 4.',ayuda:'Suma de A: '+a.join(' + ')+'.'},
+        {titulo:'Media del grupo B',plantilla:expr('x̄<sub>B</sub> = '+frac(b.join(' + '),4)+' = {0}'),campos:[{resp:mb}],
+         explicacion:'El grupo B suma '+suma(b)+' y al dividir entre 4 da '+fmt(mb)+'.',
+         pista:'Repite el mismo procedimiento con los datos de B.',ayuda:'Suma de B: '+b.join(' + ')+'.'},
+        {titulo:'¿Cuál grupo tiene mayor media?',tipo:'opciones',
+         pregunta:'Compara los dos resultados que obtuviste.',
+         opciones:mezclar([mayor,'Los dos tienen la misma media',ma>mb?'El grupo B':'El grupo A']),
+         correcta:mayor,
+         explicacion:'x̄A = '+fmt(ma)+' y x̄B = '+fmt(mb)+', por eso gana '+mayor.toLowerCase()+'.',
+         pista:'Mira cuál de los dos números que calculaste es más grande.',ayuda:'Compara los dos valores que ya escribiste.'}
+      ]});
+  }
+  return conceptoEj('media');
+}
+
+/* ---------- VARIANZA ---------- */
+function genVarianza(){
+  const t=elegir(['guiada','guiada','desdeSuma','comparar','concepto']);
+  if(t==='guiada'){
+    const n=4, d=datosVarEntera(n,2,18,40), sm=suma(d), m=sm/n;
+    const dev=d.map(x=>x-m), cuad=dev.map(x=>x*x), sc=suma(cuad), v=sc/n;
+    const ctx=elegir(CONTEXTOS);
+    return ejercicio({etiqueta:'Varianza paso a paso',
+      enunciado:'Estos son los '+ctx[0]+' de 4 estudiantes. Calcula la varianza completando cada paso.',
+      datos:d, formula:F.varianza,
+      grafico:e=>e.pasoIdx>=2?graf(svgBarras(d,'varianza'),'Las líneas rojas son las distancias de cada dato a la media. Debajo verás cada desviación.')
+                             :graf(svgBarras(d,e.pasoIdx>=1?'media':'simple'),e.pasoIdx>=1?'La línea morada es la media.':'Primero necesitamos la media de estas barras.'),
+      pasos:[
+        {titulo:'Suma los datos',plantilla:expr(d.join(' + ')+' = {0}'),campos:[{resp:sm}],
+         explicacion:'La suma es '+sm+'.',pista:'Suma en orden, de dos en dos.',ayuda:'Suma los 4 datos de arriba.'},
+        {titulo:'Calcula la media',plantilla:expr('x̄ = '+frac(sm,n)+' = {0}'),campos:[{resp:m}],
+         explicacion:'x̄ = '+sm+' entre '+n+' = '+fmt(m)+'.',pista:'Divide la suma entre la cantidad de datos (4).',
+         ayuda:'Reparte '+sm+' en 4 partes iguales.'},
+        {titulo:'Halla cada desviación (x − x̄)',nota:'Resta la media a cada dato. Puede dar negativo.',
+         plantilla:filas(d.map((x,i)=>x+' − '+fmt(m)+' = {'+i+'}')),
+         campos:dev.map(v2=>({resp:v2})),
+         explicacion:'Las desviaciones son '+dev.map(fmt).join(', ')+'. Fíjate que sumadas dan 0.',
+         pista:'Si el dato es menor que la media, la desviación es negativa: escribe el signo −.',
+         ayuda:'A cada dato réstale '+fmt(m)+'.'},
+        {titulo:'Eleva al cuadrado cada desviación',nota:'Recuerda: un número negativo al cuadrado queda positivo.',
+         plantilla:filas(dev.map((v2,i)=>'('+fmt(v2)+')² = {'+i+'}')),
+         campos:cuad.map(v2=>({resp:v2})),
+         explicacion:'Al elevar al cuadrado todo queda positivo: '+cuad.map(fmt).join(', ')+'.',
+         pista:'Multiplica cada desviación por sí misma. (−3)² = 9, no −9.',
+         ayuda:'Cada desviación multiplicada por ella misma.'},
+        {titulo:'Suma los cuadrados',plantilla:expr(cuad.map(fmt).join(' + ')+' = {0}'),campos:[{resp:sc}],
+         explicacion:'Σ(x − x̄)² = '+fmt(sc)+'.',pista:'Suma los cuatro resultados del paso anterior.',ayuda:'Suma la columna de cuadrados.'},
+        {titulo:'Divide entre n y obtén la varianza',plantilla:expr('s² = '+frac(fmt(sc),n)+' = {0}'),campos:[{resp:v}],
+         explicacion:'s² = '+fmt(sc)+' entre '+n+' = '+fmt(v)+'.',
+         pista:'Último paso: divide la suma de cuadrados entre 4.',ayuda:'Reparte '+fmt(sc)+' en 4 partes.',
+         visualFinal:()=>graf(svgBarras(d,'varianza'),'Varianza = promedio de esas distancias al cuadrado.')}
+      ]});
+  }
+  if(t==='desdeSuma'){
+    const n=elegir([4,5,6,8]), v=ent(3,15), sc=v*n;
+    return ejercicio({etiqueta:'Aplicar la fórmula',
+      enunciado:'En un conjunto de '+n+' datos ya se calculó que la suma de las desviaciones al cuadrado es '+sc+'.',
+      formula:F.varianza,
+      pasos:[
+        {titulo:'Coloca los valores en la fórmula',nota:'Escribe qué va arriba y qué va abajo de la fracción.',
+         plantilla:expr('s² = '+frac('{0}','{1}')),campos:[{resp:sc},{resp:n}],
+         explicacion:'Arriba va Σ(x − x̄)² = '+sc+' y abajo va n = '+n+'.',
+         pista:'Arriba siempre va la suma de los cuadrados; abajo, la cantidad de datos.',
+         ayuda:'Σ(x − x̄)² = '+sc+' y n = '+n+'.'},
+        {titulo:'Resuelve la división',plantilla:expr('s² = '+frac(sc,n)+' = {0}'),campos:[{resp:v}],
+         explicacion:sc+' entre '+n+' = '+v+'.',pista:'Solo falta dividir.',ayuda:'Divide '+sc+' entre '+n+'.'}
+      ]});
+  }
+  if(t==='comparar'){
+    const base=ent(8,12), a=[base-1,base,base,base+1], b=[base-7,base-2,base+3,base+6];
+    return ejercicio({etiqueta:'Comparar dispersión',
+      enunciado:'Observa los dos conjuntos. Tienen medias parecidas, pero no se comportan igual.<br><b>A:</b> '+a.join(', ')+' &nbsp;·&nbsp; <b>B:</b> '+b.join(', '),
+      grafico:()=>graf(svgBarras(b,'varianza'),'Conjunto B: las líneas rojas (distancias a la media) son largas.'),
+      pasos:[
+        {titulo:'¿Cuál conjunto tiene MAYOR varianza?',tipo:'opciones',
+         pregunta:'No necesitas calcular: observa qué tan separados están los datos de su media.',
+         opciones:mezclar(['El conjunto B','El conjunto A','Los dos tienen la misma varianza','No se puede saber sin calcular']),
+         correcta:'El conjunto B',
+         explicacion:'En B los datos se alejan mucho de la media (s² = '+fmt(varianzaP(b))+') mientras que en A están muy juntos (s² = '+fmt(varianzaP(a))+').',
+         pista:'Mayor separación entre los datos = mayor varianza.',
+         ayuda:'Compara qué tan regados están los datos de cada conjunto.'}
+      ]});
+  }
+  return conceptoEj('varianza');
+}
+
+/* ---------- DESVIACIÓN ESTÁNDAR ---------- */
+function genDesviacion(){
+  const t=elegir(['raiz','desdeDatos','intervalo','comparar','concepto']);
+  if(t==='raiz'){
+    const s=ent(2,12), v=s*s;
+    return ejercicio({etiqueta:'De varianza a desviación',
+      enunciado:'La varianza de un grupo de datos es '+v+'.',formula:F.desv2,
+      pasos:[
+        {titulo:'Coloca la varianza dentro de la raíz',
+         plantilla:expr('s = '+raiz('{0}')),campos:[{resp:v}],
+         explicacion:'Dentro de la raíz va la varianza: '+v+'.',
+         pista:'La desviación estándar siempre parte de la varianza.',ayuda:'El valor de la varianza es '+v+'.'},
+        {titulo:'Resuelve la raíz cuadrada',plantilla:expr('s = '+raiz(v)+' = {0}'),campos:[{resp:s}],
+         explicacion:'√'+v+' = '+s+', porque '+s+' × '+s+' = '+v+'.',
+         pista:'Busca el número que multiplicado por sí mismo da '+v+'.',
+         ayuda:'Prueba: 2×2=4, 3×3=9, 4×4=16, 5×5=25…',
+         diagnostico:x=>Math.abs(x-v/2)<0.01?'Dividiste entre 2. La raíz cuadrada no es la mitad.':null}
+      ]});
+  }
+  if(t==='desdeDatos'){
+    const n=4, d=datosDesvEntera(n,3,20), sm=suma(d), m=sm/n;
+    const dev=d.map(x=>x-m), cuad=dev.map(x=>x*x), sc=suma(cuad), v=sc/n, s=Math.sqrt(v);
+    return ejercicio({etiqueta:'Desviación paso a paso',
+      enunciado:'Calcula la desviación estándar de estos datos completando todo el procedimiento.',
+      datos:d, formula:F.desv,
+      grafico:e=>e.pasoIdx>=5?graf(svgBarras(d,'desviacion'),'La franja verde es el intervalo x̄ ± s: ahí cae la mayoría de los datos.')
+                : e.pasoIdx>=2?graf(svgBarras(d,'varianza'),'Distancias de cada dato a la media.')
+                : graf(svgBarras(d,e.pasoIdx>=1?'media':'simple'),e.pasoIdx>=1?'La línea morada es la media.':'Primero, la media.'),
+      pasos:[
+        {titulo:'Suma los datos',plantilla:expr(d.join(' + ')+' = {0}'),campos:[{resp:sm}],
+         explicacion:'La suma es '+sm+'.',pista:'Suma los 4 datos en orden.',ayuda:'Usa las fichas de arriba.'},
+        {titulo:'Calcula la media',plantilla:expr('x̄ = '+frac(sm,n)+' = {0}'),campos:[{resp:m}],
+         explicacion:'x̄ = '+fmt(m)+'.',pista:'Divide la suma entre 4.',ayuda:'Reparte '+sm+' en 4 partes.'},
+        {titulo:'Halla las desviaciones y elévalas al cuadrado',nota:'Primero la resta, luego el cuadrado.',
+         plantilla:filas(d.map((x,i)=>'('+x+' − '+fmt(m)+')² = {'+i+'}')),
+         campos:cuad.map(c=>({resp:c})),
+         explicacion:'Los cuadrados son '+cuad.map(fmt).join(', ')+'.',
+         pista:'Haz la resta dentro del paréntesis y después multiplica ese número por sí mismo.',
+         ayuda:'Ejemplo: ('+d[0]+' − '+fmt(m)+') = '+fmt(dev[0])+', y '+fmt(dev[0])+' × '+fmt(dev[0])+' = '+fmt(cuad[0])+'.'},
+        {titulo:'Suma los cuadrados',plantilla:expr(cuad.map(fmt).join(' + ')+' = {0}'),campos:[{resp:sc}],
+         explicacion:'Σ(x − x̄)² = '+fmt(sc)+'.',pista:'Suma los cuatro resultados anteriores.',ayuda:'Suma la columna.'},
+        {titulo:'Calcula la varianza',plantilla:expr('s² = '+frac(fmt(sc),n)+' = {0}'),campos:[{resp:v}],
+         explicacion:'s² = '+fmt(v)+'.',pista:'Divide entre la cantidad de datos.',ayuda:'Divide '+fmt(sc)+' entre 4.'},
+        {titulo:'Saca la raíz cuadrada',plantilla:expr('s = '+raiz(fmt(v))+' = {0}'),campos:[{resp:s}],
+         explicacion:'s = √'+fmt(v)+' = '+fmt(s)+'. Ahora está en las mismas unidades de los datos.',
+         pista:'¿Qué número multiplicado por sí mismo da '+fmt(v)+'?',ayuda:'Es la raíz cuadrada exacta de '+fmt(v)+'.',
+         visualFinal:()=>graf(svgBarras(d,'desviacion'),'Franja verde: desde x̄ − s hasta x̄ + s.')}
+      ]});
+  }
+  if(t==='intervalo'){
+    const m=ent(12,60), s=ent(2,9);
+    return ejercicio({etiqueta:'Interpretar x̄ ± s',
+      enunciado:'Un grupo tiene media '+m+' y desviación estándar '+s+'.',
+      formula:'intervalo = x̄ − s   hasta   x̄ + s',
+      pasos:[
+        {titulo:'Calcula los dos extremos del intervalo',nota:'Uno restando y otro sumando.',
+         plantilla:filas(['x̄ − s = '+m+' − '+s+' = {0}','x̄ + s = '+m+' + '+s+' = {1}']),
+         campos:[{resp:m-s},{resp:m+s}],
+         explicacion:'El intervalo va de '+(m-s)+' a '+(m+s)+'. Ahí suele estar la mayoría de los datos.',
+         pista:'Son dos operaciones simples con el mismo par de números.',
+         ayuda:'Resta y suma '+s+' al valor '+m+'.'}
+      ]});
+  }
+  if(t==='comparar'){
+    const sa=ent(2,5), sb=ent(8,14), ga='7°A', gb='7°B';
+    return ejercicio({etiqueta:'Interpretación',
+      enunciado:'Dos cursos obtuvieron la misma media en un examen. El curso '+ga+' tiene s = '+sa+' y el curso '+gb+' tiene s = '+sb+'.',
+      pasos:[
+        {titulo:'¿Cuál curso es más homogéneo?',tipo:'opciones',
+         pregunta:'Homogéneo significa que las notas se parecen entre sí.',
+         opciones:mezclar(['El curso '+ga,'El curso '+gb,'Los dos igual','Falta conocer la media']),
+         correcta:'El curso '+ga,
+         explicacion:'Una desviación menor ('+sa+' contra '+sb+') indica notas más parecidas entre sí.',
+         pista:'Menor desviación estándar = datos más cerca de la media.',
+         ayuda:'Compara los dos valores de s: el más pequeño es el grupo más parejo.'}
+      ]});
+  }
+  return conceptoEj('desviacion');
+}
+
+/* ---------- COEFICIENTE DE VARIACIÓN ---------- */
+function genCV(){
+  const t=elegir(['calc','calc','inversa','comparar','concepto']);
+  if(t==='calc'){
+    const m=elegir([20,25,40,50,60,80,100,150,200]), k=elegir([5,10,15,20,25,30,40]);
+    const s=r2(m*k/100), div=r2(s/m);
+    return ejercicio({etiqueta:'Calcular el CV',
+      enunciado:'Un grupo de datos tiene media x̄ = '+m+' y desviación estándar s = '+fmt(s)+'.',
+      formula:F.cv,
+      pasos:[
+        {titulo:'Coloca los valores en la fracción',nota:'Arriba la desviación, abajo la media.',
+         plantilla:expr('CV = '+frac('{0}','{1}')+' × 100'),campos:[{resp:s},{resp:m}],
+         explicacion:'Arriba va s = '+fmt(s)+' y abajo x̄ = '+m+'.',
+         pista:'Nunca al revés: la desviación va arriba y la media abajo.',
+         ayuda:'s = '+fmt(s)+' · x̄ = '+m+'.'},
+        {titulo:'Resuelve la división',plantilla:expr(frac(fmt(s),m)+' = {0}'),campos:[{resp:div,tol:0.005}],
+         explicacion:fmt(s)+' entre '+m+' = '+fmt(div)+'.',
+         pista:'El resultado es un número decimal menor que 1 (si s es menor que la media).',
+         ayuda:'Divide '+fmt(s)+' entre '+m+'.'},
+        {titulo:'Multiplica por 100 para el porcentaje',plantilla:expr(fmt(div)+' × 100 = {0} %'),campos:[{resp:k,tol:0.2}],
+         explicacion:'El coeficiente de variación es '+k+'%.',
+         pista:'Multiplicar por 100 solo corre la coma dos lugares a la derecha.',
+         ayuda:fmt(div)+' × 100.',
+         visualFinal:()=>graf(svgCV(k,k>20?12:32,'Este grupo','Otro grupo'),'Comparación con otro grupo cualquiera: barra más larga = más dispersión relativa.')}
+      ]});
+  }
+  if(t==='inversa'){
+    const m=elegir([40,50,60,80,120,200]), k=elegir([5,10,15,20,25]), s=r2(m*k/100);
+    return ejercicio({etiqueta:'Despejar la fórmula',
+      enunciado:'Un conjunto tiene media x̄ = '+m+' y un coeficiente de variación del '+k+'%. ¿Cuál es su desviación estándar?',
+      formula:'s = '+frac('CV × x̄','100'),
+      pasos:[
+        {titulo:'Coloca los valores',plantilla:expr('s = '+frac('{0} × {1}','100')),campos:[{resp:k},{resp:m}],
+         explicacion:'Arriba multiplicamos el CV ('+k+') por la media ('+m+').',
+         pista:'El CV va sin el símbolo %, solo el número.',ayuda:'CV = '+k+' y x̄ = '+m+'.'},
+        {titulo:'Resuelve',plantilla:expr('s = '+frac(k+' × '+m,'100')+' = {0}'),campos:[{resp:s}],
+         explicacion:'('+k+' × '+m+') entre 100 = '+fmt(s)+'.',
+         pista:'Primero multiplica arriba y después divide entre 100.',
+         ayuda:k+' × '+m+' = '+(k*m)+'. Ahora divide entre 100.'}
+      ]});
+  }
+  if(t==='comparar'){
+    const ma=elegir([30,40,50]), ka=elegir([8,10,12]), mb=elegir([150,180,200]), kb=elegir([20,25,30]);
+    const sa=r2(ma*ka/100), sb=r2(mb*kb/100);
+    return ejercicio({etiqueta:'Comparar variabilidad',
+      enunciado:'<b>Estatura (cm):</b> x̄ = '+ma+' · s = '+fmt(sa)+'<br><b>Peso (kg):</b> x̄ = '+mb+' · s = '+fmt(sb)+'<br>Las unidades son distintas, así que hay que usar el CV.',
+      formula:F.cv,
+      grafico:e=>e.pasoIdx>=2?graf(svgCV(ka,kb,'Estatura','Peso'),'Ahora sí se pueden comparar: ambos están en porcentaje.'):'',
+      pasos:[
+        {titulo:'CV de la estatura',plantilla:expr('CV = '+frac(fmt(sa),ma)+' × 100 = {0} %'),campos:[{resp:ka,tol:0.2}],
+         explicacion:'CV de la estatura = '+ka+'%.',pista:'Divide y luego multiplica por 100.',ayuda:'('+fmt(sa)+' ÷ '+ma+') × 100.'},
+        {titulo:'CV del peso',plantilla:expr('CV = '+frac(fmt(sb),mb)+' × 100 = {0} %'),campos:[{resp:kb,tol:0.2}],
+         explicacion:'CV del peso = '+kb+'%.',pista:'Mismo procedimiento con los datos del peso.',ayuda:'('+fmt(sb)+' ÷ '+mb+') × 100.'},
+        {titulo:'¿Cuál grupo varía más?',tipo:'opciones',pregunta:'Compara los dos porcentajes que obtuviste.',
+         opciones:mezclar(['El peso','La estatura','Los dos igual','No se pueden comparar']),correcta:'El peso',
+         explicacion:'El peso tiene un CV de '+kb+'% frente al '+ka+'% de la estatura: varía relativamente más.',
+         pista:'Mayor porcentaje = mayor variación relativa.',ayuda:'Compara '+ka+'% con '+kb+'%.'}
+      ]});
+  }
+  return conceptoEj('cv');
+}
+
+/* ---------- PERCENTILES ---------- */
+function genPercentiles(){
+  const t=elegir(['valor','valor','conteo','rango','concepto']);
+  if(t==='valor'){
+    const n=elegir([7,9,11,13]), k=elegir([10,20,30,40,60,70,80,90]);
+    const d=datosDistintos(n,5,60), pos=k*n/100, m=Math.ceil(pos), p=d[m-1];
+    return ejercicio({etiqueta:'Percentil paso a paso',
+      enunciado:'Los datos ya están ordenados de menor a mayor. Calcula el percentil '+k+' (P<sub>'+k+'</sub>).',
+      datosPos:d, formula:F.pos,
+      grafico:e=>graf(svgPuntos(d,e.pasoIdx>=2?m:0,'P'+k+' = '+p),
+        e.pasoIdx>=2?'El punto naranja es el dato que ocupa la posición '+m+'.':'Cada punto es un dato; abajo está su número de posición.'),
+      pasos:[
+        {titulo:'Calcula la posición',nota:'Reemplaza k y n en la fórmula.',
+         plantilla:expr('posición = '+frac(k+' × '+n,'100')+' = {0}'),campos:[{resp:pos,tol:0.005}],
+         explicacion:k+' × '+n+' = '+(k*n)+', y entre 100 da '+fmt(pos)+'.',
+         pista:'Multiplica primero '+k+' × '+n+' y después divide entre 100.',
+         ayuda:k+' × '+n+' = '+(k*n)+'. Ahora corre la coma dos lugares a la izquierda.'},
+        {titulo:'Redondea hacia arriba',nota:'Como el resultado tiene decimales, se sube al entero siguiente.',
+         plantilla:expr(fmt(pos)+' → posición {0}'),campos:[{resp:m}],
+         explicacion:fmt(pos)+' se redondea hacia arriba: posición '+m+'.',
+         pista:'Hacia arriba siempre, aunque el decimal sea pequeño (1,1 → 2).',
+         ayuda:'Toma el entero inmediatamente mayor que '+fmt(pos)+'.'},
+        {titulo:'Busca el dato en esa posición',nota:'Cuenta las fichas hasta la posición '+m+'.',
+         plantilla:expr('P<sub>'+k+'</sub> = {0}'),campos:[{resp:p}],
+         explicacion:'El dato que ocupa la posición '+m+' es '+p+', así que P'+k+' = '+p+'.',
+         pista:'No escribas el número de la posición, sino el valor que está en ella.',
+         ayuda:'Mira la ficha que dice "pos '+m+'".',
+         diagnostico:v=>Math.abs(v-m)<0.01?'Escribiste el número de la posición. Necesitamos el dato que está en esa posición.':null,
+         visualFinal:()=>graf(svgPuntos(d,m,'P'+k+' = '+p),'El percentil '+k+' deja aproximadamente el '+k+'% de los datos a su izquierda.')}
+      ]});
+  }
+  if(t==='conteo'){
+    const n=elegir([20,40,60,80,200]), k=elegir([10,25,30,50,70,75,90]);
+    return ejercicio({etiqueta:'Interpretar el percentil',
+      enunciado:'En una prueba participaron '+n+' estudiantes.',
+      pasos:[
+        {titulo:'¿Cuántos quedan por debajo del percentil '+k+'?',nota:'El percentil k deja por debajo el k% de los datos.',
+         plantilla:expr(frac(k+' × '+n,'100')+' = {0} estudiantes'),campos:[{resp:n*k/100}],
+         explicacion:'El '+k+'% de '+n+' es '+fmt(n*k/100)+' estudiantes.',
+         pista:'Calcular un porcentaje es multiplicar y luego dividir entre 100.',
+         ayuda:k+' × '+n+' = '+(k*n)+'. Divide entre 100.'}
+      ]});
+  }
+  if(t==='rango'){
+    const n=elegir([20,40,50,80]), pct=elegir([20,40,60,70,80]);
+    const menores=n*pct/100, nom=elegir(['Ana','Camilo','Valeria','Samuel','Luisa','Mateo']);
+    return ejercicio({etiqueta:'Percentil de una persona',
+      enunciado:'De '+n+' estudiantes, '+menores+' obtuvieron un puntaje menor que '+nom+'.',
+      formula:'percentil = '+frac('datos menores','n')+' × 100',
+      pasos:[
+        {titulo:'Arma la fracción',plantilla:expr(frac('{0}','{1}')+' × 100'),campos:[{resp:menores},{resp:n}],
+         explicacion:'Arriba van los '+menores+' estudiantes que quedaron por debajo y abajo el total ('+n+').',
+         pista:'Arriba: cuántos quedaron debajo. Abajo: cuántos hay en total.',
+         ayuda:'Menores que '+nom+': '+menores+'. Total: '+n+'.'},
+        {titulo:'Resuelve',plantilla:expr(frac(menores,n)+' × 100 = {0}'),campos:[{resp:pct,tol:0.2}],
+         explicacion:nom+' se ubica en el percentil '+pct+'.',
+         pista:'Divide primero y multiplica por 100 al final.',ayuda:menores+' ÷ '+n+' y luego × 100.'}
+      ]});
+  }
+  return conceptoEj('percentiles');
+}
+
+/* ---------- CUARTILES ---------- */
+function genCuartiles(){
+  const t=elegir(['tres','uno','caja','ric','concepto']);
+  if(t==='tres'){
+    const n=elegir([7,9,11]), d=datosDistintos(n,4,50);
+    const P=k=>Math.ceil(k*n/100), Q=k=>d[P(k)-1];
+    return ejercicio({etiqueta:'Los tres cuartiles',
+      enunciado:'Estos datos ya están ordenados. Halla Q₁, Q₂ y Q₃ usando la fórmula de la posición.',
+      datosPos:d, formula:F.pos+'  (k = 25, 50 y 75)',
+      grafico:e=>graf(svgPuntos(d,e.pasoIdx===0?0:P([25,50,75][Math.min(e.pasoIdx,3)-1]||25),'Q'+Math.min(e.pasoIdx,3)),
+        'Los cuartiles parten los datos en cuatro grupos del 25%.'),
+      pasos:[25,50,75].map((k,i)=>({
+        titulo:'Cuartil Q'+(i+1)+' (percentil '+k+')',
+        nota:'Primero la posición redondeada, después el dato.',
+        plantilla:filas(['posición = '+frac(k+' × '+n,'100')+' = '+fmt(k*n/100)+' → {0}','Q<sub>'+(i+1)+'</sub> = {1}']),
+        campos:[{resp:P(k)},{resp:Q(k)}],
+        explicacion:'La posición '+fmt(k*n/100)+' se redondea a '+P(k)+', y el dato en esa posición es '+Q(k)+'.',
+        pista:'Redondea hacia arriba y luego cuenta las fichas hasta esa posición.',
+        ayuda:'Busca la ficha "pos '+P(k)+'".',
+        diagnostico:v=>null
+      })).concat([{
+        titulo:'Rango intercuartílico',nota:'Mide el ancho del 50% central.',
+        plantilla:expr('RIC = Q₃ − Q₁ = '+Q(75)+' − '+Q(25)+' = {0}'),campos:[{resp:Q(75)-Q(25)}],
+        explicacion:'RIC = '+Q(75)+' − '+Q(25)+' = '+(Q(75)-Q(25))+'.',
+        pista:'Es una resta entre el tercer y el primer cuartil.',ayuda:'Resta los dos cuartiles que ya hallaste.',
+        visualFinal:()=>graf(svgCaja(d,true),'La caja va de Q₁ a Q₃ y la línea naranja es Q₂.')
+      }])});
+  }
+  if(t==='uno'){
+    const n=elegir([7,9,11,13]), d=datosDistintos(n,3,45), k=elegir([25,50,75]);
+    const pos=k*n/100, m=Math.ceil(pos), q=d[m-1];
+    const nom={25:'Q₁',50:'Q₂ (la mediana)',75:'Q₃'}[k];
+    return ejercicio({etiqueta:'Un cuartil',
+      enunciado:'Con estos datos ordenados, calcula '+nom+'.',
+      datosPos:d, formula:F.pos,
+      grafico:e=>graf(svgPuntos(d,e.pasoIdx>=1?m:0,nom.split(' ')[0]+' = '+q),'Cada punto lleva su número de posición debajo.'),
+      pasos:[
+        {titulo:'Calcula y redondea la posición',
+         plantilla:filas(['posición = '+frac(k+' × '+n,'100')+' = {0}','redondeo hacia arriba → {1}']),
+         campos:[{resp:pos,tol:0.005},{resp:m}],
+         explicacion:'La posición es '+fmt(pos)+', que redondeada hacia arriba da '+m+'.',
+         pista:'Multiplica, divide entre 100 y sube al entero siguiente.',ayuda:k+' × '+n+' = '+(k*n)+'.'},
+        {titulo:'Escribe el dato de esa posición',plantilla:expr(nom.split(' ')[0]+' = {0}'),campos:[{resp:q}],
+         explicacion:nom.split(' ')[0]+' = '+q+', el dato que ocupa la posición '+m+'.',
+         pista:'Cuenta las fichas hasta la posición '+m+'.',ayuda:'Ficha "pos '+m+'".'}
+      ]});
+  }
+  if(t==='caja'){
+    const n=9, base=ent(2,6), d=datosDistintos(n,base,base+12);
+    const q1=percentil(d,25), q2=percentil(d,50), q3=percentil(d,75);
+    return ejercicio({etiqueta:'Leer un diagrama de caja',
+      enunciado:'Observa el diagrama y lee los valores usando la regla numérica de abajo.',
+      grafico:()=>graf(svgCaja(d,false),'Borde izquierdo de la caja = Q₁ · línea naranja = Q₂ · borde derecho = Q₃.'),
+      pasos:[
+        {titulo:'Lee los tres cuartiles en el diagrama',
+         plantilla:filas(['Q₁ = {0}','Q₂ = {1}','Q₃ = {2}']),
+         campos:[{resp:q1},{resp:q2},{resp:q3}],
+         explicacion:'En el diagrama Q₁ = '+q1+', Q₂ = '+q2+' y Q₃ = '+q3+'.',
+         pista:'Baja con el dedo desde cada marca hasta la regla numérica.',
+         ayuda:'La caja empieza en Q₁, la línea naranja del medio es Q₂ y la caja termina en Q₃.'},
+        {titulo:'Calcula el rango intercuartílico',plantilla:expr('RIC = '+q3+' − '+q1+' = {0}'),campos:[{resp:q3-q1}],
+         explicacion:'RIC = '+(q3-q1)+', el ancho de la caja.',
+         pista:'El RIC es literalmente el ancho de la caja.',ayuda:'Resta Q₁ a Q₃.'}
+      ]});
+  }
+  if(t==='ric'){
+    const q1=ent(8,20), q3=q1+ent(6,22);
+    return ejercicio({etiqueta:'Rango intercuartílico',
+      enunciado:'En un conjunto de datos se sabe que Q₁ = '+q1+' y Q₃ = '+q3+'.',
+      formula:'RIC = Q₃ − Q₁',
+      pasos:[
+        {titulo:'Coloca los valores y resta',plantilla:expr('RIC = {0} − {1} = {2}'),
+         campos:[{resp:q3},{resp:q1},{resp:q3-q1}],
+         explicacion:'RIC = '+q3+' − '+q1+' = '+(q3-q1)+'. Entre esos dos cuartiles está el 50% central.',
+         pista:'El mayor (Q₃) va primero; el menor (Q₁) se resta.',
+         ayuda:'Q₃ = '+q3+' y Q₁ = '+q1+'.'}
+      ]});
+  }
+  return conceptoEj('cuartiles');
+}
+
+/* ---------- CONCEPTOS (una pregunta con gráfica) ---------- */
+function conceptoEj(tema){
+  const B={
+    media:[
+      ['Si a cada dato le sumas 5, ¿qué le pasa a la media?','La media también aumenta 5 unidades',['La media no cambia','La media se multiplica por 5','La media disminuye 5'],'Al correr todos los datos 5 unidades hacia arriba, el punto de equilibrio sube igual.','Prueba con 2, 4, 6 (media 4) y súmale 5 a cada uno.'],
+      ['¿Qué representa la media aritmética?','El valor que reparte por igual el total entre todos los datos',['El dato que más se repite','El dato del centro','La diferencia entre el mayor y el menor'],'La media es el punto de equilibrio del conjunto.','El más repetido es la moda; el del centro es la mediana.'],
+      ['En el conjunto 5, 6, 7, 6, 100 hay un dato atípico. ¿Qué ocurre con la media?','Se ve muy afectada y sube bastante',['No cambia nada','Siempre baja','La media ignora los atípicos'],'Un dato enorme entra completo en la suma y arrastra la media.','Compara la media con y sin el 100.']],
+    varianza:[
+      ['¿Qué mide la varianza?','Qué tan dispersos están los datos respecto a la media',['El dato más grande','El promedio de los datos','La cantidad de datos'],'Promedia las distancias a la media elevadas al cuadrado.','Piensa en distancias a la media.'],
+      ['Si todos los datos son iguales (7, 7, 7, 7), la varianza es…','0',['1','7','No se puede calcular'],'Todas las desviaciones valen 0, así que la varianza es 0.','Calcula x − x̄ para cada dato.'],
+      ['¿Por qué se elevan al cuadrado las desviaciones?','Porque si no, su suma siempre da 0',['Para que el número sea más grande','Porque lo pide la calculadora','Para poder ordenarlas'],'Las positivas y negativas se anulan; al elevarlas todas quedan positivas.','Suma las desviaciones de 2, 4, 6.']],
+    desviacion:[
+      ['¿Qué significa una desviación estándar pequeña?','Que los datos están muy cerca de la media',['Que los datos son grandes','Que hay pocos datos','Que la media es pequeña'],'Poca dispersión: el grupo es homogéneo.','Imagina un curso donde todos sacan casi la misma nota.'],
+      ['¿Cómo se obtiene la desviación estándar?','Sacando la raíz cuadrada de la varianza',['Elevando la varianza al cuadrado','Dividiendo la varianza entre n','Restando la media al mayor dato'],'s = √s², por eso vuelve a las unidades originales.','Es la operación contraria al cuadrado.'],
+      ['La desviación estándar se expresa…','En las mismas unidades de los datos',['Siempre en porcentaje','En unidades al cuadrado','Sin unidades'],'La raíz cuadrada devuelve la escala original.','Compárala con las unidades de la varianza.']],
+    cv:[
+      ['¿Para qué sirve el coeficiente de variación?','Para comparar grupos con medias o unidades diferentes',['Para calcular la media','Para ordenar los datos','Para hallar el dato mayor'],'Al no tener unidades, permite comparar cosas distintas.','Piensa en comparar estaturas con pesos.'],
+      ['Un CV menor indica que los datos son…','Más homogéneos',['Más dispersos','Más grandes','Más numerosos'],'Menos variación relativa = datos más parecidos.','CV pequeño = grupo parejo.'],
+      ['Si un grupo tiene CV del 45%, se interpreta que los datos son…','Muy dispersos',['Perfectamente iguales','Muy homogéneos','Imposibles de analizar'],'Como regla de aula, un CV mayor al 30% indica alta dispersión.','Recuerda la regla del 30%.']],
+    percentiles:[
+      ['Ana está en el percentil 80. Eso significa que…','Cerca del 80% del grupo obtuvo un puntaje menor o igual al suyo',['Ana respondió el 80% bien','Ana está entre las últimas','El 80% le ganó a Ana'],'El percentil indica posición dentro del grupo, no calificación.','Percentil = posición, no nota.'],
+      ['El percentil 50 coincide siempre con…','La mediana',['La media','La moda','El dato mayor'],'P50 deja la mitad de los datos por debajo.','¿Qué valor parte los datos en dos mitades?'],
+      ['¿Qué se hace SIEMPRE antes de calcular un percentil?','Ordenar los datos de menor a mayor',['Sumarlos todos','Calcular la media','Elevarlos al cuadrado'],'Los percentiles se basan en posiciones, así que el orden es obligatorio.','Los percentiles trabajan con posiciones.']],
+    cuartiles:[
+      ['El segundo cuartil (Q₂) es igual a…','La mediana',['La media','El dato mayor','El rango'],'Q₂ parte los datos en dos mitades: es la mediana.','¿Qué porcentaje deja Q₂ debajo?'],
+      ['Entre Q₁ y Q₃ se encuentra…','El 50% central de los datos',['El 25%','El 75%','Todos los datos'],'De 25% a 75% hay justo el 50% central.','Resta 75% − 25%.'],
+      ['¿Qué porcentaje de datos queda por encima de Q₃?','El 25%',['El 75%','El 50%','El 100%'],'Q₃ deja el 75% debajo, así que arriba queda el 25%.','100% − 75%.']]
+  };
+  const q=elegir(B[tema]);
+  const demo=[4,7,9,12,18];
+  const gr={media:()=>graf(svgBarras(demo,'media'),'Recuerda: la media equilibra las barras.'),
+    varianza:()=>graf(svgBarras(demo,'varianza'),'Las líneas rojas son las desviaciones respecto a la media.'),
+    desviacion:()=>graf(svgBarras(demo,'desviacion'),'La franja verde es x̄ ± s.'),
+    cv:()=>graf(svgCV(12,34,'Grupo A','Grupo B'),'Dos grupos comparados en porcentaje.'),
+    percentiles:()=>graf(svgPuntos([3,5,8,11,14,17,21],5,'P70'),'Cada punto tiene su posición debajo.'),
+    cuartiles:()=>graf(svgCaja([3,5,8,11,14,17,21],true),'La caja contiene el 50% central.')}[tema];
+  return ejercicio({etiqueta:'Concepto',enunciado:'Piensa bien antes de responder.',grafico:gr,
+    pasos:[{titulo:q[0],tipo:'opciones',pregunta:'Elige la opción correcta.',
+      opciones:mezclar([q[1],...q[2]]),correcta:q[1],explicacion:q[3],pista:q[4],ayuda:q[4]}]});
+}
+function genMixto(){return elegir([genMedia,genVarianza,genDesviacion,genCV,genPercentiles,genCuartiles])();}
+
+/* =========================================================
+   6. LECCIONES (definición + gráfica + procedimiento)
+========================================================= */
+const D=[4,7,9,12,18];
+const LECCIONES=[
+{id:'media',titulo:'Media aritmética',resumen:'El valor que equilibra los datos',icono:'⚖️',
+ color:'linear-gradient(140deg,#6366F1,#4F46E5)',gen:genMedia,lab:'media',
+ teoria:()=>`
+  <div class="card entra">
+    <span class="eyebrow">Definición</span>
+    <h2 class="titulo">Media aritmética</h2>
+    <p class="sub">Es el valor que se obtiene al repartir por igual el total entre todos los datos. Se representa con x̄ y es el punto donde el conjunto queda equilibrado.</p>
+    ${graf(svgBarras(D,'media'),'Las barras son los datos y la línea morada es la media: lo que sobra de las barras altas alcanza justo para completar las bajas.')}
+    <div class="formula-caja">${F.media}</div>
+    <div class="paso"><span class="n">1</span><p><b>Suma</b> todos los datos (Σx).</p></div>
+    <div class="paso"><span class="n">2</span><p><b>Cuenta</b> cuántos datos hay (n).</p></div>
+    <div class="paso"><span class="n">3</span><p><b>Divide</b> la suma entre n.</p></div>
+    <div class="ejemplo"><h4>Ejemplo resuelto</h4>
+      ${expr('4 + 7 + 9 + 12 + 18 = <span class="val gris">50</span>')}
+      ${expr('x̄ = '+frac(50,5)+' = <span class="val">10</span>')}
+    </div>
+    <div class="tip">💡 Un dato muy alejado (atípico) mueve mucho la media. Compruébalo en el laboratorio de abajo.</div>
+  </div>`},
+{id:'varianza',titulo:'Varianza',resumen:'Cuánto se alejan los datos de la media',icono:'📐',
+ color:'linear-gradient(140deg,#8B5CF6,#7C3AED)',gen:genVarianza,lab:'varianza',
+ teoria:()=>`
+  <div class="card entra">
+    <span class="eyebrow">Definición</span>
+    <h2 class="titulo">Varianza</h2>
+    <p class="sub">Es el promedio de las distancias de cada dato a la media, elevadas al cuadrado. Se escribe s² y mide la dispersión del conjunto.</p>
+    ${graf(svgBarras(D,'varianza'),'Cada línea roja es la distancia de un dato a la media. Debajo de cada barra aparece esa desviación (x − x̄).')}
+    <div class="formula-caja">${F.varianza}</div>
+    <div class="paso"><span class="n">1</span><p>Calcula la <b>media</b> x̄.</p></div>
+    <div class="paso"><span class="n">2</span><p>Halla cada <b>desviación</b>: x − x̄.</p></div>
+    <div class="paso"><span class="n">3</span><p><b>Eleva al cuadrado</b> y suma: Σ(x − x̄)².</p></div>
+    <div class="paso"><span class="n">4</span><p><b>Divide</b> entre n.</p></div>
+    <div class="ejemplo"><h4>Ejemplo resuelto (datos 4, 7, 9, 12, 18 · x̄ = 10)</h4>
+      ${filas(['(4 − 10)² = <span class="val gris">36</span> &nbsp; (7 − 10)² = <span class="val gris">9</span>',
+               '(9 − 10)² = <span class="val gris">1</span> &nbsp; (12 − 10)² = <span class="val gris">4</span>',
+               '(18 − 10)² = <span class="val gris">64</span>'])}
+      ${expr('s² = '+frac('36 + 9 + 1 + 4 + 64','5')+' = '+frac(114,5)+' = <span class="val">22,8</span>')}
+    </div>
+    <div class="destaque">Se elevan al cuadrado porque las desviaciones positivas y negativas <b>siempre suman 0</b> si no se elevan.</div>
+  </div>`},
+{id:'desviacion',titulo:'Desviación estándar',resumen:'La dispersión en las unidades reales',icono:'📏',
+ color:'linear-gradient(140deg,#0EA5A5,#12A971)',gen:genDesviacion,lab:'desviacion',
+ teoria:()=>`
+  <div class="card entra">
+    <span class="eyebrow">Definición</span>
+    <h2 class="titulo">Desviación estándar</h2>
+    <p class="sub">Es la raíz cuadrada de la varianza. Indica, en las mismas unidades de los datos, cuánto se separan en promedio de la media.</p>
+    ${graf(svgBarras(D,'desviacion'),'La franja verde va desde x̄ − s hasta x̄ + s. La mayoría de los datos suele caer dentro de ella.')}
+    <div class="formula-caja">${F.desv}</div>
+    <div class="paso"><span class="n">1</span><p>Calcula la <b>varianza</b> s².</p></div>
+    <div class="paso"><span class="n">2</span><p>Saca la <b>raíz cuadrada</b>.</p></div>
+    <div class="ejemplo"><h4>Ejemplo resuelto</h4>
+      ${expr('s² = '+frac(100,4)+' = <span class="val gris">25</span>')}
+      ${expr('s = '+raiz(25)+' = <span class="val">5</span>')}
+    </div>
+    <div class="tip">💡 Con x̄ = 20 y s = 3, la mayoría de los datos está entre 17 y 23.</div>
+  </div>`},
+{id:'cv',titulo:'Coeficiente de variación',resumen:'Comparar la dispersión en porcentaje',icono:'🎯',
+ color:'linear-gradient(140deg,#F59E0B,#F5A623)',gen:genCV,lab:'cv',
+ teoria:()=>`
+  <div class="card entra">
+    <span class="eyebrow">Definición</span>
+    <h2 class="titulo">Coeficiente de variación</h2>
+    <p class="sub">Compara la desviación estándar con la media y lo expresa en porcentaje. Sirve para comparar grupos con unidades o medias distintas.</p>
+    ${graf(svgCV(12,34,'Estatura','Peso'),'Aunque uno esté en cm y el otro en kg, el CV los pone en la misma escala: %.')}
+    <div class="formula-caja">${F.cv}</div>
+    <div class="paso"><span class="n">1</span><p><b>Divide</b> la desviación entre la media.</p></div>
+    <div class="paso"><span class="n">2</span><p><b>Multiplica</b> por 100.</p></div>
+    <div class="ejemplo"><h4>Ejemplo resuelto (x̄ = 50 · s = 6)</h4>
+      ${expr('CV = '+frac(6,50)+' × 100 = 0,12 × 100 = <span class="val">12%</span>')}
+    </div>
+    <div class="tip">💡 Regla de aula: menos del 15% muy homogéneo · entre 15% y 30% moderado · más del 30% muy disperso.</div>
+  </div>`},
+{id:'percentiles',titulo:'Percentiles',resumen:'Tu posición dentro del grupo',icono:'📍',
+ color:'linear-gradient(140deg,#EC4899,#DB2777)',gen:genPercentiles,lab:'percentiles',
+ teoria:()=>`
+  <div class="card entra">
+    <span class="eyebrow">Definición</span>
+    <h2 class="titulo">Percentiles</h2>
+    <p class="sub">El percentil k es el valor que deja por debajo aproximadamente el k% de los datos. Habla de posición dentro del grupo, no de calificación.</p>
+    ${graf(svgPuntos([3,5,8,11,14,17,21],5,'P70 = 14'),'Con 7 datos, el P70 cae en la posición 5. El punto naranja deja el 70% de los datos a su izquierda.')}
+    <div class="formula-caja">${F.pos}</div>
+    <div class="paso"><span class="n">1</span><p><b>Ordena</b> los datos de menor a mayor.</p></div>
+    <div class="paso"><span class="n">2</span><p>Calcula la <b>posición</b> con la fórmula.</p></div>
+    <div class="paso"><span class="n">3</span><p>Si da <b>decimal</b>, redondea hacia arriba y toma ese dato.</p></div>
+    <div class="paso"><span class="n">4</span><p>Si da <b>entero</b>, promedia ese dato con el siguiente.</p></div>
+    <div class="ejemplo"><h4>Ejemplo resuelto (7 datos, P70)</h4>
+      ${expr('posición = '+frac('70 × 7','100')+' = <span class="val gris">4,9</span>')}
+      ${expr('4,9 → posición <span class="val gris">5</span> &nbsp;→&nbsp; P70 = <span class="val">14</span>')}
+    </div>
+  </div>`},
+{id:'cuartiles',titulo:'Cuartiles',resumen:'Los datos partidos en cuatro',icono:'🧊',
+ color:'linear-gradient(140deg,#0EA5E9,#2563EB)',gen:genCuartiles,lab:'cuartiles',
+ teoria:()=>`
+  <div class="card entra">
+    <span class="eyebrow">Definición</span>
+    <h2 class="titulo">Cuartiles</h2>
+    <p class="sub">Son tres valores que parten los datos ordenados en cuatro grupos iguales del 25% cada uno.</p>
+    ${graf(svgCaja([3,5,8,11,14,17,21],true),'El diagrama de caja: empieza en Q₁, la línea naranja es Q₂ (mediana) y termina en Q₃. Dentro de la caja está el 50% central.')}
+    <div class="formula-caja">Q₁ = P₂₅ &nbsp;·&nbsp; Q₂ = P₅₀ &nbsp;·&nbsp; Q₃ = P₇₅</div>
+    <div class="paso"><span class="n">1</span><p><b>Ordena</b> los datos.</p></div>
+    <div class="paso"><span class="n">2</span><p>Usa la fórmula de la posición con k = 25, 50 y 75.</p></div>
+    <div class="paso"><span class="n">3</span><p>Calcula el <b>rango intercuartílico</b>: RIC = Q₃ − Q₁.</p></div>
+    <div class="ejemplo"><h4>Ejemplo resuelto (7 datos)</h4>
+      ${expr('Q₁: '+frac('25 × 7','100')+' = 1,75 → pos <span class="val gris">2</span> → <span class="val">5</span>')}
+      ${expr('Q₃: '+frac('75 × 7','100')+' = 5,25 → pos <span class="val gris">6</span> → <span class="val">17</span>')}
+    </div>
+  </div>`},
+{id:'mixto',titulo:'Reto mixto',resumen:'Todos los temas mezclados',icono:'🏆',
+ color:'linear-gradient(140deg,#111827,#4F46E5)',gen:genMixto,lab:null,
+ teoria:()=>`
+  <div class="card entra">
+    <span class="eyebrow">Repaso final</span>
+    <h2 class="titulo">Todo junto</h2>
+    <p class="sub">Ejercicios mezclados de los seis temas, con el mismo acompañamiento paso a paso.</p>
+    <div class="formula-caja">${F.media}</div>
+    <div class="formula-caja">${F.varianza}</div>
+    <div class="formula-caja">${F.desv}</div>
+    <div class="formula-caja">${F.cv}</div>
+    <div class="formula-caja">${F.pos}</div>
+    <div class="tip">💡 Antes de responder identifica qué te piden: ¿un promedio, una dispersión o una posición?</div>
+  </div>`}];
+const getLec=id=>LECCIONES.find(l=>l.id===id);
+
+/* =========================================================
+   7. PANTALLAS
+========================================================= */
+const $=s=>document.querySelector(s);
+const cont=()=>$('#contenido');
+
+function pantallaBienvenida(){
+  $('#barra').hidden=true;
+  cont().innerHTML=`
+    <div class="hero entra">
+      <div class="marca">Estadística · Secundaria</div>
+      <h1>DatosGo</h1>
+      <p>Media, dispersión y posición: paso a paso y sin salir de la app.</p>
+      <div class="hero-viz">${[26,44,62,38,74,50,86,58].map((h,i)=>'<i style="height:'+h+'%;animation-delay:'+(i*.06)+'s"></i>').join('')}</div>
+      <div class="hero-linea"><span>x̄</span></div>
+    </div>
+    <div class="card entra entra-2">
+      <span class="eyebrow">Antes de empezar</span>
+      <h2 class="titulo">¿Quién va a practicar hoy?</h2>
+      <div class="campo" style="margin-top:14px">
+        <label for="inNombre">Nombre del estudiante</label>
+        <input id="inNombre" type="text" placeholder="Escribe tu nombre completo" autocomplete="name" maxlength="34">
+      </div>
+      <div class="campo"><label>Grado</label>
+        <div class="grados">${[6,7,8,9,10,11].map(g=>'<button class="grado-op" aria-pressed="false" onclick="elegirGrado(this,'+g+')">'+g+'°</button>').join('')}</div>
+      </div>
+      <div id="avisoInicio"></div>
+      <button class="btn" onclick="comenzar()">🚀 Comenzar</button>
+    </div>
+    <p class="pie">Tus datos se usan solo dentro de esta app, en tu propio dispositivo.</p>`;
+}
+function elegirGrado(b,g){document.querySelectorAll('.grado-op').forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');S.grado='Grado '+g+'°';}
+function comenzar(){
+  const n=$('#inNombre').value.trim();
+  if(!n||!S.grado){$('#avisoInicio').innerHTML='<div class="aviso">⚠️ Escribe tu nombre y elige tu grado para continuar.</div>';if(!n)$('#inNombre').focus();return;}
+  S.nombre=n;S.inicio=Date.now();
+  LECCIONES.forEach(l=>{S.prog[l.id]=0;S.lecStats[l.id]={a:0,e:0,t:0};S.hitos[l.id]={};});
+  clearInterval(S.reloj);S.reloj=setInterval(actualizarReloj,1000);
+  pintarBarra();irMenu();
+}
+const iniciales=n=>n.trim().split(/\s+/).slice(0,2).map(p=>p[0].toUpperCase()).join('');
+function tiempoTexto(ms){const t=Math.floor(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60,d=x=>String(x).padStart(2,'0');
+  return (h>0?d(h)+':':'')+d(m)+':'+d(s);}
+function pintarBarra(){
+  const b=$('#barra');b.hidden=false;
+  b.innerHTML=`<div class="barra-wrap">
+    <div class="barra-fila">
+      <div class="avatar">${iniciales(S.nombre)}</div>
+      <div class="ident"><b>${S.nombre}</b><span>${S.grado}</span></div>
+      <button class="casa" onclick="irMenu()" aria-label="Ir al inicio">🏠</button>
+    </div>
+    <div class="chips-barra">
+      <div class="chip-b"><small>Tiempo</small><span id="reloj">00:00</span></div>
+      <div class="chip-b"><small>Aciertos</small><span id="cA">✔ ${S.aciertos}</span></div>
+      <div class="chip-b"><small>Errores</small><span id="cE">✖ ${S.errores}</span></div>
+    </div></div>`;
+  actualizarReloj();
+}
+function actualizarReloj(){const r=$('#reloj');if(r)r.textContent=tiempoTexto(Date.now()-S.inicio);}
+function actualizarContadores(t){
+  const a=$('#cA'),e=$('#cE');
+  if(a)a.textContent='✔ '+S.aciertos; if(e)e.textContent='✖ '+S.errores;
+  const el=t==='ok'?a:e; if(el){el.classList.remove('pop-num');void el.offsetWidth;el.classList.add('pop-num');}
+}
+
+function irMenu(){
+  S.leccion=null;cerrarModal();
+  const tot=S.aciertos+S.errores,pct=tot?Math.round(S.aciertos/tot*100):0;
+  const hechas=Object.keys(S.completadas).length;
+  cont().scrollTop=0;
+  cont().innerHTML=`
+    <div class="card entra">
+      <div class="saludo"><span class="emoji">👋</span>
+        <div><span class="eyebrow">Tu panel</span>
+          <h2 class="titulo" style="font-size:22px">Hola, ${S.nombre.split(' ')[0]}</h2>
+          <p class="sub">Elige una sección para practicar.</p></div></div>
+      <div class="stats-mini">
+        <div class="stat-mini"><b>${S.aciertos}</b><small>Aciertos</small></div>
+        <div class="stat-mini"><b>${S.errores}</b><small>Errores</small></div>
+        <div class="stat-mini"><b>${pct}%</b><small>Precisión</small></div>
+        <div class="stat-mini"><b>${hechas}/7</b><small>Lecciones</small></div>
+      </div>
+    </div>
+    <div class="lista-lecciones">
+      ${LECCIONES.map((l,i)=>{const p=S.prog[l.id]||0,h=S.completadas[l.id];
+        return `<button class="lec entra entra-${Math.min(i+1,4)}" onclick="abrirLeccion('${l.id}')">
+          <div class="lec-icono" style="background:${l.color}">${l.icono}</div>
+          <div class="lec-txt"><b>${l.titulo}</b><span>${l.resumen}</span>
+            <div class="lec-barra"><i style="width:${p/12*100}%"></i></div>
+            <span class="lec-estado">${h?'✔ Completada · puedes repasar':p>0?p+' de 12 pasos correctos':'Sin comenzar'}</span></div>
+          ${h?'<span class="medalla">🏅</span>':''}</button>`;}).join('')}
+      <button class="lec entra entra-4" onclick="abrirFormulario()">
+        <div class="lec-icono" style="background:linear-gradient(140deg,#64748B,#334155)">📘</div>
+        <div class="lec-txt"><b>Formulario</b><span>Todas las fórmulas en una página</span>
+        <span class="lec-estado">Consulta rápida antes de un examen</span></div></button>
+    </div>
+    <p class="pie">Objetivo de cada lección: 12 pasos resueltos correctamente.</p>`;
+}
+function abrirFormulario(){
+  S.leccion=null;cont().scrollTop=0;
+  cont().innerHTML=`
+    <div class="cabecera-lec entra">
+      <div class="lec-icono" style="background:linear-gradient(140deg,#64748B,#334155)">📘</div>
+      <div><span class="eyebrow">Consulta</span><h2 class="titulo" style="font-size:23px">Formulario</h2></div></div>
+    <div class="card entra entra-2">
+      <div class="form-item"><h3>Media aritmética</h3><div class="formula-caja" style="margin:8px 0">${F.media}</div><p>Suma de los datos dividida entre la cantidad de datos.</p></div>
+      <div class="form-item"><h3>Varianza</h3><div class="formula-caja" style="margin:8px 0">${F.varianza}</div><p>Promedio de las desviaciones al cuadrado. Unidades al cuadrado.</p></div>
+      <div class="form-item"><h3>Desviación estándar</h3><div class="formula-caja" style="margin:8px 0">${F.desv}</div><p>Raíz cuadrada de la varianza; vuelve a las unidades originales.</p></div>
+      <div class="form-item"><h3>Coeficiente de variación</h3><div class="formula-caja" style="margin:8px 0">${F.cv}</div><p>Dispersión relativa en porcentaje.</p></div>
+      <div class="form-item"><h3>Percentil k</h3><div class="formula-caja" style="margin:8px 0">${F.pos}</div><p>Con los datos ordenados. Decimal → redondea hacia arriba; entero → promedia con el siguiente.</p></div>
+      <div class="form-item"><h3>Cuartiles</h3><div class="formula-caja" style="margin:8px 0">Q₁ = P₂₅ · Q₂ = P₅₀ · Q₃ = P₇₅</div><p>RIC = Q₃ − Q₁, el ancho del 50% central.</p></div>
+    </div>
+    <button class="btn ghost" onclick="irMenu()">🏠 Volver al inicio</button>`;
+}
+
+/* =========================================================
+   8. LECCIÓN Y EJERCICIOS
+========================================================= */
+function abrirLeccion(id){
+  S.leccion=id;
+  if(S.completadas[id]&&S.prog[id]>=12){S.prog[id]=0;S.lecStats[id]={a:0,e:0,t:0};S.hitos[id]={};}
+  S.lecStats[id]=S.lecStats[id]||{a:0,e:0,t:0};S.hitos[id]=S.hitos[id]||{};
+  S.lecStats[id].t=Date.now();
+  S.tab=S.prog[id]>0?'practicar':'aprende';S.ej=null;
+  renderLeccion();
+}
+function cambiarTab(t){S.tab=t;renderLeccion();}
+function renderLeccion(){
+  const L=getLec(S.leccion);cont().scrollTop=0;
+  const cuerpo=S.tab==='aprende'
+    ? L.teoria()+(L.lab?renderLab():'')+'<button class="btn ok" onclick="cambiarTab(\'practicar\')">🎯 Comenzar a practicar</button>'
+    : renderCamino()+'<div id="zonaEj"></div>';
+  cont().innerHTML=`
+    <div class="cabecera-lec entra">
+      <div class="lec-icono" style="background:${L.color}">${L.icono}</div>
+      <div style="flex:1;min-width:0"><span class="eyebrow">Lección</span>
+        <h2 class="titulo" style="font-size:23px">${L.titulo}</h2></div></div>
+    <div class="tabs entra">
+      <button aria-selected="${S.tab==='aprende'}" onclick="cambiarTab('aprende')">📖 Aprende</button>
+      <button aria-selected="${S.tab==='practicar'}" onclick="cambiarTab('practicar')">✏️ Practicar</button>
+    </div>${cuerpo}`;
+  if(S.tab==='practicar'){if(!S.ej)nuevoEjercicio();else pintarEjercicio();}
+}
+function renderCamino(){
+  const p=S.prog[S.leccion]||0;let n='';
+  for(let i=1;i<=12;i++){
+    const h=i%4===0;
+    n+='<div class="nodo'+(h?' hito':'')+(i<=p?' lleno':'')+(i===p+1?' actual':'')+'">'+(h?(i===12?'🏁':'⭐'):'')+'</div>';
+  }
+  return `<div class="camino-caja entra">
+    <div class="camino-top"><b>Tu recorrido</b><span>${p} / 12 pasos</span></div>
+    <div class="camino"><div class="via"><i style="width:${p<=1?0:(p-1)/11*100}%"></i></div>${n}</div></div>`;
+}
+function renderCaminoEnVivo(){
+  const v=document.querySelector('.contenido .camino-caja');
+  if(v){const t=document.createElement('div');t.innerHTML=renderCamino();v.replaceWith(t.firstElementChild);}
+}
+
+/* ---------- Laboratorio ---------- */
+function labPartes(){
+  const tipo=getLec(S.leccion).lab,d=S.lab.datos;
+  if(tipo==='cv'){const a=S.lab.a,b=S.lab.b;
+    return{visual:svgCV(a.s/a.m*100,b.s/b.m*100,'Grupo A','Grupo B'),
+      extra:'<p class="pie-graf">Cambia la media o la desviación de cada grupo y observa cómo cambia el porcentaje.</p>'};}
+  if(tipo==='percentiles'){
+    const or=ordenar(d),pos=Math.ceil(S.lab.k*d.length/100)||1;
+    return{visual:svgPuntos(d,pos,'P'+S.lab.k+' = '+fmt(percentil(d,S.lab.k))),
+      extra:`<div class="marcador">
+        <div class="marca"><b>${fmt(percentil(d,25))}</b><small>P25 = Q1</small></div>
+        <div class="marca"><b>${fmt(percentil(d,50))}</b><small>P50 = mediana</small></div>
+        <div class="marca"><b>${fmt(percentil(d,75))}</b><small>P75 = Q3</small></div></div>`};}
+  if(tipo==='cuartiles'){const q1=percentil(d,25),q3=percentil(d,75);
+    return{visual:svgCaja(d,true),extra:`<div class="marcador">
+      <div class="marca"><b>${fmt(q1)}</b><small>Q1</small></div>
+      <div class="marca"><b>${fmt(percentil(d,50))}</b><small>Q2</small></div>
+      <div class="marca"><b>${fmt(q3)}</b><small>Q3</small></div>
+      <div class="marca"><b>${fmt(q3-q1)}</b><small>RIC</small></div>
+      <div class="marca"><b>${Math.min(...d)}</b><small>Mínimo</small></div>
+      <div class="marca"><b>${Math.max(...d)}</b><small>Máximo</small></div></div>`};}
+  return{visual:svgBarras(d,tipo),extra:`<div class="marcador">
+    <div class="marca"><b>${fmt(media(d))}</b><small>Media x̄</small></div>
+    <div class="marca"><b>${fmt(varianzaP(d))}</b><small>Varianza s²</small></div>
+    <div class="marca"><b>${fmt(desvP(d))}</b><small>Desviación s</small></div></div>`};
+}
+function renderLab(){
+  const tipo=getLec(S.leccion).lab,p=labPartes();let ctr='';
+  if(tipo==='cv'){const a=S.lab.a,b=S.lab.b;
+    ctr=`<div class="sliders" style="grid-template-columns:1fr 1fr">
+      <div class="slider-c"><b id="sl0">A · x̄ = ${a.m}</b><input type="range" min="5" max="200" value="${a.m}" oninput="S.lab.a.m=+this.value;refrescarLab()"></div>
+      <div class="slider-c"><b id="sl1">A · s = ${a.s}</b><input type="range" min="1" max="60" value="${a.s}" oninput="S.lab.a.s=+this.value;refrescarLab()"></div>
+      <div class="slider-c"><b id="sl2">B · x̄ = ${b.m}</b><input type="range" min="5" max="200" value="${b.m}" oninput="S.lab.b.m=+this.value;refrescarLab()"></div>
+      <div class="slider-c"><b id="sl3">B · s = ${b.s}</b><input type="range" min="1" max="60" value="${b.s}" oninput="S.lab.b.s=+this.value;refrescarLab()"></div></div>`;
+  }else{
+    const k=tipo==='percentiles'?`<div style="margin:14px 0 4px"><b id="slK" style="font-family:Fredoka;color:var(--violeta);font-size:17px">Percentil k = ${S.lab.k}</b>
+      <input type="range" min="5" max="95" step="5" value="${S.lab.k}" oninput="S.lab.k=+this.value;refrescarLab()"></div>`:'';
+    ctr=k+`<div class="sliders">${S.lab.datos.map((v,i)=>
+      '<div class="slider-c"><b id="sl'+i+'">'+v+'</b><input type="range" min="1" max="20" value="'+v+'" oninput="S.lab.datos['+i+']=+this.value;refrescarLab()"></div>').join('')}</div>
+      <button class="btn ghost chico" style="margin-top:12px" onclick="datosAzar()">🎲 Datos al azar</button>`;
+  }
+  return `<div class="card entra entra-2" id="labCard">
+    <span class="eyebrow">Laboratorio</span>
+    <h3 class="titulo" style="font-size:20px;margin-bottom:10px">${tipo==='cv'?'Compara dos grupos':'Mueve los datos y observa'}</h3>
+    <div class="graf" id="labVisual">${p.visual}</div>
+    <div id="labExtra">${p.extra}</div>${ctr}</div>`;
+}
+function refrescarLab(){
+  if(!$('#labCard'))return;
+  const p=labPartes(),tipo=getLec(S.leccion).lab;
+  $('#labVisual').innerHTML=p.visual;$('#labExtra').innerHTML=p.extra;
+  if(tipo==='cv'){const a=S.lab.a,b=S.lab.b;
+    [['sl0','A · x̄ = '+a.m],['sl1','A · s = '+a.s],['sl2','B · x̄ = '+b.m],['sl3','B · s = '+b.s]]
+      .forEach(([i,t])=>{const e=$('#'+i);if(e)e.textContent=t;});
+  }else{
+    S.lab.datos.forEach((v,i)=>{const e=$('#sl'+i);if(e)e.textContent=v;});
+    const k=$('#slK');if(k)k.textContent='Percentil k = '+S.lab.k;
+  }
+}
+function datosAzar(){S.lab.datos=Array.from({length:6},()=>ent(2,20));const c=$('#labCard');if(c)c.outerHTML=renderLab();}
+
+/* ---------- Ejercicio paso a paso ---------- */
+function nuevoEjercicio(){
+  let e,intentos=0;
+  do{e=getLec(S.leccion).gen();intentos++;}while(e.etiqueta===S.ultimoTipo&&intentos<6);
+  S.ultimoTipo=e.etiqueta;S.ej=e;S.seleccion=null;S.ayudaVisible=false;S.resuelto=false;
+  pintarEjercicio();cont().scrollTop=0;
+}
+function pintaPlantilla(p,vals){
+  let h=p.plantilla;
+  p.campos.forEach((c,i)=>{
+    const rep=vals?'<span class="val">'+fmt(vals[i])+'</span>'
+      :'<input class="caja mini" id="r'+i+'" type="text" inputmode="decimal" autocomplete="off" placeholder="?" onfocus="this.select()" onkeydown="if(event.key===\'Enter\')comprobar()">';
+    h=h.split('{'+i+'}').join(rep);
+  });
+  return h;
+}
+function pintarEjercicio(){
+  const ej=S.ej,z=$('#zonaEj');if(!z)return;
+  const p=ej.pasos[ej.pasoIdx];
+  const hechos=ej.pasos.slice(0,ej.pasoIdx).map((pp,i)=>`
+    <div class="hecho">
+      <div class="hecho-top"><span>✔ ${pp.titulo}</span>
+        <button class="mini-btn" onclick="corregirPaso(${i})">✎ Corregir</button></div>
+      ${pp.tipo==='opciones'?'<div class="expr" style="font-size:15px">'+pp.opciones[ej.res[i]]+'</div>':pintaPlantilla(pp,ej.res[i])}
+    </div>`).join('');
+  const zona=p.tipo==='opciones'
+    ? '<div class="opciones">'+p.opciones.map((o,i)=>'<button class="op" id="op'+i+'" aria-pressed="'+(S.seleccion===i)+'" onclick="seleccionar('+i+')"><b>'+'ABCD'[i]+'</b><span>'+o+'</span></button>').join('')+'</div>'
+    : pintaPlantilla(p,null);
+  z.innerHTML=`
+    <div class="card entra" id="cardEj">
+      <span class="etiqueta-ej">${ej.etiqueta}</span>
+      <p class="enunciado">${ej.enunciado||''}</p>
+      ${ej.datos?chips(ej.datos):''}${ej.datosPos?chipsPos(ej.datosPos):''}
+      ${ej.grafico?ej.grafico(ej):''}
+      ${ej.formula?'<div class="formula-caja">'+ej.formula+'</div>':''}
+      ${hechos?'<div class="hechos">'+hechos+'</div>':''}
+      <div class="paso-cab" id="pasoActual"><span class="n">${ej.pasoIdx+1}</span><b>${p.titulo}</b></div>
+      ${p.nota?'<p class="paso-nota">'+p.nota+'</p>':''}
+      ${p.pregunta?'<p class="paso-nota" style="padding-left:0">'+p.pregunta+'</p>':''}
+      ${zona}
+      <div id="zonaAyuda"></div>
+      <button class="link" onclick="verAyuda()">💡 Ver una ayuda</button>
+    </div>
+    <div class="acciones entra entra-2" id="acc">
+      ${S.resuelto
+        ? '<button class="btn ok" onclick="avanzar()">'+(ej.pasoIdx===ej.pasos.length-1?'Siguiente ejercicio':'Siguiente paso')+' →</button>'
+        : '<button class="btn ok" onclick="comprobar()">✅ Comprobar respuesta</button><button class="btn ghost" onclick="borrar()">🗑 Borrar</button>'}
+    </div>`;
+  if(S.ayudaVisible)verAyuda();
+}
+function seleccionar(i){S.seleccion=i;S.ej.pasos[S.ej.pasoIdx].opciones.forEach((_,j)=>{
+  const b=$('#op'+j);if(b)b.setAttribute('aria-pressed',j===i?'true':'false');});}
+function verAyuda(){S.ayudaVisible=true;const z=$('#zonaAyuda');
+  if(z)z.innerHTML='<div class="ayuda-caja">💡 '+(S.ej.pasos[S.ej.pasoIdx].ayuda||S.ej.pasos[S.ej.pasoIdx].pista)+'</div>';}
+function borrar(){
+  document.querySelectorAll('.caja').forEach(c=>{c.value='';c.classList.remove('mal','bien');});
+  S.seleccion=null;
+  const p=S.ej.pasos[S.ej.pasoIdx];
+  if(p.tipo==='opciones')p.opciones.forEach((_,j)=>{const b=$('#op'+j);if(b)b.setAttribute('aria-pressed','false');});
+  const f=document.querySelector('.caja');if(f)f.focus();
+}
+function corregirPaso(i){
+  const ej=S.ej;ej.pasoIdx=i;ej.res=ej.res.slice(0,i);
+  S.seleccion=null;S.resuelto=false;S.ayudaVisible=false;pintarEjercicio();
+  const c=$('#pasoActual');if(c)c.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function leerNum(id){const el=$('#'+id);if(!el)return NaN;
+  const t=el.value.trim().replace(',','.').replace('%','');return t===''?NaN:parseFloat(t);}
+function avisoRapido(t){const z=$('#zonaAyuda');if(z)z.innerHTML='<div class="ayuda-caja" style="background:#EEF0FE;border-color:#D6DAFB;color:#3A32B5">✏️ '+t+'</div>';}
+
+function comprobar(){
+  const ej=S.ej,p=ej.pasos[ej.pasoIdx],tol=p.tol??0.02;
+  let ok=false,detalle='',valores=null;
+  if(p.tipo==='opciones'){
+    if(S.seleccion===null){avisoRapido('Toca una de las opciones antes de comprobar.');return;}
+    ok=p.opciones[S.seleccion]===p.correcta;valores=S.seleccion;
+    if(!ok)detalle='La opción <b>'+'ABCD'[S.seleccion]+'</b> no es la correcta. Vuelve a leer cada alternativa con calma.';
+  }else{
+    const vals=p.campos.map((c,i)=>leerNum('r'+i));
+    if(vals.some(isNaN)){avisoRapido('Completa todas las casillas antes de comprobar.');return;}
+    const malos=[];
+    p.campos.forEach((c,i)=>{
+      const el=$('#r'+i);el.classList.remove('mal','bien');
+      if(Math.abs(vals[i]-c.resp)<=(c.tol??tol)){el.classList.add('bien');}
+      else{el.classList.add('mal');malos.push(i+1);}
+    });
+    ok=malos.length===0;valores=vals;
+    if(!ok){
+      const d=p.diagnostico&&p.diagnostico(vals[malos[0]-1]);
+      detalle=d||(p.campos.length>1
+        ? 'Las casillas marcadas en rojo ('+(malos.length===1?'la '+malos[0]+'ª':'las '+malos.join('ª, ')+'ª')+') todavía no coinciden. Las verdes ya están bien.'
+        : 'Tu respuesta fue '+fmt(vals[0])+', pero no es el valor correcto de este paso.');
+    }
+  }
+  if(ok){registrarAcierto(valores);}else{registrarError(detalle);}
+}
+function registrarAcierto(valores){
+  const ej=S.ej,i=ej.pasoIdx,p=ej.pasos[i];
+  ej.res[i]=valores;S.resuelto=true;
+  if(!ej.contados[i]){
+    ej.contados[i]=true;
+    S.aciertos++;S.lecStats[S.leccion].a++;
+    S.prog[S.leccion]=Math.min(12,(S.prog[S.leccion]||0)+1);
+    actualizarContadores('ok');renderCaminoEnVivo();
+  }
+  const ultimo=i===ej.pasos.length-1;
+  const extra=ultimo&&p.visualFinal?p.visualFinal():'';
+  abrirModal(`<div class="modal bien">
+    <div class="modal-icono">✔</div>
+    <h2>${ultimo?'¡Ejercicio resuelto!':'¡Paso correcto!'}</h2>
+    <p class="centro sub">${ultimo?'Completaste todo el procedimiento.':'Muy bien, vas construyendo el procedimiento.'}</p>
+    <div class="razon"><span class="rot">Por qué está correcto</span>${p.explicacion}</div>
+    ${extra}
+    <p class="frase">${elegir(FRASES)}</p>
+    <button class="btn ok" style="margin-top:16px" onclick="avanzar()">${ultimo?'Siguiente ejercicio':'Siguiente paso'} →</button>
+  </div>`);
+  const acc=$('#acc');
+  if(acc)acc.innerHTML='<button class="btn ok" onclick="avanzar()">'+(ultimo?'Siguiente ejercicio':'Siguiente paso')+' →</button>';
+}
+function registrarError(detalle){
+  const p=S.ej.pasos[S.ej.pasoIdx];
+  S.errores++;S.lecStats[S.leccion].e++;actualizarContadores('mal');
+  abrirModal(`<div class="modal mal">
+    <div class="modal-icono">✖</div>
+    <h2>Casi, revisa este paso</h2>
+    <p class="centro sub">No pierdes el ejercicio: puedes corregir y seguir.</p>
+    <div class="razon"><span class="rot">Dónde estuvo el error</span>${detalle}</div>
+    <div class="razon" style="background:var(--ambar-luz)"><span class="rot">Pista para revisar</span>${p.pista}</div>
+    <p class="frase" style="color:var(--suave)">${elegir(ANIMOS)}</p>
+    <button class="btn" style="margin-top:16px" onclick="cerrarModal();enfocarPrimera()">↩︎ Corregir y seguir</button>
+  </div>`);
+}
+function enfocarPrimera(){const m=document.querySelector('.caja.mal')||document.querySelector('.caja');if(m){m.focus();m.select&&m.select();}}
+function avanzar(){
+  cerrarModal();
+  const ej=S.ej,lec=S.leccion,p=S.prog[lec];
+  if((p===4||p===8)&&!S.hitos[lec][p]){S.hitos[lec][p]=true;modalHito(p);return;}
+  if(ej.pasoIdx<ej.pasos.length-1){
+    ej.pasoIdx++;S.seleccion=null;S.resuelto=false;S.ayudaVisible=false;
+    pintarEjercicio();
+    const c=$('#pasoActual');if(c)c.scrollIntoView({block:'center',behavior:'smooth'});
+    return;
+  }
+  if(p>=12){pantallaLogro();return;}
+  nuevoEjercicio();
+}
+function abrirModal(h){$('#capa').innerHTML='<div class="capa" role="dialog" aria-modal="true">'+h+'</div>';}
+function cerrarModal(){$('#capa').innerHTML='';}
+function modalHito(p){
+  confeti(14);
+  abrirModal(`<div class="modal hito"><div class="modal-icono">⭐</div>
+    <h2>Logro alcanzado</h2>
+    <p class="centro sub">${p===4?'¡Vas por buen camino! Ya llevas 4 pasos correctos en esta lección.':'¡Increíble! Solo te faltan 4 pasos para completar la lección.'}</p>
+    ${renderCamino()}
+    <button class="btn" style="margin-top:6px" onclick="avanzar()">Continuar →</button></div>`);
+}
+function confeti(n){
+  const c=['#4F46E5','#7C3AED','#12A971','#F5A623','#EC4899'],d=document.createElement('div');
+  d.className='confeti';let h='';
+  for(let i=0;i<n;i++)h+='<i style="left:'+ent(3,96)+'%;background:'+elegir(c)+';animation-delay:'+Math.random()*.5+'s"></i>';
+  d.innerHTML=h;document.body.appendChild(d);setTimeout(()=>d.remove(),3000);
+}
+function pantallaLogro(){
+  const id=S.leccion,L=getLec(id),st=S.lecStats[id];
+  S.completadas[id]=true;confeti(30);
+  const tot=st.a+st.e,pct=tot?Math.round(st.a/tot*100):100,dur=tiempoTexto(Date.now()-st.t);
+  const idx=LECCIONES.findIndex(l=>l.id===id);
+  const sig=LECCIONES.find((l,i)=>i>idx&&!S.completadas[l.id])||LECCIONES.find(l=>!S.completadas[l.id]);
+  cont().scrollTop=0;
+  cont().innerHTML=`
+    <div class="logro-card entra"><span class="trofeo">🎉</span>
+      <h2>¡Lección completada!</h2><p>${L.titulo}</p>
+      <div class="rejilla">
+        <div class="res"><b>${S.nombre.split(' ')[0]}</b><small>Estudiante</small></div>
+        <div class="res"><b>${S.grado.replace('Grado ','')}</b><small>Grado</small></div>
+        <div class="res"><b>${dur}</b><small>Tiempo</small></div>
+        <div class="res"><b>✔ ${st.a}</b><small>Aciertos</small></div>
+        <div class="res"><b>✖ ${st.e}</b><small>Errores</small></div>
+        <div class="res"><b>${pct}%</b><small>Precisión</small></div></div></div>
+    <div class="card entra entra-2 centro">
+      <p style="font-weight:800;font-size:18px;margin:4px 0 0">${elegir(CIERRE)}</p>
+      <p class="sub" style="margin-top:8px">${st.e>0?'Cada error que corregiste te enseñó algo nuevo.':'¡Y sin un solo error! Impresionante.'}</p></div>
+    ${sig?`<button class="btn entra entra-3" onclick="abrirLeccion('${sig.id}')">➡️ Siguiente lección: ${sig.titulo}</button>`
+      :'<div class="card entra centro"><h3 class="titulo" style="font-size:20px">🏅 ¡Completaste todas las lecciones!</h3><p class="sub">Puedes repasar cualquiera cuando quieras.</p></div>'}
+    <div class="fila-btn" style="margin-top:10px">
+      <button class="btn ghost entra entra-4" onclick="abrirLeccion('${id}')">🔁 Repasar</button>
+      <button class="btn ghost entra entra-4" onclick="irMenu()">🏠 Inicio</button></div>`;
+}
+
+pantallaBienvenida();
+</script>
+</body>
+</html>
