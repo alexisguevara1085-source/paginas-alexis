@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Parábola Lab · Función y ecuación cuadrática</title>
-<meta name="description" content="App interactiva para aprender función cuadrática: concavidad, a b c, eje de simetría, vértice, foco y gráfica por puntos.">
+<meta name="description" content="App interactiva paso a paso: concavidad, coeficientes a b c, eje de simetría, vértice, foco, tabla de valores y ceros de la ecuación cuadrática.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --violeta:#5B3DF5; --violeta-osc:#4429D6; --violeta-luz:#EDE8FF;
@@ -19,81 +19,84 @@
   --papel:#F7F5FF; --blanco:#fff;
   --sombra:0 10px 30px rgba(27,21,68,.09);
   --sombra-sm:0 4px 14px rgba(27,21,68,.07);
-  --r:22px;
-  --barra:112px;
+  --r:22px; --barra:112px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
   color:var(--tinta); background:var(--papel);
-  background-image:
-    linear-gradient(rgba(91,61,245,.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(91,61,245,.055) 1px, transparent 1px);
-  background-size:26px 26px;
-  font-size:17px; line-height:1.45;
-  min-height:100dvh;
-  overscroll-behavior-y:none;
+  background-image:linear-gradient(rgba(91,61,245,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(91,61,245,.055) 1px,transparent 1px);
+  background-size:26px 26px; font-size:17px; line-height:1.45; min-height:100dvh; overscroll-behavior-y:none;
 }
-h1,h2,h3,.display{font-family:'Fredoka',system-ui,sans-serif;font-weight:600;letter-spacing:.2px}
+h1,h2,h3{font-family:'Fredoka',system-ui,sans-serif;font-weight:600;letter-spacing:.2px}
 button{font-family:inherit;font-size:1rem;cursor:pointer;border:0;background:none;color:inherit}
 input,select{font-family:inherit;font-size:1rem;color:inherit}
 :focus-visible{outline:3px solid var(--violeta);outline-offset:3px;border-radius:8px}
 .oculto{display:none !important}
+i.v{font-style:italic;font-weight:800}
+
+/* ---------- FRACCIONES ---------- */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;line-height:1.1;font-weight:800}
+.fr b{padding:0 5px;font-weight:800}
+.fr u{padding:1px 5px 0;border-top:2.5px solid currentColor;text-decoration:none;display:block;font-weight:800}
+.rad{display:inline-flex;align-items:baseline}
+.rad em{font-style:normal}
+.rad u{text-decoration:none;border-top:2.5px solid currentColor;padding:1px 4px 0;margin-left:-1px}
 
 /* ---------- BIENVENIDA ---------- */
 #bienvenida{min-height:100dvh;display:grid;place-items:center;padding:22px}
 .hero{max-width:460px;width:100%;background:var(--blanco);border-radius:30px;box-shadow:var(--sombra);padding:26px 22px 24px;text-align:center;animation:sube .5s ease both}
 .marca{display:inline-flex;align-items:center;gap:9px;background:var(--violeta-luz);color:var(--violeta-osc);font-weight:800;font-size:.8rem;letter-spacing:1.4px;text-transform:uppercase;padding:7px 14px;border-radius:999px}
 .hero h1{font-size:2rem;margin:14px 0 4px;line-height:1.1}
-.hero p.sub{margin:0 0 6px;color:var(--gris);font-weight:600}
+.hero p.sub{margin:0;color:var(--gris);font-weight:600}
 .curva-hero{width:100%;height:120px;display:block;margin:6px 0 2px}
 .campo{text-align:left;margin-top:14px}
 .campo label{display:block;font-weight:800;font-size:.92rem;margin-bottom:6px}
 .campo input,.campo select{width:100%;padding:15px 16px;border-radius:16px;border:2px solid var(--linea);background:var(--papel);font-weight:700}
 .campo input:focus,.campo select:focus{border-color:var(--violeta);background:var(--blanco)}
-.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:17px 20px;border-radius:18px;background:var(--violeta);color:#fff;font-weight:800;font-size:1.08rem;box-shadow:0 8px 0 var(--violeta-osc);transition:transform .12s, box-shadow .12s;margin-top:18px}
-.btn:active{transform:translateY(5px);box-shadow:0 3px 0 var(--violeta-osc)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 20px;border-radius:18px;background:var(--violeta);color:#fff;font-weight:800;font-size:1.05rem;box-shadow:0 7px 0 var(--violeta-osc);transition:transform .12s,box-shadow .12s;margin-top:14px}
+.btn:active{transform:translateY(4px);box-shadow:0 3px 0 var(--violeta-osc)}
 .btn[disabled]{opacity:.45;box-shadow:none;cursor:not-allowed}
-.btn.verde{background:var(--verde);box-shadow:0 8px 0 #0A8552}
+.btn.verde{background:var(--verde);box-shadow:0 7px 0 #0A8552}
 .btn.gris{background:var(--blanco);color:var(--tinta);box-shadow:0 0 0 2px var(--linea) inset;font-weight:700}
-.btn.ambar{background:var(--ambar);color:#4A2E00;box-shadow:0 8px 0 #D68B00}
 
-/* ---------- BARRA SUPERIOR ---------- */
+/* ---------- BARRA ---------- */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:2px solid var(--linea);padding:9px 12px 10px;padding-top:calc(9px + env(safe-area-inset-top,0px))}
-.topbar .fila{display:flex;align-items:center;gap:10px;max-width:1120px;margin:0 auto}
+.topbar .fila{display:flex;align-items:center;gap:10px;max-width:1160px;margin:0 auto}
 .avatar{width:38px;height:38px;border-radius:13px;background:var(--violeta);color:#fff;display:grid;place-items:center;font-family:'Fredoka';font-size:1.05rem;flex:0 0 auto}
 .quien{min-width:0;flex:1}
 .quien b{display:block;font-size:.98rem;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .quien span{font-size:.78rem;color:var(--gris);font-weight:700}
-.casa{width:42px;height:42px;border-radius:14px;background:var(--violeta-luz);display:grid;place-items:center;font-size:1.15rem;flex:0 0 auto;transition:transform .15s}
+.casa{width:42px;height:42px;border-radius:14px;background:var(--violeta-luz);display:grid;place-items:center;font-size:1.15rem;flex:0 0 auto}
 .casa:active{transform:scale(.92)}
-.chips{display:flex;gap:7px;max-width:1120px;margin:8px auto 0;overflow:auto;scrollbar-width:none}
+.chips{display:flex;gap:7px;max-width:1160px;margin:8px auto 0;overflow:auto;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-weight:800;font-size:.86rem;background:var(--violeta-luz);color:var(--violeta-osc);white-space:nowrap;font-variant-numeric:tabular-nums}
 .chip.ok{background:var(--verde-luz);color:#0A7A4C}
 .chip.mal{background:var(--rojo-luz);color:#C3103C}
 .chip.reloj{background:var(--cian-luz);color:#0B7E96}
 .chip.pop{animation:pop .35s ease}
-
-main{padding:calc(var(--barra) + 14px) 14px 40px;max-width:1120px;margin:0 auto}
-.vista{animation:entra .32s ease both}
+main{padding:calc(var(--barra) + 14px) 14px 40px;max-width:1160px;margin:0 auto}
+.vista{animation:entra .3s ease both}
 
 /* ---------- MENÚ ---------- */
-.saludo{background:linear-gradient(140deg,var(--violeta),#8A5CF6 60%,var(--cian));color:#fff;border-radius:26px;padding:20px 20px 18px;box-shadow:var(--sombra);position:relative;overflow:hidden}
+.saludo{background:linear-gradient(140deg,var(--violeta),#8A5CF6 60%,var(--cian));color:#fff;border-radius:26px;padding:20px;box-shadow:var(--sombra);position:relative;overflow:hidden}
 .saludo h2{margin:0 0 4px;font-size:1.5rem}
-.saludo p{margin:0;opacity:.92;font-weight:600;font-size:.95rem;max-width:34ch}
-.saludo svg{position:absolute;right:-12px;bottom:-14px;width:150px;opacity:.35}
+.saludo p{margin:0;opacity:.93;font-weight:600;font-size:.95rem;max-width:36ch}
+.saludo svg{position:absolute;right:-12px;bottom:-14px;width:150px;opacity:.32}
 .mini{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .mini div{background:rgba(255,255,255,.2);border-radius:14px;padding:7px 12px;font-weight:800;font-size:.85rem}
 .titulo-sec{font-family:'Fredoka';font-size:1.12rem;margin:22px 4px 10px;display:flex;align-items:center;gap:8px}
 .titulo-sec i{font-style:normal;color:var(--gris);font-family:'Nunito';font-weight:700;font-size:.85rem}
 .grid{display:grid;gap:12px;grid-template-columns:1fr}
-.card{background:var(--blanco);border-radius:var(--r);padding:16px;box-shadow:var(--sombra-sm);display:flex;gap:14px;align-items:center;text-align:left;width:100%;transition:transform .14s, box-shadow .14s;border:2px solid transparent}
+.card{background:var(--blanco);border-radius:var(--r);padding:16px;box-shadow:var(--sombra-sm);display:flex;gap:14px;align-items:center;text-align:left;width:100%;transition:transform .14s,box-shadow .14s;border:2px solid transparent}
 .card:active{transform:scale(.985)}
 .card:hover{box-shadow:var(--sombra);border-color:var(--violeta-luz)}
 .ico{width:52px;height:52px;border-radius:17px;display:grid;place-items:center;font-size:1.5rem;flex:0 0 auto;background:var(--violeta-luz)}
-.ico.c-cian{background:var(--cian-luz)} .ico.c-verde{background:var(--verde-luz)} .ico.c-ambar{background:var(--ambar-luz)} .ico.c-rojo{background:var(--rojo-luz)}
+.ico{position:relative}
+.nlec{position:absolute;top:-7px;left:-7px;width:22px;height:22px;border-radius:50%;background:var(--violeta);color:#fff;font-family:'Nunito';font-weight:800;font-size:.74rem;display:grid;place-items:center;box-shadow:0 2px 6px rgba(27,21,68,.25)}
+.ico.c-cian{background:var(--cian-luz)}.ico.c-verde{background:var(--verde-luz)}.ico.c-ambar{background:var(--ambar-luz)}.ico.c-rojo{background:var(--rojo-luz)}
 .card .txt{flex:1;min-width:0}
 .card .txt b{font-family:'Fredoka';font-weight:600;font-size:1.05rem;display:block}
 .card .txt small{color:var(--gris);font-weight:600;font-size:.85rem;display:block;line-height:1.3}
@@ -104,72 +107,109 @@ main{padding:calc(var(--barra) + 14px) 14px 40px;max-width:1120px;margin:0 auto}
 .card.lab .txt small{color:#BEE7F3}
 .card.lab .ico{background:rgba(255,255,255,.16)}
 
-/* ---------- LECCIÓN ---------- */
-.leccion-cab{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.leccion-cab .ico{width:46px;height:46px;font-size:1.3rem;border-radius:15px}
-.leccion-cab h2{margin:0;font-size:1.22rem;line-height:1.15}
-.leccion-cab small{color:var(--gris);font-weight:700;font-size:.83rem}
+/* ---------- PANELES ---------- */
 .panel{background:var(--blanco);border-radius:var(--r);box-shadow:var(--sombra-sm);padding:16px;margin-bottom:12px}
+.cab-lec{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cab-lec .ico{width:46px;height:46px;font-size:1.3rem;border-radius:15px}
+.cab-lec h2{margin:0;font-size:1.2rem;line-height:1.15}
+.cab-lec small{color:var(--gris);font-weight:700;font-size:.83rem}
+.eq{background:var(--papel);border:2px solid var(--linea);border-radius:16px;padding:13px 12px;text-align:center;font-size:1.35rem;font-weight:800;font-family:'Fredoka';overflow-x:auto}
+.eq.chico{font-size:1.08rem;padding:10px}
+.formula{background:var(--violeta-luz);color:var(--violeta-osc);border-radius:14px;padding:12px 14px;font-weight:800;text-align:center;font-size:1.15rem;margin:10px 0;overflow-x:auto}
+.lienzo{background:var(--blanco);border-radius:18px;border:2px solid var(--linea);overflow:hidden}
+canvas{display:block;width:100%;height:auto;touch-action:manipulation}
+.leyenda{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;font-size:.79rem;font-weight:700;color:var(--gris)}
+.leyenda span{display:inline-flex;align-items:center;gap:5px;opacity:.35;transition:opacity .3s}
+.leyenda span.on{opacity:1}
+.punto-l{width:11px;height:11px;border-radius:50%;display:inline-block}
+
+/* ---------- TEORÍA ---------- */
+.teoria-caja{max-width:640px;margin:0 auto}
+.puntos{display:flex;gap:7px;justify-content:center;margin:14px 0 4px}
+.puntos i{width:9px;height:9px;border-radius:50%;background:var(--linea);transition:.25s}
+.puntos i.on{background:var(--violeta);width:26px;border-radius:99px}
+.lamina h3{margin:0 0 4px;font-size:1.25rem}
+.lamina .et{display:inline-block;background:var(--ambar-luz);color:#8A5A00;font-weight:800;font-size:.75rem;letter-spacing:1px;text-transform:uppercase;padding:5px 11px;border-radius:999px;margin-bottom:8px}
+.lamina p{margin:0 0 9px;font-size:.98rem}
+.lamina ul{margin:0 0 9px;padding-left:20px}
+.lamina li{margin-bottom:5px;font-size:.97rem}
+.ejemplo{background:var(--verde-luz);border-radius:16px;padding:12px 14px;font-weight:700;font-size:.95rem;margin:10px 0}
+.ejemplo b{color:#0A7A4C}
+.dosbtn{display:flex;gap:10px}
+.dosbtn .btn{margin-top:14px}
+
+/* ---------- PROCEDIMIENTO ---------- */
 .camino{padding:14px 10px 6px}
 .camino .cabecera{display:flex;justify-content:space-between;align-items:baseline;padding:0 6px 4px;font-weight:800;font-size:.86rem;color:var(--gris)}
 .camino b{color:var(--violeta-osc);font-size:1rem}
-.teoria summary{cursor:pointer;font-weight:800;list-style:none;display:flex;align-items:center;gap:8px;font-size:.97rem}
-.teoria summary::-webkit-details-marker{display:none}
-.teoria summary::after{content:'▾';margin-left:auto;color:var(--gris);transition:transform .2s}
-.teoria[open] summary::after{transform:rotate(180deg)}
-.teoria .cuerpo{margin-top:12px;font-size:.95rem;border-top:2px dashed var(--linea);padding-top:12px}
-.teoria .cuerpo p{margin:0 0 9px}
-.formula{background:var(--violeta-luz);color:var(--violeta-osc);border-radius:14px;padding:11px 14px;font-weight:800;text-align:center;font-size:1.12rem;margin:10px 0}
-.enunciado{font-weight:700;margin:0 0 12px;font-size:1.02rem}
-.eq{background:var(--papel);border:2px solid var(--linea);border-radius:16px;padding:14px 12px;text-align:center;font-size:1.42rem;font-weight:800;font-family:'Fredoka';letter-spacing:.4px;overflow-x:auto}
-.eq i{font-style:italic;font-family:'Nunito';font-weight:800}
-.eq.chico{font-size:1.1rem;padding:10px}
-.lienzo{background:var(--blanco);border-radius:18px;border:2px solid var(--linea);overflow:hidden;position:relative}
-canvas{display:block;width:100%;height:auto;touch-action:manipulation}
-.leyenda{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;font-size:.8rem;font-weight:700;color:var(--gris)}
-.leyenda span{display:inline-flex;align-items:center;gap:5px}
-.punto-l{width:11px;height:11px;border-radius:50%;display:inline-block}
+.ruta{list-style:none;margin:0;padding:0}
+.ruta li{display:flex;gap:11px;align-items:flex-start;padding:7px 0;font-weight:700;font-size:.93rem;color:var(--gris)}
+.ruta li .n{width:26px;height:26px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;font-size:.8rem;font-weight:800;background:var(--linea);color:#fff}
+.ruta li.hecho{color:var(--tinta)}
+.ruta li.hecho .n{background:var(--verde)}
+.ruta li.activo{color:var(--violeta-osc)}
+.ruta li.activo .n{background:var(--violeta);animation:late 1.6s ease-in-out infinite}
+.bitacora{border-left:3px solid var(--verde);padding-left:12px;margin:0 0 12px}
+.bitacora.vacia{border-left:0;padding:0}
+.bit-tit{font-weight:800;font-size:.83rem;color:#0A7A4C;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.bit{background:var(--verde-luz);border-radius:14px;padding:11px 13px;margin-bottom:8px;font-size:.93rem;font-weight:700;animation:entra .35s ease both}
+.bit .tt{display:flex;align-items:center;gap:7px;font-weight:800;color:#0A7A4C;font-size:.83rem;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.bit .cuenta{background:rgba(255,255,255,.75);border-radius:10px;padding:8px 10px;margin-top:6px;text-align:center;font-size:1.02rem;overflow-x:auto}
 
-.espera{text-align:center;border:2.5px dashed var(--linea);box-shadow:none;background:rgba(255,255,255,.6)}
-.espera svg{width:100%;max-width:200px;height:auto;margin-bottom:4px}
-.espera b{display:block;font-family:'Fredoka';font-weight:600;font-size:1rem}
-.espera small{color:var(--gris);font-weight:600;font-size:.85rem;display:block;max-width:30ch;margin:4px auto 0}
-.campos{display:flex;flex-direction:column;gap:14px;margin:14px 0 4px}
-.grupo-num{display:flex;flex-wrap:wrap;gap:10px}
-.casilla{flex:1 1 90px;min-width:88px}
-.casilla span{display:block;font-weight:800;font-size:.88rem;margin-bottom:5px;color:var(--gris)}
-.casilla input{width:100%;height:62px;text-align:center;font-size:1.5rem;font-weight:800;font-family:'Fredoka';border-radius:16px;border:2.5px solid var(--linea);background:var(--papel)}
+/* ---------- PASO ---------- */
+.paso-cab{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.paso-cab .nn{background:var(--violeta);color:#fff;font-weight:800;font-size:.78rem;padding:5px 11px;border-radius:999px;letter-spacing:.5px}
+.paso h3{margin:0 0 6px;font-size:1.1rem}
+.paso p.dice{margin:0 0 10px;font-weight:700;font-size:.98rem}
+.sustit{background:var(--papel);border:2px dashed var(--linea);border-radius:14px;padding:12px;text-align:center;font-size:1.1rem;font-weight:800;margin:10px 0;overflow-x:auto}
+.grupo-num{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.casilla{flex:1 1 90px;min-width:92px}
+.casilla span{display:block;font-weight:800;font-size:.86rem;margin-bottom:5px;color:var(--gris)}
 .entrada{position:relative}
-.casilla input{padding-right:46px}
-.signo{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:12px;background:var(--violeta-luz);color:var(--violeta-osc);font-weight:800;font-size:1.1rem;line-height:1}
-.signo:active{transform:translateY(-50%) scale(.9)}
+.casilla input{width:100%;height:60px;padding-right:44px;text-align:center;font-size:1.4rem;font-weight:800;font-family:'Fredoka';border-radius:16px;border:2.5px solid var(--linea);background:var(--papel)}
 .casilla input:focus{border-color:var(--violeta);background:var(--blanco)}
 .casilla input.malo{border-color:var(--rojo);background:var(--rojo-luz);animation:tiembla .4s}
 .casilla input.bueno{border-color:var(--verde);background:var(--verde-luz)}
-.opciones{display:flex;flex-direction:column;gap:9px}
-.opciones .pregunta{font-weight:800;font-size:.92rem;color:var(--gris)}
+.signo{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:11px;background:var(--violeta-luz);color:var(--violeta-osc);font-weight:800;font-size:1.05rem}
+.signo:active{transform:translateY(-50%) scale(.9)}
+.fracbox{margin:12px auto 0;max-width:250px}
+.fracbox .lbl{text-align:center;font-weight:800;font-size:.86rem;color:var(--gris);margin-bottom:6px}
+.fracbox .barra{height:4px;background:var(--tinta);border-radius:99px;margin:8px 0}
+.fracbox .entrada input{padding-right:44px}
+.fracbox input{width:100%;height:58px;text-align:center;font-size:1.4rem;font-weight:800;font-family:'Fredoka';border-radius:14px;border:2.5px solid var(--linea);background:var(--papel)}
+.fracbox input.malo{border-color:var(--rojo);background:var(--rojo-luz);animation:tiembla .4s}
+.fracbox input.bueno{border-color:var(--verde);background:var(--verde-luz)}
+.opciones{display:flex;flex-direction:column;gap:9px;margin-top:12px}
 .opcion{display:flex;align-items:center;gap:11px;padding:14px 15px;border-radius:16px;border:2.5px solid var(--linea);background:var(--papel);font-weight:700;text-align:left;width:100%;transition:.12s}
 .opcion[aria-pressed="true"]{border-color:var(--violeta);background:var(--violeta-luz);color:var(--violeta-osc)}
 .opcion.malo{border-color:var(--rojo);background:var(--rojo-luz);animation:tiembla .4s}
-.acciones{display:flex;gap:10px;margin-top:14px}
+.tip{font-size:.82rem;color:#8880B8;font-weight:700;margin:10px 0 0;text-align:center}
+.acciones{display:flex;gap:10px;margin-top:12px}
 .acciones .btn{margin-top:0}
-.acciones .btn.gris{flex:0 0 42%}
-.tabla-val{width:100%;border-collapse:separate;border-spacing:0;margin-top:4px;font-weight:800;text-align:center}
-.tabla-val th,.tabla-val td{padding:9px 6px;border-bottom:2px solid var(--linea);font-size:.95rem}
-.tabla-val th{color:var(--gris);font-size:.85rem}
+.acciones .btn.gris{flex:0 0 40%}
+.acierto{text-align:center;border:2.5px solid var(--verde);animation:entra .3s ease both}
+.acierto .sello{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;font-size:2.1rem;margin:0 auto 10px;background:var(--verde-luz);color:var(--verde);animation:pop .45s cubic-bezier(.2,.9,.3,1.4) both}
+.acierto h3{margin:0 0 4px;font-size:1.25rem}
+.cuenta-ok{background:var(--papel);border-radius:14px;padding:11px 12px;margin:10px 0;font-size:1.05rem;font-weight:800;overflow-x:auto}
+.expl-ok{margin:0 0 12px;font-weight:700;font-size:.96rem;text-align:left}
+.rev-graf,.rev-datos{background:var(--papel);border-radius:16px;padding:12px;margin-bottom:10px;text-align:left}
+.rev-tit{font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.7px;color:var(--gris);margin-bottom:8px}
+.rev-datos ul{margin:0;padding-left:18px}
+.rev-datos li{font-weight:700;font-size:.95rem;margin-bottom:4px}
+.rev-graf .lienzo{background:var(--blanco)}
 
-/* ---------- LABORATORIO ---------- */
+/* ---------- LAB ---------- */
 .slider-fila{display:flex;align-items:center;gap:12px;margin:14px 0}
 .slider-fila label{width:104px;flex:0 0 auto;font-weight:800;font-size:.95rem}
 .slider-fila label em{font-style:italic;color:var(--violeta);font-size:1.15rem}
-.slider-fila output{min-width:56px;text-align:center;font-weight:800;font-family:'Fredoka';background:var(--violeta-luz);color:var(--violeta-osc);border-radius:11px;padding:5px 7px;font-variant-numeric:tabular-nums}
+.slider-fila output{min-width:54px;text-align:center;font-weight:800;font-family:'Fredoka';background:var(--violeta-luz);color:var(--violeta-osc);border-radius:11px;padding:5px 7px;font-variant-numeric:tabular-nums}
 input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:10px;border-radius:99px;background:var(--linea);outline-offset:6px}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--violeta);border:4px solid #fff;box-shadow:0 3px 8px rgba(27,21,68,.3);cursor:grab}
-input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--violeta);border:4px solid #fff;cursor:grab}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--violeta);border:4px solid #fff;box-shadow:0 3px 8px rgba(27,21,68,.3)}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--violeta);border:4px solid #fff}
 .datos{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
 .dato{background:var(--papel);border-radius:15px;padding:10px 12px}
-.dato small{display:block;color:var(--gris);font-weight:800;font-size:.76rem;text-transform:uppercase;letter-spacing:.6px}
-.dato b{font-family:'Fredoka';font-size:1.08rem;font-weight:600}
+.dato small{display:block;color:var(--gris);font-weight:800;font-size:.74rem;text-transform:uppercase;letter-spacing:.6px}
+.dato b{font-family:'Fredoka';font-size:1.05rem;font-weight:600}
 .toggles{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .tg{padding:9px 13px;border-radius:999px;border:2px solid var(--linea);font-weight:800;font-size:.85rem;background:var(--blanco)}
 .tg[aria-pressed="true"]{background:var(--violeta);border-color:var(--violeta);color:#fff}
@@ -179,19 +219,42 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 /* ---------- MODALES ---------- */
 .capa{position:fixed;inset:0;z-index:90;background:rgba(27,21,68,.55);backdrop-filter:blur(3px);display:grid;place-items:end center;padding:16px;animation:fade .2s ease both}
 @media(min-width:700px){.capa{place-items:center}}
-.modal{background:var(--blanco);border-radius:28px;padding:22px 20px 20px;width:100%;max-width:480px;box-shadow:0 -10px 40px rgba(27,21,68,.25);animation:sube .3s cubic-bezier(.2,.9,.3,1.2) both;text-align:center;max-height:88dvh;overflow:auto}
-.modal .sello{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font-size:2.3rem;margin:0 auto 12px;animation:pop .45s cubic-bezier(.2,.9,.3,1.4) both}
-.sello.ok{background:var(--verde-luz);color:var(--verde)}
+.modal{background:var(--blanco);border-radius:28px;padding:22px 20px 20px;width:100%;max-width:480px;animation:sube .3s cubic-bezier(.2,.9,.3,1.2) both;text-align:center;max-height:88dvh;overflow:auto}
+.modal .sello{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-size:2.2rem;margin:0 auto 12px;animation:pop .45s cubic-bezier(.2,.9,.3,1.4) both}
 .sello.mal{background:var(--rojo-luz);color:var(--rojo)}
 .sello.fiesta{background:var(--ambar-luz)}
-.modal h3{margin:0 0 6px;font-size:1.35rem}
+.modal h3{margin:0 0 6px;font-size:1.3rem}
 .modal p{margin:0 0 4px;color:var(--gris);font-weight:600}
 .modal .porque{background:var(--papel);border-radius:16px;padding:12px 14px;margin-top:12px;font-weight:700;color:var(--tinta);font-size:.95rem;text-align:left}
 .modal .porque b{color:var(--violeta-osc)}
 .resumen{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0 4px;text-align:left}
 .resumen div{background:var(--papel);border-radius:15px;padding:10px 12px}
 .resumen small{display:block;color:var(--gris);font-weight:800;font-size:.74rem;text-transform:uppercase;letter-spacing:.5px}
-.resumen b{font-family:'Fredoka';font-size:1.12rem;font-weight:600}
+.resumen b{font-family:'Fredoka';font-size:1.1rem;font-weight:600}
+.btn.ambar{background:var(--ambar);color:#4A2E00;box-shadow:0 7px 0 #D68B00}
+.hoja{max-width:640px;text-align:left;padding:18px 16px 16px}
+.hoja-cab h3{margin:0;font-size:1.2rem}
+.hoja-meta{margin:2px 0 0;font-size:.85rem;color:var(--gris);font-weight:700}
+.hoja-cuerpo{margin-top:12px}
+.hoja-et{display:block;font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.9px;color:var(--gris);margin:14px 0 6px}
+.hoja-enun{background:var(--papel);border-radius:14px;padding:10px 12px;font-weight:800;font-size:1.12rem;text-align:center}
+.hoja-enun .hoja-et{text-align:left}
+.hoja-pasos{margin:0;padding-left:20px}
+.hoja-pasos li{margin-bottom:12px;font-size:.94rem;font-weight:700}
+.hoja-pasos li>b{display:block;color:var(--violeta-osc);margin-bottom:3px}
+.hoja-pasos .cuenta{background:var(--papel);border-radius:10px;padding:8px 10px;margin:5px 0;text-align:center;font-weight:800;overflow-x:auto}
+.hoja-res{background:var(--verde-luz);border-radius:14px;padding:10px 12px;font-weight:800;font-size:.95rem}
+.hoja-ta{width:100%;height:130px;border-radius:12px;border:2px solid var(--linea);padding:10px;font-size:.8rem;margin-bottom:10px}
+.hoja-btns{display:flex;gap:8px;margin-top:14px}
+.hoja-btns .btn{margin-top:0;font-size:.95rem;padding:14px 10px}
+@media print{
+  body{background:#fff}
+  body>*{display:none !important}
+  #capa{display:block !important;position:static}
+  .capa{position:static;background:none;backdrop-filter:none;padding:0;display:block}
+  .modal{box-shadow:none;max-width:100%;max-height:none;animation:none;overflow:visible}
+  .hoja-btns{display:none}
+}
 .aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;z-index:95;background:var(--tinta);color:#fff;padding:12px 20px;border-radius:999px;font-weight:800;box-shadow:var(--sombra);animation:sube .3s ease both;max-width:90vw;text-align:center}
 .confeti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
 .confeti i{position:absolute;width:10px;height:14px;border-radius:2px;animation:cae linear forwards}
@@ -202,65 +265,57 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
 @keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
 @keyframes tiembla{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 @keyframes cae{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
-@keyframes late{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
-.nodo-nuevo{animation:late .5s ease}
+@keyframes late{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@keyframes sello{0%{opacity:0;transform:scale(.3)}40%{opacity:1;transform:scale(1.1)}80%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.3)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
 
-@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
-
-/* ---------- ESCRITORIO ---------- */
-@media(min-width:860px){
+@media(min-width:900px){
   body{font-size:18px}
   .grid{grid-template-columns:1fr 1fr}
-  .dos-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:14px;align-items:start}
+  .dos-col{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);gap:0 14px;align-items:start}
   .dos-col .pegado{position:sticky;top:calc(var(--barra) + 14px)}
+  .dos-col > .zgraf{grid-column:1;grid-row:1;position:sticky;top:calc(var(--barra) + 14px)}
+  .dos-col > #zonaPaso{grid-column:2;grid-row:1 / span 2}
+  .dos-col > .bitacora{grid-column:1;grid-row:2;margin-top:12px}
+  .dos-col.sin-graf > #zonaPaso{grid-column:1;grid-row:1}
+  .dos-col.sin-graf > .bitacora{grid-column:2;grid-row:1;margin-top:0}
   .datos{grid-template-columns:1fr 1fr 1fr}
+  .dos-col:not(.sin-graf) .rev-graf{display:none}
   main{padding-left:20px;padding-right:20px}
 }
 </style>
 </head>
 <body>
 
-<!-- ============ BIENVENIDA ============ -->
 <section id="bienvenida">
   <div class="hero">
     <span class="marca">📐 Parábola Lab</span>
     <h1>Función y ecuación cuadrática</h1>
-    <p class="sub">Aprende viendo, moviendo y comprobando.</p>
+    <p class="sub">Primero repasas, luego resuelves paso a paso y ves la gráfica aparecer.</p>
     <svg class="curva-hero" viewBox="0 0 300 120" fill="none" aria-hidden="true">
       <line x1="10" y1="92" x2="290" y2="92" stroke="#E4E0F5" stroke-width="3" stroke-linecap="round"/>
       <line x1="150" y1="8" x2="150" y2="114" stroke="#E4E0F5" stroke-width="3" stroke-linecap="round"/>
-      <path id="curvaHero" d="M40 14 Q150 170 260 14" stroke="#5B3DF5" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="420" stroke-dashoffset="420">
-        <animate attributeName="stroke-dashoffset" from="420" to="0" dur="1.1s" fill="freeze"/>
-      </path>
-      <circle cx="150" cy="92" r="8" fill="#FFB020"/>
-      <circle cx="79" cy="92" r="6" fill="#12B4D8"/><circle cx="221" cy="92" r="6" fill="#12B4D8"/>
+      <path d="M40 14 Q150 170 260 14" stroke="#5B3DF5" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="420" stroke-dashoffset="420">
+        <animate attributeName="stroke-dashoffset" from="420" to="0" dur="1.1s" fill="freeze"/></path>
+      <circle cx="150" cy="92" r="8" fill="#FFB020"/><circle cx="79" cy="92" r="6" fill="#12B4D8"/><circle cx="221" cy="92" r="6" fill="#12B4D8"/>
     </svg>
-    <div class="campo">
-      <label for="inNombre">¿Cómo te llamas?</label>
-      <input id="inNombre" type="text" placeholder="Escribe tu nombre y apellido" autocomplete="name" maxlength="40">
-    </div>
-    <div class="campo">
-      <label for="inGrado">¿En qué grado estás?</label>
+    <div class="campo"><label for="inNombre">¿Cómo te llamas?</label>
+      <input id="inNombre" type="text" placeholder="Escribe tu nombre y apellido" autocomplete="name" maxlength="40"></div>
+    <div class="campo"><label for="inGrado">¿En qué grado estás?</label>
       <select id="inGrado">
-        <option value="Grado 6°">Grado 6°</option>
-        <option value="Grado 7°">Grado 7°</option>
-        <option value="Grado 8°">Grado 8°</option>
-        <option value="Grado 9°" selected>Grado 9°</option>
-        <option value="Grado 10°">Grado 10°</option>
-        <option value="Grado 11°">Grado 11°</option>
-      </select>
-    </div>
+        <option>Grado 6°</option><option>Grado 7°</option><option>Grado 8°</option>
+        <option selected>Grado 9°</option><option>Grado 10°</option><option>Grado 11°</option>
+      </select></div>
     <button class="btn" id="btnComenzar" disabled>Comenzar 🚀</button>
   </div>
 </section>
 
-<!-- ============ APP ============ -->
 <div id="app" class="oculto">
   <header class="topbar">
     <div class="fila">
       <div class="avatar" id="avatar">A</div>
       <div class="quien"><b id="tbNombre">Estudiante</b><span id="tbGrado">Grado</span></div>
-      <button class="casa" id="btnCasa" title="Ir al menú principal" aria-label="Ir al menú principal">🏠</button>
+      <button class="casa" id="btnCasa" aria-label="Ir al menú principal" title="Menú principal">🏠</button>
     </div>
     <div class="chips">
       <span class="chip reloj" id="chipTiempo">⏱ 00:00</span>
@@ -271,550 +326,1245 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;bac
   </header>
   <main id="vista"></main>
 </div>
-
 <div id="capa"></div>
 
 <script>
 "use strict";
-/* =================== ESTADO =================== */
-const S = { nombre:"", grado:"", ok:0, mal:0, t0:0, tick:null, lecc:null, prog:{}, ej:null, resp:{}, racha:0 };
+/* ===================== ESTADO ===================== */
 const META = 12;
+function metaDe(l){ return (l && l.meta) || META; }
+function numLec(l){ const i = LECCIONES.filter(x=>x.gen).indexOf(l); return i<0?0:i+1; }
+const S = {nombre:"",grado:"",ok:0,mal:0,t0:0,tick:null,prog:{},lecc:null,ej:null,paso:0,resp:{},log:[],graf:null,cv:null,racha:0,bloq:false};
 
-/* =================== UTILIDADES =================== */
+/* ===================== NÚMEROS Y FRACCIONES ===================== */
 const $ = s => document.querySelector(s);
 const ri = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
 const casi = (x,y) => Math.abs(x-y) < 1e-6;
+const gcd = (a,b) => b ? gcd(b, a%b) : Math.abs(a);
 
 function fmt(n){
   n = Math.round(n*1e6)/1e6;
   if(Number.isInteger(n)) return String(n).replace("-","−");
-  return String(n).replace(".",",").replace("-","−");
+  return String(Math.round(n*1000)/1000).replace(".",",").replace("-","−");
 }
 function parseNum(t){
   if(t==null) return NaN;
   let s = String(t).trim().replace(/−/g,"-").replace(/\s/g,"").replace(",",".");
-  if(s==="") return NaN;
+  if(s==="" || s==="-") return NaN;
   if(s.includes("/")){
-    const p = s.split("/");
-    if(p.length!==2) return NaN;
-    const a = Number(p[0]), b = Number(p[1]);
+    const p = s.split("/"); if(p.length!==2) return NaN;
+    const a=Number(p[0]), b=Number(p[1]);
     if(!isFinite(a)||!isFinite(b)||b===0) return NaN;
     return a/b;
   }
-  const v = Number(s);
-  return isFinite(v) ? v : NaN;
+  const v = Number(s); return isFinite(v)?v:NaN;
 }
-/* Escribe un término tipo  −3x²  */
-function term(coef, v, primero){
+function aFrac(v){
+  if(Number.isInteger(v)) return null;
+  const s = v<0?-1:1, x = Math.abs(v);
+  for(let d=2; d<=48; d++){
+    const n = x*d;
+    if(Math.abs(n-Math.round(n))<1e-9){ const g = gcd(Math.round(n),d)||1; return {n:s*Math.round(n)/g, d:d/g}; }
+  }
+  return null;
+}
+/* fracción visual */
+function fr(n,d){ return `<span class="fr"><b>${typeof n==="number"?fmt(n):n}</b><u>${typeof d==="number"?fmt(d):d}</u></span>`; }
+/* número: entero, fracción visual o decimal */
+function N(v){ const f = aFrac(v); return f ? fr(f.n,f.d) : fmt(v); }
+function Nlisto(v){ const f = aFrac(v); return f ? fmt(f.n)+"/"+fmt(f.d) : fmt(v); }
+function raiz(x){ return `<span class="rad"><em>√</em><u>${x}</u></span>`; }
+function par(x,y){ return "(" + fmt(x) + ", " + fmt(y) + ")"; }
+function parN(x,y){ return "(" + N(x) + ", " + N(y) + ")"; }
+function neg(v){ return v<0 ? "("+fmt(v)+")" : fmt(v); }
+
+function term(coef,v,primero){
   if(coef===0) return "";
-  const neg = coef<0, abs = Math.abs(coef);
+  const abs = Math.abs(coef);
   const num = (abs===1 && v) ? "" : fmt(abs).replace("−","");
   const cuerpo = num + v;
-  if(primero) return (neg?"−":"") + cuerpo;
-  return (neg?" − ":" + ") + cuerpo;
+  return primero ? (coef<0?"−":"")+cuerpo : (coef<0?" − ":" + ")+cuerpo;
 }
-function eqHTML(a,b,c,izq="f(<i>x</i>) = "){
-  const t = [[a,"<i>x</i>²"],[b,"<i>x</i>"],[c,""]].filter(p=>p[0]!==0);
+function eqHTML(a,b,c,izq="f(<i class='v'>x</i>) = "){
+  const t = [[a,"<i class='v'>x</i>²"],[b,"<i class='v'>x</i>"],[c,""]].filter(p=>p[0]!==0);
   if(!t.length) return izq+"0";
-  let s = term(t[0][0], t[0][1], true);
-  for(let i=1;i<t.length;i++) s += term(t[i][0], t[i][1], false);
-  return izq + s;
+  let s = term(t[0][0],t[0][1],true);
+  for(let i=1;i<t.length;i++) s += term(t[i][0],t[i][1],false);
+  return izq+s;
 }
 function eqDesordenada(a,b,c){
-  const t = shuffle([[a,"<i>x</i>²"],[b,"<i>x</i>"],[c,""]].filter(p=>p[0]!==0));
-  let s = term(t[0][0], t[0][1], true);
-  for(let i=1;i<t.length;i++) s += term(t[i][0], t[i][1], false);
-  return "f(<i>x</i>) = " + s;
+  const t = shuffle([[a,"<i class='v'>x</i>²"],[b,"<i class='v'>x</i>"],[c,""]].filter(p=>p[0]!==0));
+  let s = term(t[0][0],t[0][1],true);
+  for(let i=1;i<t.length;i++) s += term(t[i][0],t[i][1],false);
+  return "f(<i class='v'>x</i>) = "+s;
 }
-function par(x,y){ return "(" + fmt(x) + ", " + fmt(y) + ")"; }
-function par2(n){ return n<0 ? "("+fmt(n)+")" : fmt(n); }
 
-/* =================== GRÁFICA =================== */
-function montarGrafica(cont, opt){
+/* ===================== GRÁFICA ===================== */
+function montarGrafica(cont,opt){
   const cv = document.createElement("canvas");
-  cont.appendChild(cv);
-  cv._opt = opt;
-  redibujar(cv);
-  if(!montarGrafica._obs){
-    montarGrafica._obs = new ResizeObserver(es => es.forEach(e => {
-      const c = e.target.querySelector("canvas"); if(c) redibujar(c);
-    }));
-  }
+  cont.appendChild(cv); cv._opt = opt; redibujar(cv);
+  if(!montarGrafica._obs) montarGrafica._obs = new ResizeObserver(es=>es.forEach(e=>{
+    const c = e.target.querySelector("canvas"); if(c) redibujar(c);
+  }));
   montarGrafica._obs.observe(cont);
   return cv;
 }
-function redibujar(cv, nuevo){
-  if(nuevo) Object.assign(cv._opt, nuevo);
+function redibujar(cv,nuevo){
+  if(nuevo) Object.assign(cv._opt,nuevo);
   const o = cv._opt, cont = cv.parentElement;
-  const dpr = Math.min(window.devicePixelRatio||1, 2.5);
-  const W = Math.max(240, cont.clientWidth), H = Math.round(Math.min(Math.max(W*0.82, 250), 360));
+  const dpr = Math.min(window.devicePixelRatio||1,2.5);
+  const W = Math.max(240,cont.clientWidth), H = Math.round(Math.min(Math.max(W*.8,250),350));
   cv.width = W*dpr; cv.height = H*dpr; cv.style.height = H+"px";
-  const g = cv.getContext("2d");
-  g.setTransform(dpr,0,0,dpr,0,0);
-  g.clearRect(0,0,W,H);
-
-  const {a,b,c} = o;
-  const h = -b/(2*a), k = a*h*h + b*h + c;
-  // ventana
-  let ex = 5.5;
-  let xmin = Math.min(h-ex, -1.5), xmax = Math.max(h+ex, 1.5);
-  if(o.puntos && o.puntos.length){
-    o.puntos.forEach(p=>{ xmin=Math.min(xmin,p[0]-1.5); xmax=Math.max(xmax,p[0]+1.5); });
-  }
-  const ys = [];
-  for(let i=0;i<=40;i++){ const x = xmin + (xmax-xmin)*i/40; ys.push(a*x*x+b*x+c); }
-  let ymin = Math.min(0,k,...ys.filter(v=>Math.abs(v)<200));
-  let ymax = Math.max(0,k,...ys.filter(v=>Math.abs(v)<200));
-  if(ymax-ymin < 6){ const m=(ymax+ymin)/2; ymin=m-3; ymax=m+3; }
-  const padY = (ymax-ymin)*0.12; ymin-=padY; ymax+=padY;
-  // limitar altura visual
-  const maxSpan = 26;
-  if(ymax-ymin > maxSpan){ const cen=k; ymin=cen-maxSpan/2; ymax=cen+maxSpan/2;
-    if(a>0) { ymin = k - 2; ymax = k + maxSpan - 2; } else { ymax = k + 2; ymin = k - maxSpan + 2; } }
-
-  const X = x => (x-xmin)/(xmax-xmin)*W;
-  const Y = y => H - (y-ymin)/(ymax-ymin)*H;
-
-  const pasoX = paso(xmax-xmin), pasoY = paso(ymax-ymin);
-  // cuadrícula
-  g.lineWidth = 1; g.strokeStyle = "#EDEAFB";
-  for(let x=Math.ceil(xmin/pasoX)*pasoX; x<=xmax; x+=pasoX){ g.beginPath(); g.moveTo(X(x),0); g.lineTo(X(x),H); g.stroke(); }
-  for(let y=Math.ceil(ymin/pasoY)*pasoY; y<=ymax; y+=pasoY){ g.beginPath(); g.moveTo(0,Y(y)); g.lineTo(W,Y(y)); g.stroke(); }
-  // ejes
-  g.strokeStyle = "#B9B2E0"; g.lineWidth = 2.2;
-  g.beginPath(); g.moveTo(0,Y(0)); g.lineTo(W,Y(0)); g.stroke();
-  g.beginPath(); g.moveTo(X(0),0); g.lineTo(X(0),H); g.stroke();
-  g.fillStyle = "#8880B8"; g.font = "600 11px Nunito, sans-serif"; g.textAlign="center";
-  for(let x=Math.ceil(xmin/pasoX)*pasoX; x<=xmax; x+=pasoX){
-    if(Math.abs(x)<1e-9) continue;
-    const py = Math.min(Math.max(Y(0)+13, 12), H-3);
-    g.fillText(fmt(x), X(x), py);
-  }
+  const g = cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+  if(o.boceto){ return dibujarBoceto(g,W,H,o); }
+  const {a,b,c} = o, h = -b/(2*a), k = a*h*h+b*h+c;
+  let xmin = Math.min(h-5.5,-1.5), xmax = Math.max(h+5.5,1.5);
+  (o.puntos||[]).forEach(p=>{ xmin=Math.min(xmin,p[0]-1.5); xmax=Math.max(xmax,p[0]+1.5); });
+  const ys=[]; for(let i=0;i<=40;i++){ const x=xmin+(xmax-xmin)*i/40; ys.push(a*x*x+b*x+c); }
+  const fin = ys.filter(v=>Math.abs(v)<200);
+  let ymin = Math.min(0,k,...fin), ymax = Math.max(0,k,...fin);
+  if(ymax-ymin<6){ const m=(ymax+ymin)/2; ymin=m-3; ymax=m+3; }
+  const pad=(ymax-ymin)*.12; ymin-=pad; ymax+=pad;
+  if(ymax-ymin>26){ if(a>0){ymin=k-2;ymax=k+24;} else {ymax=k+2;ymin=k-24;} }
+  const X = x => (x-xmin)/(xmax-xmin)*W, Y = y => H-(y-ymin)/(ymax-ymin)*H;
+  const px = paso(xmax-xmin), py = paso(ymax-ymin);
+  g.lineWidth=1; g.strokeStyle="#EDEAFB";
+  for(let x=Math.ceil(xmin/px)*px;x<=xmax;x+=px){g.beginPath();g.moveTo(X(x),0);g.lineTo(X(x),H);g.stroke();}
+  for(let y=Math.ceil(ymin/py)*py;y<=ymax;y+=py){g.beginPath();g.moveTo(0,Y(y));g.lineTo(W,Y(y));g.stroke();}
+  g.strokeStyle="#B9B2E0"; g.lineWidth=2.2;
+  g.beginPath();g.moveTo(0,Y(0));g.lineTo(W,Y(0));g.stroke();
+  g.beginPath();g.moveTo(X(0),0);g.lineTo(X(0),H);g.stroke();
+  g.fillStyle="#8880B8"; g.font="600 11px Nunito,sans-serif"; g.textAlign="center";
+  for(let x=Math.ceil(xmin/px)*px;x<=xmax;x+=px){ if(Math.abs(x)<1e-9) continue;
+    g.fillText(fmt(x),X(x),Math.min(Math.max(Y(0)+13,12),H-3)); }
   g.textAlign="right";
-  for(let y=Math.ceil(ymin/pasoY)*pasoY; y<=ymax; y+=pasoY){
-    if(Math.abs(y)<1e-9) continue;
-    const px = Math.min(Math.max(X(0)-6, 22), W-3);
-    g.fillText(fmt(y), px, Y(y)+4);
-  }
-  g.textAlign="left"; g.fillStyle="#6C6790"; g.font="italic 700 13px Nunito, sans-serif";
-  g.fillText("x", W-14, Y(0)-8); g.fillText("y", X(0)+8, 14);
+  if(!o.sinNumerosY) for(let y=Math.ceil(ymin/py)*py;y<=ymax;y+=py){ if(Math.abs(y)<1e-9) continue;
+    g.fillText(fmt(y),Math.min(Math.max(X(0)-6,22),W-3),Y(y)+4); }
+  g.textAlign="left"; g.fillStyle="#6C6790"; g.font="italic 700 13px Nunito,sans-serif";
+  g.fillText("x",W-14,Y(0)-8); g.fillText("y",X(0)+8,14);
 
-  // eje de simetría
-  if(o.eje){
-    g.save(); g.strokeStyle="#12B4D8"; g.lineWidth=2.4; g.setLineDash([7,6]);
-    g.beginPath(); g.moveTo(X(h),0); g.lineTo(X(h),H); g.stroke(); g.restore();
-  }
-  // directriz
-  if(o.directriz){
-    const p = 1/(4*a);
-    g.save(); g.strokeStyle="#FFB020"; g.lineWidth=2.4; g.setLineDash([5,6]);
-    g.beginPath(); g.moveTo(0,Y(k-p)); g.lineTo(W,Y(k-p)); g.stroke(); g.restore();
-  }
-  // curva
-  if(o.curva !== false){
-    g.strokeStyle="#5B3DF5"; g.lineWidth=4; g.lineJoin="round"; g.lineCap="round";
-    g.beginPath();
-    let empezado=false;
-    for(let px=0; px<=W; px+=2){
-      const x = xmin + (xmax-xmin)*px/W, y = a*x*x+b*x+c, py = Y(y);
-      if(py < -400 || py > H+400){ empezado=false; continue; }
-      if(!empezado){ g.moveTo(px,py); empezado=true; } else g.lineTo(px,py);
-    }
+  if(o.eje){ g.save();g.strokeStyle="#12B4D8";g.lineWidth=2.4;g.setLineDash([7,6]);
+    g.beginPath();g.moveTo(X(h),0);g.lineTo(X(h),H);g.stroke();
+    g.setLineDash([]);g.fillStyle="#0B7E96";g.font="800 12px Nunito,sans-serif";g.textAlign="center";
+    g.fillText("x = "+Nlisto(h),X(h),14); g.restore(); }
+  if(o.directriz){ const p=1/(4*a); g.save();g.strokeStyle="#FFB020";g.lineWidth=2.4;g.setLineDash([5,6]);
+    g.beginPath();g.moveTo(0,Y(k-p));g.lineTo(W,Y(k-p));g.stroke(); g.restore(); }
+  if(o.curva){
+    g.strokeStyle="#5B3DF5";g.lineWidth=4;g.lineJoin="round";g.lineCap="round";g.beginPath();
+    let on=false;
+    for(let p=0;p<=W;p+=2){ const x=xmin+(xmax-xmin)*p/W, y=a*x*x+b*x+c, yy=Y(y);
+      if(yy<-400||yy>H+400){on=false;continue;}
+      if(!on){g.moveTo(p,yy);on=true;} else g.lineTo(p,yy); }
     g.stroke();
   }
-  // raíces
-  if(o.raices){
-    const d = b*b - 4*a*c;
-    if(d >= 0){
-      const r1 = (-b-Math.sqrt(d))/(2*a), r2 = (-b+Math.sqrt(d))/(2*a);
-      [r1,r2].forEach(r => punto(g, X(r), Y(0), "#0FA968", "", 7));
-    }
+  if(o.raices){ const d=b*b-4*a*c;
+    if(d>=0){ const r1=(-b-Math.sqrt(d))/(2*a), r2=(-b+Math.sqrt(d))/(2*a);
+      [r1,r2].forEach(r=>punto(g,X(r),Y(0),"#0FA968",Nlisto(Math.round(r*1e6)/1e6),6,1)); } }
+  if(o.cortey) punto(g,X(0),Y(c),"#12B4D8","(0, "+fmt(c)+")",6,-1);
+  (o.puntos||[]).forEach(p=>punto(g,X(p[0]),Y(p[1]),"#0FA968",par(p[0],p[1]),6,-1));
+  if(o.verticeQ){
+    const yy = Y(k), dir = yy>H-34?-1:1;
+    g.beginPath(); g.arc(X(h),yy,8,0,7); g.fillStyle="#fff"; g.fill();
+    g.lineWidth=3.5; g.strokeStyle="#F0436A"; g.stroke();
+    g.fillStyle="#F0436A"; g.font="800 12px Nunito,sans-serif"; g.textAlign="center";
+    const txt = "V ("+Nlisto(h)+", ?)", w = g.measureText(txt).width+12, ty = yy+(dir===-1?-18:24);
+    g.fillStyle="rgba(255,255,255,.92)"; g.beginPath(); g.roundRect(X(h)-w/2,ty-12,w,19,9); g.fill();
+    g.fillStyle="#F0436A"; g.fillText(txt,X(h),ty+2);
   }
-  // vértice
-  if(o.vertice) punto(g, X(h), Y(k), "#F0436A", o.etiqVertice===false?"":par(h,k), 8, Y(k)>H-30?-1:1);
-  // foco
-  if(o.foco){ const p = 1/(4*a); punto(g, X(h), Y(k+p), "#FFB020", o.etiqFoco===false?"":"F "+par(h,k+p), 7, -1); }
-  // puntos de la tabla
-  if(o.puntos) o.puntos.forEach(p => punto(g, X(p[0]), Y(p[1]), "#0FA968", par(p[0],p[1]), 6, -1));
+  if(o.vertice) punto(g,X(h),Y(k),"#F0436A","V "+parLisTo(h,k),8,Y(k)>H-34?-1:1);
+  if(o.foco){ const p=1/(4*a); punto(g,X(h),Y(k+p),"#FFB020","F",7,-1); }
 }
+function dibujarBoceto(g,W,H,o){
+  g.strokeStyle="#EDEAFB"; g.lineWidth=1;
+  for(let x=0;x<=W;x+=26){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,H); g.stroke(); }
+  for(let y=0;y<=H;y+=26){ g.beginPath(); g.moveTo(0,y); g.lineTo(W,y); g.stroke(); }
+  const cx = W*0.44, cy = H*0.52, vx = cx + W*0.14;
+  g.strokeStyle="#B9B2E0"; g.lineWidth=2.2;
+  g.beginPath(); g.moveTo(0,cy); g.lineTo(W,cy); g.stroke();
+  g.beginPath(); g.moveTo(cx,0); g.lineTo(cx,H); g.stroke();
+  g.fillStyle="#8880B8"; g.font="italic 700 13px Nunito,sans-serif"; g.textAlign="left";
+  g.fillText("x",W-14,cy-8); g.fillText("y",cx+8,14);
+  g.font="800 10.5px Nunito,sans-serif"; g.fillStyle="#C3BCE6"; g.textAlign="left";
+  g.fillText("BOCETO · TODAVÍA SIN VALORES EXACTOS",10,15);
+  if(!o.forma){
+    g.fillStyle="#B9B2E0"; g.font="800 15px Nunito,sans-serif"; g.textAlign="center";
+    g.fillText("¿Hacia dónde abrirá?",W/2,cy-24);
+    g.font="800 34px Nunito,sans-serif"; g.fillText("?",W/2,cy+22);
+    return;
+  }
+  const arriba = o.forma==="arriba";
+  const vy = arriba ? H*0.80 : H*0.20;
+  const cf = (arriba?1:-1)*(H*0.62)/Math.pow(W*0.40,2);
+  g.strokeStyle="#5B3DF5"; g.lineWidth=4; g.lineCap="round"; g.lineJoin="round";
+  g.beginPath(); let on=false;
+  for(let x=W*0.05;x<=W*0.95;x+=3){
+    const y = vy + cf*Math.pow(x-vx,2);
+    if(y<3||y>H-3){ on=false; continue; }
+    if(!on){ g.moveTo(x,y); on=true; } else g.lineTo(x,y);
+  }
+  g.stroke();
+  if(o.ejeQ){
+    g.save(); g.strokeStyle="#12B4D8"; g.lineWidth=2.4; g.setLineDash([7,6]);
+    g.beginPath(); g.moveTo(vx,0); g.lineTo(vx,H); g.stroke(); g.setLineDash([]);
+    g.fillStyle="#0B7E96"; g.font="800 13px Nunito,sans-serif"; g.textAlign="center";
+    g.fillText("x = ?",vx,16); g.restore();
+  }
+  g.beginPath(); g.arc(vx,vy,7,0,7); g.fillStyle="#fff"; g.fill();
+  g.lineWidth=3.5; g.strokeStyle="#F0436A"; g.stroke();
+  g.fillStyle="#F0436A"; g.font="800 12px Nunito,sans-serif"; g.textAlign="center";
+  g.fillText("V (?, ?)", vx, arriba? vy+24 : vy-14);
+}
+function parLisTo(x,y){ return "("+Nlisto(x)+", "+Nlisto(y)+")"; }
 function paso(span){
-  const bruto = span/9, exp = Math.pow(10, Math.floor(Math.log10(bruto))), n = bruto/exp;
+  const bruto = span/9, exp = Math.pow(10,Math.floor(Math.log10(bruto))), n = bruto/exp;
   return (n<1.5?1:n<3?2:n<7?5:10)*exp;
 }
 function punto(g,x,y,col,txt,r,dir){
-  g.beginPath(); g.arc(x,y,r,0,7); g.fillStyle=col; g.fill();
-  g.lineWidth=3; g.strokeStyle="#fff"; g.stroke();
-  if(txt){
-    g.font="800 12px Nunito, sans-serif"; g.textAlign="center";
-    const w = g.measureText(txt).width+12, ty = y + (dir===-1?-16:22);
-    g.fillStyle="rgba(255,255,255,.92)";
-    g.beginPath(); g.roundRect(x-w/2, ty-12, w, 19, 9); g.fill();
-    g.fillStyle=col; g.fillText(txt, x, ty+2);
+  g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=col;g.fill();g.lineWidth=3;g.strokeStyle="#fff";g.stroke();
+  if(txt){ g.font="800 12px Nunito,sans-serif";g.textAlign="center";
+    const w=g.measureText(txt).width+12, ty=y+(dir===-1?-16:22);
+    g.fillStyle="rgba(255,255,255,.92)";g.beginPath();g.roundRect(x-w/2,ty-12,w,19,9);g.fill();
+    g.fillStyle=col;g.fillText(txt,x,ty+2); }
+}
+if(typeof CanvasRenderingContext2D!=="undefined" && !CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    this.moveTo(x+r,y);this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);
+    this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath();return this;};
+}
+
+/* ===================== GENERADORES PASO A PASO =====================
+   Cada ejercicio: {a,b,c, titulo, encabezado, pasos:[...]}
+   Cada paso: {titulo, corto, dice, formula, sustit, tipo, campos|opciones, pista, explica, cuenta, revela}
+==================================================================== */
+
+/* --- 1. Concavidad --- */
+function ejConcavidad(){
+  const a = pick([1,2,3,4,-1,-2,-3,-4,0.5,-0.5]), b = ri(-6,6), c = ri(-8,8);
+  const arriba = a>0;
+  return {a,b,c, titulo:"Del signo de a a la forma de la parábola",
+    encabezado: eqHTML(a,b,c),
+    pasos:[
+      {corto:"Leer el coeficiente a", titulo:"Paso 1 · Ubica el coeficiente a",
+       dice:"En la forma general, <b>a</b> es el número que multiplica a <i class='v'>x</i>². Escríbelo con su signo.",
+       formula:"f(<i class='v'>x</i>) = <b>a</b><i class='v'>x</i>² + b<i class='v'>x</i> + c",
+       tipo:"num", campos:[{id:"a",et:"a =",val:a}],
+       pista:"Mira solo el término con <i class='v'>x</i>². Si aparece <i class='v'>x</i>² sin número, entonces a = 1; si aparece −<i class='v'>x</i>², entonces a = −1.",
+       explica:()=>`El término con <i class='v'>x</i>² es ${term(a,"<i class='v'>x</i>²",true)}, así que <b>a = ${fmt(a)}</b>.`},
+      {corto:"Signo de a", titulo:"Paso 2 · ¿Qué signo tiene?",
+       dice:"El signo de a es el que decide todo lo demás.",
+       tipo:"opcion", opciones:[{v:"pos",txt:"➕ a es positivo (a &gt; 0)"},{v:"neg",txt:"➖ a es negativo (a &lt; 0)"}],
+       correcta: arriba?"pos":"neg",
+       pista:"Si el número lleva un menos delante, es negativo. Si no lleva signo, es positivo.",
+       explica:()=>`a = ${fmt(a)} es un número <b>${arriba?"positivo":"negativo"}</b>.`},
+      {corto:"Concavidad", titulo:"Paso 3 · ¿Hacia dónde abre?",
+       dice:"Regla: a positivo abre hacia arriba 🙂 · a negativo abre hacia abajo 🙁",
+       tipo:"opcion", opciones:[{v:"arriba",txt:"▲ Abre hacia arriba"},{v:"abajo",txt:"▼ Abre hacia abajo"}],
+       correcta: arriba?"arriba":"abajo",
+       pista:"Vuelve al signo que acabas de encontrar y aplica la regla.",
+       explica:()=>`Como a ${arriba?"&gt;":"&lt;"} 0, la parábola abre hacia <b>${arriba?"arriba":"abajo"}</b>. Mira la curva en la gráfica.`,
+       revela:{curva:true}},
+      {corto:"Mínimo o máximo", titulo:"Paso 4 · ¿El vértice es mínimo o máximo?",
+       dice:"El vértice es el punto donde la parábola cambia de dirección.",
+       tipo:"opcion", opciones:[{v:"min",txt:"⬇ Es un punto mínimo"},{v:"max",txt:"⬆ Es un punto máximo"}],
+       correcta: arriba?"min":"max",
+       pista:"Si las ramas suben, el vértice queda abajo de todo. Si las ramas bajan, queda arriba de todo.",
+       explica:()=>`Al abrir hacia ${arriba?"arriba":"abajo"}, el vértice es el punto <b>${arriba?"más bajo: un mínimo":"más alto: un máximo"}</b>.`,
+       revela:{vertice:true}}
+    ]};
+}
+
+/* --- 2. Coeficientes a, b, c --- */
+function ejABC(){
+  let a = pick([1,2,3,4,5,6,-1,-2,-3,-4,-5]), b = ri(-7,7), c = ri(-9,9);
+  if(Math.random()<.2) b = 0;
+  const enc = Math.random()<.45 ? eqDesordenada(a,b,c) : eqHTML(a,b,c);
+  return {a,b,c, titulo:"Identifica a, b y c en la forma general",
+    encabezado: enc,
+    pasos:[
+      {corto:"Ordenar y hallar a", titulo:"Paso 1 · El coeficiente a",
+       dice:"Primero ordena mentalmente: <i class='v'>x</i>², luego <i class='v'>x</i>, luego el número solo. <b>a</b> acompaña a <i class='v'>x</i>².",
+       formula:"f(<i class='v'>x</i>) = <b>a</b><i class='v'>x</i>² + b<i class='v'>x</i> + c",
+       tipo:"num", campos:[{id:"a",et:"a =",val:a}],
+       pista:"Busca el único término que tiene <i class='v'>x</i> elevada al cuadrado y copia su número con el signo.",
+       explica:()=>`El término cuadrático es ${term(a,"<i class='v'>x</i>²",true)} → <b>a = ${fmt(a)}</b>.`},
+      {corto:"Hallar b", titulo:"Paso 2 · El coeficiente b",
+       dice:"<b>b</b> acompaña a <i class='v'>x</i> (sin cuadrado). Si ese término no aparece, b = 0.",
+       formula:"f(<i class='v'>x</i>) = a<i class='v'>x</i>² + <b>b</b><i class='v'>x</i> + c",
+       tipo:"num", campos:[{id:"b",et:"b =",val:b}],
+       pista: b===0 ? "Revisa bien: ¿ves algún término con <i class='v'>x</i> sola? Si no está, su coeficiente vale 0."
+                    : "Copia el número que multiplica a <i class='v'>x</i> junto con el signo que lo antecede.",
+       explica:()=> b===0 ? "No hay término con <i class='v'>x</i> sola, entonces <b>b = 0</b>."
+                          : `El término lineal es ${term(b,"<i class='v'>x</i>",true)} → <b>b = ${fmt(b)}</b>.`},
+      {corto:"Hallar c", titulo:"Paso 3 · El término independiente c",
+       dice:"<b>c</b> es el número que va solo, sin <i class='v'>x</i>.",
+       formula:"f(<i class='v'>x</i>) = a<i class='v'>x</i>² + b<i class='v'>x</i> + <b>c</b>",
+       tipo:"num", campos:[{id:"c",et:"c =",val:c}],
+       pista:"Es el término que no tiene ninguna letra.",
+       explica:()=>`<b>c = ${fmt(c)}</b>. Ya tienes la función completa: ${eqHTML(a,b,c)}`},
+      {corto:"Corte con el eje y", titulo:"Paso 4 · ¿Dónde corta el eje y?",
+       dice:"Toda parábola corta el eje <i class='v'>y</i> en <b>(0, c)</b>, porque al reemplazar x = 0 solo queda c.",
+       sustit:()=>`f(0) = ${fmt(a)}·(0)² ${b<0?"−":"+"} ${fmt(Math.abs(b))}·(0) ${c<0?"−":"+"} ${fmt(Math.abs(c))} = <b>${fmt(c)}</b>`,
+       tipo:"num", campos:[{id:"y",et:"y =",val:c}],
+       pista:"Reemplaza x = 0 en la función: los dos primeros términos se vuelven cero.",
+       explica:()=>`La gráfica pasa por <b>(0, ${fmt(c)})</b>, que es justo el valor de c.`,
+       revela:{curva:true,cortey:true}}
+    ]};
+}
+
+/* --- 3. Eje de simetría --- */
+function ejEje(){
+  const d = pick([1,1,2,2,3,4]);
+  const m = pick([1,-1,2,-2,3]);
+  const a = m*d;
+  let n = ri(-5,5); if(n===0) n = 2;
+  while(gcd(Math.abs(n),d)!==1) n = n>0?n+1:n-1;
+  const h = n/d, b = -2*a*h, c = ri(-6,6);
+  const exacta = Number.isInteger(h);
+  return {a,b,c, titulo:"Eje de simetría con x = −b/(2a)",
+    encabezado: eqHTML(a,b,c),
+    pasos:[
+      {corto:"Identificar a y b", titulo:"Paso 1 · Toma los datos que necesitas",
+       dice:"La fórmula del eje solo usa <b>a</b> y <b>b</b>. Escríbelos con su signo.",
+       formula:"x = "+fr("− b","2a"),
+       tipo:"num", campos:[{id:"a",et:"a =",val:a},{id:"b",et:"b =",val:b}],
+       pista:"a acompaña a <i class='v'>x</i>² y b acompaña a <i class='v'>x</i>. No olvides los signos.",
+       explica:()=>`De ${eqHTML(a,b,c)} tomamos <b>a = ${fmt(a)}</b> y <b>b = ${fmt(b)}</b>.`},
+      {corto:"Calcular el numerador", titulo:"Paso 2 · Arriba va −b",
+       dice:"El numerador es <b>−b</b>: cambia el signo de b.",
+       sustit:()=>`− b = − (${fmt(b)}) = <b>${fmt(-b)}</b>`,
+       tipo:"num", campos:[{id:"n1",et:"− b =",val:-b}],
+       pista: b<0 ? "b es negativo, y menos por menos da <b>más</b>." : "b es positivo, así que −b queda negativo.",
+       explica:()=>`Numerador listo: <b>${fmt(-b)}</b>.`},
+      {corto:"Calcular el denominador", titulo:"Paso 3 · Abajo va 2a",
+       dice:"El denominador es <b>2·a</b>. Multiplica, no sumes.",
+       sustit:()=>`2a = 2 · ${neg(a)} = <b>${fmt(2*a)}</b>`,
+       tipo:"num", campos:[{id:"d1",et:"2a =",val:2*a}],
+       pista:"Solo multiplica el 2 por el valor de a que ya encontraste.",
+       explica:()=>`Denominador listo: <b>${fmt(2*a)}</b>.`},
+      {corto:"Escribir el eje como fracción", titulo:"Paso 4 · Arma la fracción",
+       dice:"Coloca los dos valores en su lugar: <b>−b</b> arriba y <b>2a</b> abajo. Así queda expresado el eje de simetría.",
+       sustit:()=>`x = ${fr("− ("+fmt(b)+")","2 · "+neg(a))} = ${fr(-b,2*a)}${exacta?" = <b>"+fmt(h)+"</b>":" = <b>"+N(h)+"</b> ya simplificada"}`,
+       tipo:"frac", campos:[{id:"n",et:"numerador",val:-b},{id:"d",et:"denominador",val:2*a}],
+       pista:"Arriba escribe el resultado de −b y abajo el de 2a, tal como los calculaste en los pasos anteriores.",
+       explica:()=>`El eje de simetría es <b>x = ${fr(-b,2*a)}</b>, que simplificada queda <b>x = ${N(h)}</b>. Esa recta vertical parte la parábola en dos mitades iguales.`,
+       cuenta:()=>`Eje de simetría: <b>x = ${N(h)}</b>`,
+       revela:{curva:true,eje:true}}
+    ]};
+}
+
+/* --- 4. Vértice --- */
+function ejVertice(){
+  const mitad = Math.random()<.4;
+  const dd = mitad?2:1, m = pick([1,2,3,-1,-2,-3]);
+  const a = m*dd;
+  let n = ri(-4,4); if(mitad && n%2===0) n = n+1; if(n===0) n = 1;
+  const h = mitad ? n/2 : n;
+  const b = -2*a*h, c = ri(-6,6), k = a*h*h+b*h+c;
+  return {a,b,c, meta:12, titulo:"El vértice V(h, k) construido paso a paso",
+    encabezado: eqHTML(a,b,c),
+    pasos:[
+      {corto:"Identificar a, b y c", titulo:"Paso 1 · Empieza por los coeficientes",
+       dice:"Antes de reemplazar en ninguna fórmula, escribe los tres coeficientes con su signo.",
+       formula:"f(<i class='v'>x</i>) = a<i class='v'>x</i>² + b<i class='v'>x</i> + c",
+       tipo:"num", campos:[{id:"a",et:"a =",val:a},{id:"b",et:"b =",val:b},{id:"c",et:"c =",val:c}],
+       pista:"a va con <i class='v'>x</i>², b va con <i class='v'>x</i> y c va solo. Si algún término no aparece, ese coeficiente es 0.",
+       explica:()=>`a = <b>${fmt(a)}</b>, b = <b>${fmt(b)}</b> y c = <b>${fmt(c)}</b>.`},
+      {corto:"Armar la fracción −b/(2a)", titulo:"Paso 2 · Reemplaza en la fórmula de h",
+       dice:"Todavía no dividas. Primero coloca cada valor en su lugar dentro de la fracción.",
+       formula:"h = "+fr("− b","2a"),
+       sustit:()=>`h = ${fr("− ("+fmt(b)+")","2 · "+neg(a))} = ${fr(-b,2*a)}`,
+       tipo:"frac", campos:[{id:"n",et:"numerador (− b)",val:-b},{id:"d",et:"denominador (2a)",val:2*a}],
+       pista:"Arriba va −b, es decir el signo de b cambiado. Abajo va 2 multiplicado por a.",
+       explica:()=>`La fracción queda ${fr(-b,2*a)}.`},
+      {corto:"Resolver y obtener h", titulo:"Paso 3 · Ahora sí, resuelve la fracción",
+       dice:"Divide o simplifica la fracción del paso anterior. Si no da entero, se deja como fracción.",
+       sustit:()=>`h = ${fr(-b,2*a)} = <b>${N(h)}</b>`,
+       tipo:"num", campos:[{id:"h",et:"h =",val:h}],
+       pista:"Divide el numerador entre el denominador. Si la división no es exacta, simplifica la fracción.",
+       explica:()=>`h = <b>${N(h)}</b>. Esa es la x del vértice y también el eje de simetría.`,
+       cuenta:()=>`h = <b>${N(h)}</b>`,
+       revela:{eje:true}},
+      {corto:"Calcular a·h²", titulo:"Paso 4 · Primer pedazo: a·h²",
+       dice:"Ya tienes h. Reemplázala en la función por partes: primero eleva h al cuadrado y multiplica por a.",
+       sustit:()=>`a · h² = ${neg(a)} · (${N(h)})² = ${neg(a)} · ${N(h*h)} = <b>${N(a*h*h)}</b>`,
+       tipo:"num", campos:[{id:"t1",et:"a · h² =",val:a*h*h}],
+       pista:"Primero el cuadrado y después la multiplicación. El cuadrado de un negativo siempre da positivo.",
+       explica:()=>`a·h² = <b>${N(a*h*h)}</b>.`},
+      {corto:"Calcular b·h", titulo:"Paso 5 · Segundo pedazo: b·h",
+       dice:"Multiplica el coeficiente b por el valor de h.",
+       sustit:()=>`b · h = ${neg(b)} · ${N(h)} = <b>${N(b*h)}</b>`,
+       tipo:"num", campos:[{id:"t2",et:"b · h =",val:b*h}],
+       pista:"Cuidado con los signos: menos por menos da más.",
+       explica:()=>`b·h = <b>${N(b*h)}</b>.`},
+      {corto:"Sumar todo y hallar k", titulo:"Paso 6 · La y del vértice",
+       dice:"Suma los dos pedazos y el término independiente c.",
+       formula:"k = a·h² + b·h + c",
+       sustit:()=>`k = ${N(a*h*h)} + (${N(b*h)}) + (${fmt(c)}) = <b>${N(k)}</b>`,
+       tipo:"num", campos:[{id:"k",et:"k =",val:k}],
+       pista:"Suma los tres valores respetando cada signo.",
+       explica:()=>`El vértice es <b>V ${parN(h,k)}</b>, el punto ${a>0?"más bajo":"más alto"} de la parábola.`,
+       cuenta:()=>`Vértice: <b>V ${parN(h,k)}</b>`,
+       revela:{curva:true,vertice:true}}
+    ]};
+}
+
+/* --- 4b. Dibujar la parábola --- */
+function ejGraficar(){
+  const a = pick([1,-1,2,-2,1,-1]);
+  const h = ri(-3,3), c = ri(-5,5);
+  const b = -2*a*h, k = a*h*h+b*h+c;
+  const arriba = a>0;
+  return {a,b,c, meta:12, titulo:"Dibuja la parábola en 6 pasos",
+    encabezado: eqHTML(a,b,c),
+    grafInicial:{boceto:true},
+    pasos:[
+      {corto:"Identificar a, b y c", titulo:"Paso 1 · Lee los coeficientes",
+       dice:"Todo empieza aquí: sin los coeficientes no se puede dibujar nada.",
+       formula:"f(<i class='v'>x</i>) = a<i class='v'>x</i>² + b<i class='v'>x</i> + c",
+       tipo:"num", campos:[{id:"a",et:"a =",val:a},{id:"b",et:"b =",val:b},{id:"c",et:"c =",val:c}],
+       pista:"a acompaña a <i class='v'>x</i>², b acompaña a <i class='v'>x</i> y c va solo, con sus signos.",
+       explica:()=>`a = <b>${fmt(a)}</b>, b = <b>${fmt(b)}</b>, c = <b>${fmt(c)}</b>. Con esto ya se puede empezar el dibujo.`},
+      {corto:"Decidir hacia dónde abre", titulo:"Paso 2 · La forma general del dibujo",
+       dice:"El signo de a decide la forma antes de calcular cualquier punto.",
+       tipo:"opcion", opciones:[{v:"arriba",txt:"▲ Abre hacia arriba (a &gt; 0)"},{v:"abajo",txt:"▼ Abre hacia abajo (a &lt; 0)"}],
+       correcta: arriba?"arriba":"abajo",
+       pista:"Mira solo el signo de a: positivo abre hacia arriba, negativo hacia abajo.",
+       explica:()=>`Como a = ${fmt(a)} es ${arriba?"positivo":"negativo"}, la parábola abre hacia <b>${arriba?"arriba":"abajo"}</b>. Ya tienes un boceto de referencia, aunque todavía sin ubicación exacta.`,
+       cuenta:()=>`Abre hacia <b>${arriba?"arriba":"abajo"}</b>`,
+       revela:{forma: arriba?"arriba":"abajo"}},
+      {corto:"Reemplazar en el eje de simetría", titulo:"Paso 3 · ¿Dónde queda parada la parábola?",
+       dice:"El eje de simetría dice en qué lugar horizontal se apoya la curva. Arma la fracción con los valores.",
+       formula:"x = "+fr("− b","2a"),
+       sustit:()=>`x = ${fr("− ("+fmt(b)+")","2 · "+neg(a))} = ${fr(-b,2*a)}`,
+       tipo:"frac", campos:[{id:"n",et:"numerador (− b)",val:-b},{id:"d",et:"denominador (2a)",val:2*a}],
+       pista:"Arriba el signo de b cambiado, abajo 2 por a.",
+       explica:()=>`La fracción del eje queda ${fr(-b,2*a)}. Falta resolverla para saber el lugar exacto.`,
+       revela:{ejeQ:true}},
+      {corto:"Resolver: eje real", titulo:"Paso 4 · Resuelve y ubica el eje real",
+       dice:"Resuelve la fracción anterior. Con ese número el boceto se convierte en gráfica real.",
+       sustit:()=>`x = ${fr(-b,2*a)} = <b>${fmt(h)}</b>`,
+       tipo:"num", campos:[{id:"h",et:"x =",val:h}],
+       pista:"Divide el numerador entre el denominador.",
+       explica:()=>`El eje de simetría es <b>x = ${fmt(h)}</b>. Ahí queda parada la parábola; ya se ve la recta real en el plano, y sobre ella está el vértice: falta su altura.`,
+       cuenta:()=>`Eje de simetría: <b>x = ${fmt(h)}</b>`,
+       revela:{boceto:false, eje:true, verticeQ:true, sinNumerosY:true}},
+      {corto:"Evaluar cada término", titulo:"Paso 5 · Reemplaza x en la función, término por término",
+       dice:`Ya sabes que el vértice está en x = ${fmt(h)}. Reemplaza ese valor en la función, pero <b>sin sumar todavía</b>: resuelve primero cada término por separado.`,
+       formula:`f(${fmt(h)}) = a·(${fmt(h)})² + b·(${fmt(h)}) + c`,
+       sustit:()=>`a·(${fmt(h)})² = ${neg(a)}·(${fmt(h)})² = ${neg(a)}·${fmt(h*h)} = <b>${fmt(a*h*h)}</b><br>b·(${fmt(h)}) = ${neg(b)}·(${fmt(h)}) = <b>${fmt(b*h)}</b>`,
+       tipo:"num", campos:[{id:"t1",et:`a·(${fmt(h)})² =`,val:a*h*h},{id:"t2",et:`b·(${fmt(h)}) =`,val:b*h}],
+       pista:`Empieza por el cuadrado: (${fmt(h)})² = ${fmt(h*h)}. Después multiplica por a. Para el segundo término multiplica b por ${fmt(h)}, cuidando los signos.`,
+       explica:()=>`El primer término da <b>${fmt(a*h*h)}</b> y el segundo <b>${fmt(b*h)}</b>. Falta sumarles el término independiente.`},
+      {corto:"Sumar y hallar la altura", titulo:"Paso 6 · Suma los tres términos",
+       dice:"Ahora sí, suma lo que calculaste más el valor de c. Ese resultado es la altura del vértice.",
+       formula:`k = a·(${fmt(h)})² + b·(${fmt(h)}) + c`,
+       sustit:()=>`k = ${fmt(a*h*h)} ${b*h<0?"−":"+"} ${fmt(Math.abs(b*h))} ${c<0?"−":"+"} ${fmt(Math.abs(c))} = <b>${fmt(k)}</b>`,
+       tipo:"num", campos:[{id:"k",et:"k =",val:k}],
+       pista:`Suma ${fmt(a*h*h)}, ${fmt(b*h)} y ${fmt(c)} respetando cada signo.`,
+       explica:()=>`El vértice es <b>V ${par(h,k)}</b>. Con la forma, el eje y el vértice, la parábola ya queda completamente dibujada.`,
+       cuenta:()=>`Vértice: <b>V ${par(h,k)}</b>`,
+       revela:{curva:true, vertice:true, verticeQ:false, sinNumerosY:false, cortey:true}}
+    ]};
+}
+
+/* --- 5. Foco y directriz --- */
+function ejFoco(){
+  const a = pick([1,-1,2,-2,0.5,-0.5,0.25]);
+  const h = ri(-3,3), k = ri(-4,4);
+  const b = -2*a*h, c = a*h*h+k, p = 1/(4*a);
+  const canon = `f(<i class='v'>x</i>) = ${a===1?"":a===-1?"−":N(a)}(<i class='v'>x</i> ${h>0?"−":"+"} ${fmt(Math.abs(h))})² ${k<0?"−":"+"} ${fmt(Math.abs(k))}`;
+  return {a,b,c, meta:10, titulo:"Foco y directriz desde la forma canónica",
+    encabezado: canon,
+    pasos:[
+      {corto:"Leer el vértice", titulo:"Paso 1 · El vértice se lee directo",
+       dice:"En la forma canónica f(x) = a(x − h)² + k, el vértice es <b>(h, k)</b>. Ojo con el signo: si dice (x + 2), entonces h = −2.",
+       formula:"f(<i class='v'>x</i>) = a(<i class='v'>x</i> − <b>h</b>)² + <b>k</b>",
+       tipo:"num", campos:[{id:"h",et:"h =",val:h},{id:"k",et:"k =",val:k}],
+       pista:"El paréntesis siempre se lee al revés: (x − 3) da h = 3 y (x + 3) da h = −3.",
+       explica:()=>`Vértice <b>V ${par(h,k)}</b>.`,
+       cuenta:()=>`Vértice: <b>${par(h,k)}</b>`,
+       revela:{vertice:true,eje:true}},
+      {corto:"Calcular 4a", titulo:"Paso 2 · El denominador de p",
+       dice:"Antes de la fracción, resuelve la multiplicación de abajo: <b>4 · a</b>.",
+       sustit:()=>`4a = 4 · ${neg(a)} = <b>${N(4*a)}</b>`,
+       tipo:"num", campos:[{id:"d4",et:"4a =",val:4*a}],
+       pista:"Multiplica 4 por el valor de a, con su signo. Si a es una fracción, el resultado puede ser entero.",
+       explica:()=>`4a = <b>${N(4*a)}</b>.`},
+      {corto:"Resolver p = 1/(4a)", titulo:"Paso 3 · La distancia p",
+       dice:"El foco y la directriz están a la misma distancia del vértice. Esa distancia es p.",
+       formula:"p = "+fr(1,"4a"),
+       sustit:()=>`p = ${fr(1,N(4*a))} = <b>${N(p)}</b>`,
+       tipo:"num", campos:[{id:"p",et:"p =",val:p}],
+       pista:"Divide 1 entre el valor de 4a que acabas de calcular. Puedes dejarlo como fracción.",
+       explica:()=>`p = ${fr(1,4*a)} = <b>${N(p)}</b>.`,
+       cuenta:()=>`p = <b>${N(p)}</b>`},
+      {corto:"Ubicar el foco", titulo:"Paso 4 · El foco (h, k + p)",
+       dice:"El foco queda sobre el eje de simetría, por eso su x es la misma del vértice.",
+       formula:"F = (h, k + p)",
+       sustit:()=>`F = (${fmt(h)}, ${fmt(k)} + ${N(p)}) = <b>${parN(h,k+p)}</b>`,
+       tipo:"num", campos:[{id:"fx",et:"x del foco",val:h},{id:"fy",et:"y del foco",val:k+p}],
+       pista:"La x no cambia. Para la y, súmale p al valor de k.",
+       explica:()=>`Foco <b>${parN(h,k+p)}</b>, siempre <b>dentro</b> de la parábola.`,
+       cuenta:()=>`Foco: <b>${parN(h,k+p)}</b>`,
+       revela:{curva:true,foco:true}},
+      {corto:"Trazar la directriz", titulo:"Paso 5 · La directriz y = k − p",
+       dice:"La directriz es una recta horizontal, al lado contrario del foco.",
+       formula:"y = k − p",
+       sustit:()=>`y = ${fmt(k)} − (${N(p)}) = <b>${N(k-p)}</b>`,
+       tipo:"num", campos:[{id:"dy",et:"y =",val:k-p}],
+       pista:"Aquí se resta p en vez de sumarlo. Si p es negativo, restarlo lo vuelve positivo.",
+       explica:()=>`Directriz: <b>y = ${N(k-p)}</b>. Cada punto de la curva está a igual distancia del foco y de esta recta.`,
+       cuenta:()=>`Directriz: <b>y = ${N(k-p)}</b>`,
+       revela:{directriz:true}}
+    ]};
+}
+
+/* --- 6. Tabla de valores --- */
+function ejTabla(){
+  const a = pick([1,-1,2,-2]), b = ri(-3,3), c = ri(-4,4);
+  const xs = shuffle([-2,-1,0,1,2]).slice(0,3).sort((u,v)=>u-v);
+  const pasos = [];
+  xs.forEach((x,i)=>{
+    const t1 = a*x*x, t2 = b*x, y = t1+t2+c;
+    pasos.push({
+      corto:`Términos de x = ${fmt(x)}`, titulo:`Paso ${2*i+1} · Reemplaza x = ${fmt(x)} por partes`,
+      dice:"No sumes todavía. Calcula primero cada término por separado, así no se enredan los signos.",
+      sustit:()=>`a·x² = ${neg(a)}·(${fmt(x)})² = ${neg(a)}·${fmt(x*x)} = <b>${fmt(t1)}</b><br>b·x = ${neg(b)}·(${fmt(x)}) = <b>${fmt(t2)}</b>`,
+      tipo:"num", campos:[{id:"t1",et:`a·(${fmt(x)})² =`,val:t1},{id:"t2",et:`b·(${fmt(x)}) =`,val:t2}],
+      pista:`El cuadrado va primero: (${fmt(x)})² = ${fmt(x*x)}. Un número negativo elevado al cuadrado queda positivo.`,
+      explica:()=>`a·x² = <b>${fmt(t1)}</b> y b·x = <b>${fmt(t2)}</b>.`});
+    pasos.push({
+      corto:`Obtener f(${fmt(x)})`, titulo:`Paso ${2*i+2} · Suma los tres términos`,
+      dice:"Ahora sí, suma lo que calculaste más el término independiente c.",
+      formula:`f(${fmt(x)}) = a·x² + b·x + c`,
+      sustit:()=>`f(${fmt(x)}) = ${fmt(t1)} ${t2<0?"−":"+"} ${fmt(Math.abs(t2))} ${c<0?"−":"+"} ${fmt(Math.abs(c))} = <b>${fmt(y)}</b>`,
+      tipo:"num", campos:[{id:"y",et:`f(${fmt(x)}) =`,val:y}],
+      pista:"Suma los tres valores respetando cada signo.",
+      explica:()=>`Queda el punto <b>${par(x,y)}</b>${i===xs.length-1?". Al unir todos los puntos aparece la parábola.":", listo para marcarlo en el plano."}`,
+      cuenta:()=>`Punto: <b>${par(x,y)}</b>`,
+      revela:{punto:[x,y], curva: i===xs.length-1}});
+  });
+  return {a,b,c, meta:12, titulo:"Tabla de valores para graficar", encabezado:eqHTML(a,b,c), pasos};
+}
+
+/* --- 7. Ceros de la ecuación --- */
+function ejCeros(){
+  const caso = Math.random()<.6 ? "dos" : (Math.random()<.6 ? "doble" : "ninguna");
+  let a,b,c;
+  if(caso==="dos"){
+    let r1,r2;
+    if(Math.random()<.4){
+      const d1 = pick([2,3]), d2 = pick([2,3]);
+      let n1 = pick([-3,-2,-1,1,2]), n2 = pick([-1,1,2,3,4]);
+      while(gcd(Math.abs(n1),d1)!==1) n1++;
+      while(gcd(Math.abs(n2),d2)!==1) n2++;
+      r1 = n1/d1; r2 = n2/d2;
+      if(casi(r1,r2)) r2 = r2+1;
+      a = d1*d2*pick([1,-1]);
+    } else { r1 = ri(-4,2); r2 = ri(r1+1,4); a = pick([1,-1,2,-2]); }
+    if(r1>r2){ const t=r1; r1=r2; r2=t; }
+    b = -a*(r1+r2); c = a*r1*r2;
+    return armarCeros(a,b,c,b*b-4*a*c,"dos",{r1,r2});
   }
-}
-if(!CanvasRenderingContext2D.prototype.roundRect){
-  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
-    this.moveTo(x+r,y); this.arcTo(x+w,y,x+w,y+h,r); this.arcTo(x+w,y+h,x,y+h,r);
-    this.arcTo(x,y+h,x,y,r); this.arcTo(x,y,x+w,y,r); this.closePath(); return this;
-  };
-}
-
-/* =================== GENERADORES DE EJERCICIOS =================== */
-function genAbre(){
-  const a = pick([-5,-4,-3,-2,-1,-0.5,0.5,1,2,3,4,5]);
-  const b = ri(-6,6), c = ri(-8,8);
-  if(Math.random() < 0.5){
-    return {
-      enunciado:"Observa la función y decide cómo se ve su parábola.",
-      eq: eqHTML(a,b,c),
-      grafica:null,
-      campos:[
-        {tipo:"opcion", id:"dir", pregunta:"¿Hacia dónde abre?", opciones:[
-          {v:"arriba", txt:"▲ Abre hacia arriba"},{v:"abajo", txt:"▼ Abre hacia abajo"}]},
-        {tipo:"opcion", id:"ext", pregunta:"Entonces su vértice es un…", opciones:[
-          {v:"min", txt:"⬇ Punto mínimo"},{v:"max", txt:"⬆ Punto máximo"}]}
-      ],
-      revisar(r){
-        const dOK = r.dir === (a>0?"arriba":"abajo");
-        const eOK = r.ext === (a>0?"min":"max");
-        return { ok:dOK&&eOK, malos:{dir:!dOK, ext:!eOK},
-          porque:`Como <b>a = ${fmt(a)}</b> es ${a>0?"positivo":"negativo"}, la parábola abre hacia <b>${a>0?"arriba":"abajo"}</b> y su vértice es el punto <b>${a>0?"más bajo (mínimo)":"más alto (máximo)"}</b>.`,
-          pista: !dOK ? "Mira solo el número que multiplica a <i>x</i>². Si es positivo la parábola abre hacia arriba (como una sonrisa); si es negativo, hacia abajo (como una cueva)."
-                      : "Si la parábola abre hacia arriba, el vértice es el punto más bajo: un mínimo. Si abre hacia abajo, es el más alto: un máximo." };
-      },
-      alAcertar:{a,b,c, curva:true, vertice:true, eje:true, etiqVertice:false}
-    };
+  if(caso==="doble"){
+    const mitad = Math.random()<.35, d = mitad?2:1, m = pick([1,2,-1,-2,3]);
+    a = m*d*d;
+    let n = ri(-3,3); if(n===0) n=1; if(mitad && n%2===0) n = n+1;
+    const r = mitad ? n/2 : n;
+    b = -2*a*r; c = a*r*r;
+    return armarCeros(a,b,c,0,"doble",{r});
   }
-  return {
-    enunciado:"Lee la gráfica y responde sobre el coeficiente <i>a</i>.",
-    eq: null,
-    grafica:{a,b,c, curva:true},
-    campos:[
-      {tipo:"opcion", id:"sig", pregunta:"El valor de a es…", opciones:[
-        {v:"pos", txt:"➕ Positivo (a > 0)"},{v:"neg", txt:"➖ Negativo (a < 0)"}]},
-      {tipo:"opcion", id:"ext", pregunta:"El vértice de esta gráfica es un…", opciones:[
-        {v:"min", txt:"⬇ Punto mínimo"},{v:"max", txt:"⬆ Punto máximo"}]}
-    ],
-    revisar(r){
-      const sOK = r.sig === (a>0?"pos":"neg");
-      const eOK = r.ext === (a>0?"min":"max");
-      return { ok:sOK&&eOK, malos:{sig:!sOK, ext:!eOK},
-        porque:`La parábola abre hacia <b>${a>0?"arriba":"abajo"}</b>, así que <b>a ${a>0?"&gt;":"&lt;"} 0</b>. Su vértice es un <b>${a>0?"mínimo":"máximo"}</b>. Aquí la función era ${eqHTML(a,b,c)}.`,
-        pista:"Fíjate en las ramas de la parábola: si suben, a es positivo; si bajan, a es negativo." };
-    },
-    alAcertar:{vertice:true}
-  };
+  a = pick([1,-1,2,-2]);
+  const h = ri(-3,3), k = (a>0?1:-1)*ri(1,5);
+  b = -2*a*h; c = a*h*h+k;
+  return armarCeros(a,b,c,b*b-4*a*c,"ninguna",{h,k});
+}
+function armarCeros(a,b,c,D,caso,dat){
+  const raizD = D>=0 ? Math.sqrt(D) : null;
+  const comunes = [
+    {corto:"Identificar a, b y c", titulo:"Paso 1 · Datos de la ecuación",
+     dice:"Igualamos la función a cero. Los coeficientes son los mismos de la forma general.",
+     formula:"a<i class='v'>x</i>² + b<i class='v'>x</i> + c = 0",
+     tipo:"num", campos:[{id:"a",et:"a =",val:a},{id:"b",et:"b =",val:b},{id:"c",et:"c =",val:c}],
+     pista:"Copia cada coeficiente con su signo, igual que en la forma general.",
+     explica:()=>`a = <b>${fmt(a)}</b>, b = <b>${fmt(b)}</b>, c = <b>${fmt(c)}</b>.`},
+    {corto:"Calcular b²", titulo:"Paso 2 · Primero eleva b al cuadrado",
+     dice:"El discriminante tiene dos partes. Empieza por la primera: <b>b²</b>.",
+     sustit:()=>`b² = (${fmt(b)})² = <b>${fmt(b*b)}</b>`,
+     tipo:"num", campos:[{id:"b2",et:"b² =",val:b*b}],
+     pista:"Multiplica b por sí mismo. Si b es negativo, el resultado queda positivo.",
+     explica:()=>`b² = <b>${fmt(b*b)}</b>.`},
+    {corto:"Calcular 4ac", titulo:"Paso 3 · Ahora la segunda parte: 4ac",
+     dice:"Multiplica los tres factores en orden: 4, luego a, luego c.",
+     sustit:()=>`4ac = 4 · ${neg(a)} · ${neg(c)} = ${fmt(4*a)} · ${neg(c)} = <b>${fmt(4*a*c)}</b>`,
+     tipo:"num", campos:[{id:"ac",et:"4ac =",val:4*a*c},],
+     pista:"Menos por menos da más. Si a o c es cero, todo el producto es cero.",
+     explica:()=>`4ac = <b>${fmt(4*a*c)}</b>.`},
+    {corto:"Restar: Δ", titulo:"Paso 4 · Resta para obtener el discriminante",
+     dice:"Ya tienes las dos partes. Réstalas.",
+     formula:"Δ = b² − 4ac",
+     sustit:()=>`Δ = ${fmt(b*b)} − (${fmt(4*a*c)}) = <b>${fmt(D)}</b>`,
+     tipo:"num", campos:[{id:"D",et:"Δ =",val:D}],
+     pista:"Cuidado: si 4ac es negativo, restarlo equivale a sumarlo.",
+     explica:()=>`Δ = <b>${fmt(D)}</b>.`,
+     cuenta:()=>`Discriminante: <b>Δ = ${fmt(D)}</b>`},
+    {corto:"Interpretar Δ", titulo:"Paso 5 · ¿Cuántas soluciones hay?",
+     dice:"Δ &gt; 0 → dos soluciones · Δ = 0 → una · Δ &lt; 0 → ninguna real.",
+     tipo:"opcion", opciones:[{v:"2",txt:"Dos soluciones (corta el eje x en 2 puntos)"},{v:"1",txt:"Una sola solución (toca el eje x)"},{v:"0",txt:"Ninguna solución real"}],
+     correcta: D>0?"2":D===0?"1":"0",
+     pista:"Compara el discriminante que acabas de calcular con cero: ¿es positivo, cero o negativo?",
+     explica:()=>`Como Δ = ${fmt(D)} es ${D>0?"positivo":D===0?"cero":"negativo"}, hay <b>${D>0?"dos soluciones":D===0?"una solución":"ninguna solución real"}</b>.`}
+  ];
+
+  let finales;
+  if(caso==="ninguna"){
+    finales = [
+      {corto:"Armar el eje de simetría", titulo:"Paso 6 · Compruébalo con el vértice",
+       dice:"No hay raíz real de un número negativo, así que no se puede seguir con la fórmula. Comprobemos por qué la curva no toca el eje: arma la fracción del eje de simetría.",
+       formula:"h = "+fr("− b","2a"),
+       sustit:()=>`h = ${fr("− ("+fmt(b)+")","2 · "+neg(a))} = ${fr(-b,2*a)}`,
+       tipo:"frac", campos:[{id:"n",et:"numerador (− b)",val:-b},{id:"d",et:"denominador (2a)",val:2*a}],
+       pista:"Arriba el signo de b cambiado, abajo 2 por a.",
+       explica:()=>`La fracción queda ${fr(-b,2*a)}.`},
+      {corto:"Resolver h", titulo:"Paso 7 · La x del vértice",
+       dice:"Resuelve la fracción anterior.",
+       sustit:()=>`h = ${fr(-b,2*a)} = <b>${fmt(dat.h)}</b>`,
+       tipo:"num", campos:[{id:"h",et:"h =",val:dat.h}],
+       pista:"Divide el numerador entre el denominador.",
+       explica:()=>`h = <b>${fmt(dat.h)}</b>.`,
+       revela:{eje:true}},
+      {corto:"Hallar k y concluir", titulo:"Paso 8 · La altura del vértice",
+       dice:"Reemplaza esa h en la función. La altura del vértice explica por qué no hay soluciones.",
+       formula:`k = f(${fmt(dat.h)})`,
+       sustit:()=>`k = ${neg(a)}·(${fmt(dat.h)})² ${b<0?"−":"+"} ${fmt(Math.abs(b))}·(${fmt(dat.h)}) ${c<0?"−":"+"} ${fmt(Math.abs(c))} = <b>${fmt(dat.k)}</b>`,
+       tipo:"num", campos:[{id:"k",et:"k =",val:dat.k}],
+       pista:"Eleva primero al cuadrado y luego suma cada término con su signo.",
+       explica:()=>`El vértice es <b>${par(dat.h,dat.k)}</b>. Como la parábola abre hacia ${a>0?"arriba":"abajo"} y su punto ${a>0?"más bajo":"más alto"} ya está ${a>0?"por encima":"por debajo"} del eje <i class='v'>x</i>, la curva <b>nunca lo cruza</b>: por eso Δ salió negativo.`,
+       cuenta:()=>`Vértice: <b>${par(dat.h,dat.k)}</b> · sin cortes con el eje x`,
+       revela:{curva:true,vertice:true}}
+    ];
+  } else {
+    const dosRaices = caso==="dos";
+    finales = [
+      {corto:"Calcular √Δ", titulo:"Paso 6 · La raíz del discriminante",
+       dice:"La fórmula general lleva la raíz de Δ. Calcúlala aparte para no equivocarte.",
+       formula:raiz("Δ"),
+       sustit:()=>`${raiz(fmt(D))} = <b>${fmt(raizD)}</b>`,
+       tipo:"num", campos:[{id:"rd",et:"√Δ =",val:raizD}],
+       pista: D===0 ? "La raíz cuadrada de 0 es 0." : `Busca el número que multiplicado por sí mismo da ${fmt(D)}.`,
+       explica:()=> D===0 ? "√0 = <b>0</b>, por eso el ± desaparece y solo habrá una solución."
+                          : `√${fmt(D)} = <b>${fmt(raizD)}</b>.`},
+      {corto:"Armar la fórmula", titulo:"Paso 7 · Prepara el numerador y el denominador",
+       dice:"Antes de dividir, calcula las dos piezas que faltan de la fórmula general.",
+       formula:"x = "+fr("− b ± "+raiz("Δ"),"2a"),
+       sustit:()=>`− b = − (${fmt(b)}) = <b>${fmt(-b)}</b> &nbsp;·&nbsp; 2a = 2 · ${neg(a)} = <b>${fmt(2*a)}</b>`,
+       tipo:"num", campos:[{id:"nb",et:"− b =",val:-b},{id:"da",et:"2a =",val:2*a}],
+       pista:"Cambia el signo de b para el numerador y multiplica 2 por a para el denominador.",
+       explica:()=>`Numerador: ${fmt(-b)} ± ${fmt(raizD)} &nbsp;·&nbsp; Denominador: ${fmt(2*a)}.`},
+      dosRaices ? {
+        corto:"Resolver las dos soluciones", titulo:"Paso 8 · Resuelve el ± y obtén los ceros",
+        dice:"Resuelve dos veces: una restando la raíz y otra sumándola. Escribe primero el menor.",
+        sustit:()=>`x = ${fr(fmt(-b)+" ± "+fmt(raizD),fmt(2*a))}<br>x = ${fr(fmt(-b)+" − "+fmt(raizD),fmt(2*a))} = ${fr(-b-raizD,2*a)} = <b>${N(dat.r1)}</b><br>x = ${fr(fmt(-b)+" + "+fmt(raizD),fmt(2*a))} = ${fr(-b+raizD,2*a)} = <b>${N(dat.r2)}</b>`,
+        tipo:"num", campos:[{id:"x1",et:"x₁ (menor)",val:dat.r1},{id:"x2",et:"x₂ (mayor)",val:dat.r2}],
+        pista:`Haz las dos cuentas: (${fmt(-b)} − ${fmt(raizD)}) ÷ ${fmt(2*a)} y (${fmt(-b)} + ${fmt(raizD)}) ÷ ${fmt(2*a)}. Si no da entero, deja la fracción simplificada.`,
+        explica:()=>`Los ceros son <b>${N(dat.r1)}</b> y <b>${N(dat.r2)}</b>: los puntos donde la gráfica corta el eje <i class='v'>x</i>.`,
+        cuenta:()=>`Ceros: <b>${N(dat.r1)}</b> y <b>${N(dat.r2)}</b>`,
+        revela:{curva:true,raices:true}
+      } : {
+        corto:"Resolver la solución doble", titulo:"Paso 8 · Una sola solución",
+        dice:"Como √Δ = 0, el ± no cambia nada: solo queda −b dividido entre 2a.",
+        sustit:()=>`x = ${fr(fmt(-b)+" ± 0",fmt(2*a))} = ${fr(-b,2*a)} = <b>${N(dat.r)}</b>`,
+        tipo:"num", campos:[{id:"x",et:"x =",val:dat.r}],
+        pista:"Divide el numerador entre el denominador que calculaste en el paso anterior.",
+        explica:()=>`La única solución es <b>x = ${N(dat.r)}</b>. Ahí la parábola <b>toca</b> el eje <i class='v'>x</i> sin cruzarlo, y ese punto es también el vértice.`,
+        cuenta:()=>`Solución doble: <b>x = ${N(dat.r)}</b>`,
+        revela:{curva:true,raices:true,vertice:true}
+      }
+    ];
+  }
+  return {a,b,c, meta:16, titulo:"Ceros de la ecuación y cortes con el eje x",
+    encabezado: eqHTML(a,b,c,"")+" = 0",
+    pasos: comunes.concat(finales)};
 }
 
-function genABC(){
-  let a = pick([-6,-5,-4,-3,-2,-1,1,2,3,4,5,6]);
-  let b = ri(-6,6), c = ri(-9,9);
-  if(Math.random()<0.22) b = 0;
-  if(Math.random()<0.18) c = 0;
-  const eq = Math.random()<0.45 ? eqDesordenada(a,b,c) : eqHTML(a,b,c);
-  return {
-    enunciado:"Identifica los coeficientes de la función cuadrática.",
-    eq,
-    nota:"Recuerda: la forma general es f(<i>x</i>) = a<i>x</i>² + b<i>x</i> + c. Si un término no aparece, ese coeficiente vale 0.",
-    grafica:null,
-    campos:[
-      {tipo:"num", grupo:[{id:"a",et:"a ="},{id:"b",et:"b ="},{id:"c",et:"c ="}]},
-      {tipo:"opcion", id:"dir", pregunta:"Con ese valor de a, la parábola…", opciones:[
-        {v:"arriba", txt:"▲ Abre hacia arriba"},{v:"abajo", txt:"▼ Abre hacia abajo"}]}
-    ],
-    revisar(r){
-      const A = casi(parseNum(r.a),a), B = casi(parseNum(r.b),b), C = casi(parseNum(r.c),c);
-      const D = r.dir === (a>0?"arriba":"abajo");
-      let pista = "Ordena mentalmente la función: primero <i>x</i>², luego <i>x</i>, luego el número solo.";
-      if(!A) pista = "Revisa <b>a</b>: es el número que multiplica a <i>x</i>², con su signo. Si ves <i>x</i>² solita, a = 1.";
-      else if(!B) pista = "Revisa <b>b</b>: es el número que multiplica a <i>x</i> (sin cuadrado), con su signo. Si no hay término con <i>x</i>, entonces b = 0.";
-      else if(!C) pista = "Revisa <b>c</b>: es el término independiente, el número que va solo. Si no aparece, c = 0.";
-      else if(!D) pista = "El signo de a decide la abertura: positivo abre hacia arriba, negativo hacia abajo.";
-      return { ok:A&&B&&C&&D, malos:{a:!A,b:!B,c:!C,dir:!D},
-        porque:`a = <b>${fmt(a)}</b> (acompaña a <i>x</i>²), b = <b>${fmt(b)}</b> (acompaña a <i>x</i>) y c = <b>${fmt(c)}</b> (término independiente). Como a es ${a>0?"positivo":"negativo"}, abre hacia <b>${a>0?"arriba":"abajo"}</b>.`,
-        pista };
-    },
-    alAcertar:{a,b,c,curva:true}
-  };
-}
-
-function genEje(){
-  const a = pick([-4,-3,-2,-1,1,2,3,4]);
-  const h = pick([-3,-2.5,-2,-1.5,-1,-0.5,0.5,1,1.5,2,2.5,3]);
-  const b = -2*a*h, c = ri(-6,6);
-  return {
-    enunciado:"Encuentra la ecuación del eje de simetría de esta parábola.",
-    eq: eqHTML(a,b,c),
-    nota:`Fórmula: <b>x = −b / (2a)</b>. Aquí a = ${fmt(a)} y b = ${fmt(b)}.`,
-    grafica:null,
-    campos:[{tipo:"num", grupo:[{id:"x", et:"x =", ancho:true}]}],
-    ayuda:"Puedes escribir decimales (0,5) o fracciones (1/2).",
-    revisar(r){
-      const v = parseNum(r.x), ok = casi(v,h);
-      let pista = "Reemplaza en x = −b/(2a): cambia el signo de b y divide entre 2·a.";
-      if(!isNaN(v) && casi(v,-h)) pista = "¡Casi! Revisa el signo: la fórmula lleva <b>menos</b> b arriba. Si b es negativo, −b queda positivo.";
-      else if(!isNaN(v) && casi(v, -b/a)) pista = "Recuerda dividir entre <b>2a</b>, no solo entre a.";
-      return { ok, malos:{x:!ok},
-        porque:`x = −b/(2a) = −(${fmt(b)}) / (2·${par2(a)}) = ${fmt(-b)} / ${fmt(2*a)} = <b>${fmt(h)}</b>. Esa recta vertical parte la parábola en dos mitades iguales.`,
-        pista };
-    },
-    alAcertar:{a,b,c,curva:true,eje:true,vertice:true,etiqVertice:false}
-  };
-}
-
-function genVertice(){
-  const a = pick([-3,-2,-1,1,2,3]);
-  const h = ri(-4,4), k = ri(-6,6);
-  const b = -2*a*h, c = a*h*h + k;
-  return {
-    enunciado:"Encuentra las coordenadas del vértice de la parábola.",
-    eq: eqHTML(a,b,c),
-    nota:"Primero calcula <b>x = −b/(2a)</b>. Luego reemplaza esa x en la función para obtener y.",
-    grafica:null,
-    campos:[{tipo:"num", grupo:[{id:"h",et:"x del vértice"},{id:"k",et:"y del vértice"}]}],
-    revisar(r){
-      const H = casi(parseNum(r.h),h), K = casi(parseNum(r.k),k);
-      let pista = "Empieza por la x del vértice con −b/(2a).";
-      if(H && !K) pista = `La x ya está bien (${fmt(h)}). Ahora reemplázala en la función: f(${fmt(h)}) = ${fmt(a)}·(${fmt(h)})² ${b<0?"−":"+"} ${fmt(Math.abs(b))}·(${fmt(h)}) ${c<0?"−":"+"} ${fmt(Math.abs(c))}. Cuidado con el cuadrado del número negativo.`;
-      else if(!H) pista = "Revisa x = −b/(2a): cambia el signo de b y divide entre 2·a.";
-      return { ok:H&&K, malos:{h:!H,k:!K},
-        porque:`x = −(${fmt(b)})/(2·${par2(a)}) = <b>${fmt(h)}</b>. Luego f(${fmt(h)}) = <b>${fmt(k)}</b>. El vértice es <b>${par(h,k)}</b>, el punto ${a>0?"más bajo":"más alto"} de la parábola.`,
-        pista };
-    },
-    alAcertar:{a,b,c,curva:true,eje:true,vertice:true}
-  };
-}
-
-function genFoco(){
-  const a = pick([1,-1,0.5,-0.5,0.25,-0.25]);
-  const h = pick([-4,-2,0,2,4]), k = ri(-4,4);
-  const b = -2*a*h, c = a*h*h + k, p = 1/(4*a);
-  const canon = `f(<i>x</i>) = ${a===1?"":a===-1?"−":fmt(a)}(<i>x</i> ${h>0?"−":"+"} ${fmt(Math.abs(h))})² ${k<0?"−":"+"} ${fmt(Math.abs(k))}`;
-  return {
-    enunciado:"Halla el foco de la parábola a partir de su forma canónica.",
-    eq: canon,
-    nota:`Forma general: ${eqHTML(a,b,c)} · El vértice es <b>${par(h,k)}</b>.<br>El foco está en <b>(h, k + p)</b> con <b>p = 1/(4a)</b>.`,
-    grafica:null,
-    campos:[{tipo:"num", grupo:[{id:"fx",et:"x del foco"},{id:"fy",et:"y del foco"}]}],
-    revisar(r){
-      const A = casi(parseNum(r.fx),h), B = casi(parseNum(r.fy),k+p);
-      let pista = `Calcula p = 1/(4·${par2(a)}) = ${fmt(p)} y súmalo a la y del vértice.`;
-      if(!A) pista = "El foco está justo sobre el eje de simetría, así que su <b>x es la misma del vértice</b>.";
-      else if(casi(parseNum(r.fy), k-p)) pista = "Ese punto es la <b>directriz</b> (k − p). El foco va del otro lado: k <b>+</b> p, siempre dentro de la parábola.";
-      return { ok:A&&B, malos:{fx:!A, fy:!B},
-        porque:`p = 1/(4a) = 1/(4·${par2(a)}) = <b>${fmt(p)}</b>. Foco = (h, k + p) = <b>${par(h,k+p)}</b> y la directriz es la recta <b>y = ${fmt(k-p)}</b>. El foco siempre queda dentro de la curva.`,
-        pista };
-    },
-    alAcertar:{a,b,c,curva:true,vertice:true,foco:true,directriz:true,eje:true,etiqVertice:false}
-  };
-}
-
-function genTabla(){
-  const a = pick([-2,-1,1,2]), b = ri(-3,3), c = ri(-4,4);
-  const xs = shuffle([-2,-1,0,1,2]).slice(0,3).sort((p,q)=>p-q);
-  const ys = xs.map(x => a*x*x + b*x + c);
-  return {
-    enunciado:"Completa la tabla de valores para poder graficar la parábola.",
-    eq: eqHTML(a,b,c),
-    nota:"Reemplaza cada valor de <i>x</i> en la función. Ojo: el cuadrado de un número negativo es positivo.",
-    grafica:null,
-    campos:[{tipo:"num", grupo: xs.map((x,i)=>({id:"y"+i, et:`f(${fmt(x)}) =`}))}],
-    revisar(r){
-      const malos = {}; let ok = true, primero = -1;
-      xs.forEach((x,i)=>{ const b2 = casi(parseNum(r["y"+i]), ys[i]); malos["y"+i] = !b2; if(!b2){ ok=false; if(primero<0) primero=i; } });
-      const i = primero<0?0:primero, x = xs[i];
-      return { ok, malos,
-        porque: xs.map((x,i)=>`f(${fmt(x)}) = ${fmt(a)}·(${fmt(x)})² ${b<0?"−":"+"} ${fmt(Math.abs(b))}·(${fmt(x)}) ${c<0?"−":"+"} ${fmt(Math.abs(c))} = <b>${fmt(ys[i])}</b>`).join("<br>") + "<br>Al unir esos puntos aparece la parábola.",
-        pista:`Revisa f(${fmt(x)}). Reemplaza paso a paso: primero (${fmt(x)})² = ${fmt(x*x)}, multiplícalo por ${fmt(a)}, luego suma ${fmt(b)}·(${fmt(x)}) y por último ${fmt(c)}.` };
-    },
-    alAcertar:{a,b,c,curva:true,puntos:xs.map((x,i)=>[x,ys[i]]), vertice:false}
-  };
-}
-
-function genCeros(){
-  const a = pick([1,-1,1,2,-2]);
-  let r1 = ri(-4,3), r2 = ri(r1+1,4);
-  const b = -a*(r1+r2), c = a*r1*r2;
-  return {
-    enunciado:"Encuentra los ceros (raíces) de la ecuación cuadrática.",
-    eq: eqHTML(a,b,c,"") + " = 0",
-    nota:`Estos ceros son los puntos donde la gráfica de ${eqHTML(a,b,c)} corta el eje <i>x</i>. Puedes factorizar o probar valores enteros.`,
-    grafica:null,
-    campos:[{tipo:"num", grupo:[{id:"x1",et:"x₁ (menor)"},{id:"x2",et:"x₂ (mayor)"}]}],
-    revisar(r){
-      const A = casi(parseNum(r.x1),r1), B = casi(parseNum(r.x2),r2);
-      let pista = `Busca dos números que multiplicados den ${fmt(r1*r2)} y sumados den ${fmt(r1+r2)}.`;
-      if(!A && B) pista = "Una raíz ya está bien. Recuerda escribir primero la <b>menor</b> y cuidar los signos.";
-      if(casi(parseNum(r.x1),-r1) || casi(parseNum(r.x2),-r2)) pista = "Cuidado con los signos: si el factor es (x − 3), la raíz es x = 3, no −3.";
-      return { ok:A&&B, malos:{x1:!A,x2:!B},
-        porque:`${eqHTML(a,b,c,"")} = ${a===1?"":a===-1?"−":fmt(a)}(<i>x</i> ${r1>0?"−":"+"} ${fmt(Math.abs(r1))})(<i>x</i> ${r2>0?"−":"+"} ${fmt(Math.abs(r2))}) = 0, así que <b>x₁ = ${fmt(r1)}</b> y <b>x₂ = ${fmt(r2)}</b>. En la gráfica son los dos cortes con el eje <i>x</i>.`,
-        pista };
-    },
-    alAcertar:{a,b,c,curva:true,raices:true,vertice:true,etiqVertice:false}
-  };
-}
-
-/* =================== LECCIONES =================== */
+/* ===================== LECCIONES + TEORÍA ===================== */
 const LECCIONES = [
-  { id:"lab", tipo:"lab", emoji:"🔬", color:"c-cian", titulo:"Laboratorio de parábolas",
-    desc:"Mueve a, b y c y mira cómo cambia la gráfica en vivo." },
+  {id:"lab", tipo:"lab", emoji:"🔬", color:"c-cian", titulo:"Laboratorio de parábolas",
+   desc:"Mueve a, b y c y observa la gráfica en vivo."},
 
-  { id:"abre", emoji:"🙂", color:"c-violeta", titulo:"¿Abre arriba o abajo?",
-    desc:"El signo de a decide la forma de la parábola.", gen:genAbre,
-    teoria:`<p>Una <b>función cuadrática</b> se escribe así:</p>
-      <div class="formula">f(<i>x</i>) = a<i>x</i>² + b<i>x</i> + c &nbsp;(con a ≠ 0)</div>
-      <p>Su gráfica siempre es una <b>parábola</b>. El coeficiente <b>a</b> manda en la forma:</p>
-      <p>• Si <b>a &gt; 0</b> (positivo) → abre hacia <b>arriba</b> 🙂 y el vértice es un <b>mínimo</b>.</p>
-      <p>• Si <b>a &lt; 0</b> (negativo) → abre hacia <b>abajo</b> 🙁 y el vértice es un <b>máximo</b>.</p>
-      <p>Mientras más grande sea |a|, más “cerrada” y angosta se ve la parábola.</p>` },
+  {id:"abre", emoji:"🙂", color:"", titulo:"El signo de a", desc:"Decide si abre hacia arriba o hacia abajo.",
+   gen:ejConcavidad,
+   teoria:[
+     {et:"Micro repaso 1 de 3", h:"¿Qué es una función cuadrática?",
+      html:`<p>Es toda función que se puede escribir en la <b>forma general</b>:</p>
+        <div class="formula">f(<i class='v'>x</i>) = a<i class='v'>x</i>² + b<i class='v'>x</i> + c &nbsp; con a ≠ 0</div>
+        <p>Su gráfica siempre es una <b>parábola</b>: una curva simétrica, nunca una recta.</p>
+        <p>Si a fuera 0 desaparecería el <i class='v'>x</i>² y quedaría una recta. Por eso a nunca puede ser cero.</p>`, graf:{a:1,b:0,c:-2,curva:true}},
+     {et:"Micro repaso 2 de 3", h:"El signo de a manda",
+      html:`<ul><li><b>a &gt; 0</b> (positivo) → abre hacia <b>arriba</b> 🙂 y el vértice es un <b>mínimo</b>.</li>
+        <li><b>a &lt; 0</b> (negativo) → abre hacia <b>abajo</b> 🙁 y el vértice es un <b>máximo</b>.</li></ul>
+        <div class="ejemplo">En <b>f(x) = −3x² + 2x + 1</b> el coeficiente a = −3 es negativo → abre hacia abajo.</div>`, graf:{a:-1,b:0,c:3,curva:true,vertice:true}},
+     {et:"Micro repaso 3 de 3", h:"¿Qué tan abierta se ve?",
+      html:`<p>El tamaño de a (sin mirar el signo) cambia lo <b>angosta</b> o <b>ancha</b> que se ve la parábola.</p>
+        <ul><li>|a| grande (3, 5, 6…) → parábola <b>angosta</b>, sube rápido.</li>
+        <li>|a| pequeño (${fr(1,2)}, ${fr(1,4)}…) → parábola <b>ancha</b>, sube despacio.</li></ul>
+        <p>En la práctica solo tendrás que leer el coeficiente y aplicar la regla.</p>`, graf:{a:3,b:0,c:-4,curva:true}}
+   ]},
 
-  { id:"abc", emoji:"🔢", color:"c-ambar", titulo:"Encuentra a, b y c",
-    desc:"Reconoce los coeficientes en cualquier orden.", gen:genABC,
-    teoria:`<p>En la forma general f(<i>x</i>) = a<i>x</i>² + b<i>x</i> + c:</p>
-      <p>• <b>a</b> acompaña a <i>x</i>² &nbsp; • <b>b</b> acompaña a <i>x</i> &nbsp; • <b>c</b> va solo (término independiente).</p>
-      <p>Cada coeficiente se lleva <b>su signo</b>. Ejemplo: en f(<i>x</i>) = 6<i>x</i>² − <i>x</i> − 2 se tiene a = 6, b = −1 y c = −2.</p>
-      <p>Si los términos están desordenados, primero ordénalos. Si falta un término, ese coeficiente es <b>0</b>.</p>` },
+  {id:"abc", emoji:"🔢", color:"c-ambar", titulo:"Los coeficientes a, b y c", desc:"Léelos aunque estén desordenados.",
+   gen:ejABC,
+   teoria:[
+     {et:"Micro repaso 1 de 2", h:"Cada letra tiene su lugar",
+      html:`<div class="formula">f(<i class='v'>x</i>) = a<i class='v'>x</i>² + b<i class='v'>x</i> + c</div>
+        <ul><li><b>a</b> → acompaña a <i class='v'>x</i>² (término cuadrático).</li>
+        <li><b>b</b> → acompaña a <i class='v'>x</i> (término lineal).</li>
+        <li><b>c</b> → va solo (término independiente).</li></ul>
+        <div class="ejemplo">En <b>6x² − x − 2</b>: a = 6, b = <b>−1</b> y c = −2. Cuando ves <i class='v'>x</i> sin número, su coeficiente es 1 o −1.</div>`},
+     {et:"Micro repaso 2 de 2", h:"Dos trampas frecuentes",
+      html:`<p><b>1. Términos desordenados.</b> Si te dan f(x) = 4 − 2x + 3x², primero ordena: 3x² − 2x + 4. Entonces a = 3, b = −2 y c = 4.</p>
+        <p><b>2. Términos que faltan.</b> En f(x) = 5x² − 7 no hay término con <i class='v'>x</i>, así que <b>b = 0</b>.</p>
+        <p>Además, <b>c</b> te regala un punto de la gráfica: la parábola siempre pasa por <b>(0, c)</b>.</p>`, graf:{a:1,b:-2,c:-3,curva:true,cortey:true}}
+   ]},
 
-  { id:"eje", emoji:"🪞", color:"c-cian", titulo:"Eje de simetría",
-    desc:"Aplica x = −b/(2a) reemplazando los valores.", gen:genEje,
-    teoria:`<p>La parábola es simétrica: existe una recta vertical que la divide en dos mitades idénticas.</p>
-      <div class="formula">x = −b / (2a)</div>
-      <p>Ejemplo con f(<i>x</i>) = 2<i>x</i>² − 8<i>x</i> + 1: a = 2 y b = −8, entonces</p>
-      <p>x = −(−8) / (2·2) = 8/4 = <b>2</b>. El eje de simetría es la recta <b>x = 2</b>.</p>
-      <p>Ese mismo valor es la <b>x del vértice</b>.</p>` },
+  {id:"eje", emoji:"🪞", color:"c-cian", titulo:"Eje de simetría", desc:"Aplica x = −b/(2a) con fracciones.",
+   gen:ejEje,
+   teoria:[
+     {et:"Micro repaso 1 de 2", h:"La parábola es un espejo",
+      html:`<p>Existe una <b>recta vertical</b> que divide la parábola en dos mitades exactamente iguales. Es el <b>eje de simetría</b>.</p>
+        <div class="formula">x = ${fr("− b","2a")}</div>
+        <p>El resultado no siempre es un número entero: muchas veces queda una <b>fracción</b>, y así se deja.</p>`, graf:{a:1,b:-3,c:1,curva:true,eje:true}},
+     {et:"Micro repaso 2 de 2", h:"Cómo se reemplaza",
+      html:`<p>Con f(x) = 2x² − 8x + 1 tenemos a = 2 y b = −8:</p>
+        <div class="formula">x = ${fr("− (− 8)","2 · 2")} = ${fr(8,4)} = 2</div>
+        <p>Con f(x) = 3x² + 4x − 1 tenemos a = 3 y b = 4:</p>
+        <div class="formula">x = ${fr("− (4)","2 · 3")} = ${fr(-4,6)} = ${fr(-2,3)}</div>
+        <p>Fíjate: la fracción se <b>simplifica</b>, no se convierte a decimal a la fuerza.</p>`}
+   ]},
 
-  { id:"vertice", emoji:"📍", color:"c-rojo", titulo:"El vértice",
-    desc:"Encuentra el punto más alto o más bajo.", gen:genVertice,
-    teoria:`<p>El <b>vértice</b> es el punto donde la parábola cambia de dirección.</p>
-      <div class="formula">V = ( h , k ) &nbsp; con &nbsp; h = −b/(2a) &nbsp; y &nbsp; k = f(h)</div>
-      <p>1) Calcula h con la fórmula del eje de simetría.</p>
-      <p>2) Reemplaza h en la función para hallar k.</p>
-      <p>Ejemplo: f(<i>x</i>) = <i>x</i>² − 4<i>x</i> + 1 → h = 4/2 = 2 y k = (2)² − 4(2) + 1 = −3. El vértice es (2, −3).</p>` },
+  {id:"graficar", emoji:"📐", color:"c-violeta", titulo:"Dibuja la parábola", desc:"Del boceto a la gráfica real, paso a paso.",
+   gen:ejGraficar, meta:12, graficaViva:true,
+   teoria:[
+     {et:"Micro repaso 1 de 3", h:"Dibujar es un procedimiento",
+      html:`<p>No se dibuja una parábola poniendo puntos al azar. Se sigue siempre el mismo orden:</p>
+        <ul><li><b>1.</b> Leer a, b y c.</li>
+        <li><b>2.</b> Ver el signo de a: ya sabes la forma.</li>
+        <li><b>3.</b> Calcular el eje de simetría: ya sabes dónde queda parada.</li>
+        <li><b>4.</b> Reemplazar esa x en la función, término por término.</li>
+        <li><b>5.</b> Sumar: esa es la altura del vértice.</li></ul>
+        <p>Con esas cuatro cosas la curva queda determinada.</p>`},
+     {et:"Micro repaso 2 de 3", h:"Primero el boceto, después la gráfica",
+      html:`<p>Con solo mirar el signo de a puedes hacer un <b>boceto</b>: un dibujo aproximado que muestra la forma, aunque todavía no sepas dónde va.</p>
+        <div class="ejemplo">a = −2 → ya sabes que será una parábola <b>hacia abajo</b>, aunque aún no sepas en qué punto del plano.</div>
+        <p>Después, el eje de simetría y el vértice convierten ese boceto en la <b>gráfica real</b>, con coordenadas exactas.</p>`, graf:{a:-1,b:2,c:2,curva:true,vertice:true,eje:true}},
+     {et:"Micro repaso 3 de 3", h:"El vértice se calcula en dos tiempos",
+      html:`<div class="formula">h = ${fr("− b","2a")} &nbsp;→&nbsp; k = f(h)</div>
+        <p>Primero la <b>x</b> con la fórmula del eje. Después esa x se <b>reemplaza en la función</b> para conseguir la <b>y</b>.</p>
+        <div class="ejemplo">En f(x) = x² − 4x + 1: h = 2 y luego k = (2)² − 4(2) + 1 = <b>−3</b>. Vértice: (2, −3).</div>
+        <p>Un dato extra gratis: la parábola siempre pasa por <b>(0, c)</b>.</p>`}
+   ]},
 
-  { id:"foco", emoji:"🔦", color:"c-ambar", titulo:"Foco y directriz",
-    desc:"Ubica el punto interior que define la curva.", gen:genFoco,
-    teoria:`<p>Toda parábola tiene un punto especial llamado <b>foco</b> y una recta llamada <b>directriz</b>. Cada punto de la curva está a la misma distancia de los dos.</p>
-      <div class="formula">p = 1/(4a) · Foco = (h, k + p) · Directriz: y = k − p</div>
-      <p>Con la forma canónica f(<i>x</i>) = a(<i>x</i> − h)² + k se lee el vértice directamente: (h, k).</p>
-      <p>El foco siempre queda <b>dentro</b> de la parábola y la directriz por fuera. Por eso las antenas y los faros tienen forma de parábola: concentran todo en el foco.</p>` },
+  {id:"vertice", emoji:"📍", color:"c-rojo", titulo:"El vértice", desc:"Halla h, luego k reemplazando.",
+   gen:ejVertice,
+   teoria:[
+     {et:"Micro repaso 1 de 2", h:"El punto más importante",
+      html:`<p>El <b>vértice</b> es donde la parábola cambia de dirección. Se escribe <b>V(h, k)</b>.</p>
+        <div class="formula">h = ${fr("− b","2a")} &nbsp;·&nbsp; k = f(h)</div>
+        <p>La <b>h</b> es la misma del eje de simetría. La <b>k</b> se consigue reemplazando esa h dentro de la función.</p>
+        <p>Aquí lo harás en dos tiempos: primero <b>armas</b> la fracción con los valores y después la <b>resuelves</b>.</p>`, graf:{a:1,b:-4,c:1,curva:true,vertice:true,eje:true}},
+     {et:"Micro repaso 2 de 2", h:"Reemplazar por partes",
+      html:`<p>Con f(x) = x² − 4x + 1 y h = 2, conviene ir por pedazos:</p>
+        <ul><li>a·h² = 1·(2)² = 4</li><li>b·h = −4·(2) = −8</li><li>k = 4 − 8 + 1 = <b>−3</b></li></ul>
+        <div class="ejemplo">Vértice: <b>V(2, −3)</b>. Como a &gt; 0, ese es el punto más bajo de toda la curva.</div>
+        <p>Si h es una fracción, se eleva al cuadrado arriba y abajo: (${fr(3,2)})² = ${fr(9,4)}.</p>`}
+   ]},
 
-  { id:"tabla", emoji:"📈", color:"c-verde", titulo:"Gráfica por puntos",
-    desc:"Completa la tabla de valores y arma la curva.", gen:genTabla,
-    teoria:`<p>Para graficar una parábola punto por punto:</p>
-      <p>1) Elige varios valores de <i>x</i> (por ejemplo −2, −1, 0, 1, 2).</p>
-      <p>2) Reemplaza cada uno en la función para hallar <i>y</i>.</p>
-      <p>3) Ubica los pares (<i>x</i>, <i>y</i>) en el plano y únelos con una curva suave.</p>
-      <p>Recuerda: (−3)² = 9, no −9. El signo menos solo afecta si está afuera del cuadrado.</p>` },
+  {id:"foco", emoji:"🔦", color:"c-ambar", titulo:"Foco y directriz", desc:"Usa p = 1/(4a) desde la forma canónica.",
+   gen:ejFoco, meta:10,
+   teoria:[
+     {et:"Micro repaso 1 de 2", h:"Forma canónica",
+      html:`<div class="formula">f(<i class='v'>x</i>) = a(<i class='v'>x</i> − h)² + k</div>
+        <p>Escrita así, el <b>vértice se lee directo</b>: es (h, k). Cuidado con el signo dentro del paréntesis:</p>
+        <ul><li>(x − 4)² → h = <b>4</b></li><li>(x + 4)² → h = <b>−4</b></li></ul>`},
+     {et:"Micro repaso 2 de 2", h:"Foco, directriz y la distancia p",
+      html:`<p>Toda parábola tiene un punto llamado <b>foco</b> y una recta llamada <b>directriz</b>. Cada punto de la curva está a la <b>misma distancia</b> de los dos.</p>
+        <div class="formula">p = ${fr(1,"4a")} · F = (h, k + p) · directriz: y = k − p</div>
+        <p>El foco siempre queda <b>dentro</b> de la curva y la directriz por fuera. Por eso las antenas satelitales y los faros de los carros son parabólicos: todo se concentra en el foco.</p>`, graf:{a:0.5,b:0,c:-1,curva:true,vertice:true,foco:true,directriz:true}}
+   ]},
 
-  { id:"ceros", emoji:"🎯", color:"c-verde", titulo:"Ceros y ecuación",
-    desc:"Conecta la función con la ecuación cuadrática.", gen:genCeros,
-    teoria:`<p>Si igualamos la función a cero obtenemos la <b>ecuación cuadrática</b>:</p>
-      <div class="formula">a<i>x</i>² + b<i>x</i> + c = 0</div>
-      <p>Sus soluciones se llaman <b>ceros o raíces</b> y son exactamente los puntos donde la gráfica <b>corta el eje x</b>.</p>
-      <p>Ejemplo del libro: en 6<i>x</i>² − <i>x</i> − 2 = 0 las soluciones son x = −1/2 y x = 2/3, y la gráfica corta el eje <i>x</i> justo en (−1/2, 0) y (2/3, 0).</p>
-      <p>También puedes usar la fórmula general: x = (−b ± √(b² − 4ac)) / (2a).</p>` }
+  {id:"tabla", emoji:"📈", color:"c-verde", titulo:"Tabla de valores", desc:"Calcula puntos y arma la gráfica.",
+   gen:ejTabla,
+   teoria:[
+     {et:"Micro repaso 1 de 2", h:"Graficar punto por punto",
+      html:`<p>Para dibujar una parábola sin fórmulas complicadas:</p>
+        <ul><li>Elige valores de <i class='v'>x</i> (por ejemplo −2, −1, 0, 1, 2).</li>
+        <li>Reemplaza cada uno en la función y obtén su <i class='v'>y</i>.</li>
+        <li>Marca los pares (<i class='v'>x</i>, <i class='v'>y</i>) y únelos con una curva suave.</li></ul>`, graf:{a:1,b:0,c:-3,curva:true,puntos:[[-2,1],[-1,-2],[0,-3],[1,-2],[2,1]]}},
+     {et:"Micro repaso 2 de 2", h:"El error más común",
+      html:`<p>El cuadrado de un número negativo da <b>positivo</b>:</p>
+        <div class="formula">(−3)² = 9 &nbsp;&nbsp; pero &nbsp;&nbsp; −3² = −9</div>
+        <p>Por eso siempre se escribe el número entre paréntesis al reemplazar.</p>
+        <div class="ejemplo">f(x) = 2x² − x + 1 con x = −2 → f(−2) = 2·(−2)² − (−2) + 1 = 8 + 2 + 1 = <b>11</b>.</div>`}
+   ]},
+
+  {id:"ceros", emoji:"🎯", color:"c-verde", titulo:"Ceros de la ecuación", desc:"Discriminante y fórmula general, término por término.",
+   gen:ejCeros, meta:16,
+   teoria:[
+     {et:"Micro repaso 1 de 3", h:"De la función a la ecuación",
+      html:`<p>Si a la función le pedimos que valga cero, obtenemos la <b>ecuación cuadrática</b>:</p>
+        <div class="formula">a<i class='v'>x</i>² + b<i class='v'>x</i> + c = 0</div>
+        <p>Sus soluciones se llaman <b>ceros o raíces</b>, y son justo los puntos donde la gráfica <b>corta el eje x</b>.</p>
+        <div class="ejemplo">En <b>6x² − x − 2 = 0</b> las soluciones son ${fr(-1,2)} y ${fr(2,3)}, y la gráfica corta el eje x en (${fr(-1,2)}, 0) y (${fr(2,3)}, 0).</div>`, graf:{a:6,b:-1,c:-2,curva:true,raices:true}},
+     {et:"Micro repaso 2 de 3", h:"El discriminante avisa",
+      html:`<div class="formula">Δ = b² − 4ac</div>
+        <ul><li>Δ &gt; 0 → la parábola <b>corta</b> el eje x en dos puntos: dos soluciones.</li>
+        <li>Δ = 0 → la parábola <b>toca</b> el eje x: una sola solución.</li>
+        <li>Δ &lt; 0 → <b>no toca</b> el eje x: no hay soluciones reales.</li></ul>`, graf:{a:1,b:0,c:2,curva:true}},
+     {et:"Micro repaso 3 de 3", h:"Fórmula general",
+      html:`<div class="formula">x = ${fr("− b ± "+raiz("b² − 4ac"),"2a")}</div>
+        <p>El símbolo ± significa que hay que resolver <b>dos veces</b>: una sumando la raíz y otra restándola.</p>
+        <div class="ejemplo">Si el resultado no es entero, se deja como fracción simplificada. Es totalmente válido responder ${fr(2,3)}.</div>`}
+   ]}
 ];
-const ANIMOS = ["¡Excelente!","¡Sigue así!","Cada vez eres mejor.","¡Buen trabajo!","Ya casi completas esta lección.","¡Vas muy bien!","Lo estás entendiendo.","¡Esa fue difícil y la lograste!"];
-const ELOGIOS = ["¡Muy bien!","¡Correcto!","¡Excelente!","¡Perfecto!","¡Lo lograste!"];
 
-/* =================== INICIO =================== */
-const inNombre = $("#inNombre"), inGrado = $("#inGrado"), btnComenzar = $("#btnComenzar");
-inNombre.addEventListener("input", ()=> btnComenzar.disabled = inNombre.value.trim().length < 2);
-inNombre.addEventListener("keydown", e => { if(e.key==="Enter" && !btnComenzar.disabled) btnComenzar.click(); });
-btnComenzar.addEventListener("click", ()=>{
-  S.nombre = inNombre.value.trim(); S.grado = inGrado.value;
-  $("#bienvenida").classList.add("oculto");
-  $("#app").classList.remove("oculto");
-  $("#tbNombre").textContent = S.nombre;
-  $("#tbGrado").textContent = S.grado;
+const ANIMOS = ["¡Excelente!","¡Sigue así!","Cada vez lo haces mejor.","¡Buen trabajo!","Ya casi completas la lección.","Vas entendiendo el procedimiento."];
+const ELOGIOS = ["¡Correcto!","¡Muy bien!","¡Exacto!","¡Perfecto!","¡Eso es!"];
+
+/* ===================== ARRANQUE ===================== */
+const inNombre = $("#inNombre"), btnComenzar = $("#btnComenzar");
+inNombre.addEventListener("input",()=>btnComenzar.disabled = inNombre.value.trim().length<2);
+inNombre.addEventListener("keydown",e=>{ if(e.key==="Enter" && !btnComenzar.disabled) btnComenzar.click(); });
+btnComenzar.addEventListener("click",()=>{
+  S.nombre = inNombre.value.trim(); S.grado = $("#inGrado").value;
+  $("#bienvenida").classList.add("oculto"); $("#app").classList.remove("oculto");
+  $("#tbNombre").textContent = S.nombre; $("#tbGrado").textContent = S.grado;
   $("#avatar").textContent = S.nombre.charAt(0).toUpperCase();
-  LECCIONES.forEach(l => { if(l.gen) S.prog[l.id] = 0; });
-  S.t0 = Date.now();
-  S.tick = setInterval(reloj, 1000); reloj();
+  LECCIONES.forEach(l=>{ if(l.gen) S.prog[l.id]=0; });
+  S.t0 = Date.now(); S.tick = setInterval(reloj,1000); reloj();
   ajustarBarra(); irMenu();
 });
-$("#btnCasa").addEventListener("click", irMenu);
-window.addEventListener("resize", ajustarBarra);
-function ajustarBarra(){
-  const h = document.querySelector(".topbar").offsetHeight;
-  document.documentElement.style.setProperty("--barra", h + "px");
-}
+$("#btnCasa").addEventListener("click",irMenu);
+window.addEventListener("resize",ajustarBarra);
+function ajustarBarra(){ document.documentElement.style.setProperty("--barra", document.querySelector(".topbar").offsetHeight+"px"); }
 function reloj(){
   const t = Math.floor((Date.now()-S.t0)/1000);
-  $("#chipTiempo").textContent = "⏱ " + String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0");
+  $("#chipTiempo").textContent = "⏱ "+String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");
 }
-function tiempoTxt(){
-  const t = Math.floor((Date.now()-S.t0)/1000);
-  return String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0");
+function tiempoTxt(){ const t=Math.floor((Date.now()-S.t0)/1000);
+  return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0"); }
+function marcador(p){
+  $("#chipOk").textContent="✔ "+S.ok; $("#chipMal").textContent="✖ "+S.mal;
+  const tot=S.ok+S.mal; $("#chipPct").textContent="🎯 "+(tot?Math.round(S.ok/tot*100):0)+"%";
+  if(p){ const c=$(p==="ok"?"#chipOk":"#chipMal"); c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); }
 }
-function marcador(pop){
-  $("#chipOk").textContent = "✔ " + S.ok;
-  $("#chipMal").textContent = "✖ " + S.mal;
-  const tot = S.ok + S.mal;
-  $("#chipPct").textContent = "🎯 " + (tot ? Math.round(S.ok/tot*100) : 0) + "%";
-  if(pop){ const c = $(pop==="ok"?"#chipOk":"#chipMal"); c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); }
-}
+function escapa(s){ return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
 
-/* =================== MENÚ =================== */
+/* ===================== MENÚ ===================== */
 function irMenu(){
-  const hechas = LECCIONES.filter(l=>l.gen && S.prog[l.id] >= META).length;
-  const total = LECCIONES.filter(l=>l.gen).length;
-  const tot = S.ok + S.mal;
-  let html = `<div class="vista">
+  const lecs = LECCIONES.filter(l=>l.gen);
+  const hechas = lecs.filter(l=>S.prog[l.id]>=metaDe(l)).length, tot = S.ok+S.mal;
+  $("#vista").innerHTML = `<div class="vista">
     <div class="saludo">
       <h2>Hola, ${escapa(S.nombre.split(" ")[0])} 👋</h2>
-      <p>Elige una sección. Cada una explica una parte de la función cuadrática, sin llenarte de ejercicios en el cuaderno.</p>
-      <div class="mini">
-        <div>📚 ${hechas}/${total} lecciones</div>
-        <div>✔ ${S.ok} aciertos</div>
-        <div>🎯 ${tot?Math.round(S.ok/tot*100):0}% de acierto</div>
-      </div>
+      <p>Cada lección empieza con un micro repaso y sigue con ejercicios que se resuelven <b>paso a paso</b>, viendo la gráfica.</p>
+      <div class="mini"><div>📚 ${hechas}/${lecs.length} lecciones</div><div>✔ ${S.ok} pasos correctos</div><div>🎯 ${tot?Math.round(S.ok/tot*100):0}% de acierto</div></div>
       <svg viewBox="0 0 200 120" fill="none"><path d="M20 20 Q100 190 180 20" stroke="#fff" stroke-width="10" stroke-linecap="round"/></svg>
     </div>
     <h3 class="titulo-sec">Explora libremente <i>sin puntaje</i></h3>
-    <div class="grid">${tarjeta(LECCIONES[0], true)}</div>
-    <h3 class="titulo-sec">Lecciones <i>12 aciertos cada una</i></h3>
-    <div class="grid">${LECCIONES.filter(l=>l.gen).map(l=>tarjeta(l)).join("")}</div>
+    <div class="grid">${tarjeta(LECCIONES[0],true)}</div>
+    <h3 class="titulo-sec">Lecciones <i>repaso + práctica guiada</i></h3>
+    <div class="grid">${lecs.map((l,i)=>tarjeta(l,false,i+1)).join("")}</div>
   </div>`;
-  $("#vista").innerHTML = html;
-  $("#vista").querySelectorAll("[data-lec]").forEach(b => b.addEventListener("click", ()=> abrir(b.dataset.lec)));
+  $("#vista").querySelectorAll("[data-lec]").forEach(b=>b.addEventListener("click",()=>abrir(b.dataset.lec)));
   window.scrollTo({top:0});
 }
-function tarjeta(l, lab){
-  const p = S.prog[l.id] || 0;
-  const estado = l.gen ? (p>=META ? `<span class="pill hecho">✔ Lista</span>`
-        : p>0 ? `<span class="pill curso">${p}/${META}</span>` : `<span class="pill">${META} retos</span>`) : `<span class="pill">Libre</span>`;
+function tarjeta(l,lab,n){
+  const p = S.prog[l.id]||0;
+  const m = metaDe(l);
+  const est = l.gen ? (p>=m?`<span class="pill hecho">✔ Lista</span>`:p>0?`<span class="pill curso">${p}/${m}</span>`:`<span class="pill">Repaso + ${m}</span>`)
+                    : `<span class="pill">Libre</span>`;
   return `<button class="card ${lab?"lab":""}" data-lec="${l.id}">
-    <div class="ico ${l.color}">${l.emoji}</div>
-    <div class="txt"><b>${l.titulo}</b><small>${l.desc}</small></div>
-    ${estado}
-  </button>`;
+    <div class="ico ${l.color||""}">${l.emoji}${n?`<span class="nlec">${n}</span>`:""}</div>
+    <div class="txt"><b>${l.titulo}</b><small>${l.desc}</small></div>${est}</button>`;
 }
-function escapa(s){ return String(s).replace(/[&<>"]/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
-
 function abrir(id){
   const l = LECCIONES.find(x=>x.id===id);
   if(l.tipo==="lab") return verLab();
-  S.lecc = l;
-  verLeccion(true);
+  S.lecc = l; verTeoria(0);
 }
 
-/* =================== LABORATORIO =================== */
+/* ===================== TEORÍA ===================== */
+function verTeoria(i){
+  const l = S.lecc, t = l.teoria[i], ultima = i===l.teoria.length-1;
+  $("#vista").innerHTML = `<div class="vista teoria-caja">
+    <div class="cab-lec"><div class="ico ${l.color||""}">${l.emoji}${numLec(l)?`<span class="nlec">${numLec(l)}</span>`:""}</div>
+      <div><h2>${l.titulo}</h2><small>Sección ${numLec(l)} · micro repaso antes de practicar</small></div></div>
+    <div class="panel lamina">
+      <span class="et">${t.et}</span>
+      <h3>${t.h}</h3>
+      ${t.html}
+      ${t.graf?`<div class="lienzo" id="lzT"></div>`:""}
+    </div>
+    <div class="puntos">${l.teoria.map((_,j)=>`<i class="${j===i?"on":""}"></i>`).join("")}</div>
+    <div class="dosbtn">
+      ${i>0?`<button class="btn gris" id="ant">← Atrás</button>`:`<button class="btn gris" id="salir">← Menú</button>`}
+      <button class="btn ${ultima?"verde":""}" id="sig">${ultima?"Empezar a practicar ✏️":"Siguiente →"}</button>
+    </div>
+  </div>`;
+  if(t.graf) montarGrafica($("#lzT"), Object.assign({},t.graf));
+  const ant = $("#ant"), salir = $("#salir");
+  if(ant) ant.addEventListener("click",()=>verTeoria(i-1));
+  if(salir) salir.addEventListener("click",irMenu);
+  $("#sig").addEventListener("click",()=> ultima ? iniciarPractica() : verTeoria(i+1));
+  window.scrollTo({top:0});
+}
+
+/* ===================== PRÁCTICA PASO A PASO ===================== */
+function iniciarPractica(){ nuevoEjercicio(true); }
+function nuevoEjercicio(primero){
+  const l = S.lecc, viva = !!l.graficaViva;
+  S.ej = l.gen(); S.paso = 0; S.resp = {}; S.log = [];
+  S.graf = Object.assign({a:S.ej.a,b:S.ej.b,c:S.ej.c,curva:false,eje:false,vertice:false,foco:false,directriz:false,
+    raices:false,cortey:false,puntos:[],boceto:false,forma:null,ejeQ:false,verticeQ:false,sinNumerosY:false}, S.ej.grafInicial||{});
+  $("#vista").innerHTML = `<div class="vista">
+    <div class="cab-lec"><div class="ico ${l.color||""}">${l.emoji}${numLec(l)?`<span class="nlec">${numLec(l)}</span>`:""}</div>
+      <div><h2>${l.titulo}</h2><small>Sección ${numLec(l)} · ${S.ej.titulo}</small></div></div>
+    <div class="panel camino" id="camino"></div>
+    <div class="panel" style="padding:14px">
+      <div class="eq chico">${S.ej.encabezado}</div>
+      <ul class="ruta" id="ruta"></ul>
+    </div>
+    <div class="dos-col${viva?"":" sin-graf"}">
+      ${viva?`<div class="panel zgraf" style="padding:12px">
+        <div class="lienzo" id="lz"></div>
+        <div class="leyenda" id="leyenda">
+          <span data-k="curva"><i class="punto-l" style="background:#5B3DF5"></i>curva</span>
+          <span data-k="eje"><i class="punto-l" style="background:#12B4D8"></i>eje</span>
+          <span data-k="vertice"><i class="punto-l" style="background:#F0436A"></i>vértice</span>
+          <span data-k="foco"><i class="punto-l" style="background:#FFB020"></i>foco</span>
+          <span data-k="raices"><i class="punto-l" style="background:#0FA968"></i>ceros</span>
+        </div>
+      </div>`:""}
+      <div id="zonaPaso"></div>
+      <div class="bitacora" id="bitacora"></div>
+    </div>
+    <div class="dosbtn"><button class="btn gris" id="repasar">📘 Repasar teoría</button><button class="btn gris" id="menu">← Menú</button></div>
+  </div>`;
+  S.cv = $("#lz") ? montarGrafica($("#lz"), S.graf) : null;
+  $("#repasar").addEventListener("click",()=>verTeoria(0));
+  $("#menu").addEventListener("click",irMenu);
+  pintarCamino(); pintarRuta(); pintarBitacora(); pintarPaso();
+  if(primero) window.scrollTo({top:0});
+}
+function pintarCamino(){
+  if(!$("#camino")) return;
+  const p = S.prog[S.lecc.id]||0, meta = metaDe(S.lecc), porEj = S.ej?S.ej.pasos.length:4;
+  $("#camino").innerHTML = `<div class="cabecera"><span>Tu recorrido en esta lección</span><span><b>${p}</b> / ${meta} pasos</span></div>`+caminoSVG(p,meta,porEj);
+}
+function caminoSVG(p,meta,porEj){
+  const N0 = meta||META, W = 340, H = 82, pts = [];
+  for(let i=0;i<N0;i++){ const t=i/(N0-1), u=(t-.5)*2; pts.push([16+t*(W-32), 20+40*(1-u*u)]); }
+  const linea = pts.map(q=>q.join(",")).join(" ");
+  const hechos = pts.slice(0,Math.max(1,p)).map(q=>q.join(",")).join(" ");
+  let circ = "";
+  pts.forEach((q,i)=>{
+    const meta = (i+1)%(porEj||4)===0, on = i<p, r = meta?10:6.5;
+    circ += `<circle cx="${q[0]}" cy="${q[1]}" r="${r}" fill="${on?(meta?"#FFB020":"#5B3DF5"):"#E4E0F5"}" stroke="#fff" stroke-width="3"/>`;
+    if(meta) circ += `<text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" font-size="10" font-weight="800" fill="${on?"#fff":"#B9B2E0"}">${i+1}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" aria-label="Progreso ${p} de ${N0}">
+    <polyline points="${linea}" fill="none" stroke="#E4E0F5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    ${p>0?`<polyline points="${hechos}" fill="none" stroke="#5B3DF5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`:""}
+    ${circ}</svg>`;
+}
+function pintarRuta(){
+  if(!$("#ruta")) return;
+  const hechos = S.bloq ? S.paso+1 : S.paso;
+  $("#ruta").innerHTML = S.ej.pasos.map((p,i)=>{
+    const cl = i<hechos?"hecho":i===S.paso?"activo":"";
+    return `<li class="${cl}"><span class="n">${i<hechos?"✓":i+1}</span><span>${p.corto}</span></li>`;
+  }).join("");
+}
+function pintarBitacora(){
+  if(!$("#bitacora")) return;
+  $("#bitacora").classList.toggle("vacia", S.log.length===0);
+  $("#bitacora").innerHTML = (S.log.length?`<div class="bit-tit">📝 Procedimiento resuelto hasta ahora</div>`:"") + S.log.map(e=>`<div class="bit">
+    <div class="tt">✔ ${e.titulo}</div>${e.texto}
+    ${e.cuenta?`<div class="cuenta">${e.cuenta}</div>`:""}</div>`).join("");
+}
+function pintarPaso(){
+  if(!$("#zonaPaso") || !S.ej) return;
+  S.bloq = false;
+  const p = S.ej.pasos[S.paso];
+  let cuerpo = "";
+  if(p.tipo==="num"){
+    cuerpo = `<div class="grupo-num">`+p.campos.map(c=>`
+      <div class="casilla"><span>${c.et}</span><div class="entrada">
+        <input id="in_${c.id}" data-id="${c.id}" type="text" inputmode="text" autocomplete="off" placeholder="?">
+        <button class="signo" data-for="${c.id}" aria-label="Cambiar el signo" title="Cambiar el signo">±</button>
+      </div></div>`).join("")+`</div>`;
+  } else if(p.tipo==="frac"){
+    const [n,d,r] = p.campos;
+    cuerpo = `<div class="fracbox">
+        <div class="lbl">${n.et}</div>
+        <div class="entrada"><input id="in_${n.id}" data-id="${n.id}" type="text" inputmode="text" autocomplete="off" placeholder="?">
+          <button class="signo" data-for="${n.id}" aria-label="Cambiar el signo" title="Cambiar el signo">±</button></div>
+        <div class="barra"></div>
+        <div class="entrada"><input id="in_${d.id}" data-id="${d.id}" type="text" inputmode="text" autocomplete="off" placeholder="?">
+          <button class="signo" data-for="${d.id}" aria-label="Cambiar el signo" title="Cambiar el signo">±</button></div>
+        <div class="lbl" style="margin-top:6px">${d.et}</div>
+      </div>` + (r ? `
+      <div class="grupo-num"><div class="casilla" style="flex:1 1 100%"><span>${r.et}</span><div class="entrada">
+        <input id="in_${r.id}" data-id="${r.id}" type="text" inputmode="text" autocomplete="off" placeholder="resultado">
+        <button class="signo" data-for="${r.id}" aria-label="Cambiar el signo" title="Cambiar el signo">±</button>
+      </div></div></div>` : "");
+  } else {
+    cuerpo = `<div class="opciones">`+p.opciones.map(o=>`<button class="opcion" data-v="${o.v}" aria-pressed="false">${o.txt}</button>`).join("")+`</div>`;
+  }
+  $("#zonaPaso").innerHTML = `<div class="panel paso" style="position:relative">
+    <div class="paso-cab"><span class="nn">PASO ${S.paso+1} DE ${S.ej.pasos.length}</span></div>
+    <h3>${p.titulo.replace(/^Paso \d+ · /,"")}</h3>
+    <p class="dice">${p.dice}</p>
+    ${p.formula?`<div class="formula">${p.formula}</div>`:""}
+    ${cuerpo}
+    <p class="tip">${p.tipo==="opcion" ? "Elige una opción y pulsa Comprobar"
+      : p.tipo==="frac" && p.campos.length===2 ? "Escribe arriba el numerador y abajo el denominador, con su signo"
+      : "Puedes escribir fracciones como 3/4 o decimales como 0,75"}</p>
+    <div class="acciones">
+      <button class="btn gris" id="btnBorrar">🗑 Borrar</button>
+      <button class="btn verde" id="btnComprobar">✅ Comprobar</button>
+    </div></div>`;
+  $("#zonaPaso").querySelectorAll("input").forEach(i=>{
+    i.addEventListener("focus",()=>i.select());
+    i.addEventListener("input",()=>{ i.classList.remove("malo"); S.resp[i.dataset.id]=i.value; });
+    i.addEventListener("keydown",e=>{ if(e.key==="Enter") $("#btnComprobar").click(); });
+  });
+  $("#zonaPaso").querySelectorAll(".signo").forEach(b=>b.addEventListener("click",()=>{
+    const i = document.getElementById("in_"+b.dataset.for), v = i.value.trim();
+    i.value = (v.startsWith("-")||v.startsWith("−")) ? v.slice(1) : (v===""?"−":"−"+v);
+    i.classList.remove("malo"); S.resp[b.dataset.for]=i.value; i.focus();
+  }));
+  $("#zonaPaso").querySelectorAll(".opcion").forEach(b=>b.addEventListener("click",()=>{
+    $("#zonaPaso").querySelectorAll(".opcion").forEach(o=>{o.setAttribute("aria-pressed","false");o.classList.remove("malo");});
+    b.setAttribute("aria-pressed","true"); S.resp.op = b.dataset.v;
+  }));
+  $("#btnBorrar").addEventListener("click",borrar);
+  $("#btnComprobar").addEventListener("click",comprobar);
+  pintarRuta(); actualizarLeyenda();
+}
+function actualizarLeyenda(){
+  const l = $("#leyenda"); if(!l) return;
+  l.querySelectorAll("span").forEach(s=>s.classList.toggle("on", !!S.graf[s.dataset.k] || (s.dataset.k==="vertice" && S.graf.vertice)));
+}
+function borrar(){
+  S.resp = {};
+  $("#zonaPaso").querySelectorAll("input").forEach(i=>{i.value="";i.classList.remove("malo","bueno");});
+  $("#zonaPaso").querySelectorAll(".opcion").forEach(o=>{o.setAttribute("aria-pressed","false");o.classList.remove("malo");});
+  aviso("Casillas limpias ✨");
+}
+function comprobar(){
+  if(S.bloq) return;
+  const p = S.ej.pasos[S.paso];
+  const malos = {}; let vacio = false, ok = true;
+  if(p.tipo==="opcion"){
+    if(!S.resp.op) vacio = true;
+    else if(S.resp.op !== p.correcta){ ok=false; malos.op=true; }
+  } else {
+    p.campos.forEach(c=>{
+      const v = parseNum(S.resp[c.id]);
+      if(isNaN(v)) vacio = true;
+      else if(!casi(v,c.val)){ ok=false; malos[c.id]=true; }
+    });
+  }
+  if(vacio){ aviso("Completa la respuesta antes de comprobar"); return; }
+  if(!ok){
+    S.mal++; S.racha=0; marcador("mal");
+    Object.keys(malos).forEach(k=>{
+      const i = document.getElementById("in_"+k); if(i){ i.classList.add("malo"); i.classList.remove("bueno"); }
+      const o = $("#zonaPaso").querySelector('.opcion[aria-pressed="true"]'); if(k==="op"&&o) o.classList.add("malo");
+    });
+    S.bloq = false;
+    modalError(p);
+    return;
+  }
+  /* ---- correcto ---- */
+  S.bloq = true;
+  const bc = $("#btnComprobar"); if(bc){ bc.disabled = true; bc.textContent = "✔ Correcto"; }
+  S.ok++; S.racha++; marcador("ok");
+  S.prog[S.lecc.id] = Math.min(metaDe(S.lecc),(S.prog[S.lecc.id]||0)+1);
+  $("#zonaPaso").querySelectorAll("input").forEach(i=>i.classList.add("bueno"));
+
+  S.log.push({titulo:p.corto, texto:(p.sustit?`<div class="cuenta">${p.sustit()}</div>`:"")+`<div style="margin-top:6px">${p.explica()}</div>`,
+    cuenta:p.cuenta?p.cuenta():null, datos:datosDelPaso(p)});
+  if(p.revela){
+    const r = Object.assign({},p.revela);
+    if(r.punto){ S.graf.puntos.push(r.punto); delete r.punto; }
+    Object.assign(S.graf,r); if(S.cv && S.cv.isConnected) redibujar(S.cv);
+  }
+  pintarBitacora(); actualizarLeyenda(); pintarCamino();
+
+  mostrarAcierto(p);
+}
+
+/* datos concretos que dejó resueltos un paso */
+function datosDelPaso(p){
+  if(p.tipo==="opcion"){
+    const o = p.opciones.find(x=>x.v===p.correcta);
+    return o ? [o.txt.replace(/^[^\wÁÉÍÓÚÑa-z]+/,"").trim()] : [];
+  }
+  return p.campos.map(c=>{
+    const et = /=\s*$/.test(c.et) ? c.et : c.et+" =";
+    return `${et} <b>${N(c.val)}</b>`;
+  });
+}
+
+/* pantalla de repaso tras acertar: gráfica + datos + botón siguiente */
+function mostrarAcierto(p){
+  if(!$("#zonaPaso")) return;
+  const meta = metaDe(S.lecc), prog = S.prog[S.lecc.id]||0;
+  const ultimoPaso = S.paso+1 >= S.ej.pasos.length;
+  const fin = prog >= meta;
+  const logro = !fin && ultimoPaso;
+  const datos = S.log.flatMap(e=>e.datos||[]);
+  const verGraf = !!S.lecc.graficaViva || ultimoPaso;
+  const titulo = fin ? "🎉 ¡Lección completada!" : logro ? "🏅 ¡Ejercicio resuelto!" : pick(ELOGIOS);
+  const sub = fin ? "Terminaste todos los pasos de esta lección."
+            : logro ? `Completaste el procedimiento entero. Llevas ${prog} de ${meta} pasos.`
+            : "Revisa cómo va quedando la gráfica antes de continuar.";
+  const boton = fin ? "Ver mis resultados 🎉" : logro ? "Siguiente ejercicio →" : "Siguiente paso →";
+
+  $("#zonaPaso").innerHTML = `<div class="panel paso acierto">
+    <div class="sello ok">✔</div>
+    <h3>${titulo}</h3>
+    <p class="dice" style="text-align:center;color:var(--gris);font-weight:600">${sub}</p>
+    ${p.sustit?`<div class="cuenta-ok">${p.sustit()}</div>`:""}
+    <p class="expl-ok">${p.explica()}</p>
+    ${verGraf?`<div class="rev-graf">
+      <div class="rev-tit">📈 ${S.lecc.graficaViva?"Así va la gráfica":"Gráfica resultante"}</div>
+      <div class="lienzo" id="lzOk"></div>
+    </div>`:""}
+    ${datos.length?`<div class="rev-datos"><div class="rev-tit">📋 Datos encontrados</div>
+      <ul>${datos.map(d=>`<li>${d}</li>`).join("")}</ul></div>`:""}
+    ${(logro||fin)?`<button class="btn ambar" id="btnCuaderno">📓 Pasar este ejercicio al cuaderno</button>`:""}
+    <button class="btn verde" id="btnSiguiente">${boton}</button>
+  </div>`;
+  if($("#lzOk")) montarGrafica($("#lzOk"), Object.assign({},S.graf,{puntos:(S.graf.puntos||[]).slice()}));
+  if(logro||fin) confeti(fin?60:24);
+  pintarRuta();
+  $("#btnSiguiente").addEventListener("click",()=>{
+    if(fin) return pantallaLogro();
+    if(ultimoPaso) return nuevoEjercicio();
+    S.paso++; S.resp = {}; pintarPaso();
+    if(S.racha%3===0) aviso(pick(ANIMOS));
+  });
+  const bc = $("#btnCuaderno"); if(bc) bc.addEventListener("click",hojaCuaderno);
+  $("#btnSiguiente").focus({preventScroll:true});
+}
+
+/* ============ HOJA PARA COPIAR AL CUADERNO ============ */
+function aTexto(html){
+  return String(html)
+    .replace(/<span class="fr"><b>(.*?)<\/b><u>(.*?)<\/u><\/span>/g,"($1)/($2)")
+    .replace(/<span class="rad"><em>√<\/em><u>(.*?)<\/u><\/span>/g,"√($1)")
+    .replace(/<br\s*\/?>/g,"\n")
+    .replace(/<\/(div|p|li)>/g,"\n")
+    .replace(/<[^>]+>/g,"")
+    .replace(/&nbsp;/g," ").replace(/&gt;/g,">").replace(/&lt;/g,"<").replace(/&amp;/g,"&")
+    .replace(/[ \t]+/g," ").replace(/\n{3,}/g,"\n\n").trim();
+}
+function hojaCuaderno(){
+  const ej = S.ej, l = S.lecc;
+  const pasos = S.log.map((e,i)=>`<li><b>${e.titulo}</b>${e.texto}</li>`).join("");
+  const datos = S.log.flatMap(e=>e.datos||[]);
+  const resultados = S.log.map(e=>e.cuenta).filter(Boolean);
+  abrirModal(`<div class="modal hoja" id="hoja">
+    <div class="hoja-cab">
+      <div><h3>📓 Para pasar al cuaderno</h3>
+        <p class="hoja-meta">${escapa(S.nombre)} · ${escapa(S.grado)} · Sección ${numLec(l)}: ${escapa(l.titulo)}</p></div>
+    </div>
+    <div class="hoja-cuerpo" id="hojaCuerpo">
+      <div class="hoja-enun"><span class="hoja-et">Ejercicio</span>${ej.encabezado}</div>
+      <span class="hoja-et">Procedimiento</span>
+      <ol class="hoja-pasos">${pasos}</ol>
+      ${resultados.length?`<span class="hoja-et">Resultados</span><div class="hoja-res">${resultados.join("<br>")}</div>`:""}
+      ${datos.length?`<span class="hoja-et">Datos</span><div class="hoja-res">${datos.join(" &nbsp;·&nbsp; ")}</div>`:""}
+      <span class="hoja-et">Gráfica</span>
+      <div class="lienzo" id="lzHoja"></div>
+    </div>
+    <div class="hoja-btns">
+      <button class="btn gris" id="hImp">🖨 Imprimir</button>
+      <button class="btn gris" id="hCop">📋 Copiar</button>
+      <button class="btn verde" id="hCer">Listo, ya lo copié</button>
+    </div>
+  </div>`);
+  montarGrafica($("#lzHoja"), Object.assign({},S.graf,{boceto:false,verticeQ:false,sinNumerosY:false,curva:true,puntos:(S.graf.puntos||[]).slice()}));
+  $("#hImp").addEventListener("click",()=>window.print());
+  $("#hCop").addEventListener("click",async()=>{
+    const txt = `${S.nombre} · ${S.grado}\nSección ${numLec(l)}: ${l.titulo}\n\nEjercicio: ${aTexto(ej.encabezado)}\n\n`
+      + S.log.map((e,i)=>`${i+1}) ${e.titulo}\n${aTexto(e.texto)}`).join("\n\n")
+      + (resultados.length?`\n\nResultados:\n${resultados.map(r=>"• "+aTexto(r)).join("\n")}`:"");
+    try{ await navigator.clipboard.writeText(txt); aviso("Procedimiento copiado ✅"); }
+    catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = txt; ta.className="hoja-ta"; ta.readOnly = true;
+      $("#hojaCuerpo").prepend(ta); ta.focus(); ta.select();
+      aviso("Selecciona el texto y cópialo");
+    }
+  });
+  $("#hCer").addEventListener("click",cerrarCapa);
+}
+function modalError(p){
+  abrirModal(`<div class="modal">
+    <div class="sello mal">✖</div>
+    <h3>Inténtalo nuevamente</h3>
+    <p>Revisa este paso, no pierdes la oportunidad.</p>
+    <div class="porque">💡 ${p.pista}</div>
+    <p style="margin-top:10px;font-size:.88rem">Vuelves al mismo paso para corregir. Equivocarse también es aprender.</p>
+    <button class="btn" id="mR">Volver al paso ${S.paso+1}</button></div>`);
+  $("#mR").addEventListener("click",()=>{
+    cerrarCapa();
+    const i = $("#zonaPaso").querySelector("input.malo"); if(i){ i.focus(); i.select(); }
+  });
+}
+function pantallaLogro(){
+  const tot = S.ok+S.mal, pct = tot?Math.round(S.ok/tot*100):0;
+  const lecs = LECCIONES.filter(l=>l.gen);
+  const idx = lecs.findIndex(l=>l.id===S.lecc.id);
+  const sig = lecs.slice(idx+1).find(l=>S.prog[l.id]<metaDe(l)) || lecs.find(l=>S.prog[l.id]<metaDe(l));
+  confeti(60);
+  abrirModal(`<div class="modal">
+    <div class="sello fiesta">🎉</div>
+    <h3>¡Lección completada!</h3>
+    <p>${escapa(S.lecc.titulo)}</p>
+    <div class="resumen">
+      <div><small>Estudiante</small><b>${escapa(S.nombre)}</b></div>
+      <div><small>Grado</small><b>${escapa(S.grado)}</b></div>
+      <div><small>Tiempo</small><b>${tiempoTxt()}</b></div>
+      <div><small>Porcentaje</small><b>${pct}%</b></div>
+      <div><small>Aciertos</small><b style="color:#0FA968">✔ ${S.ok}</b></div>
+      <div><small>Errores</small><b style="color:#F0436A">✖ ${S.mal}</b></div>
+    </div>
+    <p style="margin-top:12px;font-weight:700;color:#1B1544">Excelente trabajo. Ya sabes hacer el procedimiento completo, no solo la respuesta final.</p>
+    <button class="btn verde" id="mS">${sig?"Siguiente lección: "+sig.titulo+" →":"Volver al menú"}</button>
+    <button class="btn gris" id="mM">Ir al menú principal</button></div>`);
+  $("#mS").addEventListener("click",()=>{ cerrarCapa(); if(sig){ S.lecc=sig; verTeoria(0); } else irMenu(); });
+  $("#mM").addEventListener("click",()=>{ cerrarCapa(); irMenu(); });
+}
+
+/* ===================== LABORATORIO ===================== */
 function verLab(){
   $("#vista").innerHTML = `<div class="vista">
-    <div class="leccion-cab"><div class="ico c-cian">🔬</div>
-      <div><h2>Laboratorio de parábolas</h2><small>Mueve los controles y observa</small></div></div>
+    <div class="cab-lec"><div class="ico c-cian">🔬</div><div><h2>Laboratorio de parábolas</h2><small>Mueve los controles y observa</small></div></div>
     <div class="dos-col">
       <div class="panel pegado" style="padding:12px">
-        <div class="lienzo" id="lienzoLab"></div>
+        <div class="lienzo" id="lzLab"></div>
         <div class="leyenda">
-          <span><i class="punto-l" style="background:#5B3DF5"></i>curva</span>
-          <span><i class="punto-l" style="background:#F0436A"></i>vértice</span>
-          <span><i class="punto-l" style="background:#12B4D8"></i>eje</span>
-          <span><i class="punto-l" style="background:#FFB020"></i>foco</span>
-          <span><i class="punto-l" style="background:#0FA968"></i>ceros</span>
+          <span class="on"><i class="punto-l" style="background:#5B3DF5"></i>curva</span>
+          <span class="on"><i class="punto-l" style="background:#F0436A"></i>vértice</span>
+          <span class="on"><i class="punto-l" style="background:#12B4D8"></i>eje</span>
+          <span class="on"><i class="punto-l" style="background:#FFB020"></i>foco</span>
+          <span class="on"><i class="punto-l" style="background:#0FA968"></i>ceros</span>
         </div>
       </div>
       <div>
@@ -837,303 +1587,66 @@ function verLab(){
             <button data-p="1,0,3">Sin ceros reales</button>
           </div>
         </div>
-        <div class="panel">
-          <div class="datos" id="labDatos"></div>
-          <p style="margin:12px 0 0;font-weight:700;font-size:.93rem;color:#6C6790" id="labTexto"></p>
-        </div>
+        <div class="panel"><div class="datos" id="labDatos"></div>
+          <p style="margin:12px 0 0;font-weight:700;font-size:.93rem;color:#6C6790" id="labTxt"></p></div>
         <button class="btn gris" id="labVolver">← Volver al menú</button>
       </div>
-    </div>
-  </div>`;
-  const opt = {a:1,b:0,c:-2,curva:true,eje:true,vertice:true,foco:false,directriz:false,raices:true};
-  const cv = montarGrafica($("#lienzoLab"), opt);
-  const act = () => {
-    let a = Number($("#sa").value); if(a===0) a = 0.25, $("#sa").value = 0.25;
+    </div></div>`;
+  const opt = {a:1,b:0,c:-2,curva:true,eje:true,vertice:true,foco:false,directriz:false,raices:true,puntos:[]};
+  const cv = montarGrafica($("#lzLab"),opt);
+  const act = ()=>{
+    let a = Number($("#sa").value); if(a===0){ a=.25; $("#sa").value=.25; }
     opt.a=a; opt.b=Number($("#sb").value); opt.c=Number($("#sc").value);
-    $("#oa").textContent = fmt(opt.a); $("#ob").textContent = fmt(opt.b); $("#oc").textContent = fmt(opt.c);
+    $("#oa").textContent=fmt(opt.a); $("#ob").textContent=fmt(opt.b); $("#oc").textContent=fmt(opt.c);
     $("#labEq").innerHTML = eqHTML(opt.a,opt.b,opt.c);
-    const h = -opt.b/(2*opt.a), k = opt.a*h*h+opt.b*h+opt.c, d = opt.b*opt.b-4*opt.a*opt.c, p = 1/(4*opt.a);
-    const raices = d>0 ? `${fmt(Math.round((-opt.b-Math.sqrt(d))/(2*opt.a)*100)/100)} y ${fmt(Math.round((-opt.b+Math.sqrt(d))/(2*opt.a)*100)/100)}`
-                : d===0 ? fmt(h) : "no tiene reales";
+    const h=-opt.b/(2*opt.a), k=opt.a*h*h+opt.b*h+opt.c, D=opt.b*opt.b-4*opt.a*opt.c, p=1/(4*opt.a);
+    const rr = D>0 ? `${N(Math.round((-opt.b-Math.sqrt(D))/(2*opt.a)*1000)/1000)} y ${N(Math.round((-opt.b+Math.sqrt(D))/(2*opt.a)*1000)/1000)}`
+            : D===0 ? N(h) : "no tiene reales";
     $("#labDatos").innerHTML = `
       <div class="dato"><small>Abre hacia</small><b>${opt.a>0?"▲ arriba":"▼ abajo"}</b></div>
-      <div class="dato"><small>Eje de simetría</small><b>x = ${fmt(Math.round(h*100)/100)}</b></div>
-      <div class="dato"><small>Vértice</small><b>${par(Math.round(h*100)/100, Math.round(k*100)/100)}</b></div>
-      <div class="dato"><small>Foco</small><b>${par(Math.round(h*100)/100, Math.round((k+p)*100)/100)}</b></div>
-      <div class="dato"><small>Discriminante</small><b>${fmt(Math.round(d*100)/100)}</b></div>
-      <div class="dato"><small>Ceros (corte con x)</small><b>${raices}</b></div>`;
-    $("#labTexto").innerHTML = d>0 ? "El discriminante es positivo: la parábola corta el eje <i>x</i> en dos puntos, así que la ecuación tiene <b>dos soluciones</b>."
-      : d===0 ? "El discriminante es cero: la parábola toca el eje <i>x</i> en un solo punto, la ecuación tiene <b>una solución</b>."
-      : "El discriminante es negativo: la parábola no toca el eje <i>x</i>, la ecuación <b>no tiene soluciones reales</b>.";
+      <div class="dato"><small>Eje de simetría</small><b>x = ${N(Math.round(h*1000)/1000)}</b></div>
+      <div class="dato"><small>Vértice</small><b>${parN(Math.round(h*1000)/1000,Math.round(k*1000)/1000)}</b></div>
+      <div class="dato"><small>p = 1/(4a)</small><b>${N(Math.round(p*1000)/1000)}</b></div>
+      <div class="dato"><small>Discriminante</small><b>${fmt(Math.round(D*100)/100)}</b></div>
+      <div class="dato"><small>Ceros</small><b>${rr}</b></div>`;
+    $("#labTxt").innerHTML = D>0?"Δ es positivo: la parábola corta el eje <i class='v'>x</i> en dos puntos, la ecuación tiene <b>dos soluciones</b>."
+      : D===0?"Δ es cero: la parábola toca el eje <i class='v'>x</i> en un punto, hay <b>una solución</b>."
+      : "Δ es negativo: la parábola no toca el eje <i class='v'>x</i>, <b>no hay soluciones reales</b>.";
     redibujar(cv);
   };
-  ["sa","sb","sc"].forEach(id => $("#"+id).addEventListener("input", act));
-  $("#vista").querySelectorAll(".tg").forEach(t => t.addEventListener("click", ()=>{
+  ["sa","sb","sc"].forEach(id=>$("#"+id).addEventListener("input",act));
+  $("#vista").querySelectorAll(".tg").forEach(t=>t.addEventListener("click",()=>{
     const on = t.getAttribute("aria-pressed")==="true";
-    t.setAttribute("aria-pressed", String(!on));
-    opt[t.dataset.tg] = !on; redibujar(cv);
+    t.setAttribute("aria-pressed",String(!on)); opt[t.dataset.tg]=!on; redibujar(cv);
   }));
-  $("#vista").querySelectorAll(".preset button").forEach(t => t.addEventListener("click", ()=>{
+  $("#vista").querySelectorAll(".preset button").forEach(t=>t.addEventListener("click",()=>{
     const [a,b,c] = t.dataset.p.split(",").map(Number);
-    $("#sa").value = Math.max(-3,Math.min(3,a)); $("#sb").value = b; $("#sc").value = c; act();
+    $("#sa").value=Math.max(-3,Math.min(3,a)); $("#sb").value=b; $("#sc").value=c; act();
   }));
-  $("#labVolver").addEventListener("click", irMenu);
+  $("#labVolver").addEventListener("click",irMenu);
   act(); window.scrollTo({top:0});
 }
 
-/* =================== LECCIÓN =================== */
-function verLeccion(abrirTeoria){
-  const l = S.lecc;
-  S.ej = l.gen(); S.resp = {};
-  const p = S.prog[l.id] || 0;
-  $("#vista").innerHTML = `<div class="vista">
-    <div class="leccion-cab"><div class="ico ${l.color}">${l.emoji}</div>
-      <div><h2>${l.titulo}</h2><small>${l.desc}</small></div></div>
-    <div class="panel camino">
-      <div class="cabecera"><span>Tu recorrido</span><span><b>${p}</b> / ${META} aciertos</span></div>
-      ${caminoSVG(p)}
-    </div>
-    <details class="panel teoria" ${abrirTeoria?"open":""}>
-      <summary>📘 ¿Cómo se hace? Ver la explicación</summary>
-      <div class="cuerpo">${l.teoria}</div>
-    </details>
-    <div class="dos-col">
-      <div id="ladoGrafica"></div>
-      <div class="panel" id="ladoEjercicio"></div>
-    </div>
-    <button class="btn gris" id="volverMenu" style="margin-top:12px">← Volver al menú</button>
-  </div>`;
-  $("#volverMenu").addEventListener("click", irMenu);
-  pintarEjercicio();
-  window.scrollTo({top:0});
-}
-function caminoSVG(p){
-  const N = META, W = 340, H = 82, pts = [];
-  for(let i=0;i<N;i++){
-    const t = i/(N-1), u = (t-0.5)*2;
-    pts.push([16 + t*(W-32), 20 + 40*(1-u*u)]);
-  }
-  const linea = pts.map(q=>q.join(",")).join(" ");
-  const hechos = pts.slice(0, Math.max(1,p)).map(q=>q.join(",")).join(" ");
-  let circ = "";
-  pts.forEach((q,i)=>{
-    const meta = (i+1)%4===0, on = i < p;
-    const r = meta?10:6.5;
-    circ += `<circle cx="${q[0]}" cy="${q[1]}" r="${r}" fill="${on?(meta?"#FFB020":"#5B3DF5"):"#E4E0F5"}" stroke="#fff" stroke-width="3" class="${i===p-1?"nodo-nuevo":""}"/>`;
-    if(meta) circ += `<text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" font-size="10" font-weight="800" fill="${on?"#fff":"#B9B2E0"}">${i+1}</text>`;
-  });
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" aria-label="Progreso: ${p} de ${META}">
-    <polyline points="${linea}" fill="none" stroke="#E4E0F5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-    ${p>0?`<polyline points="${hechos}" fill="none" stroke="#5B3DF5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`:""}
-    ${circ}</svg>`;
-}
-function pintarEjercicio(){
-  const ej = S.ej;
-  const lado = $("#ladoGrafica");
-  lado.innerHTML = "";
-  if(ej.grafica){
-    lado.innerHTML = `<div class="panel" style="padding:12px"><div class="lienzo" id="lz"></div></div>`;
-    montarGrafica($("#lz"), Object.assign({}, ej.grafica));
-  } else {
-    lado.innerHTML = `<div class="panel espera">
-      <svg viewBox="0 0 200 96" aria-hidden="true"><path d="M18 82H182M100 12V88" stroke="#E4E0F5" stroke-width="4" stroke-linecap="round"/>
-        <path d="M42 20 Q100 132 158 20" stroke="#D9D3F2" stroke-width="6" stroke-linecap="round" fill="none" stroke-dasharray="10 12"/></svg>
-      <b>Aquí aparecerá la gráfica</b>
-      <small>Responde y comprueba: verás dibujado lo que acabas de calcular.</small>
-    </div>`;
-  }
-  let campos = "";
-  ej.campos.forEach(c=>{
-    if(c.tipo==="num"){
-      campos += `<div class="grupo-num">` + c.grupo.map(g=>`
-        <div class="casilla" ${g.ancho?'style="flex:1 1 100%"':""}>
-          <span>${g.et}</span>
-          <div class="entrada">
-            <input id="in_${g.id}" data-id="${g.id}" type="text" inputmode="text" autocomplete="off" placeholder="?">
-            <button class="signo" data-for="${g.id}" title="Cambiar el signo" aria-label="Cambiar el signo">±</button>
-          </div>
-        </div>`).join("") + `</div>`;
-    } else {
-      campos += `<div class="opciones"><div class="pregunta">${c.pregunta}</div>` +
-        c.opciones.map(o=>`<button class="opcion" data-campo="${c.id}" data-v="${o.v}" aria-pressed="false">${o.txt}</button>`).join("") + `</div>`;
-    }
-  });
-  $("#ladoEjercicio").innerHTML = `
-    <p class="enunciado">${ej.enunciado}</p>
-    ${ej.eq ? `<div class="eq">${ej.eq}</div>` : ""}
-    ${ej.nota ? `<p style="font-size:.9rem;color:#6C6790;font-weight:700;margin:10px 0 0">${ej.nota}</p>` : ""}
-    <div class="campos">${campos}</div>
-    ${ej.ayuda ? `<p style="font-size:.82rem;color:#8880B8;font-weight:700;margin:0">${ej.ayuda}</p>` : ""}
-    <div class="acciones">
-      <button class="btn gris" id="btnBorrar">🗑 Borrar</button>
-      <button class="btn verde" id="btnComprobar">✅ Comprobar</button>
-    </div>`;
-  $("#ladoEjercicio").querySelectorAll("input").forEach(i=>{
-    i.addEventListener("focus", ()=> i.select());
-    i.addEventListener("input", ()=>{ i.classList.remove("malo"); S.resp[i.dataset.id] = i.value; });
-    i.addEventListener("keydown", e=>{ if(e.key==="Enter") $("#btnComprobar").click(); });
-  });
-  $("#ladoEjercicio").querySelectorAll(".opcion").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      $("#ladoEjercicio").querySelectorAll(`.opcion[data-campo="${b.dataset.campo}"]`).forEach(o=>{
-        o.setAttribute("aria-pressed","false"); o.classList.remove("malo");
-      });
-      b.setAttribute("aria-pressed","true");
-      S.resp[b.dataset.campo] = b.dataset.v;
-    });
-  });
-  $("#ladoEjercicio").querySelectorAll(".signo").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      const i = document.getElementById("in_"+b.dataset.for);
-      const v = i.value.trim();
-      i.value = v.startsWith("-") || v.startsWith("−") ? v.slice(1) : (v==="" ? "−" : "−"+v);
-      i.classList.remove("malo");
-      S.resp[b.dataset.for] = i.value;
-      i.focus();
-    });
-  });
-  $("#btnBorrar").addEventListener("click", borrar);
-  $("#btnComprobar").addEventListener("click", comprobar);
-}
-function borrar(){
-  S.resp = {};
-  $("#ladoEjercicio").querySelectorAll("input").forEach(i=>{ i.value=""; i.classList.remove("malo","bueno"); });
-  $("#ladoEjercicio").querySelectorAll(".opcion").forEach(o=>{ o.setAttribute("aria-pressed","false"); o.classList.remove("malo"); });
-  aviso("Casillas limpias ✨");
-}
-function comprobar(){
-  const ej = S.ej;
-  let falta = false;
-  ej.campos.forEach(c=>{
-    if(c.tipo==="num") c.grupo.forEach(g=>{ if(isNaN(parseNum(S.resp[g.id]))) falta = true; });
-    else if(!S.resp[c.id]) falta = true;
-  });
-  if(falta){ aviso("Completa todas las respuestas antes de comprobar"); sacudir(); return; }
-
-  const r = ej.revisar(S.resp);
-  if(r.ok){
-    S.ok++; S.racha++; marcador("ok");
-    const l = S.lecc;
-    S.prog[l.id] = Math.min(META, (S.prog[l.id]||0) + 1);
-    $("#ladoEjercicio").querySelectorAll("input").forEach(i=>i.classList.add("bueno"));
-    if(ej.alAcertar){
-      const g = Object.assign({}, ej.grafica||{}, ej.alAcertar);
-      const lado = $("#ladoGrafica");
-      if(!lado.querySelector("canvas")){
-        lado.innerHTML = `<div class="panel" style="padding:12px"><div class="lienzo" id="lz"></div>
-          <p style="text-align:center;font-weight:800;font-size:.86rem;color:#6C6790;margin:10px 0 0">Así se ve tu respuesta en la gráfica 👀</p></div>`;
-        montarGrafica($("#lz"), g);
-      } else redibujar(lado.querySelector("canvas"), g);
-    }
-    const p = S.prog[l.id];
-    $(".camino").innerHTML = `<div class="cabecera"><span>Tu recorrido</span><span><b>${p}</b> / ${META} aciertos</span></div>` + caminoSVG(p);
-    modalCorrecto(r.porque, p);
-  } else {
-    S.mal++; S.racha = 0; marcador("mal");
-    Object.keys(r.malos||{}).forEach(k=>{
-      const i = document.getElementById("in_"+k);
-      if(i){ i.classList.add("malo"); i.classList.remove("bueno"); }
-      const o = $("#ladoEjercicio").querySelector(`.opcion[data-campo="${k}"][aria-pressed="true"]`);
-      if(o) o.classList.add("malo");
-    });
-    modalIncorrecto(r.pista);
-  }
-}
-function sacudir(){
-  const p = $("#ladoEjercicio");
-  p.style.animation = "none"; void p.offsetWidth; p.style.animation = "tiembla .4s";
-}
-
-/* =================== MODALES =================== */
-function cerrarCapa(){ $("#capa").innerHTML = ""; }
-function abrirModal(html, foco){
+/* ===================== AVISOS ===================== */
+function cerrarCapa(){ $("#capa").innerHTML=""; }
+function abrirModal(html){
   $("#capa").innerHTML = `<div class="capa">${html}</div>`;
-  const b = $("#capa").querySelector("button");
-  if(b && foco !== false) b.focus();
-}
-function modalCorrecto(porque, p){
-  const meta = p===4 || p===8;
-  if(p >= META) return setTimeout(()=>pantallaLogro(), 350);
-  const titulo = meta ? (p===4 ? "🏅 ¡Primer logro!" : "🏆 ¡Vas por el segundo logro!") : pick(ELOGIOS);
-  const sub = meta ? (p===4 ? "Ya llevas 4 aciertos seguidos en esta lección. Faltan 8." : "8 de 12. Estás muy cerca de completar la lección.") : "Has resuelto correctamente el ejercicio.";
-  abrirModal(`<div class="modal">
-    <div class="sello ${meta?"fiesta":"ok"}">${meta?"🏅":"✔"}</div>
-    <h3>${titulo}</h3>
-    <p>${sub}</p>
-    <div class="porque">${porque}</div>
-    <button class="btn verde" id="mSeguir">Siguiente ejercicio →</button>
-  </div>`);
-  if(meta) confeti(22);
-  $("#mSeguir").addEventListener("click", ()=>{
-    cerrarCapa();
-    S.ej = S.lecc.gen(); S.resp = {};
-    pintarEjercicio();
-    if(S.racha>0 && S.racha%3===0) aviso(pick(ANIMOS));
-  });
-}
-function modalIncorrecto(pista){
-  abrirModal(`<div class="modal">
-    <div class="sello mal">✖</div>
-    <h3>Inténtalo nuevamente</h3>
-    <p>Casi lo tienes. Revisa este detalle:</p>
-    <div class="porque">💡 ${pista}</div>
-    <p style="margin-top:10px;font-size:.88rem">Vuelves al mismo ejercicio para corregir. Equivocarse también es aprender.</p>
-    <button class="btn" id="mReintentar">Volver a intentarlo</button>
-  </div>`);
-  $("#mReintentar").addEventListener("click", ()=>{
-    cerrarCapa();
-    const primerMalo = $("#ladoEjercicio").querySelector("input.malo");
-    if(primerMalo){ primerMalo.focus(); primerMalo.select(); }
-  });
-}
-function pantallaLogro(){
-  const tot = S.ok + S.mal, pct = tot ? Math.round(S.ok/tot*100) : 0;
-  const idx = LECCIONES.findIndex(l=>l.id===S.lecc.id);
-  const sig = LECCIONES.slice(idx+1).find(l=>l.gen && S.prog[l.id] < META) || LECCIONES.find(l=>l.gen && S.prog[l.id] < META);
-  confeti(60);
-  abrirModal(`<div class="modal">
-    <div class="sello fiesta">🎉</div>
-    <h3>¡Lección completada!</h3>
-    <p>${escapa(S.lecc.titulo)}</p>
-    <div class="resumen">
-      <div><small>Estudiante</small><b>${escapa(S.nombre)}</b></div>
-      <div><small>Grado</small><b>${escapa(S.grado)}</b></div>
-      <div><small>Tiempo</small><b>${tiempoTxt()}</b></div>
-      <div><small>Porcentaje</small><b>${pct}%</b></div>
-      <div><small>Aciertos</small><b style="color:#0FA968">✔ ${S.ok}</b></div>
-      <div><small>Errores</small><b style="color:#F0436A">✖ ${S.mal}</b></div>
-    </div>
-    <p style="margin-top:12px;font-weight:700;color:#1B1544">Excelente trabajo. Cada día entiendes mejor la parábola y su ecuación.</p>
-    ${sig ? `<button class="btn verde" id="mSig">Siguiente lección: ${sig.titulo} →</button>` : `<button class="btn verde" id="mSig">Volver al menú</button>`}
-    <button class="btn gris" id="mMenu">Ir al menú principal</button>
-  </div>`);
-  $("#mSig").addEventListener("click", ()=>{
-    cerrarCapa();
-    if(sig){ S.lecc = sig; verLeccion(true); } else irMenu();
-  });
-  $("#mMenu").addEventListener("click", ()=>{ cerrarCapa(); irMenu(); });
+  const b = $("#capa").querySelector("button"); if(b) b.focus();
 }
 function aviso(txt){
-  const d = document.createElement("div");
-  d.className = "aviso"; d.textContent = txt;
+  const d = document.createElement("div"); d.className="aviso"; d.textContent=txt;
   document.body.appendChild(d);
-  setTimeout(()=>{ d.style.transition="opacity .3s"; d.style.opacity="0"; setTimeout(()=>d.remove(),300); }, 1600);
+  setTimeout(()=>{ d.style.transition="opacity .3s"; d.style.opacity="0"; setTimeout(()=>d.remove(),300); },1500);
 }
 function confeti(n){
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const cols = ["#5B3DF5","#FFB020","#0FA968","#12B4D8","#F0436A"];
-  const w = document.createElement("div"); w.className = "confeti";
-  for(let i=0;i<n;i++){
-    const s = document.createElement("i");
-    s.style.left = Math.random()*100 + "vw";
-    s.style.top = "-20px";
-    s.style.background = pick(cols);
-    s.style.animationDuration = (1.6 + Math.random()*1.4) + "s";
-    s.style.animationDelay = (Math.random()*.5) + "s";
-    w.appendChild(s);
-  }
-  document.body.appendChild(w);
-  setTimeout(()=>w.remove(), 3600);
+  const cols=["#5B3DF5","#FFB020","#0FA968","#12B4D8","#F0436A"];
+  const w = document.createElement("div"); w.className="confeti";
+  for(let i=0;i<n;i++){ const s=document.createElement("i");
+    s.style.left=Math.random()*100+"vw"; s.style.top="-20px"; s.style.background=pick(cols);
+    s.style.animationDuration=(1.6+Math.random()*1.4)+"s"; s.style.animationDelay=(Math.random()*.5)+"s";
+    w.appendChild(s); }
+  document.body.appendChild(w); setTimeout(()=>w.remove(),3600);
 }
 </script>
 </body>
