@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aventura de Fracciones</title>
+<meta name="theme-color" content="#6c4df6">
+<meta name="description" content="Aplicación educativa e interactiva para aprender fracciones: representación, lectura, recta numérica y números mixtos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17153b;
+  --muted:#6b7093;
+  --violet:#6c4df6;
+  --violet-d:#4b2fd6;
+  --violet-s:#ece8ff;
+  --mint:#eaf7f0;
+  --melon:#ff8a3d;
+  --melon-d:#d96c22;
+  --pink:#ec4899;
+  --pink-s:#fbd9ea;
+  --ok:#12b76a;
+  --ok-d:#0d8f53;
+  --ok-s:#dcfce7;
+  --err:#f04438;
+  --err-s:#fee4e2;
+  --line:#e4e6f3;
+  --r:22px;
+  --sh:0 10px 26px rgba(23,21,59,.09);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color:var(--ink);
+  font-size:17px;
+  line-height:1.45;
+  min-height:100vh;
+  background:
+    radial-gradient(900px 500px at 105% -8%, #e5dcff 0%, transparent 60%),
+    radial-gradient(700px 480px at -10% 105%, #d9f2e6 0%, transparent 60%),
+    linear-gradient(170deg,#f4f2ff 0%,#eef8f3 100%);
+  background-attachment:fixed;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,.display{font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-weight:800;line-height:1.15;margin:0}
+button,input,select{font-family:inherit}
+button{touch-action:manipulation}
+
+/* ---------- ESTRUCTURA ---------- */
+.app{max-width:540px;margin:0 auto;min-height:100vh;padding-bottom:26px;position:relative}
+@media(min-width:1000px){ .app{max-width:1000px} }
+.wrap{padding:14px 16px 0}
+.screen{display:none;animation:fadeUp .35s ease both}
+.screen.active{display:block}
+.hidden{display:none !important}
+
+/* ---------- BARRA SUPERIOR ---------- */
+.topbar{
+  position:sticky;top:0;z-index:60;
+  background:rgba(255,255,255,.93);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:2px solid var(--line);
+  padding:8px 12px;
+  box-shadow:0 4px 18px rgba(23,21,59,.06);
+}
+.tb-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-id{flex:1;min-width:0}
+.tb-name{font-weight:900;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-grade{font-size:12.5px;color:var(--muted);font-weight:800;letter-spacing:.2px}
+.icon-btn{
+  width:44px;height:44px;flex:0 0 auto;border:none;border-radius:15px;cursor:pointer;
+  background:linear-gradient(180deg,#7d61ff,var(--violet));color:#fff;font-size:21px;
+  box-shadow:0 4px 0 var(--violet-d);display:grid;place-items:center;transition:.12s
+}
+.icon-btn.soft{background:#fff;color:var(--violet);border:2.5px solid var(--violet-s);box-shadow:0 4px 0 var(--violet-s);font-size:19px}
+.icon-btn:active{transform:translateY(4px);box-shadow:none}
+.chips{display:flex;gap:6px;align-items:center;order:5;flex:1 0 100%;justify-content:space-between}
+@media(min-width:560px){ .chips{order:0;flex:0 0 auto;justify-content:flex-end} }
+.chip{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;font-weight:900;font-size:15px;white-space:nowrap}
+.chip.time{background:var(--violet-s);color:var(--violet-d)}
+.chip.good{background:var(--ok-s);color:var(--ok-d)}
+.chip.bad{background:var(--err-s);color:#b42318}
+.chip.bump{animation:bump .45s ease}
+
+/* ---------- BOTONES ---------- */
+.btn{
+  border:none;border-radius:18px;font-weight:900;font-size:18px;padding:16px 18px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:transform .12s,box-shadow .12s;
+  letter-spacing:.2px
+}
+.btn:active{transform:translateY(4px);box-shadow:none !important}
+.btn:focus-visible{outline:4px solid #b9a8ff;outline-offset:2px}
+.btn-primary{background:linear-gradient(180deg,#7d61ff,var(--violet));color:#fff;box-shadow:0 5px 0 var(--violet-d)}
+.btn-ok{background:linear-gradient(180deg,#2ad07f,var(--ok));color:#fff;box-shadow:0 5px 0 var(--ok-d)}
+.btn-warn{background:linear-gradient(180deg,#ffa15a,var(--melon));color:#fff;box-shadow:0 5px 0 var(--melon-d)}
+.btn-ghost{background:#fff;color:var(--violet);border:3px solid var(--violet);box-shadow:0 5px 0 #d6ccff}
+.btn-lg{width:100%;font-size:20px;padding:18px}
+.btn:disabled{opacity:.45;box-shadow:none;transform:none;cursor:not-allowed}
+.btn-mini{
+  background:#fff;border:2.5px solid var(--violet-s);color:var(--violet-d);border-radius:14px;
+  padding:9px 14px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 3px 0 var(--violet-s)
+}
+.btn-mini:active{transform:translateY(3px);box-shadow:none}
+
+/* ---------- TARJETAS ---------- */
+.card{background:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.eyebrow{font-size:13px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- BIENVENIDA ---------- */
+.hero{padding:26px 20px 10px;text-align:center}
+.logo-frac{
+  display:inline-flex;flex-direction:column;align-items:center;gap:6px;
+  background:#fff;border-radius:28px;padding:16px 26px;box-shadow:var(--sh);margin-bottom:14px;
+  animation:floaty 4s ease-in-out infinite
+}
+.logo-frac .lf-n,.logo-frac .lf-d{font-family:'Baloo 2',sans-serif;font-size:40px;font-weight:800;line-height:1}
+.logo-frac .lf-n{color:var(--violet)}
+.logo-frac .lf-d{color:var(--pink)}
+.logo-frac .lf-bar{width:70px;height:7px;border-radius:6px;background:var(--ink)}
+.hero h1{font-size:34px;letter-spacing:-.5px}
+.hero p{color:var(--muted);font-weight:700;margin:8px 0 0}
+.field{margin-bottom:16px}
+.label{font-weight:900;font-size:15px;margin-bottom:8px;display:block}
+.input{
+  width:100%;border:3px solid var(--line);border-radius:16px;padding:15px 16px;font-size:18px;font-weight:800;
+  background:#fff;color:var(--ink);outline:none;transition:.15s
+}
+.input:focus{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-s)}
+.mini-note{font-size:14px;color:var(--muted);font-weight:700;text-align:center;margin-top:14px}
+
+/* ---------- MENÚS ---------- */
+.section-title{margin:18px 4px 12px}
+.section-title h2{font-size:25px}
+.section-title p{margin:2px 0 0;color:var(--muted);font-weight:700;font-size:15px}
+.menu{display:grid;gap:12px}
+@media(min-width:1000px){ .menu{grid-template-columns:repeat(2,1fr)} }
+.sec-card{
+  display:flex;gap:14px;align-items:center;text-align:left;width:100%;
+  background:#fff;border:none;border-left:9px solid var(--c);border-radius:var(--r);padding:16px;
+  box-shadow:var(--sh);cursor:pointer;transition:transform .16s,box-shadow .16s
+}
+.sec-card:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(23,21,59,.13)}
+.sec-card:active{transform:scale(.985)}
+.sec-ico{width:56px;height:56px;flex:0 0 auto;border-radius:18px;display:grid;place-items:center;font-size:29px;background:var(--cs)}
+.sec-tx{flex:1;min-width:0}
+.sec-tx h3{font-size:19px;margin-bottom:2px}
+.sec-tx p{margin:0;font-size:14px;color:var(--muted);font-weight:700;line-height:1.35}
+.sec-go{font-size:24px;color:var(--c);font-weight:900}
+.badge-n{
+  display:inline-block;background:var(--cs);color:var(--c);font-size:12px;font-weight:900;
+  padding:3px 9px;border-radius:999px;margin-top:6px;letter-spacing:.3px
+}
+.back-btn{
+  background:none;border:none;color:var(--violet);font-weight:900;font-size:16px;cursor:pointer;
+  padding:10px 4px;display:inline-flex;align-items:center;gap:6px
+}
+
+/* ---------- TUTORIAL ---------- */
+.tut-card{background:#fff;border-radius:26px;box-shadow:var(--sh);padding:20px;min-height:330px;display:flex;flex-direction:column}
+.tut-tag{background:var(--violet-s);color:var(--violet-d);font-weight:900;font-size:13px;padding:5px 12px;border-radius:999px;align-self:flex-start;letter-spacing:.6px}
+.tut-card h3{font-size:23px;margin:12px 0 8px}
+.tut-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:6px 0}
+.tut-tx{font-size:16.5px;font-weight:700;color:#3d3b63;margin:0}
+.tut-tx b{color:var(--violet-d)}
+.dots{display:flex;gap:7px;justify-content:center;margin:14px 0 12px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line);transition:.25s}
+.dot.on{background:var(--violet);width:26px;border-radius:6px}
+.demo{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.demo-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.tut-note{background:var(--mint);border-radius:16px;padding:12px 14px;font-weight:800;font-size:15px;color:#1f6b4a}
+.tut-note.warn{background:#fff4e6;color:#9a5b12}
+
+/* ---------- PROGRESO ---------- */
+.lesson-head{display:flex;align-items:center;gap:10px;margin:12px 2px 6px}
+.lesson-head h2{font-size:21px;flex:1}
+.path{display:flex;align-items:center;gap:0;padding:6px 2px 2px}
+.pnode{width:13px;height:13px;border-radius:50%;background:#dfe3f2;flex:0 0 auto;transition:.35s cubic-bezier(.2,.9,.3,1.4)}
+.pnode.done{background:var(--ok);box-shadow:0 0 0 4px var(--ok-s)}
+.pline{flex:1;height:6px;background:#dfe3f2;border-radius:4px;overflow:hidden}
+.pline.done{background:var(--ok)}
+.pnode.mile{width:30px;height:30px;display:grid;place-items:center;background:#fff;border:3px solid #dfe3f2;font-size:15px;box-shadow:none}
+.pnode.mile.done{border-color:var(--ok);background:#fff;animation:pop .5s ease}
+.goal{display:flex;justify-content:space-between;font-size:13.5px;font-weight:800;color:var(--muted);padding:2px 2px 0}
+
+/* ---------- EJERCICIO ---------- */
+.ex{background:#fff;border-radius:26px;box-shadow:var(--sh);padding:20px 16px;margin-top:10px}
+.q-title{font-size:21px;text-align:center;color:var(--violet-d);margin-bottom:6px}
+.q-hint{text-align:center;color:var(--muted);font-weight:700;font-size:15px;margin:0 0 4px;line-height:1.35}
+.q-step{display:block;text-align:center;font-weight:900;color:var(--melon-d);font-size:14px;letter-spacing:.5px;margin-bottom:6px}
+.figs{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:16px 0}
+.stack{display:flex;flex-direction:column;align-items:center;gap:16px;margin:16px 0}
+@media(min-width:1000px){
+  .ex{padding:26px}
+  .split{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:center}
+  .split .figs{margin:0}
+}
+
+/* figuras */
+.bar{display:flex;height:88px;width:130px;border:3.5px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
+.bar.wide{width:250px}
+.seg{flex:1;background:var(--pink-s);border-right:2.5px solid var(--ink);transition:background .2s}
+.seg:last-child{border-right:none}
+.seg.on{background:var(--pink)}
+.seg.tap{cursor:pointer}
+.seg.tap:active{filter:brightness(.92)}
+.fig-circle{width:104px;height:104px;display:block}
+.figbox{display:flex;flex-direction:column;align-items:center;gap:6px}
+
+/* fracción */
+.frac{display:inline-flex;flex-direction:column;align-items:center;gap:5px}
+.frac .fn,.frac .fd{font-family:'Baloo 2',sans-serif;font-size:38px;font-weight:800;line-height:1;color:var(--violet)}
+.frac .fd{color:var(--violet)}
+.frac .fbar{height:6px;width:100%;min-width:56px;background:var(--ink);border-radius:4px}
+.frac.small .fn,.frac.small .fd{font-size:25px}
+.frac.small .fbar{height:4px;min-width:38px}
+.frac.pinkf .fn,.frac.pinkf .fd{color:var(--pink)}
+.mixed{display:inline-flex;align-items:center;gap:10px}
+.mixed .whole{font-family:'Baloo 2',sans-serif;font-size:46px;font-weight:800;color:var(--ink)}
+.eq{font-family:'Baloo 2',sans-serif;font-size:34px;font-weight:800;color:var(--muted)}
+
+/* casillas de respuesta */
+.cell{
+  width:78px;height:74px;border:3.5px solid var(--line);border-radius:16px;text-align:center;
+  font-family:'Baloo 2',sans-serif;font-size:36px;font-weight:800;color:var(--ink);background:#fff;
+  outline:none;transition:.15s;padding:0
+}
+.cell:focus{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-s);transform:translateY(-2px)}
+.cell.mini{width:62px;height:60px;font-size:29px;border-radius:13px}
+.cell.wrong{border-color:var(--err);animation:shake .45s}
+.frac-in .fbar{background:var(--ink);min-width:78px}
+.ans-group{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ans-label{font-weight:900;font-size:14px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+
+/* opciones */
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.opts.col{grid-template-columns:1fr}
+.opt{
+  background:#fff;border:3.5px solid var(--line);border-radius:18px;padding:12px 10px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:8px;transition:.16s;font-weight:900;font-size:16px;color:var(--ink)
+}
+.opt:hover{border-color:#c9c2ff}
+.opt.sel{border-color:var(--violet);background:var(--violet-s);transform:translateY(-3px);box-shadow:0 6px 0 #d6ccff}
+.opt .cap{font-size:14.5px;font-weight:900;color:var(--violet-d)}
+.opt .bar{width:100%;height:70px}
+.opt-text{text-align:center;font-size:17px;padding:16px 12px}
+
+/* steppers */
+.step-row{
+  display:flex;align-items:center;gap:10px;background:#f4f5fb;border-radius:18px;padding:10px 12px;margin-bottom:10px
+}
+.step-row .st-lb{flex:1;font-weight:800;font-size:15.5px;line-height:1.25}
+.step-row .st-lb i{color:var(--violet);font-style:normal;font-weight:900}
+.stepper{display:flex;align-items:center;gap:8px}
+.sbtn{
+  width:46px;height:46px;border:none;border-radius:14px;font-size:26px;font-weight:900;color:#fff;cursor:pointer;
+  display:grid;place-items:center;line-height:1;padding-bottom:4px
+}
+.sbtn.v{background:linear-gradient(180deg,#7d61ff,var(--violet));box-shadow:0 4px 0 var(--violet-d)}
+.sbtn.o{background:linear-gradient(180deg,#ffa15a,var(--melon));box-shadow:0 4px 0 var(--melon-d)}
+.sbtn:active{transform:translateY(4px);box-shadow:none}
+.sval{min-width:38px;text-align:center;font-family:'Baloo 2',sans-serif;font-size:30px;font-weight:800}
+.nline{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+.nline-box{background:#fff;border:3px solid var(--line);border-radius:20px;padding:8px 4px;margin-top:6px}
+
+/* amplificar / simplificar */
+.ampbox{position:relative;width:320px;height:250px;margin:6px auto 0}
+.ampbox svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.amp-left{position:absolute;left:6px;top:58px;width:110px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.amp-right{position:absolute;right:6px;top:58px;width:110px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.amp-eq{position:absolute;left:0;right:0;top:104px;text-align:center;font-family:'Baloo 2',sans-serif;font-size:34px;font-weight:800;color:var(--muted)}
+.amp-num{font-family:'Baloo 2',sans-serif;font-size:40px;font-weight:800;color:var(--violet);height:64px;display:grid;place-items:center}
+.amp-bar{height:6px;width:86px;background:var(--ink);border-radius:4px}
+@media(max-width:359px){ .ampbox{transform:scale(.9);transform-origin:top center} }
+
+/* cuadrícula de división (impropia → mixto) */
+.divgrid{display:flex;justify-content:center;align-items:flex-start;margin:16px auto 6px;width:max-content}
+.dg-left{display:flex;flex-direction:column;align-items:flex-end;gap:7px;padding-right:12px}
+.dg-right{border-left:5px solid var(--ink);padding-left:12px;display:flex;flex-direction:column;align-items:center;gap:7px}
+.dg-big{font-family:'Baloo 2',sans-serif;font-size:40px;font-weight:800;line-height:1.05;padding:4px 6px}
+.dg-divisor{border-bottom:5px solid var(--ink);padding-bottom:6px;color:var(--melon-d)}
+.dg-sub{display:flex;align-items:center;gap:8px}
+.dg-minus{font-family:'Baloo 2',sans-serif;font-size:30px;font-weight:800;color:var(--muted)}
+.dg-line{height:5px;background:var(--ink);width:100%;min-width:100px;border-radius:3px}
+.dg-res,.dg-quo{display:flex;flex-direction:column;align-items:center;gap:3px}
+.dg-tag{font-size:11.5px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.dg-fix{min-width:62px;height:60px;display:grid;place-items:center;border-radius:13px;background:var(--violet-s);
+  color:var(--violet-d);font-family:'Baloo 2',sans-serif;font-size:29px;font-weight:800;padding:0 10px}
+.dg-fix.ghost{background:#fff;border:3px dashed var(--line);color:var(--muted)}
+
+/* cuadros de operación (mixto → impropia) */
+.opgrid{display:flex;flex-direction:column;gap:10px;align-items:center;margin:14px 0 6px}
+.og-block{background:#f4f5fb;border-radius:18px;padding:11px 14px;width:100%;max-width:340px;text-align:center}
+.og-step{display:block;font-size:12.5px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.og-row{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.og-num{font-family:'Baloo 2',sans-serif;font-size:31px;font-weight:800;color:var(--ink)}
+.og-op{font-family:'Baloo 2',sans-serif;font-size:27px;font-weight:800;color:var(--muted)}
+
+/* acciones */
+.actions{position:sticky;bottom:0;padding:14px 0 6px;background:linear-gradient(180deg,rgba(244,242,255,0) 0%,rgba(243,244,253,.92) 38%,rgba(240,246,246,1) 100%);z-index:40}
+.act-row{display:flex;gap:10px}
+.act-row .btn{flex:1}
+.act-row.small .btn{font-size:16px;padding:13px 10px;border-radius:16px}
+
+/* ---------- MODAL ---------- */
+.modal-wrap{position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center;background:rgba(23,21,59,.45);animation:fade .18s ease both;padding:0}
+.modal{
+  width:100%;max-width:540px;background:#fff;border-radius:28px 28px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));
+  animation:sheet .34s cubic-bezier(.2,.9,.3,1.15) both;border-top:9px solid var(--violet);max-height:88vh;overflow:auto
+}
+.modal.ok{border-top-color:var(--ok)}
+.modal.bad{border-top-color:var(--melon)}
+.m-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.m-ico{width:56px;height:56px;border-radius:20px;display:grid;place-items:center;font-size:30px;flex:0 0 auto;animation:pop .45s ease}
+.modal.ok .m-ico{background:var(--ok-s);color:var(--ok-d)}
+.modal.bad .m-ico{background:#fff0e0;color:var(--melon-d)}
+.modal.info .m-ico{background:var(--violet-s);color:var(--violet-d)}
+.m-head h3{font-size:24px}
+.m-tx{font-size:16.5px;font-weight:700;color:#3d3b63;margin:0 0 10px;line-height:1.45}
+.m-tx b{color:var(--ink)}
+.m-list{background:#f6f7fc;border-radius:16px;padding:12px 14px;margin:0 0 12px;font-weight:800;font-size:15.5px}
+.m-list div{display:flex;gap:9px;margin:6px 0;align-items:flex-start}
+.m-hint{background:#fff8e6;border:2px solid #ffe1a8;border-radius:16px;padding:12px 14px;font-weight:800;font-size:15.5px;color:#8a5a06;margin-bottom:14px}
+
+/* ---------- LOGRO / VICTORIA ---------- */
+.win-wrap{position:fixed;inset:0;z-index:110;background:rgba(23,21,59,.55);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s both;overflow:auto}
+.win{background:#fff;border-radius:30px;padding:24px 20px;max-width:460px;width:100%;text-align:center;animation:pop .5s cubic-bezier(.2,.9,.3,1.3) both;box-shadow:0 30px 60px rgba(23,21,59,.3)}
+.win .trophy{font-size:64px;animation:floaty 2.4s ease-in-out infinite;display:block}
+.win h2{font-size:29px;margin:6px 0 4px;color:var(--violet-d)}
+.win .who{font-weight:900;font-size:17px}
+.win .who span{color:var(--muted);font-weight:800;font-size:15px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.stat{background:#f6f7fc;border-radius:18px;padding:12px 8px}
+.stat .sv{font-family:'Baloo 2',sans-serif;font-size:27px;font-weight:800;line-height:1.1}
+.stat .sl{font-size:12.5px;font-weight:900;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+.stat.g .sv{color:var(--ok)} .stat.r .sv{color:var(--err)} .stat.v .sv{color:var(--violet)} .stat.o .sv{color:var(--melon-d)}
+.win-msg{background:var(--mint);border-radius:18px;padding:14px;font-weight:800;color:#1f6b4a;margin-bottom:16px;font-size:16px}
+
+/* ---------- TOAST / CONFETI ---------- */
+.toast{
+  position:fixed;left:50%;top:96px;transform:translateX(-50%) translateY(-16px);z-index:120;
+  background:var(--ink);color:#fff;font-weight:900;padding:12px 20px;border-radius:999px;font-size:16px;
+  opacity:0;pointer-events:none;transition:.3s;box-shadow:0 12px 26px rgba(23,21,59,.3);max-width:90vw;text-align:center
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.gold{background:linear-gradient(180deg,#ffb347,#ff8a3d)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:130;overflow:hidden}
+.cf{position:absolute;width:11px;height:16px;border-radius:3px;animation:fall linear forwards}
+
+/* ---------- ANIMACIONES ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{10%,90%{transform:translateX(-3px)}20%,80%{transform:translateX(5px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.9}}
+@keyframes jin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.jump{animation:jin .3s ease both}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.05ms !important}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ====== BIENVENIDA ====== -->
+  <section id="scr-welcome" class="screen active">
+    <div class="hero">
+      <div class="logo-frac"><div class="lf-n">3</div><div class="lf-bar"></div><div class="lf-d">4</div></div>
+      <h1>Aventura de Fracciones</h1>
+      <p>Aprende paso a paso: representar, leer y convertir fracciones.</p>
+    </div>
+    <div class="wrap">
+      <div class="card">
+        <div class="field">
+          <label class="label" for="in-name">¿Cómo te llamas?</label>
+          <input id="in-name" class="input" type="text" placeholder="Escribe tu nombre" autocomplete="name" maxlength="28">
+        </div>
+        <div class="field">
+          <label class="label" for="in-grade">¿En qué grado estás?</label>
+          <input id="in-grade" class="input" type="text" placeholder="Escríbelo (ejemplo: 7° o Sexto B)" maxlength="26">
+        </div>
+        <button class="btn btn-primary btn-lg" id="btn-start">Comenzar 🚀</button>
+        <p class="mini-note">Tu nombre y tu grado se verán en la barra superior durante toda la actividad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== BARRA SUPERIOR ====== -->
+  <header class="topbar hidden" id="topbar">
+    <div class="tb-row">
+      <div class="tb-id">
+        <div class="tb-name" id="tb-name">Estudiante</div>
+        <div class="tb-grade" id="tb-grade">Grado</div>
+      </div>
+      <div class="chips">
+        <span class="chip time" id="chip-time">⏱ 00:00</span>
+        <span class="chip good" id="chip-ok">✔ 0</span>
+        <span class="chip bad" id="chip-bad">✖ 0</span>
+      </div>
+      <button class="icon-btn soft" id="btn-sound" title="Activar o desactivar sonido" aria-label="Sonido">🔊</button>
+      <button class="icon-btn" id="btn-home" title="Ir al menú principal" aria-label="Inicio">🏠</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ====== MENÚ PRINCIPAL ====== -->
+    <section id="scr-home" class="screen">
+      <div class="wrap">
+        <div class="section-title">
+          <span class="eyebrow">Menú principal</span>
+          <h2 id="hello">¡Hola!</h2>
+          <p>Elige una sección para empezar a practicar.</p>
+        </div>
+        <div class="menu" id="menu-sections"></div>
+        <p class="mini-note">Cada lección se completa con <b>12 respuestas correctas</b>.</p>
+      </div>
+    </section>
+
+    <!-- ====== MODOS DE UNA SECCIÓN ====== -->
+    <section id="scr-modes" class="screen">
+      <div class="wrap">
+        <button class="back-btn" data-back="scr-home">← Volver</button>
+        <div class="section-title">
+          <span class="eyebrow" id="modes-eyebrow">Sección</span>
+          <h2 id="modes-title">Sección</h2>
+          <p id="modes-desc"></p>
+        </div>
+        <div class="menu" id="menu-modes"></div>
+      </div>
+    </section>
+
+    <!-- ====== TUTORIAL ====== -->
+    <section id="scr-tutorial" class="screen">
+      <div class="wrap">
+        <button class="back-btn" id="tut-back">← Volver</button>
+        <div class="tut-card">
+          <span class="tut-tag" id="tut-tag">CÓMO SE HACE</span>
+          <h3 id="tut-title">Título</h3>
+          <div class="tut-body" id="tut-body"></div>
+        </div>
+        <div class="dots" id="tut-dots"></div>
+        <div class="act-row">
+          <button class="btn btn-ghost" id="tut-prev">← Atrás</button>
+          <button class="btn btn-primary" id="tut-next">Siguiente →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== ACTIVIDAD ====== -->
+    <section id="scr-activity" class="screen">
+      <div class="wrap">
+        <div class="lesson-head">
+          <button class="back-btn" data-back="scr-modes" style="padding-left:0">←</button>
+          <h2 id="act-title">Lección</h2>
+          <button class="btn-mini" id="btn-tut">💡 Ayuda</button>
+        </div>
+        <div class="path" id="path"></div>
+        <div class="goal"><span id="goal-left">Meta: 12 correctas</span><span id="goal-right">0 / 12</span></div>
+        <div class="ex" id="ex-area"></div>
+        <div class="actions">
+          <div class="act-row" style="margin-bottom:10px">
+            <button class="btn btn-ok btn-lg" id="btn-check">✅ Comprobar respuesta</button>
+          </div>
+          <div class="act-row small">
+            <button class="btn btn-ghost" id="btn-clear">🗑 Borrar</button>
+            <button class="btn btn-ghost" id="btn-other">🔄 Otro ejercicio</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-wrap hidden" id="modal-wrap">
+  <div class="modal" id="modal">
+    <div class="m-head"><div class="m-ico" id="m-ico">✔</div><h3 id="m-title">Título</h3></div>
+    <div id="m-content"></div>
+    <button class="btn btn-lg" id="m-btn">Continuar</button>
+  </div>
+</div>
+
+<div class="win-wrap hidden" id="win-wrap">
+  <div class="win" id="win"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="confetti"></div>
+
+<script>
+/* =========================================================
+   ESTADO GENERAL
+   ========================================================= */
+const S = {
+  name:'', grade:'',
+  correct:0, wrong:0,
+  t0:0, timer:null,
+  sec:null, mode:null, ex:null,
+  lesson:{ok:0, bad:0, t0:0},
+  streak:0, sound:true, tutIdx:0, tutFrom:'modes'
+};
+const GOAL = 12;
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>Array.from(r.querySelectorAll(s));
+const rnd = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick = a=>a[Math.floor(Math.random()*a.length)];
+const shuffle = a=>{const c=a.slice();for(let i=c.length-1;i>0;i--){const j=rnd(0,i);[c[i],c[j]]=[c[j],c[i]];}return c;};
+const fmtTime = ms=>{const t=Math.floor(ms/1000);const m=String(Math.floor(t/60)).padStart(2,'0');const s=String(t%60).padStart(2,'0');return m+':'+s;};
+
+function show(id){
+  $$('.screen').forEach(s=>s.classList.remove('active'));
+  $('#'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'auto'});
+}
+
+/* ---------- sonido simple (sin archivos) ---------- */
+let AC=null;
+function tone(freq,dur,type='sine',vol=.12,delay=0){
+  if(!S.sound) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type=type; o.frequency.value=freq;
+    o.connect(g); g.connect(AC.destination);
+    const t=AC.currentTime+delay;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.start(t); o.stop(t+dur+.02);
+  }catch(e){}
+}
+const sndOk   = ()=>{tone(660,.13,'sine',.11,0); tone(880,.22,'sine',.11,.1);};
+const sndBad  = ()=>{tone(260,.2,'triangle',.09,0);};
+const sndTap  = ()=>{tone(520,.06,'sine',.05,0);};
+const sndWin  = ()=>{[523,659,784,1046].forEach((f,i)=>tone(f,.3,'sine',.1,i*.11));};
+
+/* =========================================================
+   BARRA SUPERIOR
+   ========================================================= */
+function startTimer(){
+  S.t0 = Date.now();
+  clearInterval(S.timer);
+  S.timer = setInterval(()=>{ $('#chip-time').textContent = '⏱ ' + fmtTime(Date.now()-S.t0); },500);
+}
+function bump(el){ el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+function updateChips(){
+  const a=$('#chip-ok'), b=$('#chip-bad');
+  a.textContent='✔ '+S.correct; b.textContent='✖ '+S.wrong;
+}
+
+/* =========================================================
+   COMPONENTES VISUALES
+   ========================================================= */
+function barHTML(den, painted, o={}){
+  let segs='';
+  for(let i=0;i<den;i++){
+    const on = Array.isArray(painted) ? painted[i] : i<painted;
+    segs += `<div class="seg${on?' on':''}${o.tap?' tap':''}" data-i="${(o.off||0)+i}"></div>`;
+  }
+  return `<div class="bar ${o.cls||''}">${segs}</div>`;
+}
+function circleHTML(den, painted, size=104, o={}){
+  const r=size/2-5, cx=size/2, cy=size/2;
+  let p='';
+  for(let i=0;i<den;i++){
+    const a0=-Math.PI/2 + i*2*Math.PI/den, a1=-Math.PI/2 + (i+1)*2*Math.PI/den;
+    const x0=(cx+r*Math.cos(a0)).toFixed(2), y0=(cy+r*Math.sin(a0)).toFixed(2);
+    const x1=(cx+r*Math.cos(a1)).toFixed(2), y1=(cy+r*Math.sin(a1)).toFixed(2);
+    const big = (2*Math.PI/den)>Math.PI ? 1 : 0;
+    const on = Array.isArray(painted) ? painted[i] : i<painted;
+    p += `<path d="M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${big},1 ${x1},${y1} Z" fill="${on?'var(--pink)':'var(--pink-s)'}" stroke="#17153b" stroke-width="3" ${o.tap?`class="seg tap" data-i="${(o.off||0)+i}"`:''}/>`;
+  }
+  return `<svg viewBox="0 0 ${size} ${size}" class="fig-circle">${p}</svg>`;
+}
+function figsHTML(shape, den, total, figs, o={}){
+  let out='', left=total;
+  for(let f=0;f<figs;f++){
+    const p = Math.max(0, Math.min(den,left)); left-=p;
+    out += shape==='bar' ? barHTML(den,p,o) : `<div class="figbox">${circleHTML(den,p,104,o)}</div>`;
+  }
+  return out;
+}
+const fracHTML = (n,d,cls='')=>`<div class="frac ${cls}"><div class="fn">${n}</div><div class="fbar"></div><div class="fd">${d}</div></div>`;
+const cellHTML = (cls,ph='')=>`<input class="cell ${cls}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="${ph}" aria-label="respuesta">`;
+const fracInHTML = (nc='c-num', dc='c-den')=>`<div class="frac frac-in">${cellHTML(nc)}<div class="fbar"></div>${cellHTML(dc)}</div>`;
+
+function getCell(root, sel){
+  const el = root.querySelector(sel);
+  if(!el) return null;
+  const v = el.value.trim();
+  return v==='' ? null : parseInt(v,10);
+}
+function clearCells(root){ $$('.cell',root).forEach(c=>{c.value=''; c.classList.remove('wrong');}); }
+function markWrong(root, sels){ sels.forEach(s=>{const e=root.querySelector(s); if(e){e.classList.add('wrong');}}); }
+const MISSING = {missing:true, title:'Faltan casillas', msg:'Escribe un número en todas las casillas y vuelve a tocar <b>Comprobar respuesta</b>.'};
+
+/* =========================================================
+   RECTA NUMÉRICA (SVG)
+   ========================================================= */
+function lineSVG(units, d, j){
+  const W=360,H=170,L=30,R=W-30,y=112;
+  const X = t => (L + (R-L)*t/units);
+  let s = `<svg viewBox="0 0 ${W} ${H}" class="nline">`;
+  s += `<line x1="${L-14}" y1="${y}" x2="${R+14}" y2="${y}" stroke="#17153b" stroke-width="5" stroke-linecap="round"/>`;
+  if(d>1){
+    for(let u=0;u<units;u++) for(let k=1;k<d;k++){
+      const x=X(u+k/d).toFixed(1);
+      s += `<line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}" stroke="#8b5cf6" stroke-width="3"/>`;
+    }
+  }
+  for(let u=0;u<=units;u++){
+    const x=X(u).toFixed(1);
+    s += `<line x1="${x}" y1="${y-17}" x2="${x}" y2="${y+17}" stroke="#17153b" stroke-width="5"/>`;
+    s += `<text x="${x}" y="${y+45}" text-anchor="middle" font-size="23" font-weight="800" fill="#17153b" font-family="Baloo 2, sans-serif">${u}</text>`;
+  }
+  const maxJ = Math.min(j, units*d);
+  for(let k=0;k<maxJ;k++){
+    const x0=X(k/d), x1=X((k+1)/d), mid=(x0+x1)/2;
+    s += `<path class="jump" style="animation-delay:${(k*0.04).toFixed(2)}s" d="M${x0.toFixed(1)},${y-7} Q${mid.toFixed(1)},${y-48} ${x1.toFixed(1)},${y-7}" fill="none" stroke="#ff8a3d" stroke-width="4" stroke-linecap="round"/>`;
+  }
+  if(j>0){
+    const x=X(Math.min(j/d,units)).toFixed(1);
+    s += `<circle cx="${x}" cy="${y}" r="10" fill="#ff8a3d" stroke="#fff" stroke-width="3"/>`;
+  }
+  s += `</svg>`;
+  return s;
+}
+
+/* =========================================================
+   AMPLIFICAR / SIMPLIFICAR (componente con flechas)
+   ========================================================= */
+function ampBoxHTML(a,b,k,op,rightIsInput){
+  const sign = op==='x' ? '×' : '÷';
+  const col  = op==='x' ? '#6c4df6' : '#ff8a3d';
+  const arrows = `
+  <svg viewBox="0 0 320 250" aria-hidden="true">
+    <defs><marker id="ah${op}" markerWidth="7" markerHeight="7" refX="4.6" refY="3.2" orient="auto">
+      <path d="M0,0 L6.4,3.2 L0,6.4 z" fill="${col}"/></marker></defs>
+    <path d="M78,58 C112,14 208,14 242,58" fill="none" stroke="${col}" stroke-width="3.4" stroke-linecap="round" marker-end="url(#ah${op})"/>
+    <path d="M78,192 C112,236 208,236 242,192" fill="none" stroke="${col}" stroke-width="3.4" stroke-linecap="round" marker-end="url(#ah${op})"/>
+    <text x="160" y="22" text-anchor="middle" font-size="22" font-weight="800" fill="${col}" font-family="Baloo 2, sans-serif">${sign}${k}</text>
+    <text x="160" y="243" text-anchor="middle" font-size="22" font-weight="800" fill="${col}" font-family="Baloo 2, sans-serif">${sign}${k}</text>
+  </svg>`;
+  const left  = rightIsInput
+      ? `<div class="amp-num">${a}</div><div class="amp-bar"></div><div class="amp-num">${b}</div>`
+      : `${cellHTML('c-num')}<div class="amp-bar"></div>${cellHTML('c-den')}`;
+  const right = rightIsInput
+      ? `${cellHTML('c-num')}<div class="amp-bar"></div>${cellHTML('c-den')}`
+      : `<div class="amp-num">${a}</div><div class="amp-bar"></div><div class="amp-num">${b}</div>`;
+  return `<div class="ampbox">${arrows}
+    <div class="amp-left">${left}</div>
+    <div class="amp-eq">=</div>
+    <div class="amp-right">${right}</div>
+  </div>`;
+}
+
+/* =========================================================
+   VENTANAS: retroalimentación, toast, confeti
+   ========================================================= */
+let modalAction = null;
+function openModal({kind, icon, title, html, btn, btnCls, action}){
+  const m = $('#modal');
+  m.className = 'modal ' + kind;
+  $('#m-ico').textContent = icon;
+  $('#m-title').textContent = title;
+  $('#m-content').innerHTML = html;
+  const b = $('#m-btn');
+  b.textContent = btn;
+  b.className = 'btn btn-lg ' + (btnCls||'btn-primary');
+  modalAction = action || null;
+  $('#modal-wrap').classList.remove('hidden');
+}
+function closeModal(){
+  $('#modal-wrap').classList.add('hidden');
+  const act = modalAction; modalAction=null;
+  if(act) act();
+}
+function toast(msg, gold){
+  const t=$('#toast');
+  t.textContent=msg;
+  t.className='toast show'+(gold?' gold':'');
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.className='toast'+(gold?' gold':''),2200);
+}
+function confetti(n=70){
+  const box=$('#confetti');
+  const cols=['#6c4df6','#ec4899','#12b76a','#ff8a3d','#ffd166','#38bdf8'];
+  for(let i=0;i<n;i++){
+    const d=document.createElement('div');
+    d.className='cf';
+    d.style.left = Math.random()*100+'vw';
+    d.style.top = '-20px';
+    d.style.background = pick(cols);
+    d.style.animationDuration = (1.6+Math.random()*1.4)+'s';
+    d.style.animationDelay = (Math.random()*.5)+'s';
+    box.appendChild(d);
+    setTimeout(()=>d.remove(),3600);
+  }
+}
+
+/* =========================================================
+   SECCIÓN 1 · MODO A — ¿Qué fracción representa el dibujo?
+   ========================================================= */
+function buildIdentify(){
+  const shape = Math.random()<.5 ? 'bar' : 'circle';
+  const den = shape==='circle' ? pick([2,3,4,5,6,8]) : rnd(2,8);
+  const improper = Math.random()<.35;
+  const num = improper ? den + rnd(1, Math.max(1,den-1)) : rnd(1, den-1);
+  const figs = Math.max(1, Math.ceil(num/den));
+  return {
+    render(){
+      return `<h2 class="q-title">¿Qué fracción representa el dibujo?</h2>
+      <p class="q-hint">Cuenta las partes pintadas (numerador) y en cuántas partes está dividida <b>UNA</b> figura (denominador).</p>
+      <div class="split">
+        <div class="figs">${figsHTML(shape,den,num,figs,{cls: figs===1?'wide':''})}</div>
+        <div class="ans-group"><span class="ans-label">Escribe la fracción</span>${fracInHTML()}</div>
+      </div>`;
+    },
+    clear(root){ clearCells(root); },
+    check(root){
+      const n=getCell(root,'.c-num'), d=getCell(root,'.c-den');
+      if(n===null||d===null) return MISSING;
+      if(n===num && d===den) return {ok:true, title:'¡Excelente!',
+        msg:`Cada figura está dividida en <b>${den}</b> partes iguales, por eso el denominador es <b>${den}</b>. Hay <b>${num}</b> partes pintadas, por eso el numerador es <b>${num}</b>. La fracción es <b>${num}/${den}</b>.`};
+      if(figs>1 && d===den*figs) return {ok:false, cells:['.c-den'],
+        where:'El denominador no es correcto.',
+        review:`Contaste las partes de las ${figs} figuras juntas (${den*figs}).`,
+        hint:`El denominador se cuenta en <b>una sola</b> figura: está dividida en ${den} partes.`};
+      if(n===den && d===num) return {ok:false, cells:['.c-num','.c-den'],
+        where:'Cambiaste los números de posición.',
+        review:'Arriba va el numerador y abajo el denominador.',
+        hint:'Numerador = partes pintadas. Denominador = partes en que se divide la figura.'};
+      if(d!==den) return {ok:false, cells:['.c-den'],
+        where:'Revisa el denominador.',
+        review:'Cuenta en cuántas partes iguales está dividida la figura.',
+        hint:'Cuenta también las partes que <b>no</b> están pintadas.'};
+      return {ok:false, cells:['.c-num'],
+        where:'Revisa el numerador.',
+        review: figs>1 ? 'Debes contar las partes pintadas de todas las figuras.' : 'Cuenta otra vez las partes pintadas.',
+        hint:'Ve señalando con el dedo cada parte pintada mientras cuentas.'};
+    }
+  };
+}
+
+/* =========================================================
+   SECCIÓN 1 · MODO B — Representa la fracción (2 pasos)
+   ========================================================= */
+function buildDraw(){
+  const den = rnd(2,8);
+  const improper = Math.random()<.3;
+  const num = improper ? den + rnd(1, Math.max(1,den-1)) : rnd(1, den-1);
+  const figs = Math.max(1, Math.ceil(num/den));
+  const wrongs = shuffle([den-1,den+1,den+2,den-2].filter(v=>v>=2&&v<=10&&v!==den)).slice(0,2);
+  const opts = shuffle([den,...wrongs]);
+  const st = {step:1, sel:null, painted:Array(figs*den).fill(false)};
+  return {
+    st,
+    render(){
+      if(st.step===1){
+        return `<span class="q-step">PASO 1 DE 2</span>
+        <h2 class="q-title">Representa la fracción</h2>
+        <div class="figs">${fracHTML(num,den)}</div>
+        <p class="q-hint">Elige la figura dividida correctamente según el <b>denominador</b>.</p>
+        <div class="opts">${opts.map(k=>`<div class="opt${st.sel===k?' sel':''}" data-k="${k}"><span class="cap">Dividida en ${k}</span>${barHTML(k,0)}</div>`).join('')}</div>`;
+      }
+      const painted = st.painted.filter(Boolean).length;
+      let out='';
+      for(let f=0; f<figs; f++){
+        out += barHTML(den, st.painted.slice(f*den,(f+1)*den), {tap:true, off:f*den, cls: figs===1?'wide':''});
+      }
+      return `<span class="q-step">PASO 2 DE 2</span>
+      <h2 class="q-title">Ahora pinta las partes</h2>
+      <div class="figs">${fracHTML(num,den)}</div>
+      <p class="q-hint">Toca las partes para pintarlas. El <b>numerador</b> indica cuántas debes pintar.</p>
+      <div class="figs">${out}</div>
+      <p class="q-hint">Partes pintadas: <b style="color:var(--pink);font-size:20px">${painted}</b></p>`;
+    },
+    mount(root){
+      if(st.step===1){
+        $$('.opt',root).forEach(o=>o.addEventListener('click',()=>{
+          st.sel = parseInt(o.dataset.k,10); sndTap();
+          $$('.opt',root).forEach(x=>x.classList.toggle('sel', x===o));
+        }));
+      }else{
+        $$('.seg.tap',root).forEach(sg=>sg.addEventListener('click',()=>{
+          const i=parseInt(sg.dataset.i,10);
+          st.painted[i]=!st.painted[i];
+          sg.classList.toggle('on', st.painted[i]);
+          sndTap();
+          const p=st.painted.filter(Boolean).length;
+          const lab=$$('.q-hint',root).pop();
+          if(lab) lab.innerHTML = `Partes pintadas: <b style="color:var(--pink);font-size:20px">${p}</b>`;
+        }));
+      }
+    },
+    clear(){ if(st.step===1) st.sel=null; else st.painted=st.painted.map(()=>false); paintEx(); },
+    check(){
+      if(st.step===1){
+        if(st.sel===null) return {missing:true,title:'Elige una figura',msg:'Toca una de las tres figuras y luego comprueba tu respuesta.'};
+        if(st.sel===den){ st.step=2; return {ok:true, partial:true, title:'¡Muy bien!',
+          msg:`El denominador <b>${den}</b> indica que cada figura se divide en <b>${den}</b> partes iguales. Ahora pinta las partes que dice el numerador.`}; }
+        return {ok:false, where:'Esa figura no está dividida correctamente.',
+          review:`Elegiste una figura dividida en ${st.sel} partes.`,
+          hint:`Mira el número de <b>abajo</b> de la fracción: el denominador es ${den}.`};
+      }
+      const p = st.painted.filter(Boolean).length;
+      if(p===num) return {ok:true, title:'¡Perfecto!',
+        msg:`Pintaste <b>${num}</b> de <b>${den}</b> partes${figs>1?` usando ${figs} figuras`:''}. Así se representa <b>${num}/${den}</b>.`};
+      if(p===0) return {missing:true,title:'Aún no pintas nada',msg:`Toca las partes de la figura hasta pintar <b>${num}</b> partes.`};
+      return {ok:false, where:`Pintaste ${p} ${p===1?'parte':'partes'}.`,
+        review:`El numerador de ${num}/${den} indica que debes pintar ${num}.`,
+        hint: p<num ? `Te faltan <b>${num-p}</b> por pintar.` : `Tienes <b>${p-num}</b> de más: toca una parte pintada para borrarla.`};
+    }
+  };
+}
+
+/* =========================================================
+   SECCIÓN 1 · MODO C — Fracciones equivalentes (con dibujo)
+   ========================================================= */
+function buildEquiv(){
+  const b = rnd(2,6);
+  const a = rnd(1,b-1);
+  const kMax = Math.max(2, Math.floor(20/b));
+  const k = rnd(2, Math.min(4,kMax));
+  const dir = Math.random()<.5 ? 'amp' : 'sim';
+  const known = dir==='amp' ? [a,b] : [a*k,b*k];
+  const ask   = dir==='amp' ? [a*k,b*k] : [a,b];
+  return {
+    render(){
+      return `<h2 class="q-title">Fracciones equivalentes</h2>
+      <p class="q-hint">Las dos figuras tienen pintada <b>la misma cantidad</b>. Escribe la fracción que le corresponde a la segunda.</p>
+      <div class="stack">
+        <div class="demo-row">${barHTML(known[1],known[0],{cls:'wide'})}${fracHTML(known[0],known[1],'small')}</div>
+        <div class="demo-row">${barHTML(ask[1],ask[0],{cls:'wide'})}${fracInHTML()}</div>
+      </div>
+      <p class="q-hint">${dir==='amp'
+        ? `Cada parte se dividió en <b>${k}</b> partes iguales.`
+        : `Se juntaron las partes de <b>${k}</b> en <b>${k}</b>.`}</p>`;
+    },
+    clear(root){ clearCells(root); },
+    check(root){
+      const n=getCell(root,'.c-num'), d=getCell(root,'.c-den');
+      if(n===null||d===null) return MISSING;
+      if(n===ask[0] && d===ask[1]) return {ok:true, title:'¡Equivalentes!',
+        msg:`<b>${a}/${b}</b> y <b>${a*k}/${b*k}</b> pintan la misma cantidad de la figura. Se obtienen ${dir==='amp'?`multiplicando`:`dividiendo`} arriba y abajo por <b>${k}</b>.`};
+      if(n===ask[0] && d!==ask[1]) return {ok:false, cells:['.c-den'],
+        where:'Revisa el denominador.', review:'Cuenta en cuántas partes quedó dividida la segunda figura.',
+        hint:`${dir==='amp'?`${b} × ${k}`:`${b*k} ÷ ${k}`} = ?`};
+      if(d===ask[1] && n!==ask[0]) return {ok:false, cells:['.c-num'],
+        where:'Revisa el numerador.', review:'Cuenta las partes pintadas de la segunda figura.',
+        hint:`${dir==='amp'?`${a} × ${k}`:`${a*k} ÷ ${k}`} = ?`};
+      return {ok:false, cells:['.c-num','.c-den'],
+        where:'Los dos números necesitan un ajuste.',
+        review:'En fracciones equivalentes se transforma el numerador y el denominador de la misma forma.',
+        hint:`Multiplica o divide arriba y abajo por <b>${k}</b>.`};
+    }
+  };
+}
+
+/* =========================================================
+   SECCIÓN 1 · MODO D — Amplificar y simplificar
+   ========================================================= */
+function buildAmpSim(){
+  const type = Math.random()<.5 ? 'amp' : 'sim';
+  const k = rnd(2,10);
+  let a = rnd(1,9), b = rnd(2,9);
+  if(a===b) a = (a%9)+1;
+  const A = type==='amp' ? a : a*k;
+  const B = type==='amp' ? b : b*k;
+  const ansN = type==='amp' ? a*k : a;
+  const ansD = type==='amp' ? b*k : b;
+  const op = type==='amp' ? 'x' : 'd';
+  return {
+    render(){
+      return `<h2 class="q-title">${type==='amp'?'Amplifica la fracción':'Simplifica la fracción'}</h2>
+      <p class="q-hint">${type==='amp'
+        ? `Multiplica el numerador y el denominador por <b>${k}</b>.`
+        : `Divide el numerador y el denominador entre <b>${k}</b>.`}</p>
+      ${ampBoxHTML(A,B,k,op,true)}`;
+    },
+    clear(root){ clearCells(root); },
+    check(root){
+      const n=getCell(root,'.c-num'), d=getCell(root,'.c-den');
+      if(n===null||d===null) return MISSING;
+      const sign = type==='amp' ? '×' : '÷';
+      if(n===ansN && d===ansD) return {ok:true, title:'¡Muy bien!',
+        msg:`${type==='amp'?'Multiplicaste':'Dividiste'} arriba y abajo por <b>${k}</b>: ${A} ${sign} ${k} = <b>${ansN}</b> y ${B} ${sign} ${k} = <b>${ansD}</b>. Por eso <b>${A}/${B}</b> y <b>${ansN}/${ansD}</b> son equivalentes.`};
+      if(n===ansN && d!==ansD) return {ok:false, cells:['.c-den'],
+        where:'Revisa el denominador.', review:`Falta aplicar ${sign} ${k} en la parte de abajo.`, hint:`${B} ${sign} ${k} = ?`};
+      if(d===ansD && n!==ansN) return {ok:false, cells:['.c-num'],
+        where:'Revisa el numerador.', review:`Falta aplicar ${sign} ${k} en la parte de arriba.`, hint:`${A} ${sign} ${k} = ?`};
+      if(n===A || d===B) return {ok:false, cells:['.c-num','.c-den'],
+        where:'Copiaste uno de los números sin operar.',
+        review:'La fracción solo sigue siendo equivalente si operas arriba y abajo.',
+        hint:`Aplica ${sign} ${k} a los dos números.`};
+      return {ok:false, cells:['.c-num','.c-den'],
+        where:`Revisa la ${type==='amp'?'multiplicación':'división'}.`,
+        review:`Debes hacer ${A} ${sign} ${k} y ${B} ${sign} ${k}.`,
+        hint:`Repasa la tabla del <b>${k}</b>.`};
+    }
+  };
+}
+
+/* =========================================================
+   SECCIÓN 2 · MODO A — Lectura y escritura de fracciones
+   ========================================================= */
+const UNI = ['cero','un','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce'];
+const DENS = {2:'medio',3:'tercio',4:'cuarto',5:'quinto',6:'sexto',7:'séptimo',8:'octavo',9:'noveno',10:'décimo',11:'onceavo',12:'doceavo'};
+const DENP = {2:'medios',3:'tercios',4:'cuartos',5:'quintos',6:'sextos',7:'séptimos',8:'octavos',9:'novenos',10:'décimos',11:'onceavos',12:'doceavos'};
+const leer = (n,d)=> n===1 ? `un ${DENS[d]}` : `${UNI[n]} ${DENP[d]}`;
+
+function buildRead(){
+  const t = pick(['sym2word','word2sym','fig2word']);
+  const den = rnd(2,10);
+  const num = Math.random()<.25 ? rnd(den+1, Math.min(12,den+4)) : rnd(1,den-1);
+  const ok = leer(num,den);
+  let bag = [ok];
+  const cand = [
+    (num!==den && DENP[num]!==undefined && num>1) ? leer(den,num) : null,
+    den+1<=12 ? leer(num,den+1) : null,
+    den-1>=2 ? leer(num,den-1) : null,
+    num+1<=12 ? leer(num+1,den) : null
+  ].filter(Boolean);
+  for(const c of shuffle(cand)){ if(bag.length<4 && !bag.includes(c)) bag.push(c); }
+  const opts = shuffle(bag);
+  const st = {sel:null};
+  const shape = pick(['bar','circle']);
+  const figs = Math.max(1, Math.ceil(num/den));
+  return {
+    st,
+    render(){
+      if(t==='word2sym'){
+        return `<h2 class="q-title">Escribe la fracción</h2>
+        <p class="q-hint">Se lee así:</p>
+        <div class="figs"><div class="card" style="padding:14px 20px;font-family:'Baloo 2',sans-serif;font-size:28px;font-weight:800;color:var(--violet-d)">${ok}</div></div>
+        <div class="ans-group"><span class="ans-label">Escríbela en números</span>${fracInHTML()}</div>`;
+      }
+      const head = t==='sym2word'
+        ? `<h2 class="q-title">¿Cómo se lee esta fracción?</h2><div class="figs">${fracHTML(num,den)}</div>`
+        : `<h2 class="q-title">¿Cómo se lee el dibujo?</h2><div class="figs">${figsHTML(shape,den,num,figs,{cls:figs===1?'wide':''})}</div>`;
+      return `${head}<p class="q-hint">Elige la lectura correcta y toca <b>Comprobar</b>.</p>
+      <div class="opts col">${opts.map((o,i)=>`<div class="opt opt-text${st.sel===i?' sel':''}" data-i="${i}">${o}</div>`).join('')}</div>`;
+    },
+    mount(root){
+      $$('.opt',root).forEach(o=>o.addEventListener('click',()=>{
+        st.sel=parseInt(o.dataset.i,10); sndTap();
+        $$('.opt',root).forEach(x=>x.classList.toggle('sel',x===o));
+      }));
+    },
+    clear(root){ if(t==='word2sym'){clearCells(root);} else {st.sel=null; paintEx();} },
+    check(root){
+      if(t==='word2sym'){
+        const n=getCell(root,'.c-num'), d=getCell(root,'.c-den');
+        if(n===null||d===null) return MISSING;
+        if(n===num&&d===den) return {ok:true,title:'¡Correcto!',
+          msg:`«${ok}» se escribe <b>${num}/${den}</b>: el numerador es <b>${num}</b> y el nombre <b>${DENP[den]}</b> indica que el denominador es <b>${den}</b>.`};
+        if(n===den&&d===num) return {ok:false,cells:['.c-num','.c-den'],
+          where:'Los números están intercambiados.', review:'El primer número que se dice es el numerador.',
+          hint:`En «${ok}», ${num} va arriba y ${den} abajo.`};
+        if(d!==den) return {ok:false,cells:['.c-den'],
+          where:'Revisa el denominador.', review:`La palabra «${num===1?DENS[den]:DENP[den]}» indica el denominador.`,
+          hint:'medios = 2, tercios = 3, cuartos = 4, quintos = 5, sextos = 6, séptimos = 7, octavos = 8, novenos = 9, décimos = 10.'};
+        return {ok:false,cells:['.c-num'], where:'Revisa el numerador.', review:'Es el número que se dice primero.', hint:`«${ok}» empieza con ${UNI[num]}.`};
+      }
+      if(st.sel===null) return {missing:true,title:'Elige una opción',msg:'Toca una de las lecturas y luego comprueba tu respuesta.'};
+      if(opts[st.sel]===ok) return {ok:true,title:'¡Muy bien leído!',
+        msg:`<b>${num}/${den}</b> se lee «<b>${ok}</b>». El numerador se lee como número y el denominador da el nombre de las partes.`};
+      return {ok:false, where:`Elegiste «${opts[st.sel]}».`,
+        review:`Fíjate en el denominador (${den}): indica el nombre de las partes.`,
+        hint:'2 medios · 3 tercios · 4 cuartos · 5 quintos · 6 sextos · 7 séptimos · 8 octavos · 9 novenos · 10 décimos.'};
+    }
+  };
+}
+
+/* =========================================================
+   SECCIÓN 2 · MODO B — Fracciones en la recta numérica
+   ========================================================= */
+function buildLine(){
+  const den = rnd(2,6);
+  const units = 3;
+  const num = rnd(1, den*units);
+  const st = {d:1, j:0};
+  const maxJ = ()=> units*st.d;
+  return {
+    st,
+    render(){
+      return `<h2 class="q-title">Recta numérica</h2>
+      <p class="q-hint">Representa la siguiente fracción:</p>
+      <div class="figs">${fracHTML(num,den)}</div>
+      <div class="step-row">
+        <div class="st-lb"><i>1.</i> Dividir cada unidad en:</div>
+        <div class="stepper">
+          <button class="sbtn v" data-act="d-" aria-label="menos">−</button>
+          <span class="sval" id="v-d">${st.d}</span>
+          <button class="sbtn v" data-act="d+" aria-label="más">+</button>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="st-lb"><i>2.</i> Dar saltos (numerador):</div>
+        <div class="stepper">
+          <button class="sbtn o" data-act="j-" aria-label="menos">−</button>
+          <span class="sval" id="v-j">${st.j}</span>
+          <button class="sbtn o" data-act="j+" aria-label="más">+</button>
+        </div>
+      </div>
+      <div class="nline-box" id="lbox">${lineSVG(units,st.d,st.j)}</div>`;
+    },
+    mount(root){
+      $$('.sbtn',root).forEach(b=>b.addEventListener('click',()=>{
+        const a=b.dataset.act;
+        if(a==='d+') st.d=Math.min(12,st.d+1);
+        if(a==='d-') st.d=Math.max(1,st.d-1);
+        if(a==='j+') st.j=Math.min(maxJ(),st.j+1);
+        if(a==='j-') st.j=Math.max(0,st.j-1);
+        if(st.j>maxJ()) st.j=maxJ();
+        sndTap();
+        $('#v-d',root).textContent=st.d;
+        $('#v-j',root).textContent=st.j;
+        $('#lbox',root).innerHTML=lineSVG(units,st.d,st.j);
+      }));
+    },
+    clear(){ st.d=1; st.j=0; paintEx(); },
+    check(){
+      if(st.j===0 && st.d===1) return {missing:true,title:'Empieza a construir',msg:'Usa los botones <b>+</b> y <b>−</b> para dividir la unidad y dar los saltos.'};
+      if(st.d!==den) return {ok:false,
+        where:'Las divisiones de la unidad no son correctas.',
+        review:`Dividiste cada unidad en ${st.d} ${st.d===1?'parte':'partes'}.`,
+        hint:`El <b>denominador</b> (${den}) indica en cuántas partes iguales se divide <b>cada unidad</b>.`};
+      if(st.j!==num) return {ok:false,
+        where:'El número de saltos no es correcto.',
+        review:`Diste ${st.j} ${st.j===1?'salto':'saltos'} desde el 0.`,
+        hint:`El <b>numerador</b> (${num}) indica cuántos saltos hay que dar.`};
+      const ent=Math.floor(num/den), res=num%den;
+      return {ok:true,title:'¡Punto exacto!',
+        msg:`Dividiste cada unidad en <b>${den}</b> partes y diste <b>${num}</b> saltos, así que llegaste a <b>${num}/${den}</b>${num>den?` (que está entre ${ent} y ${ent+(res?1:0)||1})`:''}.`};
+    }
+  };
+}
+
+/* =========================================================
+   CUADRÍCULAS DE PROCEDIMIENTO (números mixtos)
+   ========================================================= */
+function box(k, cls, v){
+  return (v===undefined || v===null)
+    ? cellHTML(cls+' mini')
+    : `<div class="dg-fix">${v}</div>`;
+}
+/* Caja de división:   N | D
+                      -p   q
+                      ---
+                       r        */
+function divGridHTML(N, D, v={}){
+  return `<div class="divgrid">
+    <div class="dg-left">
+      <div class="dg-big">${N}</div>
+      <div class="dg-sub"><span class="dg-minus">−</span>${box('p','c-p',v.p)}</div>
+      <div class="dg-line"></div>
+      <div class="dg-res">${box('r','c-r',v.r)}<span class="dg-tag">residuo</span></div>
+    </div>
+    <div class="dg-right">
+      <div class="dg-big dg-divisor">${D}</div>
+      <div class="dg-quo">${box('q','c-q',v.q)}<span class="dg-tag">cociente</span></div>
+    </div>
+  </div>`;
+}
+/* Cuadros de operación:  w × d = [ ]   y   [ ] + n = [ ] */
+function opGridHTML(w, d, n, v={}){
+  const mirror = (v.mul===undefined||v.mul===null)
+    ? `<div class="dg-fix ghost" id="mirror">?</div>`
+    : `<div class="dg-fix">${v.mul}</div>`;
+  return `<div class="opgrid">
+    <div class="og-block"><span class="og-step">Paso 1 · multiplica</span>
+      <div class="og-row"><span class="og-num">${w}</span><span class="og-op">×</span><span class="og-num">${d}</span><span class="og-op">=</span>${box('mul','c-mul',v.mul)}</div>
+    </div>
+    <div class="og-block"><span class="og-step">Paso 2 · suma el numerador</span>
+      <div class="og-row">${mirror}<span class="og-op">+</span><span class="og-num">${n}</span><span class="og-op">=</span>${box('sum','c-sum',v.sum)}</div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   SECCIÓN 3 · MODO A — Fracción impropia → número mixto
+   ========================================================= */
+function buildImp2Mix(){
+  const den = rnd(2,9), w = rnd(1,5), r = rnd(1,den-1);
+  const num = w*den + r;
+  return {
+    render(){
+      return `<h2 class="q-title">Convierte a número mixto</h2>
+      <p class="q-hint">Haz la división en la cuadrícula y después arma el número mixto.</p>
+      <span class="og-step" style="text-align:center">Paso 1 · divide ${num} entre ${den}</span>
+      ${divGridHTML(num,den)}
+      <p class="q-hint" style="font-size:14px">Escribe el cociente, la resta y el residuo.</p>
+      <div class="og-block" style="max-width:340px;margin:14px auto 0">
+        <span class="og-step">Paso 2 · arma el número mixto</span>
+        <div class="og-row">
+          ${fracHTML(num,den,'small')}
+          <span class="og-op">=</span>
+          <div class="mixed">${cellHTML('c-w')}<div class="frac frac-in">${cellHTML('c-num')}<div class="fbar"></div>${cellHTML('c-den')}</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:14px"><button class="btn-mini" data-act="hint">💡 Ver ayuda</button></div>
+      <div id="hbox" class="hidden" style="margin-top:12px">
+        <div class="m-list">
+          <div><span>1️⃣</span><span>Busca cuántas veces cabe <b>${den}</b> en <b>${num}</b>: ese es el <b>cociente</b>.</span></div>
+          <div><span>2️⃣</span><span>Multiplica el cociente por <b>${den}</b> y réstalo de <b>${num}</b>: eso da el <b>residuo</b>.</span></div>
+          <div><span>3️⃣</span><span>Cociente → <b>entero</b> · Residuo → <b>numerador</b> · <b>${den}</b> → denominador.</span></div>
+        </div>
+      </div>`;
+    },
+    mount(root){
+      const b=root.querySelector('[data-act="hint"]');
+      if(b) b.addEventListener('click',()=>{ $('#hbox',root).classList.toggle('hidden'); sndTap(); });
+    },
+    clear(root){ clearCells(root); },
+    check(root){
+      const q=getCell(root,'.c-q'), p=getCell(root,'.c-p'), rr=getCell(root,'.c-r');
+      const e=getCell(root,'.c-w'), n=getCell(root,'.c-num'), d=getCell(root,'.c-den');
+      if([q,p,rr,e,n,d].some(v=>v===null)) return MISSING;
+      if(q!==w) return {ok:false, cells:['.c-q'],
+        where:'El cociente todavía no es correcto.',
+        review:`Busca cuántas veces cabe ${den} en ${num} sin pasarte.`,
+        hint:`Prueba con la tabla del ${den}: ${den} × 1, ${den} × 2, ${den} × 3… hasta acercarte a ${num}.`};
+      if(p!==w*den) return {ok:false, cells:['.c-p'],
+        where:'Revisa el número que estás restando.',
+        review:`Debes restar el cociente por el divisor: ${w} × ${den}.`,
+        hint:`${w} × ${den} = ?`};
+      if(rr!==r) return {ok:false, cells:['.c-r'],
+        where:'Revisa el residuo.',
+        review:`El residuo es lo que sobra: ${num} − ${w*den}.`,
+        hint:'El residuo siempre debe ser menor que el divisor.'};
+      if(e!==w) return {ok:false, cells:['.c-w'],
+        where:'Revisa el número entero.',
+        review:'El entero del número mixto es el cociente de la división.',
+        hint:'Es el mismo número que escribiste en la casilla del cociente.'};
+      if(n!==r) return {ok:false, cells:['.c-num'],
+        where:'Revisa el numerador.',
+        review:'El numerador del número mixto es el residuo de la división.',
+        hint:'Es el mismo número que escribiste en la casilla del residuo.'};
+      if(d!==den) return {ok:false, cells:['.c-den'],
+        where:'Revisa el denominador.',
+        review:'En esta conversión el denominador nunca cambia.',
+        hint:`Debe seguir siendo <b>${den}</b>, el mismo divisor.`};
+      return {ok:true, title:'¡Conversión completa!',
+        msg:`${num} ÷ ${den} da cociente <b>${w}</b> y residuo <b>${r}</b>. El cociente es el entero, el residuo es el numerador y el denominador sigue siendo ${den}: <b>${w} ${r}/${den}</b>.`};
+    }
+  };
+}
+
+/* =========================================================
+   SECCIÓN 3 · MODO B — Número mixto → fracción impropia
+   ========================================================= */
+function buildMix2Imp(){
+  const den = rnd(2,9), w = rnd(1,6), n = rnd(1,den-1);
+  const imp = w*den + n;
+  return {
+    render(){
+      return `<h2 class="q-title">Convierte a fracción impropia</h2>
+      <p class="q-hint">Completa los cuadros y escribe el resultado.</p>
+      <div class="figs" style="margin:12px 0 2px"><div class="mixed"><span class="whole">${w}</span>${fracHTML(n,den,'small pinkf')}</div></div>
+      ${opGridHTML(w,den,n)}
+      <div class="og-block" style="max-width:340px;margin:0 auto">
+        <span class="og-step">Paso 3 · escribe la fracción</span>
+        <div class="og-row">${fracInHTML()}</div>
+      </div>
+      <div style="text-align:center;margin-top:14px"><button class="btn-mini" data-act="hint">💡 Ver ayuda</button></div>
+      <div id="hbox" class="hidden" style="margin-top:12px">
+        <div class="m-list">
+          <div><span>1️⃣</span><span>Multiplica el entero por el denominador: <b>${w} × ${den}</b>.</span></div>
+          <div><span>2️⃣</span><span>Súmale el numerador: <b>+ ${n}</b>. Ese resultado va arriba.</span></div>
+          <div><span>3️⃣</span><span>El denominador sigue siendo <b>${den}</b>.</span></div>
+        </div>
+      </div>`;
+    },
+    mount(root){
+      const b=root.querySelector('[data-act="hint"]');
+      if(b) b.addEventListener('click',()=>{ $('#hbox',root).classList.toggle('hidden'); sndTap(); });
+      const mul=root.querySelector('.c-mul'), mir=$('#mirror',root);
+      if(mul&&mir) mul.addEventListener('input',()=>{
+        const v=mul.value.replace(/[^0-9]/g,'').slice(0,2);
+        mir.textContent = v===''?'?':v;
+        mir.classList.toggle('ghost', v==='');
+      });
+    },
+    clear(root){ clearCells(root); const m=$('#mirror',root); if(m){m.textContent='?'; m.classList.add('ghost');} },
+    check(root){
+      const mul=getCell(root,'.c-mul'), sum=getCell(root,'.c-sum');
+      const nn=getCell(root,'.c-num'), dd=getCell(root,'.c-den');
+      if([mul,sum,nn,dd].some(v=>v===null)) return MISSING;
+      if(mul!==w*den) return {ok:false, cells:['.c-mul'],
+        where:'Revisa la multiplicación del paso 1.',
+        review:`Debes multiplicar el entero por el denominador: ${w} × ${den}.`,
+        hint:`Repasa la tabla del ${den}.`};
+      if(sum!==imp) return {ok:false, cells:['.c-sum'],
+        where:'Revisa la suma del paso 2.',
+        review:`Al resultado ${w*den} debes sumarle el numerador ${n}.`,
+        hint:`${w*den} + ${n} = ?`};
+      if(dd!==den) return {ok:false, cells:['.c-den'],
+        where:'Revisa el denominador.',
+        review:'El denominador del número mixto no cambia.',
+        hint:`Debe ser <b>${den}</b>.`};
+      if(nn!==imp) return {ok:false, cells:['.c-num'],
+        where:'Revisa el numerador.',
+        review:'El numerador es el resultado que obtuviste en el paso 2.',
+        hint:`Es el mismo número que escribiste en la casilla de la suma: ${imp>9?'tiene dos cifras':'tiene una cifra'}.`};
+      return {ok:true, title:'¡Excelente!',
+        msg:`(${w} × ${den}) + ${n} = <b>${imp}</b> y el denominador se mantiene: <b>${w} ${n}/${den} = ${imp}/${den}</b>.`};
+    }
+  };
+}
+
+/* =========================================================
+   SECCIÓN 3 · MODO C — Números mixtos con dibujos
+   ========================================================= */
+function buildMixFig(){
+  const den = pick([2,3,4,5,6,8]);
+  const w = rnd(1,3), r = rnd(1,den-1);
+  const imp = w*den + r;
+  const shape = pick(['circle','bar']);
+  return {
+    render(){
+      let figs='';
+      for(let i=0;i<w;i++) figs += shape==='circle' ? `<div class="figbox">${circleHTML(den,den)}</div>` : barHTML(den,den);
+      figs += shape==='circle' ? `<div class="figbox">${circleHTML(den,r)}</div>` : barHTML(den,r);
+      return `<h2 class="q-title">¿Qué representan las figuras?</h2>
+      <p class="q-hint">Escribe el número mixto y la fracción impropia.</p>
+      <div class="figs">${figs}</div>
+      <div class="figs" style="gap:22px">
+        <div class="ans-group"><span class="ans-label">Número mixto</span>
+          <div class="mixed">${cellHTML('c-w')}<div class="frac frac-in">${cellHTML('c-num','')}<div class="fbar"></div>${cellHTML('c-den')}</div></div>
+        </div>
+        <div class="ans-group"><span class="ans-label">Fracción impropia</span>
+          <div class="frac frac-in">${cellHTML('c-in')}<div class="fbar"></div>${cellHTML('c-id')}</div>
+        </div>
+      </div>`;
+    },
+    clear(root){ clearCells(root); },
+    check(root){
+      const e=getCell(root,'.c-w'), n=getCell(root,'.c-num'), d=getCell(root,'.c-den');
+      const N=getCell(root,'.c-in'), D=getCell(root,'.c-id');
+      if([e,n,d,N,D].some(v=>v===null)) return MISSING;
+      if(e===w&&n===r&&d===den&&N===imp&&D===den) return {ok:true,title:'¡Las dos formas correctas!',
+        msg:`Hay <b>${w}</b> ${w===1?'figura completa':'figuras completas'} y <b>${r}</b> de <b>${den}</b> partes pintadas: <b>${w} ${r}/${den}</b>. Como cada figura tiene ${den} partes, en total hay (${w} × ${den}) + ${r} = <b>${imp}</b> partes: <b>${imp}/${den}</b>.`};
+      if(e!==w) return {ok:false,cells:['.c-w'],
+        where:'Revisa el número entero.', review:'Cuenta solo las figuras que están completamente pintadas.', hint:`Hay <b>${w}</b> ${w===1?'figura completa':'figuras completas'}.`};
+      if(d!==den||D!==den) return {ok:false,cells:['.c-den','.c-id'],
+        where:'Revisa los denominadores.', review:'Cuenta en cuántas partes está dividida UNA figura.', hint:`Las dos formas llevan denominador <b>${den}</b>.`};
+      if(n!==r) return {ok:false,cells:['.c-num'],
+        where:'Revisa el numerador del número mixto.', review:'Son las partes pintadas de la figura incompleta.', hint:`Cuenta las partes pintadas de la última figura.`};
+      return {ok:false,cells:['.c-in'],
+        where:'Revisa la fracción impropia.', review:'Cuenta TODAS las partes pintadas de todas las figuras.',
+        hint:`(${w} × ${den}) + ${r} = ?`};
+    }
+  };
+}
+
+/* =========================================================
+   CONTENIDO: SECCIONES, MODOS Y TUTORIALES
+   ========================================================= */
+const T = (title, body, note, noteCls) => ({title, body, note, noteCls});
+
+const SECTIONS = [
+  {
+    id:'s1', icon:'🍕', color:'#6c4df6', soft:'#ece8ff',
+    title:'Representar fracciones',
+    desc:'Dibujos, fracciones equivalentes, amplificar y simplificar.',
+    modes:[
+      { icon:'🔍', title:'¿Qué fracción es?', desc:'Observa el dibujo y escribe la fracción.',
+        build: buildIdentify,
+        tut:[
+          T('Las partes de una fracción',
+            `<div class="demo"><div class="demo-row">${fracHTML(3,4)}
+              <div style="text-align:left;font-weight:800">
+                <div style="color:var(--violet)">3 · numerador<br><span style="font-size:13.5px;color:var(--muted);font-weight:700">partes que se toman</span></div>
+                <div style="margin-top:10px;color:var(--pink)">4 · denominador<br><span style="font-size:13.5px;color:var(--muted);font-weight:700">partes iguales de la figura</span></div>
+              </div></div></div>
+             <p class="tut-tx">Una fracción indica <b>cuántas partes tomamos</b> de un todo dividido en <b>partes iguales</b>.</p>`),
+          T('Fracción propia',
+            `<div class="demo"><div class="demo-row">${barHTML(4,3,{cls:'wide'})}${fracHTML(3,4,'small')}</div></div>
+             <p class="tut-tx">La figura está dividida en <b>4</b> partes y hay <b>3</b> pintadas: se representa <b>3/4</b>. Cuando el numerador es menor que el denominador la fracción es <b>propia</b> (vale menos que 1).</p>`),
+          T('Fracción impropia',
+            `<div class="demo"><div class="demo-row">${barHTML(4,4)}${barHTML(4,1)}${fracHTML(5,4,'small')}</div></div>
+             <p class="tut-tx">Aquí hay <b>2 figuras</b> iguales y <b>5</b> partes pintadas en total: <b>5/4</b>.</p>`,
+            'Cuidado: el denominador sigue siendo 4 (las partes de UNA figura), no 8.','warn')
+        ]},
+      { icon:'🎨', title:'Representa la fracción', desc:'Elige la figura correcta y pinta las partes.',
+        build: buildDraw,
+        tut:[
+          T('Paso 1 · Mira el denominador',
+            `<div class="demo"><div class="demo-row">${fracHTML(3,6,'small')}
+              <div class="opt" style="width:120px"><span class="cap">Dividida en 6</span>${barHTML(6,0)}</div></div></div>
+             <p class="tut-tx">El <b>denominador</b> te dice en cuántas partes iguales debe estar dividida la figura. Si el denominador es <b>6</b>, eliges la figura de <b>6</b> partes.</p>`),
+          T('Paso 2 · Pinta el numerador',
+            `<div class="demo"><div class="demo-row">${barHTML(6,3,{cls:'wide'})}${fracHTML(3,6,'small')}</div></div>
+             <p class="tut-tx">Ahora tocas las partes para pintarlas. El <b>numerador</b> indica cuántas se pintan: aquí <b>3</b> de <b>6</b>.</p>`,
+            'Si la fracción es impropia (por ejemplo 7/6) necesitarás pintar partes de dos figuras.')
+        ]},
+      { icon:'⚖️', title:'Fracciones equivalentes', desc:'Fracciones distintas que valen lo mismo.',
+        build: buildEquiv,
+        tut:[
+          T('Valen lo mismo',
+            `<div class="demo"><div class="demo-row">${barHTML(2,1,{cls:'wide'})}${fracHTML(1,2,'small')}</div>
+             <div class="demo-row">${barHTML(4,2,{cls:'wide'})}${fracHTML(2,4,'small')}</div></div>
+             <p class="tut-tx">Las dos figuras tienen pintada <b>la misma cantidad</b>. Por eso <b>1/2</b> y <b>2/4</b> son <b>equivalentes</b>.</p>`),
+          T('¿Qué cambió?',
+            `<div class="demo"><div class="demo-row">${barHTML(4,2,{cls:'wide'})}${fracHTML(2,4,'small')}</div>
+             <div class="demo-row">${barHTML(8,4,{cls:'wide'})}${fracHTML(4,8,'small')}</div></div>
+             <p class="tut-tx">Cada parte se partió en <b>2</b>. Entonces hay el doble de partes pintadas (2 → 4) y el doble de partes en total (4 → 8).</p>`,
+            'Regla: si el todo se divide en más partes, se necesitan más partes para cubrir lo mismo.')
+        ]},
+      { icon:'✖️', title:'Amplificar y simplificar', desc:'Multiplica o divide arriba y abajo.',
+        build: buildAmpSim,
+        tut:[
+          T('Amplificar (×)',
+            `<div class="demo">${ampBoxHTML(4,6,7,'x',true).replace(/<input[^>]*class="cell c-num"[^>]*>/,'<div class="amp-num" style="color:var(--pink)">28</div>').replace(/<input[^>]*class="cell c-den"[^>]*>/,'<div class="amp-num" style="color:var(--pink)">42</div>')}</div>
+             <p class="tut-tx">Amplificar es <b>multiplicar</b> el numerador y el denominador por el mismo número: 4 × 7 = 28 y 6 × 7 = 42.</p>`),
+          T('Simplificar (÷)',
+            `<div class="demo">${ampBoxHTML(15,20,5,'d',true).replace(/<input[^>]*class="cell c-num"[^>]*>/,'<div class="amp-num" style="color:var(--pink)">3</div>').replace(/<input[^>]*class="cell c-den"[^>]*>/,'<div class="amp-num" style="color:var(--pink)">4</div>')}</div>
+             <p class="tut-tx">Simplificar es <b>dividir</b> arriba y abajo entre el mismo número: 15 ÷ 5 = 3 y 20 ÷ 5 = 4.</p>`,
+            'La fracción cambia de aspecto, pero su valor es exactamente el mismo.')
+        ]}
+    ]
+  },
+  {
+    id:'s2', icon:'📖', color:'#ff8a3d', soft:'#ffeede',
+    title:'Leer y ubicar fracciones',
+    desc:'Lectura y escritura, y fracciones en la recta numérica.',
+    modes:[
+      { icon:'🗣️', title:'Lectura y escritura', desc:'Del símbolo a las palabras y al revés.',
+        build: buildRead,
+        tut:[
+          T('¿Cómo se lee?',
+            `<div class="demo"><div class="demo-row">${fracHTML(3,5)}<div class="eq">=</div>
+              <div style="font-family:'Baloo 2';font-size:26px;font-weight:800;color:var(--violet-d)">tres quintos</div></div></div>
+             <p class="tut-tx">El <b>numerador</b> se lee como un número normal. El <b>denominador</b> da el <b>nombre</b> de las partes.</p>`),
+          T('Nombres del denominador',
+            `<div class="m-list" style="font-size:15px">
+               <div><span>2</span><span>medios</span></div><div><span>3</span><span>tercios</span></div>
+               <div><span>4</span><span>cuartos</span></div><div><span>5</span><span>quintos</span></div>
+               <div><span>6</span><span>sextos</span></div><div><span>7</span><span>séptimos</span></div>
+               <div><span>8</span><span>octavos</span></div><div><span>9</span><span>novenos</span></div>
+               <div><span>10</span><span>décimos</span></div>
+             </div>`,
+            'Si el numerador es 1 se usa el singular: 1/4 se lee «un cuarto».'),
+          T('También desde el dibujo',
+            `<div class="demo"><div class="demo-row">${circleHTML(4,3)}<div class="eq">=</div>${fracHTML(3,4,'small')}</div>
+             <div style="font-family:'Baloo 2';font-size:24px;font-weight:800;color:var(--violet-d)">tres cuartos</div></div>
+             <p class="tut-tx">Primero cuenta las partes del dibujo, escribe la fracción y después léela en voz alta.</p>`)
+        ]},
+      { icon:'📏', title:'Recta numérica', desc:'Divide la unidad y da los saltos.',
+        build: buildLine,
+        tut:[
+          T('Divide cada unidad',
+            `<div class="demo">${lineSVG(3,4,0)}</div>
+             <p class="tut-tx">El <b>denominador</b> indica en cuántas partes iguales se divide <b>cada unidad</b> (de 0 a 1, de 1 a 2, …). Aquí cada unidad se dividió en <b>4</b>.</p>`),
+          T('Da los saltos',
+            `<div class="demo">${lineSVG(3,4,3)}</div>
+             <p class="tut-tx">El <b>numerador</b> indica cuántos saltos das desde el <b>0</b>. Con 3 saltos de un cuarto llegas a <b>3/4</b>.</p>`),
+          T('Fracciones mayores que 1',
+            `<div class="demo">${lineSVG(3,4,9)}</div>
+             <p class="tut-tx">Si sigues saltando pasas la unidad: con <b>9</b> saltos llegas a <b>9/4</b>, entre el 2 y el 3.</p>`,
+            'Una fracción impropia siempre queda a la derecha del 1.')
+        ]}
+    ]
+  },
+  {
+    id:'s3', icon:'🔢', color:'#ec4899', soft:'#fce7f3',
+    title:'Números mixtos',
+    desc:'Conversión en los dos sentidos y representación gráfica.',
+    modes:[
+      { icon:'➗', title:'De impropia a mixto', desc:'Divide numerador entre denominador.',
+        build: buildImp2Mix,
+        tut:[
+          T('¿Qué es un número mixto?',
+            `<div class="demo"><div class="demo-row">${circleHTML(4,4)}${circleHTML(4,4)}${circleHTML(4,1)}</div>
+             <div class="demo-row"><div class="mixed"><span class="whole">2</span>${fracHTML(1,4,'small pinkf')}</div><div class="eq">=</div>${fracHTML(9,4,'small')}</div></div>
+             <p class="tut-tx">Un número mixto se escribe con un <b>número entero</b> y una <b>fracción</b>.</p>`),
+          T('Paso 1 · Divide en la cuadrícula',
+            `<div class="demo">${divGridHTML(13,4,{p:12,r:1,q:3})}</div>
+             <p class="tut-tx">Divide <b>13 ÷ 4</b>: el cociente es <b>3</b> porque 3 × 4 = 12. Resta <b>12</b> a <b>13</b> y queda un residuo de <b>1</b>.</p>`,
+            'El residuo siempre es menor que el divisor.'),
+          T('Paso 2 · Arma el mixto',
+            `<div class="demo"><div class="demo-row">${fracHTML(13,4,'small')}<div class="eq">=</div>
+              <div class="mixed"><span class="whole">3</span>${fracHTML(1,4,'small pinkf')}</div></div>
+             <div class="m-list" style="text-align:left;max-width:320px">
+               <div><span>3️⃣</span><span>cociente → <b>entero</b></span></div>
+               <div><span>1️⃣</span><span>residuo → <b>numerador</b></span></div>
+               <div><span>4️⃣</span><span>divisor → <b>denominador</b></span></div>
+             </div></div>
+             <p class="tut-tx">Toma los números de la cuadrícula y colócalos en el número mixto.</p>`)
+        ]},
+      { icon:'✳️', title:'De mixto a impropia', desc:'Multiplica y suma.',
+        build: buildMix2Imp,
+        tut:[
+          T('La regla, paso a paso',
+            `<div class="demo"><div class="demo-row"><div class="mixed"><span class="whole">4</span>${fracHTML(2,5,'small pinkf')}</div></div>
+             ${opGridHTML(4,5,2,{mul:20,sum:22})}</div>
+             <p class="tut-tx">Multiplica el <b>entero</b> por el <b>denominador</b> (4 × 5 = 20) y súmale el <b>numerador</b> (20 + 2 = 22).</p>`),
+          T('El resultado',
+            `<div class="demo"><div class="demo-row"><div class="mixed"><span class="whole">4</span>${fracHTML(2,5,'small pinkf')}</div><div class="eq">=</div>${fracHTML(22,5)}</div></div>
+             <p class="tut-tx">(4 × 5) + 2 = <b>22</b>. Ese resultado es el numerador y el <b>denominador sigue siendo 5</b>.</p>`,
+            'Truco: cada unidad completa aporta 5 quintos.')
+        ]},
+      { icon:'🖼️', title:'Mixtos con dibujos', desc:'Las dos formas a partir de la figura.',
+        build: buildMixFig,
+        tut:[
+          T('Cuenta las figuras completas',
+            `<div class="demo"><div class="demo-row">${circleHTML(3,3)}${circleHTML(3,3)}${circleHTML(3,2)}</div>
+             <div class="demo-row"><div class="mixed"><span class="whole">2</span>${fracHTML(2,3,'small pinkf')}</div></div></div>
+             <p class="tut-tx">Hay <b>2</b> figuras completas y una figura con <b>2</b> de <b>3</b> partes pintadas: <b>2 2/3</b>.</p>`),
+          T('Cuenta todas las partes',
+            `<div class="demo"><div class="demo-row">${circleHTML(3,3)}${circleHTML(3,3)}${circleHTML(3,2)}</div>
+             <div class="demo-row">${fracHTML(8,3)}</div></div>
+             <p class="tut-tx">Si cuentas <b>todas</b> las partes pintadas hay <b>8</b> tercios: <b>8/3</b>. Las dos escrituras representan la misma cantidad.</p>`)
+        ]}
+    ]
+  }
+];
+
+/* =========================================================
+   MENSAJES
+   ========================================================= */
+const MOTIV = ['¡Excelente!','¡Sigue así!','Cada vez eres mejor.','¡Buen trabajo!','Lo estás logrando.','¡Vas muy bien!'];
+const MILE = {
+  4:'⭐ ¡Primer logro! Ya llevas 4 de 12 correctas.',
+  8:'🌟 ¡Increíble! Solo te faltan 4 para terminar.'
+};
+const FINAL = [
+  'Excelente trabajo. Cada día mejoras más en matemáticas.',
+  'Lo lograste con esfuerzo. Los errores también te enseñaron.',
+  'Muy bien. Ya dominas mejor las fracciones que al empezar.',
+  '¡Gran trabajo! Practicar es la mejor forma de aprender.'
+];
+
+/* =========================================================
+   MENÚS
+   ========================================================= */
+function renderSections(){
+  $('#menu-sections').innerHTML = SECTIONS.map((s,i)=>`
+    <button class="sec-card" style="--c:${s.color};--cs:${s.soft}" data-sec="${i}">
+      <div class="sec-ico">${s.icon}</div>
+      <div class="sec-tx"><h3>${s.title}</h3><p>${s.desc}</p><span class="badge-n">${s.modes.length} lecciones</span></div>
+      <div class="sec-go">›</div>
+    </button>`).join('');
+  $$('#menu-sections .sec-card').forEach(b=>b.addEventListener('click',()=>openSection(+b.dataset.sec)));
+}
+function openSection(i){
+  S.sec = i;
+  const s = SECTIONS[i];
+  $('#modes-eyebrow').textContent = 'Sección ' + (i+1);
+  $('#modes-title').textContent = s.title;
+  $('#modes-desc').textContent = s.desc;
+  $('#menu-modes').innerHTML = s.modes.map((m,j)=>`
+    <button class="sec-card" style="--c:${s.color};--cs:${s.soft}" data-mode="${j}">
+      <div class="sec-ico">${m.icon}</div>
+      <div class="sec-tx"><h3>${m.title}</h3><p>${m.desc}</p><span class="badge-n">Meta: ${GOAL} correctas</span></div>
+      <div class="sec-go">›</div>
+    </button>`).join('');
+  $$('#menu-modes .sec-card').forEach(b=>b.addEventListener('click',()=>openMode(i,+b.dataset.mode)));
+  show('scr-modes');
+}
+function openMode(si,mi){
+  S.sec=si; S.mode=SECTIONS[si].modes[mi]; S.modeIdx=mi;
+  S.tutIdx=0; S.tutFrom='modes';
+  renderTut(); show('scr-tutorial');
+}
+
+/* =========================================================
+   TUTORIAL
+   ========================================================= */
+function renderTut(){
+  const tut = S.mode.tut, s = tut[S.tutIdx];
+  $('#tut-tag').textContent = `CÓMO SE HACE · ${S.tutIdx+1}/${tut.length}`;
+  $('#tut-title').textContent = s.title;
+  $('#tut-body').innerHTML = s.body + (s.note?`<div class="tut-note ${s.noteCls||''}">${s.noteCls==='warn'?'⚠️':'✅'} ${s.note}</div>`:'');
+  $('#tut-dots').innerHTML = tut.map((_,i)=>`<div class="dot${i===S.tutIdx?' on':''}"></div>`).join('');
+  $('#tut-prev').style.visibility = S.tutIdx===0 ? 'hidden':'visible';
+  $('#tut-next').textContent = S.tutIdx===tut.length-1 ? '¡A practicar! 🚀' : 'Siguiente →';
+}
+function tutNext(){
+  if(S.tutIdx < S.mode.tut.length-1){ S.tutIdx++; renderTut(); sndTap(); }
+  else if(S.tutFrom==='activity'){ show('scr-activity'); }
+  else startPractice();
+}
+
+/* =========================================================
+   ACTIVIDAD
+   ========================================================= */
+function startPractice(){
+  S.lesson = {ok:0, bad:0, t0:Date.now()};
+  S.streak = 0;
+  $('#act-title').textContent = S.mode.title;
+  renderPath();
+  newEx();
+  show('scr-activity');
+}
+function renderPath(){
+  let h='';
+  for(let i=1;i<=GOAL;i++){
+    const done = i<=S.lesson.ok;
+    if(i>1) h+=`<div class="pline${i-1<=S.lesson.ok?' done':''}"></div>`;
+    const mile = i%4===0;
+    h+=`<div class="pnode${mile?' mile':''}${done?' done':''}">${mile?(done?'⭐':'☆'):''}</div>`;
+  }
+  $('#path').innerHTML=h;
+  $('#goal-right').textContent = `${S.lesson.ok} / ${GOAL}`;
+}
+function paintEx(){
+  const a=$('#ex-area');
+  a.innerHTML = S.ex.render();
+  if(S.ex.mount) S.ex.mount(a);
+}
+function newEx(){ S.ex = S.mode.build(); paintEx(); }
+
+function doCheck(){
+  if(!S.ex) return;
+  const root=$('#ex-area');
+  const r=S.ex.check(root);
+
+  if(r.missing){
+    openModal({kind:'info',icon:'✏️',title:r.title||'Faltan datos',html:`<p class="m-tx">${r.msg}</p>`,btn:'Entendido',btnCls:'btn-primary'});
+    return;
+  }
+  if(r.ok && r.partial){
+    sndOk();
+    openModal({kind:'ok',icon:'✔',title:r.title,html:`<p class="m-tx">${r.msg}</p>`,btn:'Continuar →',btnCls:'btn-ok',action:()=>paintEx()});
+    return;
+  }
+  if(r.ok){
+    sndOk();
+    S.correct++; S.lesson.ok++; S.streak++;
+    updateChips(); bump($('#chip-ok')); renderPath();
+    const done=S.lesson.ok;
+    let extra='';
+    if(S.streak>=3 && done<GOAL) extra=`<div class="m-hint" style="background:var(--ok-s);border-color:#bbf7d0;color:var(--ok-d)">🔥 ${pick(MOTIV)} Llevas <b>${S.streak}</b> seguidas.</div>`;
+    let action;
+    if(done>=GOAL) action=()=>winLesson();
+    else if(done%4===0) action=()=>{ celebrate(done); newEx(); };
+    else action=()=>newEx();
+    openModal({kind:'ok',icon:'✔',title:r.title||'¡Correcto!',
+      html:`<p class="m-tx">${r.msg}</p>${extra}`,
+      btn: done>=GOAL ? 'Ver resultados 🎉' : 'Siguiente ejercicio →', btnCls:'btn-ok', action});
+    return;
+  }
+  // incorrecto
+  sndBad();
+  S.wrong++; S.lesson.bad++; S.streak=0;
+  updateChips(); bump($('#chip-bad'));
+  if(r.cells) markWrong(root, r.cells);
+  openModal({kind:'bad',icon:'✖',title:'Inténtalo nuevamente',
+    html:`<p class="m-tx">${r.where}</p>
+      <div class="m-list"><div><span>🔎</span><span>${r.review}</span></div></div>
+      <div class="m-hint">💡 <b>Pista:</b> ${r.hint}</div>
+      <p class="m-tx" style="font-size:15px;color:var(--muted)">Vuelve al mismo ejercicio y corrígelo. Equivocarse también es aprender.</p>`,
+    btn:'Volver a intentarlo', btnCls:'btn-warn'});
+}
+function celebrate(n){
+  sndWin(); confetti(60); toast(MILE[n]||'¡Sigue así!', true);
+}
+function winLesson(){
+  sndWin(); confetti(140);
+  const t = fmtTime(Date.now()-S.lesson.t0);
+  const total = S.lesson.ok + S.lesson.bad;
+  const pct = total ? Math.round(S.lesson.ok*100/total) : 100;
+  $('#win').innerHTML = `
+    <span class="trophy">🏆</span>
+    <h2>🎉 ¡Lección completada!</h2>
+    <div class="who">${S.name} <span>· ${S.grade}</span></div>
+    <div style="font-weight:800;color:var(--muted);font-size:14.5px;margin-top:3px">${S.mode.title}</div>
+    <div class="stats">
+      <div class="stat v"><div class="sv">${t}</div><div class="sl">Tiempo</div></div>
+      <div class="stat g"><div class="sv">✔ ${S.lesson.ok}</div><div class="sl">Aciertos</div></div>
+      <div class="stat r"><div class="sv">✖ ${S.lesson.bad}</div><div class="sl">Errores</div></div>
+      <div class="stat o"><div class="sv">${pct}%</div><div class="sl">Porcentaje</div></div>
+    </div>
+    <div class="win-msg">${pick(FINAL)}</div>
+    <button class="btn btn-primary btn-lg" id="w-next">Siguiente lección →</button>
+    <button class="btn btn-ghost btn-lg" id="w-home" style="margin-top:10px">🏠 Menú principal</button>`;
+  $('#win-wrap').classList.remove('hidden');
+  $('#w-next').addEventListener('click',()=>{ $('#win-wrap').classList.add('hidden'); nextLesson(); });
+  $('#w-home').addEventListener('click',()=>{ $('#win-wrap').classList.add('hidden'); show('scr-home'); });
+}
+function nextLesson(){
+  const sec = SECTIONS[S.sec];
+  if(S.modeIdx < sec.modes.length-1){ openMode(S.sec, S.modeIdx+1); }
+  else if(S.sec < SECTIONS.length-1){ toast('¡Sección terminada! Vamos con la siguiente.', true); openMode(S.sec+1, 0); }
+  else { toast('¡Completaste todas las lecciones! 🎓', true); show('scr-home'); }
+}
+
+/* =========================================================
+   ARRANQUE Y EVENTOS
+   ========================================================= */
+function flag(sel,msg){
+  const i=$(sel); i.style.borderColor='var(--err)'; i.focus();
+  toast(msg); setTimeout(()=>i.style.borderColor='',1500);
+}
+function startApp(){
+  const n=$('#in-name').value.trim();
+  const g=$('#in-grade').value.trim();
+  if(!n){ flag('#in-name','Escribe tu nombre para comenzar'); return; }
+  if(!g){ flag('#in-grade','Escribe tu grado para comenzar'); return; }
+  S.name = n;
+  S.grade = /^grado\b/i.test(g) ? g : 'Grado ' + g;
+  $('#tb-name').textContent = S.name;
+  $('#tb-grade').textContent = S.grade;
+  $('#hello').textContent = `¡Hola, ${S.name.split(' ')[0]}!`;
+  $('#topbar').classList.remove('hidden');
+  updateChips(); startTimer(); renderSections();
+  sndWin(); show('scr-home');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  $('#btn-start').addEventListener('click',startApp);
+  $('#in-name').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#in-grade').focus(); });
+  $('#in-grade').addEventListener('keydown',e=>{ if(e.key==='Enter') startApp(); });
+
+  $('#btn-home').addEventListener('click',()=>{ sndTap(); show('scr-home'); });
+  $('#btn-sound').addEventListener('click',()=>{
+    S.sound=!S.sound; $('#btn-sound').textContent = S.sound?'🔊':'🔇';
+    if(S.sound) sndTap();
+  });
+  $$('[data-back]').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.dataset.back;
+    if(t==='scr-modes' && S.sec!==null) openSection(S.sec); else show(t);
+  }));
+  $('#tut-back').addEventListener('click',()=>{
+    if(S.tutFrom==='activity') show('scr-activity'); else openSection(S.sec);
+  });
+  $('#tut-next').addEventListener('click',tutNext);
+  $('#tut-prev').addEventListener('click',()=>{ if(S.tutIdx>0){S.tutIdx--; renderTut(); sndTap();} });
+  $('#btn-tut').addEventListener('click',()=>{ S.tutIdx=0; S.tutFrom='activity'; renderTut(); show('scr-tutorial'); });
+
+  $('#btn-check').addEventListener('click',doCheck);
+  $('#btn-clear').addEventListener('click',()=>{ if(S.ex&&S.ex.clear){ S.ex.clear($('#ex-area')); sndTap(); } });
+  $('#btn-other').addEventListener('click',()=>{ newEx(); sndTap(); });
+  $('#m-btn').addEventListener('click',closeModal);
+
+  // casillas: solo números, seleccionar al enfocar, Enter comprueba
+  document.addEventListener('focusin',e=>{ if(e.target.classList&&e.target.classList.contains('cell')) setTimeout(()=>e.target.select(),0); });
+  document.addEventListener('input',e=>{
+    const t=e.target;
+    if(t.classList&&t.classList.contains('cell')){
+      t.value=t.value.replace(/[^0-9]/g,'').slice(0,2);
+      t.classList.remove('wrong');
+    }
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      if(!$('#modal-wrap').classList.contains('hidden')){ closeModal(); return; }
+      if($('#scr-activity').classList.contains('active')){ e.preventDefault(); doCheck(); }
+    }
+  });
+});
+</script>
+</body>
+</html>
