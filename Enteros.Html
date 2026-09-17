@@ -394,6 +394,15 @@ button{font-family:inherit}
         <p class="muted" id="secDesc" style="margin:4px 0 0;font-size:15.5px"></p>
       </div>
       <div class="card" style="margin-top:18px">
+        <div class="eyebrow">Nivel de dificultad</div>
+        <div class="opts opts--2" id="lvPick" style="margin-top:10px">
+          <button class="opt" data-lv="1" type="button">🌱 Nivel 1 · Básico</button>
+          <button class="opt" data-lv="2" type="button">🔥 Nivel 2 · Avanzado</button>
+        </div>
+        <p class="muted" id="lvDesc" style="margin:12px 0 0;font-size:14.5px;text-align:center"></p>
+      </div>
+
+      <div class="card">
         <div class="rule" style="margin-top:0;background:var(--brand-soft)">
           <div class="rule-tag tag-b">📘</div>
           <div><b>Aprendiendo</b><span>Explicación visual y ejercicios guiados con pistas.</span></div>
@@ -456,7 +465,8 @@ button{font-family:inherit}
         <button class="btn btn--ghost btn--sm" id="towBack" style="width:auto;padding:9px 14px">←</button>
         <div style="flex:1">
           <div class="eyebrow">Desafío visual</div>
-          <div style="font-family:'Fredoka';font-size:18px">Reto del ascensor de los enteros</div>
+          <div style="font-family:'Fredoka';font-size:18px">Reto del ascensor</div>
+          <div class="muted" id="towLvl" style="font-size:13px;font-weight:700"></div>
         </div>
       </div>
       <div class="play">
@@ -512,7 +522,8 @@ button{font-family:inherit}
       <div class="st" style="background:var(--bad-soft)"><span>Errores</span><b id="dBad" style="color:var(--bad)"></b></div>
     </div>
     <p id="doneMsg" style="font-weight:700;font-size:16px;margin:0 0 4px"></p>
-    <button class="btn btn--primary" id="doneNext" style="margin-top:14px">Siguiente lección →</button>
+    <button class="btn btn--check" id="doneUp" style="margin-top:14px;display:none"></button>
+    <button class="btn btn--primary" id="doneNext" style="margin-top:9px">Siguiente lección →</button>
     <button class="btn btn--ghost" id="doneHome" style="margin-top:9px">Volver al menú</button>
   </div>
 </div>
@@ -525,7 +536,7 @@ button{font-family:inherit}
    ESTADO
 ========================================================= */
 var S={name:"",grade:"",ok:0,bad:0,t0:0,timer:null,lesson:null,section:null,q:null,
-        learn:{list:[],i:0,sec:null},learnAtt:0};
+        learn:{list:[],i:0,sec:null},learnAtt:0,level:1,levels:{}};
 var GOAL=12;
 
 var SECTIONS=[
@@ -563,6 +574,19 @@ var SECTIONS=[
   desc:"Mueve al personaje por los pisos positivos y negativos del edificio."}
 ];
 function secById(id){for(var i=0;i<SECTIONS.length;i++)if(SECTIONS[i].id===id)return SECTIONS[i];return null;}
+
+var LEVELS={
+ suma:["Números del 1 al 10. Ejemplo: −7 − 6","Números del 10 al 20. Ejemplo: −18 − 14"],
+ resta:["Números del 1 al 10. Ejemplo: 4 − 8","Números del 10 al 20. Ejemplo: 13 − 19"],
+ paren:["Números del 1 al 10. Ejemplo: (−8) − (−3)","Números del 10 al 20. Ejemplo: (−17) − (−12)"],
+ multi:["Todas las tablas del 1 al 10","Tablas del 4, 6, 7, 8 y 9 · sin ×1, ×2 ni ×3"],
+ fichas:["Hasta 8 fichas de cada color","Hasta 12 fichas: más pares que anular"],
+ maquina:["Grupos pequeños, del 2 al 6","Tablas del 4 al 9: arreglos más grandes"],
+ azar:["Hasta 20 y decenas · tablas hasta 12","Hasta 30 y decenas grandes · tablas del 4 al 12"],
+ reto:["Edificio de −6 a 6, saltos cortos","Edificio de −9 a 9, saltos más largos"]
+};
+function lvName(n){return n===2?"Nivel 2 · Avanzado":"Nivel 1 · Básico";}
+function lvOf(id){return S.levels[id]||1;}
 
 var MOTIVA=["¡Excelente!","¡Sigue así!","Cada vez eres mejor.","Buen trabajo.","Ya casi completas esta lección.","¡No te rindas!","Vas con todo. 💪"];
 var FINALES=["Excelente trabajo. Cada día mejoras más en matemáticas.",
@@ -656,11 +680,27 @@ function buildMenu(){
   });
 }
 function openSection(id){
-  var sec=secById(id);S.section=sec;
+  var sec=secById(id);S.section=sec;S.level=lvOf(id);
   $("secIco").textContent=sec.ico;$("secIco").style.background=sec.bg;$("secIco").style.color=sec.col;
   $("secTitle").textContent=sec.title;$("secSample").innerHTML=sec.sample;$("secDesc").textContent=sec.desc;
+  paintLevel();
   show("s-section");
 }
+function paintLevel(){
+  var btns=$("lvPick").querySelectorAll(".opt");
+  for(var i=0;i<btns.length;i++){
+    var on=parseInt(btns[i].getAttribute("data-lv"),10)===S.level;
+    btns[i].classList.toggle("sel",on);
+  }
+  $("lvDesc").innerHTML=LEVELS[S.section.id][S.level-1];
+}
+$("lvPick").addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".opt"):null;
+  if(!b)return;
+  S.level=parseInt(b.getAttribute("data-lv"),10);
+  S.levels[S.section.id]=S.level;
+  paintLevel();
+});
 $("goLearn").addEventListener("click",function(){startLearn(S.section.id);});
 $("goPractice").addEventListener("click",function(){startLesson(S.section.id);});
 
@@ -816,45 +856,69 @@ function diagMul(a,b,us,um,att){
 /* =========================================================
    GENERADORES  (rango 1..10, salvo "al azar")
 ========================================================= */
-function pairSame(){var s=rs();return{a:s*rnd(1,10),b:s*rnd(1,10)};}
-function pairDiff(){
-  var x=rnd(2,10),y=rnd(1,10);
-  if(x===y){y=(y>1)?y-1:y+1;}
+var TABLAS=[4,6,7,8,9];
+function vR(lv){return lv===2?{lo:10,hi:20}:{lo:1,hi:10};}
+function pairSame(lv){var r=vR(lv),s=rs();return{a:s*rnd(r.lo,r.hi),b:s*rnd(r.lo,r.hi)};}
+function pairDiff(lv){
+  var r=vR(lv),x,y;
+  do{x=rnd(r.lo,r.hi);y=rnd(r.lo,r.hi);}while(x===y);
   return rs()>0?{a:x,b:-y}:{a:-x,b:y};
 }
-function genSuma(){var p=pairSame();return{mode:"compact",a:p.a,b:p.b};}
-function genResta(){var p=pairDiff();return{mode:"compact",a:p.a,b:p.b};}
-function genParen(){
-  var a,b,op,t;
-  do{ a=rs()*rnd(1,10); b=rs()*rnd(1,10); op=rs()>0?"+":"-"; t=(op==="-")?-b:b; }while(a+t===0);
+function genSuma(lv){var p=pairSame(lv);return{mode:"compact",a:p.a,b:p.b};}
+function genResta(lv){var p=pairDiff(lv);return{mode:"compact",a:p.a,b:p.b};}
+function genParen(lv){
+  var r=vR(lv),a,b,op,t;
+  do{ a=rs()*rnd(r.lo,r.hi); b=rs()*rnd(r.lo,r.hi); op=rs()>0?"+":"-"; t=(op==="-")?-b:b; }while(a+t===0);
   return{mode:"paren",a:a,op:op,b:b};
 }
-function genMulti(){return{mode:"mul",a:rs()*rnd(1,10),b:rs()*rnd(1,10),st:rnd(0,4)};}
-function bigVal(){return Math.random()<0.55?rnd(1,20):pick([10,20,30,40,50,60,70,80,90]);}
-function genAzar(){
-  var t=pick(["compact","compact","paren","mul","mul"]),a,b,op,tt;
-  if(t==="mul") return {mode:"mul",a:rs()*rnd(1,12),b:rs()*rnd(1,12),st:rnd(0,4)};
+/* nivel 2: una tabla del 4,6,7,8,9 y el otro factor entre 4 y 9 (nada de x1, x2 o x3) */
+function facts(lv,maxOther){
+  if(lv!==2)return{a:rnd(1,10),b:rnd(1,10)};
+  var t=pick(TABLAS),o=rnd(4,maxOther||9);
+  return Math.random()<0.5?{a:t,b:o}:{a:o,b:t};
+}
+function genMulti(lv){var f=facts(lv);return{mode:"mul",a:rs()*f.a,b:rs()*f.b,st:rnd(0,4)};}
+function bigVal(lv){
+  if(lv===2)return Math.random()<0.5?rnd(12,30):pick([20,30,40,50,60,70,80,90,100,110,120]);
+  return Math.random()<0.55?rnd(1,20):pick([10,20,30,40,50,60,70,80,90]);
+}
+function azarFacts(lv){
+  if(lv!==2)return{a:rnd(1,12),b:rnd(1,12)};
+  var t=pick([4,6,7,8,9,11,12]),o=rnd(4,12);
+  return Math.random()<0.5?{a:t,b:o}:{a:o,b:t};
+}
+function genAzar(lv){
+  var t=pick(["compact","compact","paren","mul","mul"]),a,b,op,tt,f;
+  if(t==="mul"){f=azarFacts(lv);return{mode:"mul",a:rs()*f.a,b:rs()*f.b,st:rnd(0,4)};}
   if(t==="paren"){
-    do{ a=rs()*bigVal(); b=rs()*bigVal(); op=rs()>0?"+":"-"; tt=(op==="-")?-b:b; }while(a+tt===0);
+    do{ a=rs()*bigVal(lv); b=rs()*bigVal(lv); op=rs()>0?"+":"-"; tt=(op==="-")?-b:b; }while(a+tt===0);
     return {mode:"paren",a:a,op:op,b:b};
   }
-  do{ a=rs()*bigVal(); b=rs()*bigVal(); }while(a+b===0);
+  do{ a=rs()*bigVal(lv); b=rs()*bigVal(lv); }while(a+b===0);
   return {mode:"compact",a:a,b:b};
 }
-function genFichas(){
-  if(Math.random()<0.72){var x=rnd(2,8),y=rnd(1,7);if(x===y)y=(y>1)?y-1:y+1;
-    return rs()>0?{a:x,b:-y}:{a:-x,b:y};}
-  var s=rs();return{a:s*rnd(1,6),b:s*rnd(1,5)};
+function genFichas(lv){
+  var hi=lv===2?12:8, lo=lv===2?4:1, x,y;
+  if(Math.random()<0.75){
+    do{x=rnd(lo+1,hi);y=rnd(lo,hi);}while(x===y);
+    return rs()>0?{a:x,b:-y}:{a:-x,b:y};
+  }
+  var s=rs();return{a:s*rnd(lo,Math.min(hi,7)),b:s*rnd(1,Math.min(hi,6))};
 }
-function genMaquina(){return{a:rs()*rnd(2,6),b:rs()*rnd(2,6)};}
+function genMaquina(lv){
+  if(lv===2){var t=pick(TABLAS),o=rnd(4,t>=7?5:6);
+    return Math.random()<0.5?{a:rs()*t,b:rs()*o}:{a:rs()*o,b:rs()*t};}
+  return{a:rs()*rnd(2,6),b:rs()*rnd(2,6)};
+}
 
 /* =========================================================
    LECCIÓN
 ========================================================= */
 function startLesson(id){
-  S.lesson={sec:id,correct:0,wrong:0,t0:Date.now(),streak:0,points:0,answered:0};
+  var lv=lvOf(id);
+  S.lesson={sec:id,level:lv,correct:0,wrong:0,t0:Date.now(),streak:0,points:0,answered:0};
   if(id==="reto"){startTower();return;}
-  $("pracTitle").textContent=secById(id).title;
+  $("pracTitle").innerHTML=secById(id).title+' <span class="badge" style="vertical-align:middle">'+(lv===2?"🔥 Nivel 2":"🌱 Nivel 1")+'</span>';
   show("s-practice");
   nextExercise();
 }
@@ -871,14 +935,14 @@ function lessonTip(id){
   return m[id]||"";
 }
 function nextExercise(){
-  var sec=S.lesson.sec,e;
-  if(sec==="suma")e=genSuma();
-  else if(sec==="resta")e=genResta();
-  else if(sec==="paren")e=genParen();
-  else if(sec==="multi")e=genMulti();
-  else if(sec==="azar")e=genAzar();
-  else if(sec==="fichas"){var f=genFichas();e={mode:"fichas",a:f.a,b:f.b};}
-  else {var m=genMaquina();e={mode:"maquina",a:m.a,b:m.b};}
+  var sec=S.lesson.sec,lv=S.lesson.level,e;
+  if(sec==="suma")e=genSuma(lv);
+  else if(sec==="resta")e=genResta(lv);
+  else if(sec==="paren")e=genParen(lv);
+  else if(sec==="multi")e=genMulti(lv);
+  else if(sec==="azar")e=genAzar(lv);
+  else if(sec==="fichas"){var f=genFichas(lv);e={mode:"fichas",a:f.a,b:f.b};}
+  else {var m=genMaquina(lv);e={mode:"maquina",a:m.a,b:m.b};}
   e.att=0;e.sign=null;S.q=e;
   renderExercise();refreshSide();
 }
@@ -1087,8 +1151,13 @@ function finishLesson(){
   $("dTime").textContent=clock(Date.now()-L.t0);
   $("dPct").textContent=pct+"%";
   $("dOk").textContent=L.correct;$("dBad").textContent=L.wrong;
-  $("doneSub").textContent=secById(L.sec).title;
+  $("doneSub").innerHTML=secById(L.sec).title+' · '+(L.level===2?"🔥 Nivel 2":"🌱 Nivel 1");
   $("doneMsg").textContent=pick(FINALES);
+  var up=$("doneUp");
+  if(L.level===1&&pct>=70){
+    up.style.display="flex";
+    up.textContent="🔥 Repetir en Nivel 2 · Avanzado";
+  }else up.style.display="none";
   confetti();$("ovDone").classList.add("show");
 }
 function confetti(){
@@ -1102,6 +1171,11 @@ function confetti(){
     b.appendChild(d);
   }
 }
+$("doneUp").addEventListener("click",function(){
+  $("ovDone").classList.remove("show");
+  var id=S.lesson.sec;S.levels[id]=2;S.level=2;S.section=secById(id);
+  startLesson(id);
+});
 $("doneHome").addEventListener("click",function(){$("ovDone").classList.remove("show");buildMenu();show("s-menu");});
 $("doneNext").addEventListener("click",function(){
   $("ovDone").classList.remove("show");
@@ -1114,9 +1188,15 @@ $("doneNext").addEventListener("click",function(){
    ASCENSOR
 ========================================================= */
 var TOP=6,BOT=-6,tower={floor:0,task:null};
-function startTower(){tower.floor=0;show("s-tower");renderTower();nextFloorTask();}
+function startTower(){
+  var lv=S.lesson.level;
+  TOP=(lv===2)?9:6;BOT=-TOP;
+  tower.floor=0;
+  $("towLvl").innerHTML=(lv===2?"🔥 Nivel 2 · edificio de −9 a 9":"🌱 Nivel 1 · edificio de −6 a 6");
+  show("s-tower");renderTower();nextFloorTask();
+}
 function towerHTML(){
-  var h='<div class="tower"><div class="tower-track" id="towTrack">';
+  var h='<div class="tower" style="--rowh:'+(TOP>6?"26px":"32px")+'"><div class="tower-track" id="towTrack">';
   for(var f=TOP;f>=BOT;f--){
     var c=f>0?"p":(f<0?"n":"");
     h+='<div class="floor '+(f===0?"zero":"")+'"><div class="floor-num '+c+'">'+(f>0?"+"+f:fmt(f))+'</div><div class="floor-bar"></div></div>';
@@ -1139,9 +1219,11 @@ function placeHero(anim){
   if(anim){h.classList.remove("jump");void h.offsetWidth;h.classList.add("jump");}
 }
 function nextFloorTask(){
-  var f=tower.floor,opts=[];
-  for(var d=-9;d<=9;d++){if(d!==0&&f+d>=BOT&&f+d<=TOP)opts.push({t:"add",d:d});}
-  if(f!==0&&Math.abs(f)<=3){[-3,-2,2,3].forEach(function(k){var r=f*k;if(r>=BOT&&r<=TOP)opts.push({t:"mul",k:k});});}
+  var f=tower.floor,opts=[],lim=TOP>6?14:9,minJump=TOP>6?3:1;
+  for(var d=-lim;d<=lim;d++){if(Math.abs(d)>=minJump&&f+d>=BOT&&f+d<=TOP)opts.push({t:"add",d:d});}
+  var ks=TOP>6?[-4,-3,-2,2,3,4]:[-3,-2,2,3];
+  if(f!==0)ks.forEach(function(k){var r=f*k;if(r>=BOT&&r<=TOP)opts.push({t:"mul",k:k});});
+  if(!opts.length)for(var e=-lim;e<=lim;e++){if(e!==0&&f+e>=BOT&&f+e<=TOP)opts.push({t:"add",d:e});}
   var o=pick(opts);
   tower.task=o.t==="add"?{type:"add",d:o.d,res:f+o.d}:{type:"mul",k:o.k,res:f*o.k};
   S.q={mode:"floor",att:0};
