@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B2559">
+<title>¿Qué tan probable? · Aprende probabilidad jugando</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1B2559; --ink2:#4A5585; --bg:#EEF3FF; --card:#FFFFFF; --line:#DCE4FA;
+  --pri:#0FA3B1; --pri-d:#0B7F8A; --sun:#FFC83D; --sun-d:#E0A614;
+  --vio:#6D5DF6; --vio-d:#5244D6;
+  --ok:#17B179; --ok-d:#10885C; --okbg:#E4FAF1;
+  --bad:#F0525F; --bad-d:#C93846; --badbg:#FFEDEF;
+  --r-lg:28px; --r-md:20px; --r-sm:14px;
+  --shadow:0 10px 30px rgba(27,37,89,.10);
+  --head:"Baloo 2", "Nunito", system-ui, sans-serif;
+  --body:"Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;-webkit-tap-highlight-color:transparent;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(circle at 12% 18%, rgba(109,93,246,.10) 0 90px, transparent 91px),
+  radial-gradient(circle at 88% 70%, rgba(15,163,177,.10) 0 120px, transparent 121px),
+  radial-gradient(circle at 70% 8%, rgba(255,200,61,.16) 0 60px, transparent 61px)}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:4px solid var(--sun);outline-offset:3px}
+.hidden{display:none!important}
+
+/* ---------- Barra superior ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--ink);color:#fff;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;box-shadow:0 6px 20px rgba(27,37,89,.25)}
+.tb-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-who{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-family:var(--head);font-weight:800;font-size:22px;flex:none}
+.tb-name{font-weight:900;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-grade{font-size:14px;opacity:.8;font-weight:700}
+.tb-stats{display:flex;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.12);font-weight:900;font-size:16px;font-variant-numeric:tabular-nums}
+.chip.okc{background:rgba(23,177,121,.25);color:#9CF5CF}
+.chip.badc{background:rgba(240,82,95,.25);color:#FFB8BF}
+.chip.bump{animation:bump .5s ease}
+.home-btn{width:48px;height:48px;border-radius:16px;border:0;background:#fff;color:var(--ink);font-size:24px;display:grid;place-items:center;box-shadow:0 4px 0 #B9C4EA;flex:none}
+.home-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #B9C4EA}
+@media (max-width:620px){
+  .tb-stats{order:3;width:100%;justify-content:space-between}
+  .chip{flex:1;justify-content:center}
+}
+
+/* ---------- Contenedor ---------- */
+#app{max-width:1080px;margin:0 auto;padding:18px 16px 40px}
+body.has-bar #app{padding-top:96px}
+@media (max-width:620px){body.has-bar #app{padding-top:140px}}
+.screen{animation:enter .35s ease both}
+
+/* ---------- Botones ---------- */
+.btn{border:0;border-radius:var(--r-md);min-height:60px;padding:14px 22px;font-size:19px;font-weight:900;color:#fff;background:var(--pri);box-shadow:0 5px 0 var(--pri-d);transition:transform .08s, box-shadow .08s, filter .15s;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--pri-d)}
+.btn.vio{background:var(--vio);box-shadow:0 5px 0 var(--vio-d)}
+.btn.vio:active{box-shadow:0 1px 0 var(--vio-d)}
+.btn.okb{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
+.btn.okb:active{box-shadow:0 1px 0 var(--ok-d)}
+.btn.badb{background:var(--bad);box-shadow:0 5px 0 var(--bad-d)}
+.btn.badb:active{box-shadow:0 1px 0 var(--bad-d)}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--line);border:2px solid var(--line)}
+.btn.ghost:active{box-shadow:0 1px 0 var(--line)}
+.btn.block{width:100%}
+
+/* ---------- Bienvenida ---------- */
+.welcome{max-width:520px;margin:0 auto;text-align:center;padding-top:10px}
+.mascot{width:150px;height:150px;margin:0 auto 8px;animation:float 3.5s ease-in-out infinite}
+.welcome h1{font-size:44px;font-weight:800;letter-spacing:-.5px}
+.welcome .lead{color:var(--ink2);font-size:19px;margin:6px 0 22px}
+.panel{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;text-align:left}
+.lbl{display:block;font-weight:900;margin:0 0 8px;font-size:17px}
+.txt{width:100%;min-height:62px;border-radius:var(--r-md);border:3px solid var(--line);padding:12px 18px;font-size:21px;font-family:inherit;font-weight:800;color:var(--ink);background:#F8FAFF}
+.txt:focus{border-color:var(--pri);outline:none;background:#fff}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.gbtn{min-height:58px;border-radius:var(--r-md);border:3px solid var(--line);background:#F8FAFF;font-size:22px;font-weight:900;color:var(--ink);font-family:var(--head)}
+.gbtn.sel{border-color:var(--vio);background:#EFEDFF;color:var(--vio-d);transform:scale(1.03)}
+.err-msg{color:var(--bad-d);font-weight:800;font-size:15px;min-height:22px;margin:6px 0 10px}
+
+/* ---------- Menú ---------- */
+.hello{display:flex;align-items:center;gap:16px;margin:6px 0 20px}
+.hello h2{font-size:32px;font-weight:800}
+.hello p{margin:2px 0 0;color:var(--ink2)}
+.stats-card{background:var(--ink);color:#fff;border-radius:var(--r-lg);padding:20px;margin-bottom:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;box-shadow:var(--shadow)}
+.stat{text-align:center}
+.stat b{display:block;font-family:var(--head);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;opacity:.8;font-weight:700}
+@media (max-width:520px){.stats-card{grid-template-columns:repeat(2,1fr)}}
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.lcard{position:relative;border:0;text-align:left;background:var(--card);border-radius:var(--r-lg);padding:18px 18px 16px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;color:var(--ink);transition:transform .15s}
+.lcard:hover{transform:translateY(-3px)}
+.lcard:active{transform:scale(.98)}
+.licon{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;font-size:34px;flex:none}
+.lcard h3{font-size:22px;margin:2px 0 4px}
+.lcard p{margin:0 0 10px;color:var(--ink2);font-size:16px;line-height:1.35}
+.lnum{font-weight:900;font-size:14px;color:var(--ink2)}
+.mini{height:12px;background:#EEF1FA;border-radius:99px;overflow:hidden}
+.mini i{display:block;height:100%;border-radius:99px;transition:width .5s}
+.lmeta{display:flex;justify-content:space-between;font-size:14px;font-weight:800;color:var(--ink2);margin-top:6px}
+.done-badge{position:absolute;top:12px;right:14px;background:var(--okbg);color:var(--ok-d);font-weight:900;font-size:13px;padding:4px 10px;border-radius:99px}
+
+/* ---------- Lección ---------- */
+.lhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.lhead .licon{width:54px;height:54px;font-size:28px;border-radius:18px}
+.lhead h2{font-size:26px}
+.lhead small{font-weight:800;color:var(--ink2);font-size:15px}
+.lhead .btn{margin-left:auto;min-height:48px;padding:8px 14px;font-size:16px}
+
+/* Camino de progreso */
+.track{background:var(--card);border-radius:var(--r-lg);padding:16px 18px 14px;box-shadow:var(--shadow);margin-bottom:16px}
+.track-top{display:flex;justify-content:space-between;align-items:baseline;font-weight:900;margin-bottom:10px;gap:10px}
+.track-top div{white-space:nowrap}
+.track-top span{color:var(--ink2);font-size:15px;font-weight:800;text-align:right}
+.path{display:flex;align-items:center}
+.seg{flex:1;height:6px;background:#E3E8F7;border-radius:4px;position:relative;overflow:hidden;min-width:4px}
+.seg i{position:absolute;inset:0;background:var(--pri);transform:scaleX(0);transform-origin:left;transition:transform .45s ease}
+.seg.on i{transform:scaleX(1)}
+.node{width:18px;height:18px;border-radius:50%;background:#E3E8F7;flex:none;transition:background .3s}
+.node.on{background:var(--pri)}
+.node.mile{width:40px;height:40px;display:grid;place-items:center;font-size:20px;background:#F1F3FB;border:3px dashed #C7CFEA}
+.node.mile.on{background:var(--sun);border:3px solid var(--sun-d)}
+.node.pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
+
+/* Tarjeta de ejercicio */
+.ex{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px;animation:enter .35s ease both}
+.ex-grid{display:grid;gap:20px}
+@media (min-width:860px){.ex-grid.has-vis{grid-template-columns:minmax(300px,420px) 1fr;align-items:center}}
+.ex-visual{background:#F5F8FF;border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:120px;overflow-x:auto}
+.tag{display:inline-block;background:#EFEDFF;color:var(--vio-d);font-weight:900;font-size:14px;padding:5px 12px;border-radius:99px;margin-bottom:10px}
+.prompt{font-size:21px;font-weight:700;line-height:1.45;margin-bottom:18px}
+.prompt b{font-weight:900}
+.answers{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:6px;font-weight:900;font-size:16px;color:var(--ink2)}
+.boxwrap{display:flex;align-items:center;gap:8px;font-family:var(--head);font-size:30px;font-weight:800;color:var(--ink)}
+.box{width:110px;height:76px;border-radius:var(--r-md);border:3px solid var(--line);background:#F8FAFF;text-align:center;font-size:32px;font-weight:900;color:var(--ink);font-family:var(--body);transition:border-color .15s, box-shadow .15s;-moz-appearance:textfield}
+.box.wide{width:150px}
+.box:focus{outline:none;border-color:var(--pri);background:#fff;box-shadow:0 0 0 5px rgba(15,163,177,.18)}
+.box.err{border-color:var(--bad);background:var(--badbg);animation:shake .45s}
+.fraction{display:flex;align-items:center;gap:14px}
+.fraction .p{font-family:var(--head);font-size:30px;font-weight:800}
+.fstack{display:flex;flex-direction:column;align-items:center;gap:8px}
+.fstack .bar{width:124px;height:6px;border-radius:4px;background:var(--ink)}
+.fstack small{font-size:13px;font-weight:800;color:var(--ink2)}
+.opts{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:520px){.opts.two{grid-template-columns:1fr 1fr}}
+.opt{min-height:60px;border-radius:var(--r-md);border:3px solid var(--line);background:#fff;font-size:19px;font-weight:800;color:var(--ink);text-align:left;padding:10px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 0 var(--line);transition:transform .08s}
+.opt .e{font-size:24px;width:32px;text-align:center}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.opt.sel{border-color:var(--vio);background:#EFEDFF;box-shadow:0 4px 0 #BDB5FB}
+.opt.err{border-color:var(--bad);background:var(--badbg);animation:shake .45s;box-shadow:0 4px 0 #F6B9BF}
+.actions{display:flex;gap:12px;margin-top:22px}
+.actions .btn.ghost{flex:1}
+.actions .btn.okb{flex:2}
+
+/* Visuales */
+.svg-bag{width:180px;height:auto}
+.svg-die{width:52px;height:52px}
+.dice-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.svg-spin{width:210px;height:auto}
+.spin{animation:spinIn 1.2s cubic-bezier(.2,.8,.2,1) both;transform-origin:110px 118px}
+.svg-scale{width:100%;max-width:420px;height:auto}
+.ball{animation:drop .45s cubic-bezier(.3,1.4,.5,1) both;transform-box:fill-box;transform-origin:center}
+.tiles{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:380px}
+.tile{min-width:42px;height:48px;padding:0 6px;border-radius:12px;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--head);font-size:22px;font-weight:800;box-shadow:0 3px 0 var(--line)}
+.caption{font-size:15px;font-weight:800;color:var(--ink2);text-align:center}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;font-size:15px;font-weight:800}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.grid100{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;width:100%;max-width:260px}
+.grid100 span{aspect-ratio:1;border-radius:4px;background:#E3E8F7}
+.grid100 span.on{background:var(--vio);animation:fillc .3s both}
+.pbar{display:flex;width:100%;max-width:400px;height:64px;border-radius:16px;overflow:hidden;border:3px solid var(--ink)}
+.pbar div{display:grid;place-items:center;color:#fff;font-weight:900;font-size:16px;text-align:center;line-height:1.1;padding:2px;min-width:0;overflow:hidden}
+.pbar .q{background:repeating-linear-gradient(45deg,#fff 0 10px,#EEF1FA 10px 20px);color:var(--ink);font-size:26px;font-family:var(--head)}
+.dtab{border-collapse:separate;border-spacing:3px;font-weight:900;font-size:15px}
+.dtab th{background:var(--ink);color:#fff;border-radius:8px;width:34px;height:30px}
+.dtab td{background:#fff;border:2px solid var(--line);border-radius:8px;text-align:center;width:34px;height:30px}
+.people{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;font-size:21px;max-width:360px;line-height:1.1}
+.big-frac{font-family:var(--head);font-size:40px;font-weight:800}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 3px;font-weight:900}
+.frac span:first-child{border-bottom:3px solid currentColor;padding:0 4px}
+.frac span:last-child{padding:0 4px}
+.segbar{display:flex;gap:3px;width:100%;max-width:360px}
+.segbar span{flex:1;height:34px;border-radius:6px;background:#E3E8F7}
+.segbar span.on{background:var(--pri)}
+.two-bags{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.two-bags figure{margin:0;text-align:center}
+.two-bags .svg-bag{width:150px}
+.two-bags figcaption{font-family:var(--head);font-size:22px;font-weight:800}
+.suits{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:340px}
+.suit{background:#fff;border-radius:14px;border:2px solid var(--line);text-align:center;padding:8px 4px;font-weight:900;font-size:14px}
+.suit b{display:block;font-size:30px;line-height:1.1}
+.bigemoji{font-size:84px;line-height:1;animation:float 3s ease-in-out infinite}
+
+/* Intro de la lección */
+.intro{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;max-width:760px;margin:0 auto}
+.intro h2{font-size:30px;margin-bottom:6px}
+.intro .goal{display:inline-block;background:#FFF5D6;color:#8A6200;font-weight:900;border-radius:99px;padding:6px 14px;font-size:15px;margin-bottom:14px}
+.intro p{margin:0 0 12px}
+.idea{background:#F5F8FF;border-radius:var(--r-md);padding:16px;margin:14px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.formula{font-family:var(--head);font-size:26px;font-weight:800;text-align:center}
+.catchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.catchips span{background:#fff;border:2px solid var(--line);border-radius:99px;padding:6px 12px;font-weight:800;font-size:15px}
+
+/* ---------- Modales ---------- */
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(27,37,89,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s;padding:0}
+.overlay.show{opacity:1}
+.sheet{background:#fff;width:100%;max-width:560px;border-radius:30px 30px 0 0;padding:26px 22px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(40px);transition:transform .28s cubic-bezier(.2,.9,.3,1.2);max-height:92vh;overflow-y:auto;text-align:center}
+.overlay.show .sheet{transform:none}
+@media (min-width:700px){.overlay{align-items:center;padding:20px}.sheet{border-radius:30px}}
+.fb-icon{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:44px;font-weight:900;color:#fff}
+.sheet.ok{border-top:8px solid var(--ok)}
+.sheet.bad{border-top:8px solid var(--bad)}
+.ok .fb-icon{background:var(--ok);animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
+.bad .fb-icon{background:var(--bad);animation:shake .5s}
+.sheet h3{font-size:32px;font-weight:800}
+.ok h3{color:var(--ok-d)} .bad h3{color:var(--bad-d)}
+.sub{color:var(--ink2);font-weight:700;margin:4px 0 14px}
+.explain{background:var(--okbg);border-radius:var(--r-md);padding:14px 16px;text-align:left;margin-bottom:16px;font-size:17px}
+.fb-row{background:#F7F8FC;border-radius:var(--r-md);padding:12px 16px;text-align:left;margin-bottom:10px;font-size:17px}
+.fb-row b{display:block;margin-bottom:2px}
+.fb-row p{margin:0}
+.fb-row.hint{background:#FFF5D6}
+.milestone{background:linear-gradient(135deg,#FFF3C4,#FFE08A);border-radius:var(--r-md);padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;text-align:left;font-weight:800}
+.milestone .m{font-size:44px;animation:pop .8s cubic-bezier(.3,1.6,.5,1) .15s both}
+.sheet .btn{margin-top:6px}
+.done-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.done-grid div{background:#F5F8FF;border-radius:16px;padding:10px 6px}
+.done-grid b{display:block;font-family:var(--head);font-size:26px;line-height:1.1}
+.done-grid span{font-size:14px;font-weight:800;color:var(--ink2)}
+.trophy{font-size:80px;line-height:1;animation:pop .9s cubic-bezier(.3,1.6,.5,1)}
+.btn-col{display:flex;flex-direction:column;gap:12px}
+
+/* Toast y confeti */
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--ink);color:#fff;font-weight:900;padding:14px 22px;border-radius:99px;opacity:0;transition:.3s;z-index:200;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.confetti{position:fixed;top:-20px;width:12px;height:16px;z-index:150;pointer-events:none;border-radius:3px;animation:fall linear forwards}
+
+@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.3)}100%{transform:scale(1)}}
+@keyframes bump{0%,100%{transform:scale(1)}40%{transform:scale(1.25)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes spinIn{from{transform:rotate(-300deg)}to{transform:rotate(0)}}
+@keyframes fillc{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<header id="topbar" class="hidden" aria-label="Datos del estudiante">
+  <div class="tb-in">
+    <div class="tb-who">
+      <div class="avatar" id="tbAv">?</div>
+      <div style="min-width:0">
+        <div class="tb-name" id="tbName"></div>
+        <div class="tb-grade" id="tbGrade"></div>
+      </div>
+    </div>
+    <div class="tb-stats">
+      <span class="chip" title="Tiempo transcurrido">⏱ <span id="tbTime">00:00</span></span>
+      <span class="chip okc" id="tbOkC" title="Aciertos">✔ <span id="tbOk">0</span></span>
+      <span class="chip badc" id="tbBadC" title="Errores">✖ <span id="tbBad">0</span></span>
+    </div>
+    <button class="home-btn" id="homeBtn" aria-label="Ir al menú principal" title="Inicio">🏠</button>
+  </div>
+</header>
+
+<main id="app"></main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   Utilidades
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const R = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; };
+const gcd = (a,b) => b ? gcd(b, a%b) : Math.abs(a);
+const near = (a,b,t=1e-6) => Math.abs(a-b) < t;
+const fmt = (x,d=4) => String(+(+x).toFixed(d)).replace('.', ',');
+const frac = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const decStr = x => near(x, +x.toFixed(4)) ? '= ' + fmt(x) : '≈ ' + fmt(x,3);
+function num(s){
+  if (s==null) return NaN;
+  s = String(s).trim().replace(/\s/g,'').replace('%','').replace('−','-');
+  if (!s) return NaN;
+  if (s.includes('/')) { const [a,b] = s.split('/').map(x => Number(x.replace(',','.'))); return b ? a/b : NaN; }
+  s = s.replace(',', '.');
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
+  return Number(s);
+}
+function mmss(ms){
+  const t = Math.floor(ms/1000), h = Math.floor(t/3600), m = Math.floor((t%3600)/60), s = t%60;
+  const p = n => String(n).padStart(2,'0');
+  return h ? `${h}:${p(m)}:${p(s)}` : `${p(m)}:${p(s)}`;
+}
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2300);
+}
+
+/* =========================================================
+   Visuales (SVG / HTML)
+   ========================================================= */
+const COL = [
+  {f:'roja', m:'rojo', fp:'rojas', hex:'#F0525F', ab:'R'},
+  {f:'azul', m:'azul', fp:'azules', hex:'#3D8BFF', ab:'Az'},
+  {f:'verde', m:'verde', fp:'verdes', hex:'#17B179', ab:'V'},
+  {f:'amarilla', m:'amarillo', fp:'amarillas', hex:'#FFC83D', ab:'Am'},
+  {f:'morada', m:'morado', fp:'moradas', hex:'#8B5CF6', ab:'M'},
+  {f:'naranja', m:'naranja', fp:'naranjas', hex:'#FF8C42', ab:'N'}
+];
+const ballTxt = (n,c) => n===1 ? `1 bola ${c.f}` : `${n} bolas ${c.fp}`;
+
+function bagSVG(balls){
+  const n = balls.length, cols = n<=4 ? n : (n<=9 ? 3 : 4), s = 34;
+  let c = '';
+  balls.forEach((h,i) => {
+    const row = Math.floor(i/cols), col = i%cols, inRow = Math.min(cols, n-row*cols);
+    const x = 100 - (inRow*s)/2 + s/2 + col*s, y = 186 - row*s;
+    c += `<g class="ball" style="animation-delay:${i*40}ms"><circle cx="${x}" cy="${y}" r="15" fill="${h}" stroke="rgba(0,0,0,.18)" stroke-width="2"/><circle cx="${x-5}" cy="${y-5}" r="4.5" fill="#fff" opacity=".6"/></g>`;
+  });
+  return `<svg class="svg-bag" viewBox="0 0 200 215" role="img" aria-label="Bolsa con ${n} bolas">
+    <rect x="58" y="12" width="84" height="24" rx="9" fill="#C9C2F7"/>
+    <rect x="18" y="32" width="164" height="176" rx="34" fill="#F7F5FF" stroke="#B7AEEF" stroke-width="4"/>
+    <path d="M40 66 Q 42 48 62 44" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/>${c}</svg>`;
+}
+function legendFor(groups){ // [{c,n,name?}]
+  return `<div class="legend">${groups.filter(g=>g.n>0).map(g=>`<span><i style="background:${g.c.hex}"></i>${g.name||g.c.fp}: ${g.n}</span>`).join('')}</div>`;
+}
+function dieSVG(v){
+  const P = {1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+  const dots = P[v].map(i => `<circle cx="${16+(i%3)*14}" cy="${16+Math.floor(i/3)*14}" r="5" fill="#1B2559"/>`).join('');
+  return `<svg class="svg-die" viewBox="0 0 60 60" role="img" aria-label="Cara ${v}"><rect x="3" y="3" width="54" height="54" rx="13" fill="#fff" stroke="#1B2559" stroke-width="3"/>${dots}</svg>`;
+}
+const diceRow = () => `<div class="dice-row">${[1,2,3,4,5,6].map(dieSVG).join('')}</div><div class="caption">Caras de un dado</div>`;
+function spinnerSVG(cols){
+  const n = cols.length, cx = 110, cy = 118, r = 92; let p = '';
+  cols.forEach((c,i) => {
+    const a0 = i/n*2*Math.PI - Math.PI/2, a1 = (i+1)/n*2*Math.PI - Math.PI/2, am = (a0+a1)/2;
+    const x0 = cx+r*Math.cos(a0), y0 = cy+r*Math.sin(a0), x1 = cx+r*Math.cos(a1), y1 = cy+r*Math.sin(a1);
+    p += `<path d="M${cx} ${cy} L${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)} Z" fill="${c.hex}" stroke="#fff" stroke-width="3"/>`;
+    p += `<text x="${(cx+r*.64*Math.cos(am)).toFixed(1)}" y="${(cy+r*.64*Math.sin(am)+6).toFixed(1)}" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="900" font-size="17" fill="#fff" stroke="rgba(0,0,0,.25)" stroke-width=".6">${c.ab}</text>`;
+  });
+  return `<svg class="svg-spin" viewBox="0 0 220 220" role="img" aria-label="Ruleta de ${n} partes iguales"><g class="spin">${p}<circle cx="${cx}" cy="${cy}" r="13" fill="#fff" stroke="#1B2559" stroke-width="4"/></g><path d="M96 4 L124 4 L110 32 Z" fill="#1B2559"/></svg>`;
+}
+function scaleSVG(p){
+  const X = v => 40 + 320*v;
+  let mk = '';
+  if (p != null) {
+    const x = X(p), t = fmt(p);
+    mk = `<rect x="${x-26}" y="4" width="52" height="28" rx="10" fill="#1B2559"/><text x="${x}" y="24" text-anchor="middle" fill="#fff" font-family="Nunito,sans-serif" font-weight="900" font-size="16">${t}</text><path d="M${x-7} 32 L${x+7} 32 L${x} 42 Z" fill="#1B2559"/><circle cx="${x}" cy="58" r="11" fill="#fff" stroke="#1B2559" stroke-width="4"/>`;
+  }
+  const lab = (v,t,y,s,w) => `<text x="${X(v)}" y="${y}" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="${w||800}" font-size="${s}" fill="#1B2559">${t}</text>`;
+  return `<svg class="svg-scale" viewBox="0 0 400 120" role="img" aria-label="Escala de probabilidad de 0 a 1">
+    <defs><linearGradient id="gsc" x1="0" x2="1"><stop offset="0" stop-color="#F0525F"/><stop offset=".5" stop-color="#FFC83D"/><stop offset="1" stop-color="#17B179"/></linearGradient></defs>
+    <rect x="40" y="50" width="320" height="16" rx="8" fill="url(#gsc)"/>
+    ${[0,.25,.5,.75,1].map(v=>`<rect x="${X(v)-1.5}" y="46" width="3" height="24" rx="1.5" fill="#1B2559"/>`).join('')}
+    ${lab(0,'0',90,15,900)}${lab(.5,'0,5',90,15,900)}${lab(1,'1',90,15,900)}
+    ${lab(0,'Imposible',110,11)}${lab(.25,'Poco probable',110,11)}${lab(.5,'Igual',110,11)}${lab(.75,'Muy probable',110,11)}${lab(1,'Seguro',110,11)}
+    ${mk}</svg>`;
+}
+function grid100(k){
+  let s = '';
+  for (let i=0;i<100;i++) s += `<span class="${i<k?'on':''}" style="${i<k?`animation-delay:${i*10}ms`:''}"></span>`;
+  return `<div class="grid100" role="img" aria-label="${k} de 100 casillas coloreadas">${s}</div>`;
+}
+function pbar(parts){ // [{w, txt, color, q}]
+  return `<div class="pbar">${parts.map(p => p.q ? `<div class="q" style="flex:${p.w}">?</div>` : `<div style="flex:${p.w};background:${p.color}">${p.txt}</div>`).join('')}</div>`;
+}
+const tiles = arr => `<div class="tiles">${arr.map(t=>`<div class="tile">${t}</div>`).join('')}</div>`;
+function segbar(n,d){ let s=''; for(let i=0;i<d;i++) s+=`<span class="${i<n?'on':''}"></span>`; return `<div class="segbar">${s}</div>`; }
+function diceTable(){
+  let h = '<table class="dtab"><tr><th>+</th>' + [1,2,3,4,5,6].map(d=>`<th>${d}</th>`).join('') + '</tr>';
+  for (let a=1;a<=6;a++){ h += `<tr><th>${a}</th>`; for (let b=1;b<=6;b++) h += `<td>${a+b}</td>`; h += '</tr>'; }
+  return h + '</table><div class="caption">Sumas posibles al lanzar dos dados</div>';
+}
+
+/* =========================================================
+   Categorías de probabilidad
+   ========================================================= */
+const CATS = [
+  {id:'imp', label:'Imposible', e:'🚫'},
+  {id:'poco', label:'Poco probable', e:'🌘'},
+  {id:'igual', label:'Igual de probable', e:'⚖️'},
+  {id:'muy', label:'Muy probable', e:'🌖'},
+  {id:'seg', label:'Seguro', e:'✅'}
+];
+const catLabel = id => CATS.find(c=>c.id===id).label;
+const catOf = p => near(p,0) ? 'imp' : near(p,1) ? 'seg' : near(p,.5) ? 'igual' : p < .5 ? 'poco' : 'muy';
+const CAT_EXPL = {
+  imp:'No puede ocurrir: su probabilidad es 0.',
+  poco:'Puede ocurrir, pero está más cerca de 0 que de 1: es poco probable.',
+  igual:'Está justo en la mitad (0,5): tiene la misma posibilidad de ocurrir que de no ocurrir.',
+  muy:'Está más cerca de 1 que de 0: es muy probable que ocurra.',
+  seg:'Ocurre siempre: su probabilidad es 1.'
+};
+
+/* =========================================================
+   Verificadores reutilizables
+   ========================================================= */
+function favPosCheck([a,b], F, T, info){
+  if (a===F && b===T) return {ok:true};
+  if (a===T && b===F) return {ok:false, bad:[0,1], where:'Parece que intercambiaste los valores.', review:'Los casos favorables son los que cumplen la condición; los casos posibles son todos los resultados.', hint:info.posHint};
+  const bad = []; if (a!==F) bad.push(0); if (b!==T) bad.push(1);
+  let where = bad.length===2 ? 'Los dos valores tienen algún error.' : bad[0]===0 ? 'El número de casos favorables no es correcto.' : 'El número de casos posibles no es correcto.';
+  if (a > b) where += ' Además, los favorables nunca pueden ser más que los posibles.';
+  return {ok:false, bad, where,
+    review: bad.includes(0) ? `Cuenta solo los resultados que cumplen: ${info.cond}.` : 'Cuenta todos los resultados que pueden salir, cumplan o no la condición.',
+    hint: bad.includes(0) ? info.favHint : info.posHint};
+}
+function fracCheck([n,d], F, T, info){
+  if (!(d>0)) return {ok:false, bad:[1], where:'El denominador no puede ser 0.', review:'El denominador son los casos posibles.', hint:info.posHint};
+  if (n>=0 && near(n*T, d*F)) return {ok:true};
+  if (n===T && d===F) return {ok:false, bad:[0,1], where:'La fracción está invertida.', review:'Arriba (numerador) van los casos favorables y abajo (denominador) los casos posibles.', hint:'Una probabilidad nunca es mayor que 1, así que el número de arriba debe ser menor o igual que el de abajo.'};
+  if (n===T-F && d===T) return {ok:false, bad:[0], where: info.compMsg || 'Calculaste la probabilidad de que NO ocurra el evento.', review:'Revisa qué evento te preguntan exactamente.', hint:info.favHint};
+  if (n > d) return {ok:false, bad:[0,1], where:'Tu fracción es mayor que 1, y una probabilidad nunca puede serlo.', review:'Verifica el numerador y el denominador.', hint:info.posHint};
+  if (d===T) return {ok:false, bad:[0], where:'El denominador está bien, pero el numerador no.', review:'Revisa el numerador: son los casos favorables.', hint:info.favHint};
+  if (n===F) return {ok:false, bad:[1], where:'El numerador está bien, pero el denominador no.', review:'Verifica el denominador: son todos los casos posibles.', hint:info.posHint};
+  return {ok:false, bad:[0,1], where:'El numerador y el denominador tienen errores.', review:'Primero cuenta los casos favorables y luego todos los casos posibles.', hint:info.favHint + ' ' + info.posHint};
+}
+const fracExplain = (F,T,extra='') => { const g = gcd(F,T); return `${extra}P = ${frac(F,T)}${g>1 ? ' = ' + frac(F/g,T/g) : ''} ${decStr(F/T)}`; };
+const FRAC_FIELDS = {layout:'fraction', fields:[{hint:'favorables'},{hint:'posibles'}]};
+
+/* =========================================================
+   LECCIÓN 1 · Concepto
+   ========================================================= */
+const EVENTS = [
+  ['☀️','Que mañana salga el sol','seg','Pasa todos los días, sin excepción.'],
+  ['🎲','Sacar un 7 al lanzar un dado normal de 6 caras','imp','El dado solo tiene los números del 1 al 6.'],
+  ['🪙','Que salga cara al lanzar una moneda','igual','Hay 2 resultados y cara es 1 de ellos: la mitad.'],
+  ['🎲','Sacar un número menor que 6 con un dado','muy','5 de los 6 resultados cumplen (1, 2, 3, 4 y 5).'],
+  ['🎟️','Ganar una rifa de 1000 boletas comprando solo 1','poco','Tienes 1 caso a favor entre 1000.'],
+  ['📅','Que después del lunes llegue el martes','seg','Siempre ocurre así.'],
+  ['🐘','Que un elefante entre volando al salón','imp','Los elefantes no vuelan.'],
+  ['🎲','Sacar un número par con un dado','igual','3 de 6 resultados son pares (2, 4, 6): la mitad.'],
+  ['🃏','Sacar un as de una baraja de 52 cartas','poco','Solo hay 4 ases entre 52 cartas.'],
+  ['🎲','Sacar un 6 al lanzar un dado','poco','Solo 1 de los 6 resultados es un 6.'],
+  ['🧦','Sacar una media de un cajón que solo tiene medias','seg','Todo lo que hay en el cajón son medias.'],
+  ['🎂','Que tu cumpleaños sea el 30 de febrero','imp','Febrero nunca tiene 30 días.'],
+  ['🔢','Al escoger un número del 1 al 10, que sea mayor que 1','muy','9 de los 10 números son mayores que 1.'],
+  ['🎡','En una ruleta mitad roja y mitad azul, que caiga en azul','igual','Azul ocupa exactamente la mitad de la ruleta.'],
+  ['🗓️','Que un mes tenga 32 días','imp','Ningún mes tiene más de 31 días.'],
+  ['🔢','Al escoger un número del 1 al 10, que sea menor que 11','seg','Todos los números del 1 al 10 son menores que 11.'],
+  ['🍬','Sacar un dulce de fresa de una bolsa con 9 de fresa y 1 de limón','muy','9 de los 10 dulces son de fresa.'],
+  ['⚽','Adivinar el marcador exacto de un partido','poco','Hay muchísimos marcadores posibles y solo uno es el correcto.']
+];
+function l1Event(){
+  const [e,t,cat,why] = pick(EVENTS);
+  return {tag:'🧭 ¿Qué tan probable es?', kind:'choice', options:CATS, answer:cat,
+    visual:`<div class="bigemoji">${e}</div>`,
+    prompt:`Evento: <b>“${t}”</b>.<br>¿Cómo lo clasificas en la escala de probabilidad?`,
+    explain:`${why} ${CAT_EXPL[cat]}`,
+    onWrong: sel => ({where:`Marcaste “${catLabel(sel)}”, pero este evento no se ubica en esa zona de la escala.`,
+      review:'Pregúntate primero: ¿puede pasar? ¿pasa siempre? Si puede pasar a veces, compara cuántos resultados están a favor frente al total.',
+      hint: cat==='imp'||cat==='seg' ? 'Piensa si existe alguna forma de que esto ocurra… o de que NO ocurra.' : 'Piensa si los resultados a favor son menos de la mitad, justo la mitad o más de la mitad del total.'})};
+}
+function l1Bag(){
+  const cat = pick(['imp','poco','igual','muy','seg','poco','muy']);
+  let n = R(6,12); if (cat==='igual' && n%2) n++;
+  const [t,o1,o2] = shuffle(COL);
+  const r = cat==='imp' ? 0 : cat==='seg' ? n : cat==='igual' ? n/2 : cat==='poco' ? R(1, Math.floor((n-1)/2)) : R(Math.floor(n/2)+1, n-1);
+  const rest = n-r, a = rest>1 ? R(1,rest) : rest;
+  const balls = shuffle([...Array(r).fill(t.hex), ...Array(a).fill(o1.hex), ...Array(rest-a).fill(o2.hex)]);
+  return {tag:'🎒 La bolsa misteriosa', kind:'choice', options:CATS, answer:cat,
+    visual: bagSVG(balls) + legendFor([{c:t,n:r},{c:o1,n:a},{c:o2,n:rest-a}]),
+    prompt:`Sin mirar, sacas una bola de la bolsa.<br>¿Qué tan probable es que sea <b style="color:${t.hex === '#FFC83D' ? '#B08000' : t.hex}">${t.f}</b>?`,
+    explain:`Hay <b>${r}</b> de <b>${n}</b> bolas que son ${t.fp}. ${CAT_EXPL[cat]}`,
+    onWrong: sel => ({where:`Marcaste “${catLabel(sel)}”, pero eso no coincide con lo que hay en la bolsa.`,
+      review:`Cuenta cuántas bolas ${t.fp} hay y compáralas con el total de bolas.`,
+      hint:`En la bolsa hay ${n} bolas; la mitad sería ${fmt(n/2)}. ¿Hay ninguna, menos de la mitad, justo la mitad, más de la mitad o todas ${t.fp}?`})};
+}
+function l1Scale(){
+  const v = R(1,3);
+  if (v===1){
+    const want = pick(['imp','igual','seg']), ans = {imp:'0', igual:'0,5', seg:'1'}[want];
+    const opts = shuffle(['0','0,5','1','2','−1']).map(x=>({id:x,label:x,e:'🔢'}));
+    return {tag:'📏 La escala', kind:'choice', options:opts, two:true, answer:ans, visual:scaleSVG(null),
+      prompt:`¿Qué número representa un evento <b>${catLabel(want).toLowerCase()}</b>?`,
+      explain:`En la escala, un evento ${catLabel(want).toLowerCase()} corresponde a <b>${ans}</b>. ${CAT_EXPL[want]}`,
+      onWrong: sel => ({where:`El valor ${sel} no representa un evento ${catLabel(want).toLowerCase()}.`,
+        review:'Toda probabilidad está entre 0 y 1. Observa los extremos y el centro de la escala.',
+        hint:'0 es el extremo de “nunca pasa”, 1 es el extremo de “siempre pasa” y 0,5 está justo en el medio.'})};
+  }
+  if (v===2){
+    const valid = shuffle(['0','0,25','1','0,8','1/2','0,05','3/4','0,99']).slice(0,3);
+    const bad = pick(['1,5','−0,4','2','5/4','150','−1']);
+    const opts = shuffle([...valid, bad]).map(x=>({id:x,label:x,e:'❓'}));
+    return {tag:'📏 La escala', kind:'choice', options:opts, two:true, answer:bad, visual:scaleSVG(null),
+      prompt:'¿Cuál de estos números <b>NO</b> puede ser una probabilidad?',
+      explain:`${bad} está fuera de la escala de 0 a 1. Una probabilidad nunca es negativa ni mayor que 1.`,
+      onWrong: sel => ({where:`${sel} sí puede ser una probabilidad: está entre 0 y 1.`,
+        review:'Busca el número que se sale de la escala.',
+        hint:'Revisa si hay un número negativo o uno mayor que 1 (una fracción donde el numerador es mayor que el denominador también es mayor que 1).'})};
+  }
+  const p = pick([0,.1,.2,.15,.5,.8,.9,.85,1,.05,.95]), cat = catOf(p);
+  return {tag:'📏 La escala', kind:'choice', options:CATS, answer:cat, visual:scaleSVG(p),
+    prompt:`La flecha marca la probabilidad de un evento: <b>${fmt(p)}</b>.<br>¿Cómo describirías ese evento?`,
+    explain:`${fmt(p)} → ${catLabel(cat)}. ${CAT_EXPL[cat]}`,
+    onWrong: sel => ({where:`${fmt(p)} no está en la zona de “${catLabel(sel)}”.`,
+      review:'Observa dónde está la flecha: ¿en un extremo, cerca de 0, en el centro o cerca de 1?',
+      hint:'Solo el 0 es imposible y solo el 1 es seguro. Entre 0 y 0,5 es poco probable; entre 0,5 y 1, muy probable.'})};
+}
+
+/* =========================================================
+   LECCIÓN 2 · Regla de Laplace (casos)
+   ========================================================= */
+const FP_FIELDS = {layout:'row', fields:[{label:'⭐ Casos favorables'},{label:'🎯 Casos posibles'}]};
+function l2Die(){
+  const EV = [['un número par',[2,4,6]],['un número mayor que 4',[5,6]],['un múltiplo de 3',[3,6]],['un número menor que 3',[1,2]],['un número primo',[2,3,5]],['un número mayor que 2',[3,4,5,6]],['un 5',[5]],['un número impar',[1,3,5]],['un divisor de 6',[1,2,3,6]]];
+  const [t,f] = pick(EV);
+  return {tag:'🎲 Casos con dado', kind:'input', ...FP_FIELDS, visual:diceRow(),
+    prompt:`Lanzas un dado.<br>Evento: <b>“sacar ${t}”</b>.<br>¿Cuántos casos favorables y cuántos casos posibles hay?`,
+    check: v => favPosCheck(v, f.length, 6, {cond:`sacar ${t}`, favHint:'Escribe los números del 1 al 6 que cumplen la condición y cuéntalos.', posHint:'¿Cuántas caras tiene un dado?'}),
+    explain:`Favorables: ${f.join(', ')} → <b>${f.length}</b>. Posibles: 1, 2, 3, 4, 5, 6 → <b>6</b>. Así, ${fracExplain(f.length,6)}.`};
+}
+function l2Bag(){
+  const cs = shuffle(COL).slice(0, R(2,3)), ns = cs.map(()=>R(1,5)), t = R(0,cs.length-1);
+  const n = ns.reduce((a,b)=>a+b,0), balls = shuffle(cs.flatMap((c,i)=>Array(ns[i]).fill(c.hex)));
+  const c = cs[t];
+  return {tag:'🎒 Casos con bolsa', kind:'input', ...FP_FIELDS, visual:bagSVG(balls) + legendFor(cs.map((c,i)=>({c,n:ns[i]}))),
+    prompt:`Sacas una bola sin mirar.<br>Evento: <b>“sacar una bola ${c.f}”</b>.<br>¿Cuántos casos favorables y posibles hay?`,
+    check: v => favPosCheck(v, ns[t], n, {cond:`que la bola sea ${c.f}`, favHint:`Cuenta solo las bolas ${c.fp}.`, posHint:'Cuenta todas las bolas de la bolsa, sin importar el color.'}),
+    explain:`Hay <b>${ns[t]}</b> bola(s) ${c.fp} (favorables) entre <b>${n}</b> bolas (posibles). ${fracExplain(ns[t],n)}.`};
+}
+function l2Spin(){
+  const n = pick([4,5,6,8]), palette = shuffle(COL).slice(0,3);
+  let secs = Array.from({length:n}, () => pick(palette));
+  const c = pick(palette); if (!secs.includes(c)) secs[R(0,n-1)] = c;
+  secs = shuffle(secs);
+  const F = secs.filter(s=>s===c).length;
+  return {tag:'🎡 Casos con ruleta', kind:'input', ...FP_FIELDS, visual:spinnerSVG(secs) + `<div class="caption">Ruleta de ${n} partes iguales</div>`,
+    prompt:`Giras la ruleta.<br>Evento: <b>“que la flecha caiga en ${c.m}”</b>.<br>¿Cuántos casos favorables y posibles hay?`,
+    check: v => favPosCheck(v, F, n, {cond:`que caiga en ${c.m}`, favHint:`Cuenta las partes de color ${c.m} (marcadas con “${c.ab}”).`, posHint:'Cuenta todas las partes de la ruleta.'}),
+    explain:`Hay <b>${F}</b> parte(s) de color ${c.m} entre <b>${n}</b> partes iguales. ${fracExplain(F,n)}.`};
+}
+function l2Cards(){
+  const N = R(8,15), k = R(3,N-3);
+  const EV = [['un número par',x=>x%2===0],['un múltiplo de 3',x=>x%3===0],[`un número mayor que ${k}`,x=>x>k],[`un número menor o igual que ${k}`,x=>x<=k],['un múltiplo de 4',x=>x%4===0],['un número impar',x=>x%2===1]];
+  const [t,fn] = pick(EV), arr = Array.from({length:N},(_,i)=>i+1), f = arr.filter(fn);
+  return {tag:'🔢 Casos con fichas', kind:'input', ...FP_FIELDS, visual:tiles(arr) + '<div class="caption">Fichas en una caja</div>',
+    prompt:`En una caja hay fichas numeradas del 1 al ${N}. Sacas una.<br>Evento: <b>“sacar ${t}”</b>.`,
+    check: v => favPosCheck(v, f.length, N, {cond:`sacar ${t}`, favHint:'Recorre las fichas una por una y cuenta solo las que cumplen.', posHint:`¿Cuántas fichas hay en total en la caja?`}),
+    explain:`Favorables: ${f.join(', ')} → <b>${f.length}</b>. Posibles: <b>${N}</b> fichas. ${fracExplain(f.length,N)}.`};
+}
+function l2Letters(){
+  const w = pick(['MATEMATICAS','PROBABILIDAD','COLOMBIA','ESCUELA','CHOCOLATE','BICICLETA','GUITARRA','ARCOIRIS']);
+  const L = w.split(''), vow = x => 'AEIOU'.includes(x);
+  const rep = [...new Set(L)].filter(x => L.filter(y=>y===x).length >= 2);
+  const opts = [['una vocal',vow,'Las vocales son A, E, I, O, U. Si una vocal se repite, cuenta cada ficha.'],['una consonante',x=>!vow(x),'Cuenta las letras que NO son A, E, I, O, U, incluidas las repetidas.']];
+  if (rep.length){ const r = pick(rep); opts.push([`la letra ${r}`, x=>x===r, `Busca todas las fichas con la letra ${r}.`]); }
+  const [t,fn,fh] = pick(opts), F = L.filter(fn).length;
+  return {tag:'🔤 Casos con letras', kind:'input', ...FP_FIELDS, visual:tiles(L) + '<div class="caption">Cada letra está en una ficha</div>',
+    prompt:`Las letras de la palabra <b>${w}</b> se meten en una bolsa. Sacas una ficha.<br>Evento: <b>“sacar ${t}”</b>.`,
+    check: v => favPosCheck(v, F, L.length, {cond:`sacar ${t}`, favHint:fh, posHint:'Cada letra es una ficha, aunque se repita. Cuenta todas las fichas.'}),
+    explain:`Hay <b>${F}</b> ficha(s) que cumplen entre <b>${L.length}</b> fichas. ${fracExplain(F,L.length)}.`};
+}
+
+/* =========================================================
+   LECCIÓN 3 · Laplace en contexto
+   ========================================================= */
+const NAMES = ['Valentina','Santiago','Mariana','Samuel','Isabella','Juan José','Sofía','Matías','Luciana','Emiliano'];
+function l3Rifa(){
+  const N = pick([20,30,40,50,100]), k = R(2,6), who = pick(NAMES);
+  return {tag:'🎟️ La rifa', kind:'input', ...FRAC_FIELDS,
+    visual:`<div class="bigemoji">🎟️</div><div class="legend"><span>Boletas de ${who}: ${k}</span><span>Boletas en total: ${N}</span></div>`,
+    prompt:`En la rifa del curso se vendieron <b>${N}</b> boletas. ${who} compró <b>${k}</b>. Se saca una boleta ganadora al azar.<br>¿Cuál es la probabilidad de que gane ${who}?`,
+    check: v => fracCheck(v, k, N, {favHint:`¿Cuántas boletas tiene ${who}?`, posHint:'¿Cuántas boletas participan en total?'}),
+    explain: fracExplain(k,N,`Favorables: ${k} boletas de ${who}. Posibles: ${N} boletas.<br>`)};
+}
+function l3Salon(){
+  const m = R(8,20), h = R(8,20), girl = Math.random()<.5, F = girl?m:h;
+  return {tag:'🏫 En el salón', kind:'input', ...FRAC_FIELDS,
+    visual:`<div class="people">${'👧'.repeat(m)}${'👦'.repeat(h)}</div><div class="legend"><span>👧 Niñas: ${m}</span><span>👦 Niños: ${h}</span></div>`,
+    prompt:`En un curso hay <b>${m} niñas</b> y <b>${h} niños</b>. Se elige al azar un estudiante para representar al curso.<br>¿Cuál es la probabilidad de que sea <b>${girl?'niña':'niño'}</b>?`,
+    check: v => fracCheck(v, F, m+h, {favHint:`Los favorables son solo ${girl?'las niñas':'los niños'}.`, posHint:'Los casos posibles son todos los estudiantes: niñas + niños.'}),
+    explain: fracExplain(F,m+h,`Favorables: ${F}. Posibles: ${m} + ${h} = ${m+h}.<br>`)};
+}
+function l3Dulces(){
+  const FL = shuffle([{name:'fresa',c:COL[0]},{name:'limón',c:COL[2]},{name:'uva',c:COL[4]},{name:'naranja',c:COL[5]}]).slice(0,3);
+  FL.forEach(f=>f.n=R(2,5));
+  const T = FL.reduce((a,f)=>a+f.n,0), two = Math.random()<.4;
+  const sel = two ? [FL[0],FL[1]] : [FL[0]], F = sel.reduce((a,f)=>a+f.n,0);
+  const txt = two ? `de ${sel[0].name} o de ${sel[1].name}` : `de ${sel[0].name}`;
+  const balls = shuffle(FL.flatMap(f=>Array(f.n).fill(f.c.hex)));
+  return {tag:'🍬 Bolsa de dulces', kind:'input', ...FRAC_FIELDS,
+    visual: bagSVG(balls) + legendFor(FL.map(f=>({c:f.c,n:f.n,name:f.name}))),
+    prompt:`Una bolsa tiene ${FL.map(f=>`<b>${f.n}</b> dulces de ${f.name}`).join(', ').replace(/, ([^,]*)$/,' y $1')}. Sacas uno sin mirar.<br>¿Cuál es la probabilidad de que sea <b>${txt}</b>?`,
+    check: v => fracCheck(v, F, T, {favHint: two ? 'Suma los dulces de los dos sabores que te piden.' : `Cuenta solo los dulces de ${sel[0].name}.`, posHint:'Suma todos los dulces de la bolsa.'}),
+    explain: fracExplain(F,T,`Favorables: ${two?`${sel[0].n} + ${sel[1].n} = `:''}${F}. Posibles: ${T}.<br>`)};
+}
+function l3Baraja(){
+  const EV = [['una carta de corazones ♥',13,'Hay 13 cartas de cada palo.'],['un as',4,'Hay un as en cada uno de los 4 palos.'],['una figura (J, Q o K)',12,'Hay 3 figuras en cada palo y 4 palos.'],['una carta roja (♥ o ♦)',26,'Hay 2 palos rojos de 13 cartas cada uno.'],['un rey (K) negro',2,'Hay un rey en ♣ y otro en ♠.'],['un 7',4,'Hay un 7 en cada palo.']];
+  const [t,F,why] = pick(EV);
+  return {tag:'🃏 Baraja de cartas', kind:'input', ...FRAC_FIELDS,
+    visual:`<div class="suits"><div class="suit"><b style="color:#F0525F">♥</b>13 cartas</div><div class="suit"><b style="color:#F0525F">♦</b>13 cartas</div><div class="suit"><b>♣</b>13 cartas</div><div class="suit"><b>♠</b>13 cartas</div></div><div class="caption">Cada palo: A, 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K</div>`,
+    prompt:`De una baraja de <b>52 cartas</b> sacas una al azar.<br>¿Cuál es la probabilidad de sacar <b>${t}</b>?`,
+    check: v => fracCheck(v, F, 52, {favHint:why, posHint:'La baraja completa tiene 4 palos de 13 cartas.'}),
+    explain: fracExplain(F,52,`${why} Favorables: ${F}. Posibles: 52.<br>`)};
+}
+function l3Monedas(){
+  const EV = [['salgan dos caras',1],['salga exactamente una cara',2],['salga al menos una cara',3],['salgan dos sellos',1],['salgan dos resultados iguales',2]];
+  const [t,F] = pick(EV);
+  return {tag:'🪙 Dos monedas', kind:'input', ...FRAC_FIELDS,
+    visual: tiles(['🪙 C · C','🪙 C · S','🪙 S · C','🪙 S · S']) + '<div class="caption">Resultados al lanzar dos monedas (C = cara, S = sello)</div>',
+    prompt:`Lanzas dos monedas al mismo tiempo.<br>¿Cuál es la probabilidad de que <b>${t}</b>?`,
+    check: v => fracCheck(v, F, 4, {favHint:'Revisa cada resultado de la imagen y marca los que cumplen.', posHint:'Cuenta todas las combinaciones posibles de las dos monedas.'}),
+    explain: fracExplain(F,4,`Hay 4 resultados posibles y ${F} cumple(n) la condición.<br>`)};
+}
+function l3Dados(){
+  const gt = Math.random()<.35, s = gt ? R(8,10) : R(3,11);
+  let F = 0; for (let a=1;a<=6;a++) for (let b=1;b<=6;b++) if (gt ? a+b>s : a+b===s) F++;
+  const t = gt ? `mayor que ${s}` : `igual a ${s}`;
+  return {tag:'🎲🎲 Dos dados', kind:'input', ...FRAC_FIELDS, visual:diceTable(),
+    prompt:`Lanzas dos dados y sumas los puntos.<br>¿Cuál es la probabilidad de que la suma sea <b>${t}</b>?`,
+    check: v => fracCheck(v, F, 36, {favHint:`Busca en la tabla las casillas con suma ${t} y cuéntalas.`, posHint:'Con dos dados hay 6 × 6 resultados posibles.'}),
+    explain: fracExplain(F,36,`En la tabla hay ${F} casilla(s) con suma ${t}, de 36 posibles.<br>`)};
+}
+function l3Urna(){
+  const N = R(10,20);
+  const EV = [['un múltiplo de 5',x=>x%5===0],['un múltiplo de 3',x=>x%3===0],['un número primo',x=>x>1&&[2,3,5,7,11,13,17,19].includes(x)],['un número de dos cifras',x=>x>=10],['un múltiplo de 4',x=>x%4===0]];
+  const [t,fn] = pick(EV), arr = Array.from({length:N},(_,i)=>i+1), f = arr.filter(fn);
+  return {tag:'🏺 La urna', kind:'input', ...FRAC_FIELDS, visual:tiles(arr),
+    prompt:`Una urna tiene balotas numeradas del 1 al ${N}. Sacas una al azar.<br>¿Cuál es la probabilidad de sacar <b>${t}</b>?`,
+    check: v => fracCheck(v, f.length, N, {favHint:t==='un número primo'?'Un primo solo se divide entre 1 y sí mismo (el 1 no es primo).':'Revisa las balotas una a una y cuenta las que cumplen.', posHint:'¿Cuántas balotas hay en la urna?'}),
+    explain: fracExplain(f.length,N,`Favorables: ${f.join(', ')} → ${f.length}. Posibles: ${N}.<br>`)};
+}
+
+/* =========================================================
+   LECCIÓN 4 · Decimales e interpretación
+   ========================================================= */
+function l4ToDec(){
+  const d = pick([2,4,5,8,10,20,25]), n = R(1,d-1), p = n/d;
+  const C = [
+    `En un grupo de <b>${d}</b> amigos, <b>${n}</b> usan gafas. Se elige uno al azar. ¿Cuál es la probabilidad de que use gafas?`,
+    `Una caja tiene <b>${d}</b> chocolatinas y <b>${n}</b> traen premio. ¿Cuál es la probabilidad de sacar una con premio?`,
+    `Una ruleta tiene <b>${d}</b> partes iguales y <b>${n}</b> dan un premio. ¿Cuál es la probabilidad de ganar premio?`,
+    `En un paquete hay <b>${d}</b> láminas de un álbum y <b>${n}</b> son brillantes. ¿Cuál es la probabilidad de sacar una brillante?`
+  ];
+  return {tag:'🔟 A decimal', kind:'input', layout:'row', fields:[{label:'Probabilidad en decimal', prefix:'P =', wide:true}],
+    visual:`<div class="big-frac">${frac(n,d)}</div>${d<=25?segbar(n,d):''}`,
+    prompt:`${pick(C)}<br>Escríbela como <b>número decimal</b>.`,
+    check: ([v]) => {
+      if (near(v,p)) return {ok:true};
+      if (near(v,p*100)) return {ok:false,bad:[0],where:'Escribiste la probabilidad como porcentaje.',review:'Aquí se pide el número decimal, que siempre está entre 0 y 1.',hint:`Divide ${n} ÷ ${d}.`};
+      if (near(v,d/n)) return {ok:false,bad:[0],where:'Dividiste al revés.',review:'Se divide el numerador entre el denominador.',hint:`Calcula ${n} ÷ ${d}, no ${d} ÷ ${n}.`};
+      if (v>1) return {ok:false,bad:[0],where:'Tu resultado es mayor que 1, y una probabilidad no puede serlo.',review:'Revisa la división.',hint:`Divide ${n} ÷ ${d}.`};
+      return {ok:false,bad:[0],where:'La división parece tener un error.',review:`Revisa la división ${n} ÷ ${d}.`,hint:'Truco: busca una fracción equivalente con denominador 10, 100 o 1000, multiplicando arriba y abajo por el mismo número.'};
+    },
+    explain:`${frac(n,d)} = ${n} ÷ ${d} = <b>${fmt(p)}</b>. ${CAT_EXPL[catOf(p)]}`};
+}
+function l4Interp(){
+  const cat = pick(['poco','poco','muy','muy','igual','imp','seg']);
+  const p = {imp:0, seg:1, igual:.5, poco:pick([.02,.05,.08,.1,.12,.15,.2,.25,.3]), muy:pick([.7,.75,.8,.85,.88,.9,.95,.98])}[cat];
+  const P = fmt(p);
+  const C = [
+    `El pronóstico del clima indica que la probabilidad de lluvia para mañana es <b>${P}</b>.`,
+    `La probabilidad de que el equipo del colegio gane el próximo partido es <b>${P}</b>.`,
+    `La probabilidad de que el bus escolar llegue a tiempo hoy es <b>${P}</b>.`,
+    `La probabilidad de encontrar un sticker dorado dentro de un paquete es <b>${P}</b>.`,
+    `La probabilidad de que un estudiante elegido al azar tenga mascota es <b>${P}</b>.`,
+    `La probabilidad de sacar una bola verde de una bolsa es <b>${P}</b>.`
+  ];
+  return {tag:'🧐 Interpreta', kind:'choice', options:CATS, answer:cat, visual:scaleSVG(null),
+    prompt:`${pick(C)}<br>¿Qué tan probable es que ocurra?`,
+    explain:`${P} → <b>${catLabel(cat)}</b>. ${CAT_EXPL[cat]}`,
+    onWrong: sel => ({where:`Elegiste “${catLabel(sel)}”, pero ${P} no está en esa zona de la escala.`,
+      review:`Ubica ${P} en la escala: ¿es 0, está cerca de 0, es 0,5, está cerca de 1 o es 1?`,
+      hint:'Mientras más cerca de 1, más probable; mientras más cerca de 0, menos probable.'})};
+}
+function l4Compare(){
+  const mk = () => { const n = R(4,12), r = R(1,n-1); return {n,r,p:r/n}; };
+  let A = mk(), B = mk(); let guard = 0;
+  while (guard++<30 && (Math.abs(A.p-B.p)<.08 && !near(A.p,B.p))) B = mk();
+  if (Math.random()<.15){ const k = pick([2,3]); B = {n:A.n*k>12?A.n:A.n*k, r:A.n*k>12?A.r:A.r*k}; B.p = B.r/B.n; }
+  const ans = near(A.p,B.p) ? 'eq' : A.p>B.p ? 'A' : 'B';
+  const [c,o] = [COL[0], COL[1]];
+  const bag = x => bagSVG(shuffle([...Array(x.r).fill(c.hex), ...Array(x.n-x.r).fill(o.hex)]));
+  return {tag:'⚖️ Compara', kind:'choice', answer:ans,
+    options:[{id:'A',label:'Bolsa A',e:'🅰️'},{id:'B',label:'Bolsa B',e:'🅱️'},{id:'eq',label:'Es igual en ambas',e:'🟰'}],
+    visual:`<div class="two-bags"><figure>${bag(A)}<figcaption>A</figcaption><div class="caption">${A.r} rojas de ${A.n}</div></figure><figure>${bag(B)}<figcaption>B</figcaption><div class="caption">${B.r} rojas de ${B.n}</div></figure></div>`,
+    prompt:'Quieres sacar una bola <b>roja</b>.<br>¿En cuál bolsa es más probable lograrlo?',
+    explain:`A: ${frac(A.r,A.n)} ${decStr(A.p)}. B: ${frac(B.r,B.n)} ${decStr(B.p)}. ${ans==='eq'?'Las dos probabilidades son iguales.':`La probabilidad es mayor en la bolsa ${ans}.`}`,
+    onWrong: () => ({where:'Esa no es la bolsa con mayor probabilidad.',
+      review:'No basta con ver cuál tiene más bolas rojas: también importa cuántas bolas hay en total.',
+      hint:'Calcula para cada bolsa: rojas ÷ total. Luego compara los dos decimales.'})};
+}
+function l4Decision(){
+  const hi = Math.random()<.5, p = hi ? pick([.8,.85,.9,.92,.95]) : pick([.05,.08,.1,.15,.2]);
+  const D = pick([
+    {t:`El pronóstico dice que la probabilidad de lluvia esta tarde es <b>${fmt(p)}</b>. Vas a ir al parque.`, hi:'Llevar paraguas ☂️', lo:'Salir sin paraguas 😎'},
+    {t:`La probabilidad de ganar un premio en un juego de la feria es <b>${fmt(p)}</b>. Cada intento cuesta dinero.`, hi:'Vale la pena intentarlo 🎯', lo:'Es muy difícil ganar; mejor no gastar 💰'},
+    {t:`La probabilidad de que la biblioteca esté abierta el sábado es <b>${fmt(p)}</b>. Necesitas un libro.`, hi:'Ir a la biblioteca el sábado 📚', lo:'Buscar otro día u otra opción 🔎'},
+    {t:`La probabilidad de que el bus pase en los próximos 5 minutos es <b>${fmt(p)}</b>. Vas tarde para clase.`, hi:'Esperar el bus 🚌', lo:'Buscar otra forma de llegar 🚶'}
+  ]);
+  return {tag:'🤔 Decide con probabilidad', kind:'choice', two:true, answer: hi?'hi':'lo',
+    options: shuffle([{id:'hi',label:D.hi,e:''},{id:'lo',label:D.lo,e:''}]), visual:scaleSVG(p),
+    prompt:`${D.t}<br>¿Cuál es la decisión más razonable?`,
+    explain:`${fmt(p)} está ${hi?'cerca de 1: es muy probable':'cerca de 0: es poco probable'}. Por eso lo más razonable es: <b>${hi?D.hi:D.lo}</b>.`,
+    onWrong: () => ({where:'Esa decisión no concuerda con el valor de la probabilidad.',
+      review:`Primero decide si ${fmt(p)} es un evento muy probable o poco probable.`,
+      hint:'Observa la flecha en la escala: ¿está cerca de 0 o cerca de 1?'})};
+}
+
+/* =========================================================
+   LECCIÓN 5 · Porcentajes
+   ========================================================= */
+const CTX5 = ['la probabilidad de que llueva el fin de semana','la probabilidad de que el portero ataje un penal','la probabilidad de que un paquete llegue a tiempo','la probabilidad de que un estudiante elegido al azar prefiera el fútbol','la probabilidad de que una semilla germine','la probabilidad de encestar un tiro libre'];
+const PCT_FIELD = {layout:'row', fields:[{label:'En porcentaje', suffix:'%', wide:true}]};
+function l5DecToPct(){
+  const k = pick([1,2,2,3,3]), p = k===1 ? R(1,9)/10 : k===2 ? R(1,99)/100 : R(1,999)/1000, pct = +(p*100).toFixed(4);
+  return {tag:'💯 De decimal a %', kind:'input', ...PCT_FIELD, visual:grid100(Math.round(pct)) + `<div class="caption">Aprox. ${Math.round(pct)} de 100 casillas</div>`,
+    prompt:`Para cierto evento, ${pick(CTX5)} es <b>${fmt(p)}</b>.<br>¿Cuánto es esa probabilidad en <b>porcentaje</b>?`,
+    check: ([v]) => {
+      if (near(v,pct)) return {ok:true};
+      if (near(v,p)) return {ok:false,bad:[0],where:'Escribiste el mismo número decimal.',review:'Para pasar a porcentaje hay que multiplicar por 100.',hint:'Multiplicar por 100 es mover la coma dos lugares a la derecha.'};
+      if (near(v,p*10) || near(v,p*1000)) return {ok:false,bad:[0],where:'Moviste la coma un número incorrecto de lugares.',review:'Al multiplicar por 100, la coma se mueve exactamente 2 lugares.',hint:`Ejemplo: 0,467 × 100 = 46,7 %. Hazlo igual con ${fmt(p)}.`};
+      return {ok:false,bad:[0],where:'El resultado no corresponde a multiplicar por 100.',review:`Revisa la multiplicación ${fmt(p)} × 100.`,hint:'Mueve la coma dos lugares a la derecha (si faltan cifras, completa con ceros).'};
+    },
+    explain:`${fmt(p)} × 100 = <b>${fmt(pct)} %</b>. La coma se movió dos lugares a la derecha.`};
+}
+function l5FracToPct(){
+  const d = pick([2,4,5,10,20,25,50]), n = R(1,d-1), pct = +(n/d*100).toFixed(4);
+  return {tag:'💯 De fracción a %', kind:'input', ...PCT_FIELD, visual:`<div class="big-frac">${frac(n,d)}</div>` + grid100(Math.round(pct)),
+    prompt:`La probabilidad de que un estudiante gane un concurso de su curso es <b>${n}/${d}</b>.<br>¿Qué porcentaje es?`,
+    check: ([v]) => {
+      if (near(v,pct)) return {ok:true};
+      if (near(v,n/d)) return {ok:false,bad:[0],where:'Ese es el decimal, falta un paso.',review:'Después de dividir, multiplica por 100.',hint:'Decimal × 100 = porcentaje.'};
+      return {ok:false,bad:[0],where:'El porcentaje no es correcto.',review:`Primero divide ${n} ÷ ${d} y luego multiplica por 100.`,hint:`También puedes buscar una fracción equivalente con denominador 100: ¿por cuánto multiplicas ${d} para llegar a 100?`};
+    },
+    explain:`${n} ÷ ${d} = ${fmt(n/d)} → ${fmt(n/d)} × 100 = <b>${fmt(pct)} %</b>.`};
+}
+function l5PctToDec(){
+  const pct = Math.random()<.25 ? pick([12.5,37.5,62.5,87.5,4.5,33.3]) : R(1,99), p = +(pct/100).toFixed(5);
+  return {tag:'🔄 De % a decimal', kind:'input', layout:'row', fields:[{label:'En decimal', prefix:'P =', wide:true}], visual:grid100(Math.round(pct)),
+    prompt:`El noticiero anuncia que ${pick(CTX5)} es de <b>${fmt(pct)} %</b>.<br>Escríbela como <b>número decimal</b>.`,
+    check: ([v]) => {
+      if (near(v,p)) return {ok:true};
+      if (near(v,pct)) return {ok:false,bad:[0],where:'Escribiste el mismo porcentaje.',review:'Para pasar de porcentaje a decimal se divide entre 100.',hint:'Dividir entre 100 es mover la coma dos lugares a la izquierda.'};
+      if (near(v,pct/10) || near(v,pct/1000)) return {ok:false,bad:[0],where:'Moviste la coma un número incorrecto de lugares.',review:'Al dividir entre 100, la coma se mueve exactamente 2 lugares a la izquierda.',hint:'Ejemplo: 46,7 % → 0,467.'};
+      return {ok:false,bad:[0],where:'El decimal no es correcto.',review:`Revisa la división ${fmt(pct)} ÷ 100.`,hint:'Recuerda que el decimal debe quedar entre 0 y 1.'};
+    },
+    explain:`${fmt(pct)} ÷ 100 = <b>${fmt(p,5)}</b>.`};
+}
+function l5Grid(){
+  const k = R(5,95);
+  return {tag:'🟪 Lee la cuadrícula', kind:'input', layout:'row', fields:[{label:'Porcentaje', suffix:'%'},{label:'Decimal', wide:true}], visual:grid100(k),
+    prompt:'Cada casilla es 1 de 100 resultados posibles. Las casillas moradas son los casos favorables.<br>Escribe la probabilidad en <b>porcentaje</b> y en <b>decimal</b>.',
+    check: ([a,b]) => {
+      const okA = near(a,k), okB = near(b,k/100);
+      if (okA && okB) return {ok:true};
+      const bad = []; if (!okA) bad.push(0); if (!okB) bad.push(1);
+      return {ok:false,bad,
+        where: bad.length===2 ? 'Los dos valores tienen errores.' : !okA ? 'El porcentaje no es correcto.' : 'El decimal no es correcto.',
+        review: !okA ? 'Cuenta las casillas moradas: cada fila completa tiene 10.' : 'El decimal es el porcentaje dividido entre 100.',
+        hint: !okA ? 'Cuenta las filas llenas (de 10 en 10) y suma las casillas sueltas.' : 'Ejemplo: 35 % → 0,35.'};
+    },
+    explain:`Hay ${k} casillas moradas de 100: <b>${k} %</b> = <b>${fmt(k/100)}</b>.`};
+}
+
+/* =========================================================
+   LECCIÓN 6 · Restar probabilidades
+   ========================================================= */
+const PAIRS = [['llueva mañana','no llueva mañana','🌧️'],['el equipo gane el partido','el equipo no gane el partido','⚽'],['el bus llegue tarde','el bus llegue a tiempo','🚌'],['una bombilla salga defectuosa','la bombilla funcione bien','💡'],['un jugador acierte el tiro libre','el jugador falle el tiro libre','🏀'],['el semáforo esté en rojo al llegar','el semáforo no esté en rojo','🚦']];
+function compErr(v,p,tot,unit){
+  if (near(v,p)) return {ok:false,bad:[0],where:'Esa es la probabilidad del evento original, no la de su contrario.',review:'Te preguntan por el evento contrario.',hint:`El evento y su contrario juntos suman ${tot}${unit}.`};
+  if (v>tot) return {ok:false,bad:[0],where:`Tu resultado es mayor que ${tot}${unit}, y una probabilidad no puede serlo.`,review:'Debes restar, no sumar.',hint:`Calcula ${tot}${unit} − ${fmt(p)}${unit}.`};
+  return {ok:false,bad:[0],where:'La resta parece tener un error.',review:`Revisa la operación ${tot}${unit} − ${fmt(p)}${unit}.`,hint:`Piensa: ¿cuánto le falta a ${fmt(p)}${unit} para llegar a ${tot}${unit}?`};
+}
+function l6Dec(){
+  const [a,na,e] = pick(PAIRS), p = R(5,95)/100, q = +(1-p).toFixed(4);
+  return {tag:'➖ El evento contrario', kind:'input', layout:'row', fields:[{label:'Probabilidad', prefix:'P =', wide:true}],
+    visual:`<div class="bigemoji" style="font-size:60px">${e}</div>` + pbar([{w:p,txt:fmt(p),color:'#6D5DF6'},{w:1-p,q:true}]) + '<div class="caption">La barra completa vale 1</div>',
+    prompt:`La probabilidad de que <b>${a}</b> es <b>${fmt(p)}</b>.<br>¿Cuál es la probabilidad de que <b>${na}</b>?`,
+    check: ([v]) => near(v,q) ? {ok:true} : compErr(v,p,1,''),
+    explain:`El evento y su contrario suman 1: 1 − ${fmt(p)} = <b>${fmt(q)}</b>.`};
+}
+function l6Pct(){
+  const [a,na,e] = pick(PAIRS), p = R(5,95);
+  return {tag:'➖ Contrario en %', kind:'input', ...PCT_FIELD,
+    visual:`<div class="bigemoji" style="font-size:60px">${e}</div>` + pbar([{w:p,txt:p+' %',color:'#0FA3B1'},{w:100-p,q:true}]) + '<div class="caption">La barra completa vale 100 %</div>',
+    prompt:`Hay un <b>${p} %</b> de probabilidad de que <b>${a}</b>.<br>¿Cuál es la probabilidad (en %) de que <b>${na}</b>?`,
+    check: ([v]) => near(v,100-p) ? {ok:true} : compErr(v,p,100,' %'),
+    explain:`100 % − ${p} % = <b>${100-p} %</b>.`};
+}
+function l6Frac(){
+  const [t,o] = shuffle(COL), n = R(6,12), r = R(1,n-1);
+  const balls = shuffle([...Array(r).fill(t.hex), ...Array(n-r).fill(o.hex)]);
+  return {tag:'➖ Contrario con fracciones', kind:'input', ...FRAC_FIELDS,
+    visual: bagSVG(balls) + legendFor([{c:t,n:r},{c:o,n:n-r}]),
+    prompt:`La probabilidad de sacar una bola ${t.f} es ${frac(r,n)}.<br>¿Cuál es la probabilidad de <b>NO</b> sacar una bola ${t.f}?`,
+    check: v => fracCheck(v, n-r, n, {compMsg:`Calculaste la probabilidad de sacar una bola ${t.f}, pero te piden la de NO sacarla.`, favHint:`Resta: 1 − ${r}/${n}. Recuerda que 1 = ${n}/${n}.`, posHint:'El denominador sigue siendo el total de bolas.'}),
+    explain:`1 − ${frac(r,n)} = ${frac(n,n)} − ${frac(r,n)} = ${frac(n-r,n)}${gcd(n-r,n)>1?` = ${frac((n-r)/gcd(n-r,n), n/gcd(n-r,n))}`:''}.`};
+}
+function l6Three(){
+  const pct = Math.random()<.5, tot = pct ? 100 : 1, unit = pct ? ' %' : '';
+  const T = pick([
+    {intro:'Una ruleta tiene tres colores: rojo, azul y verde.', a:'caer en rojo', b:'caer en azul', c:'caer en verde', cols:['#F0525F','#3D8BFF']},
+    {intro:'En un colegio se preguntó a los estudiantes cómo llegan: en bus, en bicicleta o caminando.', a:'que un estudiante llegue en bus', b:'que llegue en bicicleta', c:'que llegue caminando', cols:['#FFC83D','#17B179']},
+    {intro:'El pronóstico de mañana tiene tres opciones: soleado, nublado o lluvioso.', a:'que esté soleado', b:'que esté nublado', c:'que esté lluvioso', cols:['#FF8C42','#8B5CF6']}
+  ]);
+  const A = R(10,50), B = R(10, 90-A), C = 100-A-B;
+  const val = x => pct ? x : x/100, show = x => fmt(val(x)) + unit;
+  return {tag:'🧩 La parte que falta', kind:'input', layout:'row', fields:[{label:'Probabilidad', prefix: pct?'':'P =', suffix: pct?'%':'', wide:true}],
+    visual: pbar([{w:A,txt:show(A),color:T.cols[0]},{w:B,txt:show(B),color:T.cols[1]},{w:C,q:true}]) + `<div class="caption">Todo junto suma ${tot}${unit}</div>`,
+    prompt:`${T.intro} La probabilidad de ${T.a} es <b>${show(A)}</b> y la de ${T.b} es <b>${show(B)}</b>.<br>¿Cuál es la probabilidad de ${T.c}?`,
+    check: ([v]) => {
+      if (near(v,val(C))) return {ok:true};
+      if (near(v,val(100-A)) || near(v,val(100-B))) return {ok:false,bad:[0],where:'Solo restaste una de las probabilidades.',review:'Hay dos probabilidades conocidas y ambas se deben restar.',hint:`Calcula ${tot}${unit} − ${show(A)} − ${show(B)}.`};
+      if (near(v,val(A+B))) return {ok:false,bad:[0],where:'Sumaste las probabilidades conocidas, pero eso es lo que ya está ocupado.',review:'La parte que falta es lo que sobra para completar el total.',hint:`Resta esa suma a ${tot}${unit}.`};
+      return {ok:false,bad:[0],where:'La operación tiene un error.',review:`Revisa: ${tot}${unit} − ${show(A)} − ${show(B)}.`,hint:'Primero suma las dos probabilidades conocidas y luego réstalas del total.'};
+    },
+    explain:`${tot}${unit} − ${show(A)} − ${show(B)} = <b>${show(C)}</b>.`};
+}
+
+/* =========================================================
+   Lecciones
+   ========================================================= */
+const GOAL = 12;
+const LESSONS = [
+  {icon:'🧭', color:'#EFEDFF', bar:'#6D5DF6', title:'¿Qué es la probabilidad?', desc:'De lo imposible a lo seguro: la escala de 0 a 1.', gens:[l1Bag,l1Event,l1Scale,l1Event,l1Bag],
+   intro:`<p>La <b>probabilidad</b> mide qué tan posible es que algo ocurra. Se expresa con un número entre <b>0</b> y <b>1</b>.</p>
+     <div class="idea">${scaleSVG(null)}<div class="catchips"><span>🚫 0 · nunca pasa</span><span>⚖️ 0,5 · mitad y mitad</span><span>✅ 1 · siempre pasa</span></div></div>
+     <p>Mientras más cerca de 1, más probable. Mientras más cerca de 0, menos probable.</p>`},
+  {icon:'🎲', color:'#E3F7F9', bar:'#0FA3B1', title:'Casos favorables y posibles', desc:'Cuenta lo que buscas y todo lo que puede salir.', gens:[l2Die,l2Bag,l2Spin,l2Cards,l2Letters],
+   intro:`<p><b>Casos posibles:</b> todos los resultados que pueden salir.<br><b>Casos favorables:</b> los resultados que cumplen lo que buscamos.</p>
+     <div class="idea">${diceRow()}<div class="formula">Evento: sacar un número par</div><div>⭐ Favorables: 2, 4, 6 → <b>3</b> &nbsp; 🎯 Posibles: <b>6</b></div></div>`},
+  {icon:'📐', color:'#FFF5D6', bar:'#E0A614', title:'Regla de Laplace', desc:'Resuelve problemas de la vida diaria con fracciones.', gens:[l3Rifa,l3Salon,l3Dulces,l3Baraja,l3Monedas,l3Dados,l3Urna],
+   intro:`<p>Cuando todos los resultados tienen la misma posibilidad, usamos la <b>regla de Laplace</b>:</p>
+     <div class="idea"><div class="formula">P(A) = ${frac('casos favorables','casos posibles')}</div>${bagSVG(shuffle([...Array(3).fill(COL[0].hex),...Array(5).fill(COL[1].hex)]))}<div>3 rojas de 8 bolas → P(roja) = ${frac(3,8)}</div></div>
+     <p>Escribe tu respuesta como fracción. Si la simplificas, también es correcta.</p>`},
+  {icon:'🔍', color:'#E4FAF1', bar:'#17B179', title:'Decimales con sentido', desc:'Convierte a decimal y decide qué tan probable es.', gens:[l4ToDec,l4Interp,l4Compare,l4Decision,l4ToDec,l4Interp],
+   intro:`<p>Para pasar una fracción a decimal, <b>divide</b> el numerador entre el denominador.</p>
+     <div class="idea"><div class="formula">${frac(3,4)} = 3 ÷ 4 = 0,75</div>${scaleSVG(.75)}<div>0,75 está cerca de 1 → <b>muy probable</b></div></div>
+     <p>El número te ayuda a tomar decisiones: ¿llevar paraguas?, ¿vale la pena jugar?</p>`},
+  {icon:'💯', color:'#FFE9DA', bar:'#FF8C42', title:'Probabilidad en porcentaje', desc:'Pasa de decimal a % como en las noticias.', gens:[l5DecToPct,l5FracToPct,l5PctToDec,l5Grid,l5DecToPct],
+   intro:`<p>Para pasar de decimal a porcentaje, <b>multiplica por 100</b> (mueve la coma dos lugares a la derecha).</p>
+     <div class="idea"><div class="formula">0,467 × 100 = 46,7 %</div>${grid100(47)}<div>Casi la mitad de las casillas</div></div>
+     <p>Y al revés: de porcentaje a decimal, <b>divide entre 100</b>. 35 % → 0,35.</p>`},
+  {icon:'➖', color:'#FFEDEF', bar:'#F0525F', title:'Restar probabilidades', desc:'Encuentra la probabilidad de lo contrario o de lo que falta.', gens:[l6Dec,l6Pct,l6Frac,l6Three],
+   intro:`<p>Un evento y su contrario siempre suman <b>1</b> (o <b>100 %</b>).</p>
+     <div class="idea"><div class="formula">P(no A) = 1 − P(A)</div>${pbar([{w:.3,txt:'lluvia 0,3',color:'#6D5DF6'},{w:.7,txt:'no lluvia 0,7',color:'#0FA3B1'}])}<div>Si P(lluvia) = 0,3 → P(no lluvia) = 1 − 0,3 = 0,7</div></div>
+     <p>Si hay tres opciones, resta las dos conocidas del total para hallar la que falta.</p>`}
+];
+
+/* =========================================================
+   Estado
+   ========================================================= */
+const S = {name:'', grade:'', start:0, correct:0, wrong:0, lesson:null, enter:0, busy:false,
+  L: LESSONS.map(() => ({correct:0, wrong:0, acc:0, done:false, ex:null, lastGen:-1, sel:null, lastPrompt:'', streak:0}))};
+const app = $('#app');
+const lessonTime = i => S.L[i].acc + (S.lesson===i ? Date.now()-S.enter : 0);
+
+function updateBar(bump){
+  $('#tbName').textContent = S.name;
+  $('#tbGrade').textContent = 'Grado ' + S.grade;
+  $('#tbAv').textContent = S.name.trim().charAt(0).toUpperCase() || '?';
+  $('#tbOk').textContent = S.correct; $('#tbBad').textContent = S.wrong;
+  if (bump){ const el = $(bump==='ok' ? '#tbOkC' : '#tbBadC'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+}
+setInterval(() => { if (S.start) $('#tbTime').textContent = mmss(Date.now()-S.start); }, 1000);
+
+/* =========================================================
+   Pantalla de bienvenida
+   ========================================================= */
+function mascot(){
+  return `<svg class="mascot" viewBox="0 0 150 150" aria-hidden="true">
+    <ellipse cx="75" cy="140" rx="42" ry="7" fill="#1B2559" opacity=".12"/>
+    <g transform="rotate(-8 75 72)"><rect x="22" y="20" width="106" height="106" rx="26" fill="#fff" stroke="#1B2559" stroke-width="5"/>
+    <circle cx="52" cy="50" r="8" fill="#6D5DF6"/><circle cx="98" cy="96" r="8" fill="#0FA3B1"/><circle cx="98" cy="50" r="8" fill="#FFC83D"/>
+    <circle cx="58" cy="80" r="5" fill="#1B2559"/><circle cx="92" cy="74" r="5" fill="#1B2559"/>
+    <path d="M62 96 Q 76 108 90 92" stroke="#1B2559" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="48" cy="92" r="6" fill="#F0525F" opacity=".35"/></g></svg>`;
+}
+function renderWelcome(){
+  document.body.classList.remove('has-bar'); $('#topbar').classList.add('hidden');
+  const grades = ['6°','7°','8°','9°','10°','11°'];
+  app.innerHTML = `<section class="screen welcome">
+    ${mascot()}
+    <h1>¿Qué tan probable?</h1>
+    <p class="lead">Aprende probabilidad jugando con dados, bolsas, ruletas y cartas.</p>
+    <div class="panel">
+      <label class="lbl" for="inName">¿Cómo te llamas?</label>
+      <input id="inName" class="txt" type="text" autocomplete="name" maxlength="40" placeholder="Escribe tu nombre y apellido">
+      <div class="err-msg" id="errName"></div>
+      <span class="lbl">¿En qué grado estás?</span>
+      <div class="grades" role="radiogroup" aria-label="Grado">${grades.map(g=>`<button class="gbtn" role="radio" aria-checked="false" data-g="${g}">${g}</button>`).join('')}</div>
+      <div class="err-msg" id="errGrade" style="margin-top:-12px"></div>
+      <button class="btn vio block" id="startBtn" style="font-size:22px;min-height:66px">🚀 Comenzar</button>
+    </div></section>`;
+  let grade = '';
+  app.querySelectorAll('.gbtn').forEach(b => b.onclick = () => {
+    app.querySelectorAll('.gbtn').forEach(x => {x.classList.remove('sel'); x.setAttribute('aria-checked','false');});
+    b.classList.add('sel'); b.setAttribute('aria-checked','true'); grade = b.dataset.g; $('#errGrade').textContent = '';
+  });
+  $('#inName').addEventListener('keydown', e => { if (e.key==='Enter') $('#startBtn').click(); });
+  $('#startBtn').onclick = () => {
+    const name = $('#inName').value.trim().replace(/\s+/g,' ');
+    let ok = true;
+    if (name.length < 2){ $('#errName').textContent = 'Escribe tu nombre para comenzar.'; ok = false; } else $('#errName').textContent = '';
+    if (!grade){ $('#errGrade').textContent = 'Elige tu grado.'; ok = false; }
+    if (!ok) return;
+    S.name = name; S.grade = grade; S.start = Date.now();
+    document.body.classList.add('has-bar'); $('#topbar').classList.remove('hidden');
+    updateBar(); renderMenu();
+  };
+}
+
+/* =========================================================
+   Menú principal
+   ========================================================= */
+function renderMenu(){
+  leaveLesson();
+  const tot = S.correct + S.wrong, pct = tot ? Math.round(S.correct/tot*100) : 0;
+  const done = S.L.filter(l=>l.done).length;
+  app.innerHTML = `<section class="screen">
+    <div class="hello"><div class="avatar" style="width:60px;height:60px;font-size:30px">${S.name.charAt(0).toUpperCase()}</div>
+      <div><h2>¡Hola, ${S.name.split(' ')[0]}!</h2><p>Elige una lección. Cada una se completa con ${GOAL} aciertos.</p></div></div>
+    <div class="stats-card" aria-label="Tus estadísticas">
+      <div class="stat"><b>${S.correct}</b><span>✔ Aciertos</span></div>
+      <div class="stat"><b>${S.wrong}</b><span>✖ Errores</span></div>
+      <div class="stat"><b>${pct}%</b><span>Precisión</span></div>
+      <div class="stat"><b>${done}/${LESSONS.length}</b><span>Lecciones</span></div>
+    </div>
+    <div class="lessons">${LESSONS.map((L,i) => {
+      const st = S.L[i], prog = st.done ? GOAL : st.correct;
+      return `<button class="lcard" data-i="${i}">
+        ${st.done?'<span class="done-badge">✔ Completada</span>':''}
+        <div class="licon" style="background:${L.color}">${L.icon}</div>
+        <div style="flex:1;min-width:0"><div class="lnum">Lección ${i+1}</div><h3>${L.title}</h3><p>${L.desc}</p>
+          <div class="mini"><i style="width:${prog/GOAL*100}%;background:${L.bar}"></i></div>
+          <div class="lmeta"><span>${prog}/${GOAL} aciertos</span><span>${st.done?'Practicar otra vez':st.correct?'Continuar':'Empezar'}</span></div></div>
+      </button>`;}).join('')}</div></section>`;
+  app.querySelectorAll('.lcard').forEach(b => b.onclick = () => openLesson(+b.dataset.i));
+  window.scrollTo({top:0});
+}
+
+/* =========================================================
+   Flujo de la lección
+   ========================================================= */
+function leaveLesson(){
+  if (S.lesson!=null){ S.L[S.lesson].acc += Date.now()-S.enter; S.lesson = null; }
+}
+function openLesson(i){
+  leaveLesson();
+  const st = S.L[i];
+  if (st.done && st.correct >= GOAL){ Object.assign(st, {correct:0, wrong:0, acc:0, ex:null, sel:null, streak:0}); }
+  S.lesson = i; S.enter = Date.now();
+  if (!st.ex && st.correct===0) renderIntro(); else { if (!st.ex) newExercise(); renderExercise(); }
+}
+function renderIntro(){
+  const i = S.lesson, L = LESSONS[i];
+  app.innerHTML = `<section class="screen"><div class="intro">
+    <div class="lhead"><div class="licon" style="background:${L.color}">${L.icon}</div><div><small>Lección ${i+1}</small><h2>${L.title}</h2></div></div>
+    <span class="goal">🎯 Meta: ${GOAL} respuestas correctas</span>
+    ${L.intro}
+    <button class="btn vio block" id="goBtn" style="margin-top:8px">¡Vamos a practicar! 🚀</button></div></section>`;
+  $('#goBtn').onclick = () => { newExercise(); renderExercise(); };
+  window.scrollTo({top:0});
+}
+function newExercise(){
+  const st = S.L[S.lesson], G = LESSONS[S.lesson].gens;
+  let idx, ex, tries = 0;
+  do {
+    idx = R(0, G.length-1);
+    if (G.length>1 && G[idx]===G[st.lastGen] && tries<20){ tries++; continue; }
+    ex = G[idx]();
+    tries++;
+  } while ((!ex || ex.prompt===st.lastPrompt) && tries<40);
+  st.lastGen = idx; st.lastPrompt = ex.prompt; st.ex = ex; st.sel = null;
+}
+function pathHTML(c, popAt){
+  let h = '<div class="path">';
+  for (let i=1;i<=GOAL;i++){
+    if (i>1) h += `<div class="seg ${i<=c?'on':''}"><i></i></div>`;
+    const mile = i%4===0, icon = {4:'🚩',8:'⭐',12:'🏆'}[i];
+    h += `<div class="node ${mile?'mile':''} ${i<=c?'on':''} ${i===popAt?'pop':''}" aria-hidden="true">${mile?icon:''}</div>`;
+  }
+  return h + '</div>';
+}
+function trackText(c){
+  if (c>=GOAL) return '¡Meta alcanzada!';
+  const next = Math.ceil((c+1)/4)*4, left = next - c;
+  return `Faltan ${left} para ${next===GOAL?'la meta 🏆':'el siguiente logro'}`;
+}
+function renderExercise(popAt){
+  const i = S.lesson, L = LESSONS[i], st = S.L[i], ex = st.ex;
+  let ans = '';
+  if (ex.kind==='choice'){
+    ans = `<div class="opts ${ex.two?'two':''}" role="group" aria-label="Opciones">${ex.options.map(o=>`<button class="opt" data-id="${o.id}">${o.e?`<span class="e">${o.e}</span>`:''}<span>${o.label}</span></button>`).join('')}</div>`;
+  } else if (ex.layout==='fraction'){
+    ans = `<div class="fraction"><span class="p">P =</span><div class="fstack">
+      <input class="box" inputmode="numeric" autocomplete="off" aria-label="Numerador: casos favorables">
+      <div class="bar"></div>
+      <input class="box" inputmode="numeric" autocomplete="off" aria-label="Denominador: casos posibles"></div>
+      <div class="fstack" style="align-items:flex-start;gap:58px"><small>⭐ favorables</small><small>🎯 posibles</small></div></div>`;
+  } else {
+    ans = `<div class="answers">${ex.fields.map(f=>`<label class="field">${f.label||''}<span class="boxwrap">${f.prefix?`<span>${f.prefix}</span>`:''}<input class="box ${f.wide?'wide':''}" inputmode="decimal" autocomplete="off" aria-label="${f.label||'Respuesta'}">${f.suffix?`<span>${f.suffix}</span>`:''}</span></label>`).join('')}</div>`;
+  }
+  app.innerHTML = `<section class="screen">
+    <div class="lhead"><div class="licon" style="background:${L.color}">${L.icon}</div>
+      <div><small>Lección ${i+1}</small><h2>${L.title}</h2></div>
+      <button class="btn ghost" id="reviewBtn" aria-label="Repasar la idea clave">📘 Repasar</button></div>
+    <div class="track"><div class="track-top"><div>✔ ${st.correct} / ${GOAL}</div><span>${trackText(st.correct)}</span></div>${pathHTML(st.correct, popAt)}</div>
+    <div class="ex">
+      <div class="ex-grid ${ex.visual?'has-vis':''}">
+        ${ex.visual?`<div class="ex-visual">${ex.visual}</div>`:''}
+        <div><span class="tag">${ex.tag}</span><div class="prompt">${ex.prompt}</div>${ans}</div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="clearBtn">🗑 Borrar</button>
+        <button class="btn okb" id="checkBtn">✅ Comprobar respuesta</button>
+      </div>
+    </div></section>`;
+  // Opciones
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    app.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel','err'));
+    b.classList.add('sel'); st.sel = b.dataset.id;
+  });
+  // Casillas: al tocar se selecciona todo para reemplazar fácilmente
+  app.querySelectorAll('.box').forEach((inp,k,all) => {
+    const sel = () => setTimeout(()=>inp.select(), 0);
+    inp.addEventListener('focus', sel); inp.addEventListener('click', sel);
+    inp.addEventListener('input', () => { inp.classList.remove('err'); inp.value = inp.value.replace(/[^0-9.,\-−/%]/g,''); });
+    inp.addEventListener('keydown', e => { if (e.key==='Enter'){ e.preventDefault(); if (k<all.length-1 && !all[k+1].value) all[k+1].focus(); else check(); } });
+  });
+  $('#clearBtn').onclick = clearAnswers;
+  $('#checkBtn').onclick = check;
+  $('#reviewBtn').onclick = () => {
+    const o = modal(`<h3 style="margin-bottom:8px">${L.icon} Idea clave</h3><div style="text-align:left">${L.intro}</div><button class="btn vio block" data-close>Volver al ejercicio</button>`);
+    o.querySelector('[data-close]').onclick = () => closeModal(o);
+  };
+  if (!popAt) window.scrollTo({top:0});
+}
+function clearAnswers(){
+  const st = S.L[S.lesson];
+  app.querySelectorAll('.box').forEach(b => { b.value=''; b.classList.remove('err'); });
+  app.querySelectorAll('.opt').forEach(b => b.classList.remove('sel','err'));
+  st.sel = null;
+  const f = app.querySelector('.box'); if (f) f.focus();
+}
+function check(){
+  if (S.busy) return;
+  const st = S.L[S.lesson], ex = st.ex;
+  let res;
+  if (ex.kind==='choice'){
+    if (st.sel==null) return toast('Elige una opción antes de comprobar 👆');
+    res = st.sel===ex.answer ? {ok:true} : {ok:false, ...ex.onWrong(st.sel)};
+  } else {
+    const boxes = [...app.querySelectorAll('.box')], raw = boxes.map(b=>b.value);
+    if (raw.some(v=>v.trim()==='')) { const e = boxes.find(b=>!b.value.trim()); e.focus(); return toast('Completa todas las casillas ✏️'); }
+    const vals = raw.map(num);
+    if (vals.some(v=>isNaN(v))) return toast('Escribe solo números (puedes usar coma decimal) 🔢');
+    res = ex.check(vals);
+  }
+  res.ok ? onCorrect() : onWrong(res);
+}
+
+/* =========================================================
+   Retroalimentación
+   ========================================================= */
+const MOTIV = ['¡Sigue así!','Cada vez eres mejor.','Buen trabajo.','¡No te rindas nunca!','¡Vas por muy buen camino!','Tu cerebro está en modo probabilidad 🧠','¡Qué buena lógica!'];
+function onCorrect(){
+  const st = S.L[S.lesson], ex = st.ex;
+  S.correct++; st.correct++; st.streak++;
+  updateBar('ok');
+  const c = st.correct;
+  let extra = '';
+  if (c===4) extra = `<div class="milestone"><span class="m">🚩</span><div>¡Primer logro! Llevas 4 aciertos. ¡Vas muy bien, ${S.name.split(' ')[0]}!</div></div>`;
+  if (c===8) extra = `<div class="milestone"><span class="m">⭐</span><div>¡Segundo logro! 8 aciertos. ¡Solo te faltan 4 para la meta!</div></div>`;
+  if (c===GOAL) extra = `<div class="milestone"><span class="m">🏆</span><div>¡Llegaste a la meta de ${GOAL} aciertos!</div></div>`;
+  const sub = c>=10 && c<GOAL ? 'Ya casi completas esta lección.' : (st.streak>=3 && st.streak%3===0 ? `¡${st.streak} seguidas! ${pick(MOTIV)}` : `Has resuelto correctamente el ejercicio. ${pick(MOTIV)}`);
+  const o = modal(`<div class="fb-icon">✔</div><h3>${pick(['¡Excelente!','¡Muy bien!','¡Correcto!','¡Genial!'])}</h3>
+    <p class="sub">${sub}</p>${extra}<div class="explain"><b>📖 ¿Por qué es correcto?</b><br>${ex.explain}</div>
+    <button class="btn okb block" data-close>${c>=GOAL?'Ver mi logro 🎉':'Siguiente ejercicio'}</button>`, 'ok');
+  if (c===4 || c===8) confetti(30);
+  o.querySelector('[data-close]').onclick = () => closeModal(o, () => {
+    if (c>=GOAL){ st.done = true; st.ex = null; renderExercise(c); setTimeout(showComplete, 500); }
+    else { newExercise(); renderExercise(c); }
+  });
+}
+function onWrong(res){
+  const st = S.L[S.lesson];
+  S.wrong++; st.wrong++; st.streak = 0;
+  updateBar('bad');
+  const o = modal(`<div class="fb-icon">✖</div><h3>Inténtalo nuevamente</h3>
+    <p class="sub">Equivocarse también es aprender. ¡Tú puedes!</p>
+    <div class="fb-row"><b>🔎 ¿Dónde estuvo el error?</b><p>${res.where}</p></div>
+    <div class="fb-row"><b>📌 Qué revisar</b><p>${res.review}</p></div>
+    <div class="fb-row hint"><b>💡 Pista</b><p>${res.hint}</p></div>
+    <button class="btn badb block" data-close>Volver a intentarlo</button>`, 'bad');
+  o.querySelector('[data-close]').onclick = () => closeModal(o, () => {
+    const boxes = [...app.querySelectorAll('.box')];
+    if (boxes.length){
+      (res.bad || boxes.map((_,k)=>k)).forEach(k => boxes[k] && boxes[k].classList.add('err'));
+      const f = boxes[(res.bad||[0])[0]]; if (f) f.focus();
+    } else {
+      const s = app.querySelector('.opt.sel'); if (s){ s.classList.remove('sel'); s.classList.add('err'); }
+      st.sel = null;
+    }
+  });
+}
+function showComplete(){
+  const i = S.lesson, st = S.L[i], tot = st.correct + st.wrong, pct = tot ? Math.round(st.correct/tot*100) : 100;
+  const first = S.name.split(' ')[0];
+  const msg = pct>=85 ? `Excelente trabajo, ${first}. Cada día mejoras más en matemáticas.` : pct>=60 ? `¡Muy bien, ${first}! Aprendiste de tus errores y lo lograste.` : `¡Lo lograste, ${first}! Cada error fue una oportunidad para aprender. Sigue practicando.`;
+  const hasNext = i < LESSONS.length-1;
+  confetti(110);
+  const o = modal(`<div class="trophy">🏆</div><h3 style="color:var(--ink)">🎉 ¡Lección completada!</h3>
+    <p class="sub">${LESSONS[i].title}</p>
+    <div class="done-grid">
+      <div><b style="font-size:19px">${S.name}</b><span>Estudiante</span></div>
+      <div><b>${S.grade}</b><span>Grado</span></div>
+      <div><b>${mmss(lessonTime(i))}</b><span>⏱ Tiempo</span></div>
+      <div><b style="color:var(--ok-d)">${st.correct}</b><span>✔ Aciertos</span></div>
+      <div><b style="color:var(--bad-d)">${st.wrong}</b><span>✖ Errores</span></div>
+      <div><b>${pct}%</b><span>Porcentaje</span></div>
+    </div>
+    <div class="explain" style="text-align:center;background:#FFF5D6;font-weight:800">${msg}</div>
+    <div class="btn-col">
+      ${hasNext?`<button class="btn vio block" data-next>Siguiente lección: ${LESSONS[i+1].title}</button>`:`<div class="explain" style="text-align:center">🌟 ¡Completaste la última lección! Puedes repetir cualquiera para practicar.</div>`}
+      <button class="btn ghost block" data-menu>🏠 Menú principal</button>
+    </div>`, 'ok');
+  const nb = o.querySelector('[data-next]');
+  if (nb) nb.onclick = () => closeModal(o, () => openLesson(i+1));
+  o.querySelector('[data-menu]').onclick = () => closeModal(o, renderMenu);
+}
+
+/* =========================================================
+   Modales y confeti
+   ========================================================= */
+function modal(html, cls){
+  S.busy = true;
+  const o = document.createElement('div');
+  o.className = 'overlay';
+  o.innerHTML = `<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(o);
+  requestAnimationFrame(() => o.classList.add('show'));
+  setTimeout(() => { const b = o.querySelector('.btn'); if (b) b.focus(); }, 60);
+  o._key = e => { if (e.key==='Escape'){ const b = o.querySelector('[data-close],[data-menu]'); if (b) b.click(); } };
+  document.addEventListener('keydown', o._key);
+  return o;
+}
+function closeModal(o, cb){
+  document.removeEventListener('keydown', o._key);
+  o.classList.remove('show');
+  setTimeout(() => { o.remove(); if (!document.querySelector('.overlay')) S.busy = false; cb && cb(); }, 220);
+}
+function confetti(n){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#6D5DF6','#0FA3B1','#FFC83D','#F0525F','#17B179','#FF8C42'];
+  for (let i=0;i<n;i++){
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random()*100 + 'vw';
+    d.style.background = pick(cols);
+    d.style.animationDuration = (1.8 + Math.random()*1.8) + 's';
+    d.style.animationDelay = Math.random()*.5 + 's';
+    d.style.transform = `rotate(${R(0,360)}deg)`;
+    if (Math.random()<.4) d.style.borderRadius = '50%';
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 4500);
+  }
+}
+
+/* =========================================================
+   Inicio
+   ========================================================= */
+$('#homeBtn').onclick = () => {
+  document.querySelectorAll('.overlay').forEach(o => { document.removeEventListener('keydown', o._key); o.remove(); });
+  S.busy = false;
+  renderMenu();
+};
+renderWelcome();
+</script>
+</body>
+</html>
