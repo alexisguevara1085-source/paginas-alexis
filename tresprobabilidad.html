@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B2559">
+<title>¿De cuántas formas? · Técnicas de conteo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1B2559; --ink2:#4A5585; --bg:#EEF3FF; --card:#FFFFFF; --line:#DCE4FA;
+  --pri:#0FA3B1; --pri-d:#0B7F8A; --sun:#FFC83D; --sun-d:#E0A614;
+  --vio:#6D5DF6; --vio-d:#5244D6;
+  --ok:#17B179; --ok-d:#10885C; --okbg:#E4FAF1;
+  --bad:#F0525F; --bad-d:#C93846; --badbg:#FFEDEF;
+  --r-lg:28px; --r-md:20px; --r-sm:14px;
+  --shadow:0 10px 30px rgba(27,37,89,.10);
+  --head:"Baloo 2", "Nunito", system-ui, sans-serif;
+  --body:"Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;-webkit-tap-highlight-color:transparent;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(circle at 12% 18%, rgba(109,93,246,.10) 0 90px, transparent 91px),
+  radial-gradient(circle at 88% 70%, rgba(15,163,177,.10) 0 120px, transparent 121px),
+  radial-gradient(circle at 70% 8%, rgba(255,200,61,.16) 0 60px, transparent 61px)}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:4px solid var(--sun);outline-offset:3px}
+.hidden{display:none!important}
+
+/* ---------- Barra superior ---------- */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:50;background:var(--ink);color:#fff;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 10px;box-shadow:0 6px 20px rgba(27,37,89,.25)}
+.tb-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-who{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--sun);color:var(--ink);display:grid;place-items:center;font-family:var(--head);font-weight:800;font-size:22px;flex:none}
+.tb-name{font-weight:900;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-grade{font-size:14px;opacity:.8;font-weight:700}
+.tb-stats{display:flex;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.12);font-weight:900;font-size:16px;font-variant-numeric:tabular-nums}
+.chip.okc{background:rgba(23,177,121,.25);color:#9CF5CF}
+.chip.badc{background:rgba(240,82,95,.25);color:#FFB8BF}
+.chip.bump{animation:bump .5s ease}
+.home-btn{width:48px;height:48px;border-radius:16px;border:0;background:#fff;color:var(--ink);font-size:24px;display:grid;place-items:center;box-shadow:0 4px 0 #B9C4EA;flex:none}
+.home-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #B9C4EA}
+@media (max-width:620px){
+  .tb-stats{order:3;width:100%;justify-content:space-between}
+  .chip{flex:1;justify-content:center}
+}
+
+/* ---------- Contenedor ---------- */
+#app{max-width:1080px;margin:0 auto;padding:18px 16px 40px}
+body.has-bar #app{padding-top:96px}
+@media (max-width:620px){body.has-bar #app{padding-top:140px}}
+.screen{animation:enter .35s ease both}
+
+/* ---------- Botones ---------- */
+.btn{border:0;border-radius:var(--r-md);min-height:60px;padding:14px 22px;font-size:19px;font-weight:900;color:#fff;background:var(--pri);box-shadow:0 5px 0 var(--pri-d);transition:transform .08s, box-shadow .08s, filter .15s;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--pri-d)}
+.btn.vio{background:var(--vio);box-shadow:0 5px 0 var(--vio-d)}
+.btn.vio:active{box-shadow:0 1px 0 var(--vio-d)}
+.btn.okb{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
+.btn.okb:active{box-shadow:0 1px 0 var(--ok-d)}
+.btn.badb{background:var(--bad);box-shadow:0 5px 0 var(--bad-d)}
+.btn.badb:active{box-shadow:0 1px 0 var(--bad-d)}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--line);border:2px solid var(--line)}
+.btn.ghost:active{box-shadow:0 1px 0 var(--line)}
+.btn.block{width:100%}
+
+/* ---------- Bienvenida ---------- */
+.welcome{max-width:520px;margin:0 auto;text-align:center;padding-top:10px}
+.mascot{width:150px;height:150px;margin:0 auto 8px;animation:float 3.5s ease-in-out infinite}
+.welcome h1{font-size:44px;font-weight:800;letter-spacing:-.5px}
+.welcome .lead{color:var(--ink2);font-size:19px;margin:6px 0 22px}
+.panel{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;text-align:left}
+.lbl{display:block;font-weight:900;margin:0 0 8px;font-size:17px}
+.txt{width:100%;min-height:62px;border-radius:var(--r-md);border:3px solid var(--line);padding:12px 18px;font-size:21px;font-family:inherit;font-weight:800;color:var(--ink);background:#F8FAFF}
+.txt:focus{border-color:var(--pri);outline:none;background:#fff}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.gbtn{min-height:58px;border-radius:var(--r-md);border:3px solid var(--line);background:#F8FAFF;font-size:22px;font-weight:900;color:var(--ink);font-family:var(--head)}
+.gbtn.sel{border-color:var(--vio);background:#EFEDFF;color:var(--vio-d);transform:scale(1.03)}
+.err-msg{color:var(--bad-d);font-weight:800;font-size:15px;min-height:22px;margin:6px 0 10px}
+
+/* ---------- Menú ---------- */
+.hello{display:flex;align-items:center;gap:16px;margin:6px 0 20px}
+.hello h2{font-size:32px;font-weight:800}
+.hello p{margin:2px 0 0;color:var(--ink2)}
+.stats-card{background:var(--ink);color:#fff;border-radius:var(--r-lg);padding:20px;margin-bottom:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;box-shadow:var(--shadow)}
+.stat{text-align:center}
+.stat b{display:block;font-family:var(--head);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;opacity:.8;font-weight:700}
+@media (max-width:520px){.stats-card{grid-template-columns:repeat(2,1fr)}}
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.lcard{position:relative;border:0;text-align:left;background:var(--card);border-radius:var(--r-lg);padding:18px 18px 16px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;color:var(--ink);transition:transform .15s}
+.lcard:hover{transform:translateY(-3px)}
+.lcard:active{transform:scale(.98)}
+.licon{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;font-size:34px;flex:none}
+.lcard h3{font-size:22px;margin:2px 0 4px}
+.lcard p{margin:0 0 10px;color:var(--ink2);font-size:16px;line-height:1.35}
+.lnum{font-weight:900;font-size:14px;color:var(--ink2)}
+.mini{height:12px;background:#EEF1FA;border-radius:99px;overflow:hidden}
+.mini i{display:block;height:100%;border-radius:99px;transition:width .5s}
+.lmeta{display:flex;justify-content:space-between;font-size:14px;font-weight:800;color:var(--ink2);margin-top:6px}
+.done-badge{position:absolute;top:12px;right:14px;background:var(--okbg);color:var(--ok-d);font-weight:900;font-size:13px;padding:4px 10px;border-radius:99px}
+
+/* ---------- Lección ---------- */
+.lhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.lhead .licon{width:54px;height:54px;font-size:28px;border-radius:18px}
+.lhead h2{font-size:26px}
+.lhead small{font-weight:800;color:var(--ink2);font-size:15px}
+.lhead .btn{margin-left:auto;min-height:48px;padding:8px 14px;font-size:16px}
+
+/* Camino de progreso */
+.track{background:var(--card);border-radius:var(--r-lg);padding:16px 18px 14px;box-shadow:var(--shadow);margin-bottom:16px}
+.track-top{display:flex;justify-content:space-between;align-items:baseline;font-weight:900;margin-bottom:10px;gap:10px}
+.track-top div{white-space:nowrap}
+.track-top span{color:var(--ink2);font-size:15px;font-weight:800;text-align:right}
+.path{display:flex;align-items:center}
+.seg{flex:1;height:6px;background:#E3E8F7;border-radius:4px;position:relative;overflow:hidden;min-width:4px}
+.seg i{position:absolute;inset:0;background:var(--pri);transform:scaleX(0);transform-origin:left;transition:transform .45s ease}
+.seg.on i{transform:scaleX(1)}
+.node{width:18px;height:18px;border-radius:50%;background:#E3E8F7;flex:none;transition:background .3s}
+.node.on{background:var(--pri)}
+.node.mile{width:40px;height:40px;display:grid;place-items:center;font-size:20px;background:#F1F3FB;border:3px dashed #C7CFEA}
+.node.mile.on{background:var(--sun);border:3px solid var(--sun-d)}
+.node.pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
+
+/* Tarjeta de ejercicio */
+.ex{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:22px;animation:enter .35s ease both}
+.ex-grid{display:grid;gap:20px}
+@media (min-width:860px){.ex-grid.has-vis{grid-template-columns:minmax(300px,420px) 1fr;align-items:center}}
+.ex-visual{background:#F5F8FF;border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:120px;overflow-x:auto}
+.tag{display:inline-block;background:#EFEDFF;color:var(--vio-d);font-weight:900;font-size:14px;padding:5px 12px;border-radius:99px;margin-bottom:10px}
+.prompt{font-size:21px;font-weight:700;line-height:1.45;margin-bottom:18px}
+.prompt b{font-weight:900}
+.answers{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:6px;font-weight:900;font-size:16px;color:var(--ink2)}
+.boxwrap{display:flex;align-items:center;gap:8px;font-family:var(--head);font-size:30px;font-weight:800;color:var(--ink)}
+.box{width:110px;height:76px;border-radius:var(--r-md);border:3px solid var(--line);background:#F8FAFF;text-align:center;font-size:32px;font-weight:900;color:var(--ink);font-family:var(--body);transition:border-color .15s, box-shadow .15s;-moz-appearance:textfield}
+.box.wide{width:150px}
+.box:focus{outline:none;border-color:var(--pri);background:#fff;box-shadow:0 0 0 5px rgba(15,163,177,.18)}
+.box.err{border-color:var(--bad);background:var(--badbg);animation:shake .45s}
+.fraction{display:flex;align-items:center;gap:14px}
+.fraction .p{font-family:var(--head);font-size:30px;font-weight:800}
+.fstack{display:flex;flex-direction:column;align-items:center;gap:8px}
+.fstack .bar{width:124px;height:6px;border-radius:4px;background:var(--ink)}
+.fstack small{font-size:13px;font-weight:800;color:var(--ink2)}
+.opts{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:520px){.opts.two{grid-template-columns:1fr 1fr}}
+.opt{min-height:60px;border-radius:var(--r-md);border:3px solid var(--line);background:#fff;font-size:19px;font-weight:800;color:var(--ink);text-align:left;padding:10px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 0 var(--line);transition:transform .08s}
+.opt .e{font-size:24px;width:32px;text-align:center}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.opt.sel{border-color:var(--vio);background:#EFEDFF;box-shadow:0 4px 0 #BDB5FB}
+.opt.err{border-color:var(--bad);background:var(--badbg);animation:shake .45s;box-shadow:0 4px 0 #F6B9BF}
+.actions{display:flex;gap:12px;margin-top:22px}
+.actions .btn.ghost{flex:1}
+.actions .btn.okb{flex:2}
+
+/* Visuales */
+.svg-bag{width:180px;height:auto}
+.svg-die{width:52px;height:52px}
+.dice-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.svg-spin{width:210px;height:auto}
+.spin{animation:spinIn 1.2s cubic-bezier(.2,.8,.2,1) both;transform-origin:110px 118px}
+.svg-scale{width:100%;max-width:420px;height:auto}
+.ball{animation:drop .45s cubic-bezier(.3,1.4,.5,1) both;transform-box:fill-box;transform-origin:center}
+.tiles{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:380px}
+.tile{min-width:42px;height:48px;padding:0 6px;border-radius:12px;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--head);font-size:22px;font-weight:800;box-shadow:0 3px 0 var(--line)}
+.caption{font-size:15px;font-weight:800;color:var(--ink2);text-align:center}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;font-size:15px;font-weight:800}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.grid100{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;width:100%;max-width:260px}
+.grid100 span{aspect-ratio:1;border-radius:4px;background:#E3E8F7}
+.grid100 span.on{background:var(--vio);animation:fillc .3s both}
+.pbar{display:flex;width:100%;max-width:400px;height:64px;border-radius:16px;overflow:hidden;border:3px solid var(--ink)}
+.pbar div{display:grid;place-items:center;color:#fff;font-weight:900;font-size:16px;text-align:center;line-height:1.1;padding:2px;min-width:0;overflow:hidden}
+.pbar .q{background:repeating-linear-gradient(45deg,#fff 0 10px,#EEF1FA 10px 20px);color:var(--ink);font-size:26px;font-family:var(--head)}
+.dtab{border-collapse:separate;border-spacing:3px;font-weight:900;font-size:15px}
+.dtab th{background:var(--ink);color:#fff;border-radius:8px;width:34px;height:30px}
+.dtab td{background:#fff;border:2px solid var(--line);border-radius:8px;text-align:center;width:34px;height:30px}
+.people{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;font-size:21px;max-width:360px;line-height:1.1}
+.big-frac{font-family:var(--head);font-size:40px;font-weight:800}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 3px;font-weight:900}
+.frac span:first-child{border-bottom:3px solid currentColor;padding:0 4px}
+.frac span:last-child{padding:0 4px}
+.segbar{display:flex;gap:3px;width:100%;max-width:360px}
+.segbar span{flex:1;height:34px;border-radius:6px;background:#E3E8F7}
+.segbar span.on{background:var(--pri)}
+.two-bags{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.two-bags figure{margin:0;text-align:center}
+.two-bags .svg-bag{width:150px}
+.two-bags figcaption{font-family:var(--head);font-size:22px;font-weight:800}
+.suits{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:340px}
+.suit{background:#fff;border-radius:14px;border:2px solid var(--line);text-align:center;padding:8px 4px;font-weight:900;font-size:14px}
+.suit b{display:block;font-size:30px;line-height:1.1}
+.bigemoji{font-size:84px;line-height:1;animation:float 3s ease-in-out infinite}
+
+/* Intro de la lección */
+.intro{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:24px;max-width:760px;margin:0 auto}
+.intro h2{font-size:30px;margin-bottom:6px}
+.intro .goal{display:inline-block;background:#FFF5D6;color:#8A6200;font-weight:900;border-radius:99px;padding:6px 14px;font-size:15px;margin-bottom:14px}
+.intro p{margin:0 0 12px}
+.idea{background:#F5F8FF;border-radius:var(--r-md);padding:16px;margin:14px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.formula{font-family:var(--head);font-size:26px;font-weight:800;text-align:center}
+.catchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.catchips span{background:#fff;border:2px solid var(--line);border-radius:99px;padding:6px 12px;font-weight:800;font-size:15px}
+
+/* ---------- Modales ---------- */
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(27,37,89,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s;padding:0}
+.overlay.show{opacity:1}
+.sheet{background:#fff;width:100%;max-width:560px;border-radius:30px 30px 0 0;padding:26px 22px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(40px);transition:transform .28s cubic-bezier(.2,.9,.3,1.2);max-height:92vh;overflow-y:auto;text-align:center}
+.overlay.show .sheet{transform:none}
+@media (min-width:700px){.overlay{align-items:center;padding:20px}.sheet{border-radius:30px}}
+.fb-icon{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:44px;font-weight:900;color:#fff}
+.sheet.ok{border-top:8px solid var(--ok)}
+.sheet.bad{border-top:8px solid var(--bad)}
+.ok .fb-icon{background:var(--ok);animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
+.bad .fb-icon{background:var(--bad);animation:shake .5s}
+.sheet h3{font-size:32px;font-weight:800}
+.ok h3{color:var(--ok-d)} .bad h3{color:var(--bad-d)}
+.sub{color:var(--ink2);font-weight:700;margin:4px 0 14px}
+.explain{background:var(--okbg);border-radius:var(--r-md);padding:14px 16px;text-align:left;margin-bottom:16px;font-size:17px}
+.fb-row{background:#F7F8FC;border-radius:var(--r-md);padding:12px 16px;text-align:left;margin-bottom:10px;font-size:17px}
+.fb-row b{display:block;margin-bottom:2px}
+.fb-row p{margin:0}
+.fb-row.hint{background:#FFF5D6}
+.milestone{background:linear-gradient(135deg,#FFF3C4,#FFE08A);border-radius:var(--r-md);padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;text-align:left;font-weight:800}
+.milestone .m{font-size:44px;animation:pop .8s cubic-bezier(.3,1.6,.5,1) .15s both}
+.sheet .btn{margin-top:6px}
+.done-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.done-grid div{background:#F5F8FF;border-radius:16px;padding:10px 6px}
+.done-grid b{display:block;font-family:var(--head);font-size:26px;line-height:1.1}
+.done-grid span{font-size:14px;font-weight:800;color:var(--ink2)}
+.trophy{font-size:80px;line-height:1;animation:pop .9s cubic-bezier(.3,1.6,.5,1)}
+.btn-col{display:flex;flex-direction:column;gap:12px}
+
+/* Toast y confeti */
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--ink);color:#fff;font-weight:900;padding:14px 22px;border-radius:99px;opacity:0;transition:.3s;z-index:200;max-width:90vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.confetti{position:fixed;top:-20px;width:12px;height:16px;z-index:150;pointer-events:none;border-radius:3px;animation:fall linear forwards}
+
+@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.3)}100%{transform:scale(1)}}
+@keyframes bump{0%,100%{transform:scale(1)}40%{transform:scale(1.25)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes spinIn{from{transform:rotate(-300deg)}to{transform:rotate(0)}}
+@keyframes fillc{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ---------- Extras de esta app ---------- */
+.box{width:140px}
+.box.sm{width:96px}
+.answers{gap:14px 18px}
+.groups{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px}
+.grp{background:#fff;border:2px solid var(--line);border-radius:18px;padding:10px;text-align:center;max-width:190px}
+.grp-items{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.grp-l{font-size:14px;font-weight:900;color:var(--ink2);margin-top:6px}
+.it{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.15);animation:fillc .3s both}
+.it.big{width:56px;height:56px;font-size:32px;border-radius:16px}
+.times{font-family:var(--head);font-size:30px;font-weight:800;color:var(--ink2)}
+.slots{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:8px}
+.slot{text-align:center}
+.slot .sv{width:62px;height:62px;border-radius:16px;border:3px dashed var(--vio);background:#fff;display:grid;place-items:center;font-family:var(--head);font-size:28px;font-weight:800;color:var(--vio-d)}
+.slot small{display:block;font-weight:800;font-size:13px;color:var(--ink2);margin-top:4px;max-width:84px}
+.slots .times{margin-top:12px}
+.svg-tree{width:100%;max-width:310px;height:auto}
+.svg-poly{width:220px;height:auto}
+.svg-pod{width:240px;height:auto}
+.svg-flag{width:200px;height:auto}
+.notation{font-family:var(--head);font-size:42px;font-weight:800;line-height:1.1;text-align:center}
+.formula-s{font-family:var(--head);font-size:20px;font-weight:700;color:var(--ink2);text-align:center}
+.sec-head{display:flex;align-items:center;gap:14px;margin:30px 0 14px}
+.sec-head:first-of-type{margin-top:6px}
+.sec-head .licon{width:58px;height:58px;font-size:30px;border-radius:18px}
+.sec-head h2{font-size:28px;font-weight:800}
+.sec-head p{margin:0;color:var(--ink2);font-size:16px}
+.mode{display:inline-block;font-weight:900;font-size:13px;padding:3px 10px;border-radius:99px;margin-bottom:4px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.actions .btn.okb{grid-column:1/-1;order:3}
+.btn.sunb{background:var(--sun);color:var(--ink);box-shadow:0 5px 0 var(--sun-d)}
+.btn.sunb:active{box-shadow:0 1px 0 var(--sun-d)}
+.steps{list-style:none;padding:0;margin:10px 0 0}
+.steps li{background:#fff;border-radius:12px;padding:8px 12px;margin-bottom:6px;font-family:var(--head);font-size:19px;font-weight:700;animation:enter .3s both}
+.fb-row.calc{background:#EFEDFF}
+.fb-row .steps b,.explain .steps b{display:inline;margin:0}
+.op{font-family:var(--head);font-size:22px;font-weight:800;color:var(--ink);word-break:break-word}
+.res-big{font-family:var(--head);font-size:28px;font-weight:800;color:var(--vio-d);margin-top:4px}
+.reveal-btn{margin-top:10px;min-height:52px;font-size:17px;width:100%}
+.done-grid.four{grid-template-columns:repeat(2,1fr)}
+@media (min-width:480px){.done-grid.four{grid-template-columns:repeat(4,1fr)}}
+.ex-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ex-list span{background:#fff;border:2px solid var(--line);border-radius:10px;padding:2px 8px;font-weight:800}
+</style>
+</head>
+<body>
+
+<header id="topbar" class="hidden" aria-label="Datos del estudiante">
+  <div class="tb-in">
+    <div class="tb-who">
+      <div class="avatar" id="tbAv">?</div>
+      <div style="min-width:0">
+        <div class="tb-name" id="tbName"></div>
+        <div class="tb-grade" id="tbGrade"></div>
+      </div>
+    </div>
+    <div class="tb-stats">
+      <span class="chip" title="Tiempo transcurrido">⏱ <span id="tbTime">00:00</span></span>
+      <span class="chip okc" id="tbOkC" title="Aciertos">✔ <span id="tbOk">0</span></span>
+      <span class="chip badc" id="tbBadC" title="Errores">✖ <span id="tbBad">0</span></span>
+    </div>
+    <button class="home-btn" id="homeBtn" aria-label="Ir al menú principal" title="Inicio">🏠</button>
+  </div>
+</header>
+
+<main id="app"></main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   Utilidades
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const R = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a; };
+const near = (a,b) => Math.abs(a-b) < 1e-9;
+const N = x => String(x).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const fact = n => n<=1 ? 1 : n*fact(n-1);
+const fall = (n,r) => Array.from({length:r},(_,i)=>n-i);
+const prod = a => a.reduce((x,y)=>x*y,1);
+const perm = (n,r) => prod(fall(n,r));
+const comb = (n,r) => perm(n,r)/fact(r);
+const frac = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const ORDN = ['1.º','2.º','3.º','4.º','5.º','6.º','7.º','8.º'];
+const NAMES = ['Valentina','Santiago','Mariana','Samuel','Isabella','Juan José','Sofía','Matías','Luciana','Emiliano','Sara','Tomás'];
+const listY = a => a.length<2 ? a.join('') : a.slice(0,-1).join(', ') + ' y ' + a[a.length-1];
+function num(s){
+  s = String(s==null?'':s).trim().replace(/\s/g,'');
+  if (!s) return NaN;
+  if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g,'');   // 5.040 → 5040
+  s = s.replace(',', '.');
+  if (!/^-?\d+(\.\d+)?$/.test(s)) return NaN;
+  return Number(s);
+}
+function mmss(ms){
+  const t = Math.floor(ms/1000), h = Math.floor(t/3600), m = Math.floor((t%3600)/60), s = t%60, p = n => String(n).padStart(2,'0');
+  return h ? `${h}:${p(m)}:${p(s)}` : `${p(m)}:${p(s)}`;
+}
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2300);
+}
+function perms(arr){
+  if (arr.length<=1) return [arr];
+  return arr.flatMap((x,i) => perms([...arr.slice(0,i), ...arr.slice(i+1)]).map(p => [x,...p]));
+}
+function combos(arr,r){
+  if (r===0) return [[]];
+  if (arr.length<r) return [];
+  const [h,...t] = arr;
+  return [...combos(t,r-1).map(c=>[h,...c]), ...combos(t,r)];
+}
+
+/* =========================================================
+   Ayuda: operaciones paso a paso
+   ========================================================= */
+function mulSteps(a){
+  let acc = a[0]; const steps = [];
+  for (let i=1;i<a.length;i++){ const nx = acc*a[i]; steps.push(`${N(acc)} × ${N(a[i])} = <b>${N(nx)}</b>`); acc = nx; }
+  return {expr:a.map(N).join(' × '), steps, result:acc};
+}
+function hMul(plan, arr, prefix=''){
+  const m = mulSteps(arr);
+  return {plan, op: prefix + m.expr, steps:m.steps, res:N(m.result)};
+}
+const hFact = (n, plan) => hMul(plan || `${n}! significa multiplicar desde ${n} hacia abajo hasta 1.`, fall(n,n), `${n}! = `);
+const hPerm = (n, r, plan) => hMul(plan || `Multiplica ${r} números seguidos empezando en ${n} y bajando de uno en uno.`, fall(n,r), `P(${n}, ${r}) = `);
+function hComb(n, r, plan){
+  const P = mulSteps(fall(n,r)), F = mulSteps(fall(r,r)), C = P.result/F.result;
+  return {plan: plan || `Primero calcula las permutaciones P(${n}, ${r}) y luego divide entre ${r}! para quitar los órdenes repetidos.`,
+    op:`C(${n}, ${r}) = (${P.expr}) ÷ (${F.expr})`,
+    steps:[...P.steps.map(s=>'Arriba: '+s), ...F.steps.map(s=>'Abajo: '+s), `${N(P.result)} ÷ ${N(F.result)} = <b>${N(C)}</b>`],
+    res:N(C)};
+}
+
+/* =========================================================
+   Verificadores
+   ========================================================= */
+const GEN = {where:'El resultado no es correcto.', review:'Revisa la operación que planteaste.', hint:'Toca 💡 Ayuda para ver la operación que debes hacer.'};
+function oneCheck(ans, traps=[], gen=GEN){
+  return ([v]) => {
+    if (near(v,ans)) return {ok:true};
+    for (const [val,r] of traps) if (!near(val,ans) && near(v,val)) return {ok:false, bad:[0], ...r};
+    return {ok:false, bad:[0], ...gen};
+  };
+}
+function multiCheck(ans, info){
+  return v => {
+    const bad = ans.map((a,i)=>near(v[i],a)?-1:i).filter(i=>i>=0);
+    if (!bad.length) return {ok:true};
+    const f = info[bad[0]];
+    return {ok:false, bad,
+      where: bad.length>1 ? `Hay ${bad.length} casillas con error: ${bad.map(i=>'“'+info[i].name+'”').join(', ')}.` : `La casilla “${f.name}” no es correcta.`,
+      review:f.review, hint:f.hint};
+  };
+}
+const T_SUM = s => [s, {where:'Parece que sumaste las opciones.', review:'Cuando eliges una cosa Y otra, las opciones se multiplican.', hint:'Principio multiplicativo: multiplica las opciones de cada etapa.'}];
+const T_REP = (v,rep) => [v, rep
+  ? {where:'Calculaste como si no se pudieran repetir.', review:'Aquí sí se puede repetir: cada posición tiene todas las opciones.', hint:'Todos los factores de la multiplicación son iguales.'}
+  : {where:'Calculaste como si se pudieran repetir.', review:'Sin repetición, cada posición tiene una opción menos que la anterior.', hint:'Los factores van bajando de uno en uno.'}];
+const T_COMB = v => [v, {where:'Contaste grupos sin orden, pero aquí el orden sí importa.', review:'Es una permutación: no dividas entre r!.', hint:'Solo multiplica los factores que van bajando.'}];
+const T_PERM = v => [v, {where:'Contaste cada grupo varias veces, como si el orden importara.', review:'Es una combinación: después de multiplicar, divide entre r!.', hint:'El grupo {A, B} es el mismo que {B, A}.'}];
+const T_FACT = (v,n) => [v, {where:`Calculaste ${n}!, pero no se ordenan todos los elementos.`, review:'Solo se ocupan algunos lugares.', hint:'Multiplica únicamente tantos factores como lugares haya.'}];
+const T_POW = (v) => [v, {where:'Multiplicaste siempre el mismo número, como si se pudieran repetir.', review:'Cada vez que eliges, queda una opción menos.', hint:'Los factores van bajando de uno en uno.'}];
+
+/* =========================================================
+   Visuales
+   ========================================================= */
+const PAL = ['#F0525F','#3D8BFF','#17B179','#FFC83D','#8B5CF6','#FF8C42','#14B8C4','#EC4899','#64748B','#A3E635'];
+const chips = (e,n,big) => Array.from({length:n},(_,i)=>`<span class="it ${big?'big':''}" style="background:${PAL[i%PAL.length]};animation-delay:${i*40}ms">${Array.isArray(e)?e[i]:e}</span>`).join('');
+function groups(gs){
+  return `<div class="groups">${gs.map((g,i)=>`${i?'<span class="times">×</span>':''}<div class="grp"><div class="grp-items">${chips(g.e,g.n)}</div><div class="grp-l">${g.label}</div></div>`).join('')}</div>`;
+}
+const slots = (vals, labels) => `<div class="slots">${vals.map((v,i)=>`${i?'<span class="times">×</span>':''}<div class="slot"><div class="sv">${v}</div><small>${labels[i]||''}</small></div>`).join('')}</div>`;
+const tiles = arr => `<div class="tiles">${arr.map(t=>`<div class="tile">${t}</div>`).join('')}</div>`;
+const cap = t => `<div class="caption">${t}</div>`;
+function treeSVG(a, tops, rootE='🍦'){
+  const b = tops.length, L = a*b, gap = 38, h = L*gap+16, ry = h/2, ly = i => 8+gap/2+i*gap;
+  let lines = '', nodes = '';
+  for (let i=0;i<a;i++){
+    const y1 = (ly(i*b)+ly(i*b+b-1))/2;
+    lines += `<path d="M30 ${ry} C 70 ${ry}, 70 ${y1}, 110 ${y1}" fill="none" stroke="#B9C4EA" stroke-width="3"/>`;
+    for (let j=0;j<b;j++){
+      const y2 = ly(i*b+j);
+      lines += `<path d="M110 ${y1} C 150 ${y1}, 150 ${y2}, 188 ${y2}" fill="none" stroke="#B9C4EA" stroke-width="3"/>`;
+      nodes += `<circle cx="206" cy="${y2}" r="16" fill="#fff" stroke="#DCE4FA" stroke-width="2"/><text x="206" y="${y2+1}" text-anchor="middle" dominant-baseline="central" font-size="17">${tops[j]}</text>`;
+      nodes += `<line x1="226" y1="${y2}" x2="242" y2="${y2}" stroke="#B9C4EA" stroke-width="2" stroke-dasharray="3 3"/><circle cx="256" cy="${y2}" r="10" fill="${PAL[i]}"/><text x="272" y="${y2+1}" dominant-baseline="central" font-size="16">${tops[j]}</text>`;
+    }
+    nodes += `<circle cx="110" cy="${y1}" r="18" fill="${PAL[i]}" stroke="#fff" stroke-width="3"/><text x="110" y="${y1+1}" text-anchor="middle" dominant-baseline="central" font-size="16">${rootE}</text>`;
+  }
+  nodes += `<circle cx="24" cy="${ry}" r="9" fill="#1B2559"/>`;
+  return `<svg class="svg-tree" viewBox="0 0 300 ${h}" role="img" aria-label="Diagrama de árbol con ${a} ramas y ${b} opciones en cada una">${lines}${nodes}</svg>`;
+}
+function polySVG(n){
+  const cx=110, cy=110, r=86;
+  const pts = Array.from({length:n},(_,i)=>{const a=i/n*2*Math.PI-Math.PI/2; return [cx+r*Math.cos(a), cy+r*Math.sin(a)];});
+  let l = '';
+  for (let i=0;i<n;i++) for (let j=i+1;j<n;j++) l += `<line x1="${pts[i][0].toFixed(1)}" y1="${pts[i][1].toFixed(1)}" x2="${pts[j][0].toFixed(1)}" y2="${pts[j][1].toFixed(1)}" stroke="#C9C2F7" stroke-width="2.5"/>`;
+  const nd = pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="17" fill="${PAL[i]}" stroke="#fff" stroke-width="3"/><text x="${p[0].toFixed(1)}" y="${(p[1]+1).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="17">🙂</text>`).join('');
+  return `<svg class="svg-poly" viewBox="0 0 220 220" role="img" aria-label="${n} personas unidas por líneas: cada línea es un saludo">${l}${nd}</svg>`;
+}
+function podiumSVG(r){
+  const P = [{x:90,y:30,h:90,c:'#FFC83D',t:'1'},{x:25,y:55,h:65,c:'#C9D2EA',t:'2'},{x:155,y:75,h:45,c:'#FFB27A',t:'3'}].slice(0,r);
+  return `<svg class="svg-pod" viewBox="0 0 240 125" role="img" aria-label="Podio de ${r} puestos">${P.map(p=>`<rect x="${p.x}" y="${p.y}" width="60" height="${p.h}" rx="8" fill="${p.c}"/><text x="${p.x+30}" y="${p.y+28}" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="24" fill="#1B2559">${p.t}</text><text x="${p.x+30}" y="${p.y-8}" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="22" fill="#6D5DF6">?</text>`).join('')}<rect x="10" y="118" width="220" height="5" rx="2" fill="#1B2559"/></svg>`;
+}
+function flagSVG(k){
+  const w = 180/k;
+  return `<svg class="svg-flag" viewBox="0 0 200 120" role="img" aria-label="Bandera de ${k} franjas">${Array.from({length:k},(_,i)=>`<rect x="${10+i*w}" y="10" width="${w}" height="100" fill="#fff" stroke="#6D5DF6" stroke-width="3" stroke-dasharray="6 5"/><text x="${10+i*w+w/2}" y="68" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="28" fill="#6D5DF6">?</text>`).join('')}</svg>`;
+}
+const colorDots = n => `<div class="grp-items">${Array.from({length:n},(_,i)=>`<span class="it" style="background:${PAL[i]}"></span>`).join('')}</div>`;
+
+/* =========================================================
+   SECCIÓN A · Principio multiplicativo
+   ========================================================= */
+function a1Outfit(){
+  const s = R(2,5), p = R(2,4), z = Math.random()<.35 ? R(2,3) : 0, who = pick(NAMES);
+  const gs = [{e:'👕',n:s,label:'Camisetas'},{e:'👖',n:p,label:'Pantalones'}];
+  if (z) gs.push({e:'👟',n:z,label:'Pares de tenis'});
+  const arr = gs.map(g=>g.n), tot = prod(arr), sum = arr.reduce((a,b)=>a+b);
+  return {tag:'👕 Arma tu pinta', kind:'input', fields:[{label:'Combinaciones'}], visual:groups(gs),
+    prompt:`${who} tiene ${z?`<b>${s}</b> camisetas, <b>${p}</b> pantalones y <b>${z}</b> pares de tenis`:`<b>${s}</b> camisetas y <b>${p}</b> pantalones`}. ¿Cuántas combinaciones de ropa distintas puede armar usando una prenda de cada tipo?`,
+    check:oneCheck(tot,[T_SUM(sum)]), help:hMul('Multiplica la cantidad de opciones de cada tipo de prenda.', arr),
+    explain:`Cada camiseta se puede combinar con ${p} pantalones${z?`, y cada una de esas combinaciones con ${z} pares de tenis`:''}: ${arr.join(' × ')} = <b>${N(tot)}</b>.`};
+}
+function treeData(){
+  const a = R(2,3), b = a===2 ? R(2,4) : R(2,3);
+  return {a, b, tops:shuffle(['🍫','🍓','🥥','🍪','🍒']).slice(0,b)};
+}
+function a1Tree(){
+  const {a,b,tops} = treeData();
+  return {tag:'🌳 Diagrama de árbol', kind:'input', fields:[{label:'Helados distintos'}],
+    visual: treeSVG(a,tops) + cap('Cada color es un sabor; a la derecha, los helados que resultan'),
+    prompt:`En la heladería eliges <b>un sabor</b> (círculos de color) y <b>un topping</b>. Observa el diagrama. ¿Cuántos helados diferentes puedes pedir?`,
+    check:oneCheck(a*b,[T_SUM(a+b)]), help:hMul(`Hay ${a} ramas de sabor y cada una se abre en ${b} toppings.`, [a,b]),
+    explain:`${a} sabores × ${b} toppings = <b>${a*b}</b> helados. Cada final de rama es un helado distinto.`};
+}
+function a1TreeOp(){
+  const {a,b,tops} = treeData();
+  const ok = `${a} × ${b}`, opts = shuffle([ok, `${a} + ${b}`, `${a} × ${b} × 2`, `${a} + ${b} + 1`]).map(x=>({id:x,label:x,e:'🧮'}));
+  return {tag:'🌳 ¿Qué operación es?', kind:'choice', options:opts, two:true, answer:ok,
+    visual: treeSVG(a,tops),
+    prompt:'Este diagrama muestra todas las formas de combinar un sabor con un topping.<br>¿Qué operación da el total de helados?',
+    help:{plan:`Cuenta las ramas de la izquierda (sabores) y cuántas salen de cada una (toppings). Cuando cada opción se combina con todas las otras, se multiplica.`, op:`${a} × ${b}`, steps:[], res:String(a*b)},
+    explain:`Cada uno de los ${a} sabores se combina con los ${b} toppings: ${a} × ${b} = <b>${a*b}</b>.`,
+    onWrong:()=>({where:'Esa operación no da el número de finales de rama.', review:'Cuenta cuántas ramas hay al final del árbol.', hint:'Si cada sabor se abre en la misma cantidad de toppings, se multiplica.'})};
+}
+
+const A2CTX = [
+  {txt:n=>`El almuerzo de la cafetería trae una sopa, un plato fuerte y una bebida. Hay <b>${n[0]}</b> sopas, <b>${n[1]}</b> platos fuertes y <b>${n[2]}</b> bebidas. ¿Cuántos almuerzos distintos se pueden servir?`, st:[['🥣','Sopas'],['🍛','Platos fuertes'],['🥤','Bebidas']]},
+  {txt:n=>`Para ir de Pasto a Ipiales hay <b>${n[0]}</b> rutas y de Ipiales a Tulcán hay <b>${n[1]}</b> rutas. ¿De cuántas formas se puede ir de Pasto a Tulcán pasando por Ipiales?`, st:[['🛣️','Pasto → Ipiales'],['🛣️','Ipiales → Tulcán']]},
+  {txt:n=>`Un combo de cine incluye una película, unas crispetas y una bebida. Hay <b>${n[0]}</b> películas, <b>${n[1]}</b> sabores de crispetas y <b>${n[2]}</b> bebidas. ¿Cuántos combos distintos hay?`, st:[['🎬','Películas'],['🍿','Crispetas'],['🥤','Bebidas']]},
+  {txt:n=>`Para la feria de ciencias cada estudiante elige un tema y un formato. Hay <b>${n[0]}</b> temas y <b>${n[1]}</b> formatos (cartelera, maqueta, video…). ¿Cuántos proyectos distintos se pueden presentar?`, st:[['🔬','Temas'],['🗂️','Formatos']]},
+  {txt:n=>`En la tienda escolar un desayuno trae una bebida caliente, un pan y una fruta. Hay <b>${n[0]}</b> bebidas calientes, <b>${n[1]}</b> tipos de pan y <b>${n[2]}</b> frutas. ¿Cuántos desayunos distintos hay?`, st:[['☕','Bebidas calientes'],['🥐','Panes'],['🍌','Frutas']]}
+];
+function a2Locate(){
+  const c = pick(A2CTX), n = c.st.map(()=>R(2,5)), tot = prod(n);
+  const fields = c.st.map((s,i)=>({label:`${s[0]} ${s[1]}`, sm:true, suffix: i<c.st.length-1 ? '×' : '='})).concat([{label:'Total'}]);
+  const info = c.st.map(s=>({name:s[1], review:`Busca en el texto cuántas opciones de “${s[1].toLowerCase()}” hay.`, hint:'Cada número en negrilla corresponde a una etapa.'}))
+    .concat([{name:'Total', review:'El total es la multiplicación de todas las etapas.', hint:`Multiplica ${n.join(' × ')}.`}]);
+  return {tag:'📍 Ubica los valores', kind:'input', fields, visual:groups(c.st.map((s,i)=>({e:s[0],n:n[i],label:s[1]}))),
+    prompt:`${c.txt(n)}<br>Escribe las opciones de cada etapa y el total.`,
+    check:multiCheck([...n, tot], info), help:hMul('Ubica el número de opciones de cada etapa y multiplícalos.', n),
+    explain:`Etapas: ${n.join(', ')}. Total: ${n.join(' × ')} = <b>${N(tot)}</b>.`};
+}
+function a2Missing(){
+  const a = R(2,6), b = R(2,8), t = a*b;
+  const C = pick([
+    {t:`Con <b>${a}</b> sabores de jugo y algunos tamaños de vaso se pueden pedir <b>${t}</b> jugos distintos. ¿Cuántos tamaños de vaso hay?`, l:['Sabores','Tamaños']},
+    {t:`Un equipo tiene <b>${a}</b> camisetas y varias pantalonetas; con ellas arma <b>${t}</b> uniformes distintos. ¿Cuántas pantalonetas tiene?`, l:['Camisetas','Pantalonetas']},
+    {t:`De la escuela al parque hay <b>${a}</b> caminos y del parque a la casa algunos más. En total hay <b>${t}</b> recorridos de la escuela a la casa pasando por el parque. ¿Cuántos caminos hay del parque a la casa?`, l:['Escuela → parque','Parque → casa']}
+  ]);
+  return {tag:'📍 El valor que falta', kind:'input', fields:[{label:C.l[1], sm:true}],
+    visual: slots([a,'?'], C.l) + `<div class="formula-s">= ${t}</div>`,
+    prompt:C.t,
+    check:oneCheck(b,[[t*a,{where:'Multiplicaste, pero aquí ya conoces el total.',review:'Si conoces el total y un factor, el otro factor se encuentra dividiendo.',hint:`¿Qué número multiplicado por ${a} da ${t}?`}],[t-a,{where:'Restaste, pero el total viene de una multiplicación.',review:'La operación contraria de multiplicar es dividir.',hint:`Calcula ${t} ÷ ${a}.`}]]),
+    help:{plan:`Sabes que ${a} × ? = ${t}. El número que falta se encuentra dividiendo.`, op:`${t} ÷ ${a}`, steps:[`${t} ÷ ${a} = <b>${b}</b>`], res:String(b)},
+    explain:`${a} × <b>${b}</b> = ${t}, por eso ${t} ÷ ${a} = <b>${b}</b>.`};
+}
+
+function a3Digits(){
+  const d = R(3,6), digs = shuffle([1,2,3,4,5,6,7,8,9]).slice(0,d).sort((x,y)=>x-y), rep = Math.random()<.5, k = R(2, rep?3:Math.min(4,d));
+  const arr = rep ? Array(k).fill(d) : fall(d,k), ans = prod(arr), other = rep ? perm(d,k) : d**k;
+  return {tag:'🔢 Formando números', kind:'input', fields:[{label:'Cantidad de números'}],
+    visual: tiles(digs) + cap('Dígitos disponibles') + slots(Array(k).fill('?'), Array.from({length:k},(_,i)=>`${i+1}.ª cifra`)),
+    prompt:`Con los dígitos ${digs.join(', ')} quieres formar números de <b>${k} cifras</b>${rep?' y los dígitos <b>sí se pueden repetir</b>':' <b>sin repetir</b> dígitos'}. ¿Cuántos números puedes formar?`,
+    check:oneCheck(ans,[T_REP(other,rep), T_SUM(arr.reduce((a,b)=>a+b))]),
+    help:hMul(rep ? `Cada una de las ${k} cifras puede ser cualquiera de los ${d} dígitos.` : `La 1.ª cifra tiene ${d} opciones; como no se repite, la siguiente tiene una menos, y así sucesivamente.`, arr),
+    explain:`Opciones por cifra: ${arr.join(' × ')} = <b>${N(ans)}</b> números.`};
+}
+const EXPS = [['🪙','lanzas una moneda',2],['🎲','lanzas un dado',6],['🎡','giras una ruleta de 4 colores',4],['🎯','giras una ruleta de 3 colores',3],['🃏','sacas una carta de 5 cartas distintas',5]];
+function a3Exp(){
+  const ex = shuffle(EXPS).slice(0, R(2,3)), arr = ex.map(e=>e[2]), tot = prod(arr);
+  return {tag:'🎲 Experimentos', kind:'input', fields:[{label:'Resultados posibles'}],
+    visual: slots(ex.map(e=>e[0]), ex.map(e=>e[1].replace(/^\S+ /,''))),
+    prompt:`Al mismo tiempo ${listY(ex.map(e=>e[1]))}. ¿Cuántos resultados posibles hay en total?`,
+    check:oneCheck(tot,[T_SUM(arr.reduce((a,b)=>a+b))]),
+    help:hMul(`Cuenta los resultados de cada experimento (${ex.map(e=>`${e[0]} ${e[2]}`).join(', ')}) y multiplícalos.`, arr),
+    explain:`${ex.map(e=>`${e[0]} ${e[2]}`).join(' × ')} = <b>${N(tot)}</b> resultados.`};
+}
+function a3Lock(){
+  const k = R(2,4), rep = Math.random()<.55, arr = rep ? Array(k).fill(10) : fall(10,k), ans = prod(arr), other = rep ? perm(10,k) : 10**k;
+  return {tag:'🔐 El candado', kind:'input', fields:[{label:'Claves posibles'}],
+    visual:`<div class="bigemoji">🔐</div>` + slots(Array(k).fill('?'), Array.from({length:k},(_,i)=>`Rueda ${i+1}`)) + cap('Cada rueda tiene los dígitos del 0 al 9'),
+    prompt:`Un candado tiene <b>${k} ruedas</b> con los dígitos del 0 al 9. ${rep?'Los dígitos <b>se pueden repetir</b>':'La clave <b>no puede repetir dígitos</b>'}. ¿Cuántas claves posibles hay?`,
+    check:oneCheck(ans,[T_REP(other,rep)]),
+    help:hMul(rep ? `Cada rueda tiene 10 opciones (del 0 al 9).` : `La 1.ª rueda tiene 10 opciones, la 2.ª tiene 9, y así sucesivamente.`, arr),
+    explain:`${arr.join(' × ')} = <b>${N(ans)}</b> claves.`};
+}
+
+function a4Plate(){
+  const L = pick([['las 5 vocales',5],['las letras A, B, C y D',4],['las 27 letras del alfabeto',27],['las letras X, Y y Z',3]]), k = R(2,3), arr = [L[1], ...Array(k).fill(10)], ans = prod(arr);
+  return {tag:'🚲 Placas', kind:'input', fields:[{label:'Placas distintas'}],
+    visual: slots(['🔤', ...Array(k).fill('🔢')], ['Letra', ...Array(k).fill('Dígito')]),
+    prompt:`Las bicicletas del colegio llevan una placa con <b>1 letra</b> (escogida entre ${L[0]}) seguida de <b>${k} dígitos</b> (del 0 al 9, que se pueden repetir). ¿Cuántas placas distintas se pueden hacer?`,
+    check:oneCheck(ans,[T_SUM(L[1]+10*k),[L[1]*10*k,{where:'Multiplicaste por 10 una sola vez.',review:`Hay ${k} dígitos y cada uno tiene 10 opciones.`,hint:`Debe haber un “× 10” por cada dígito.`}]]),
+    help:hMul(`La letra tiene ${L[1]} opciones y cada uno de los ${k} dígitos tiene 10 opciones.`, arr),
+    explain:`${arr.join(' × ')} = <b>${N(ans)}</b> placas.`};
+}
+function a4Exam(){
+  const vf = Math.random()<.6, n = vf ? R(3,8) : R(3,5), o = vf ? 2 : 4, ans = o**n;
+  return {tag:'📝 El examen', kind:'input', fields:[{label:'Formas de responder'}],
+    visual: slots(Array(n).fill(o), Array.from({length:n},(_,i)=>`Preg. ${i+1}`)),
+    prompt:`Un examen tiene <b>${n} preguntas</b> ${vf?'de <b>verdadero o falso</b>':'de selección múltiple con <b>4 opciones</b> (A, B, C, D)'}. Si se responden todas, ¿de cuántas formas distintas se puede llenar la hoja de respuestas?`,
+    check:oneCheck(ans,[[o*n,{where:`Multiplicaste ${o} × ${n}.`,review:`Cada pregunta tiene ${o} opciones y hay que multiplicar ${n} veces el ${o}.`,hint:`Escribe el ${o} tantas veces como preguntas haya y multiplica.`}],T_SUM(o*n)]),
+    help:hMul(`Cada una de las ${n} preguntas tiene ${o} opciones de respuesta.`, Array(n).fill(o)),
+    explain:`${Array(n).fill(o).join(' × ')} = <b>${N(ans)}</b> formas.`};
+}
+function a4Routes(){
+  const T = shuffle(['Pasto','Túquerres','Ipiales','La Cruz','Sandoná','Tumaco']).slice(0, R(3,4)), arr = T.slice(1).map(()=>R(2,4)), ans = prod(arr);
+  return {tag:'🗺️ Rutas', kind:'input', fields:[{label:'Recorridos'}],
+    visual: slots(arr.map(()=>'🛣️'), T.slice(1).map((t,i)=>`${T[i]} → ${t}`)),
+    prompt:`Un bus va de ${T.join(' a ')}. ${arr.map((a,i)=>`De ${T[i]} a ${T[i+1]} hay <b>${a}</b> rutas`).join('; ')}. ¿De cuántas formas puede hacer el recorrido completo?`,
+    check:oneCheck(ans,[T_SUM(arr.reduce((a,b)=>a+b))]),
+    help:hMul('Cada tramo es una etapa: multiplica las rutas de todos los tramos.', arr),
+    explain:`${arr.join(' × ')} = <b>${N(ans)}</b> recorridos.`};
+}
+function a4Uniform(){
+  const n = [R(2,5),R(2,4),R(2,4)], ans = prod(n);
+  return {tag:'⚽ Uniformes', kind:'input', fields:[{label:'Uniformes'}],
+    visual: groups([{e:'👕',n:n[0],label:'Camisetas'},{e:'🩳',n:n[1],label:'Pantalonetas'},{e:'🧦',n:n[2],label:'Medias'}]),
+    prompt:`El equipo de microfútbol tiene <b>${n[0]}</b> camisetas, <b>${n[1]}</b> pantalonetas y <b>${n[2]}</b> pares de medias de colores diferentes. ¿Cuántos uniformes distintos pueden usar?`,
+    check:oneCheck(ans,[T_SUM(n[0]+n[1]+n[2])]), help:hMul('Multiplica las opciones de cada prenda.', n),
+    explain:`${n.join(' × ')} = <b>${ans}</b> uniformes.`};
+}
+function a4Div(){
+  const a = R(3,8), b = R(3,9), t = a*b;
+  return {tag:'🥟 La tienda escolar', kind:'input', fields:[{label:'Bebidas', sm:true}],
+    visual: slots([a,'?'],['Empanadas','Bebidas']) + `<div class="formula-s">= ${t} combos</div>`,
+    prompt:`La tienda escolar anuncia <b>${t}</b> combos distintos de “empanada + bebida”. Si hay <b>${a}</b> tipos de empanada, ¿cuántas bebidas distintas hay?`,
+    check:oneCheck(b,[[t*a,{where:'Multiplicaste, pero el total ya es conocido.',review:'Para hallar un factor que falta, se divide.',hint:`Calcula ${t} ÷ ${a}.`}],[t-a,{where:'Restaste.',review:'El total viene de multiplicar, así que se divide.',hint:`Calcula ${t} ÷ ${a}.`}]]),
+    help:{plan:`${a} × ? = ${t}. Divide el total entre las empanadas.`, op:`${t} ÷ ${a}`, steps:[`${t} ÷ ${a} = <b>${b}</b>`], res:String(b)},
+    explain:`${t} ÷ ${a} = <b>${b}</b> bebidas, porque ${a} × ${b} = ${t}.`};
+}
+
+/* =========================================================
+   SECCIÓN B · Permutaciones
+   ========================================================= */
+const ORDER_CTX = [{e:'🧒',t:'amigos',v:'hacer fila para entrar al cine'},{e:'📚',t:'libros',v:'ubicarse en un estante'},{e:'🏃',t:'atletas',v:'ocupar los carriles de una pista'},{e:'🎤',t:'grupos',v:'presentarse en el festival'}];
+function b1Order(){
+  const n = R(3,5), c = pick(ORDER_CTX), ans = fact(n);
+  return {tag:'🧩 ¿Cuántos órdenes?', kind:'input', fields:[{label:'Formas de ordenar'}],
+    visual:`<div class="grp-items">${chips(c.e,n,true)}</div>` + slots(Array(n).fill('?'), ORDN.slice(0,n)),
+    prompt:`${n} ${c.t} distintos van a ${c.v}. ¿De cuántas formas diferentes se pueden ordenar?`,
+    check:oneCheck(ans,[[n**n,{where:'Usaste siempre el mismo número de opciones.',review:'Quien ya ocupó un lugar no puede volver a ocuparlo.',hint:`El 1.º lugar tiene ${n} opciones, el 2.º tiene ${n-1}…`}],T_SUM(n*(n+1)/2)]),
+    help:hFact(n, `El 1.º lugar tiene ${n} opciones, el 2.º ${n-1}, y así hasta 1. Eso es ${n}! (factorial).`),
+    explain:`${fall(n,n).join(' × ')} = <b>${ans}</b> órdenes distintos.`};
+}
+function b1Missing(){
+  const w = pick(['SOL','MAR','PAN','LUZ','OSA','UNO','DOS','RIO','TEA','AMO']).split(''), all = perms(w).map(a=>a.join('')), m = R(2,5);
+  return {tag:'🔤 Las que faltan', kind:'input', fields:[{label:'Ordenaciones que faltan', sm:true}],
+    visual: tiles(shuffle(all).slice(0,m)) + cap('Ordenaciones que ya encontró Sara'),
+    prompt:`Sara quiere escribir todas las formas de ordenar las letras <b>${w.join(', ')}</b> (tengan sentido o no). Ya encontró ${m}. ¿Cuántas le faltan?`,
+    check:oneCheck(6-m,[[6,{where:'Ese es el total de ordenaciones.',review:'Te preguntan cuántas faltan.',hint:`Resta las ${m} que ya encontró.`}],[9-m,{where:'El total no es 9.',review:'Con 3 letras distintas el total es 3!.',hint:'3 × 2 × 1 = 6.'}]]),
+    help:{plan:'Calcula el total de ordenaciones (3!) y resta las que ya encontró.', op:`3! − ${m}`, steps:['3 × 2 × 1 = <b>6</b>', `6 − ${m} = <b>${6-m}</b>`], res:String(6-m)},
+    explain:`En total hay 3! = 6: <div class="ex-list">${all.map(x=>`<span>${x}</span>`).join('')}</div>Le faltan 6 − ${m} = <b>${6-m}</b>.`};
+}
+function b1Podium(){
+  const n = R(4,8), r = Math.random()<.7 ? 3 : 2, ans = perm(n,r);
+  return {tag:'🏆 El podio', kind:'input', fields:[{label:'Podios posibles'}],
+    visual:`<div class="grp-items">${chips('🏃',n)}</div>` + podiumSVG(r),
+    prompt:`En una carrera participan <b>${n}</b> atletas. ¿De cuántas formas distintas pueden quedar ${r===3?'el 1.º, 2.º y 3.º puesto':'el 1.º y el 2.º puesto'}?`,
+    check:oneCheck(ans,[T_COMB(comb(n,r)),T_FACT(fact(n),n),T_POW(n**r)]),
+    help:hPerm(n,r,`El 1.º puesto lo puede ganar cualquiera de los ${n}; el 2.º, cualquiera de los ${n-1} restantes${r===3?`; el 3.º, cualquiera de los ${n-2}`:''}.`),
+    explain:`${fall(n,r).join(' × ')} = <b>${ans}</b>. Importa el orden: no es lo mismo ganar oro que plata.`};
+}
+
+const B2CTX = [
+  (n,r)=>`En una carrera de ciclismo participan <b>${n}</b> ciclistas y se premian los primeros <b>${r}</b> puestos.`,
+  (n,r)=>`La emisora escolar tiene <b>${n}</b> canciones y va a programar <b>${r}</b> de ellas, una tras otra, en el descanso.`,
+  (n,r)=>`De <b>${n}</b> dibujos del concurso se van a colgar <b>${r}</b> en una pared, uno al lado del otro.`,
+  (n,r)=>`De <b>${n}</b> estudiantes se van a escoger <b>${r}</b> para cargos distintos (presidente, vicepresidente${r>2?', tesorero':''}${r>3?', secretario':''}).`
+];
+function b2NR(){
+  const n = R(5,10), r = R(2,4), P = perm(n,r);
+  return {tag:'📍 Ubica n y r', kind:'input',
+    fields:[{label:'n (total)', sm:true},{label:'r (lugares)', sm:true},{label:'P(n, r)'}],
+    visual:`<div class="formula-s">P(n, r) = n × (n − 1) × … <br>(r factores)</div>`,
+    prompt:`${pick(B2CTX)(n,r)} ¿De cuántas formas puede pasar? Identifica <b>n</b>, <b>r</b> y calcula P(n, r).`,
+    check:multiCheck([n,r,P],[{name:'n',review:'n es el total de elementos disponibles.',hint:'Busca el número más grande del enunciado.'},{name:'r',review:'r es la cantidad de lugares o puestos que se ocupan en orden.',hint:'¿Cuántos se escogen?'},{name:'P(n, r)',review:'Multiplica r factores empezando en n.',hint:`${fall(n,r).join(' × ')}`}]),
+    help:hPerm(n,r,`n = ${n} (total) y r = ${r} (lugares). Multiplica ${r} factores desde ${n} bajando de uno en uno.`),
+    explain:`n = ${n}, r = ${r}. P(${n}, ${r}) = ${fall(n,r).join(' × ')} = <b>${N(P)}</b>.`};
+}
+function b2Fact(){
+  const n = R(3,8), ans = fact(n);
+  return {tag:'❗ Factorial', kind:'input', fields:[{label:`${n}!`, prefix:`${n}! =`}],
+    visual:`<div class="notation">${n}!</div>` + slots(fall(n,n), []),
+    prompt:`Calcula <b>${n}!</b> (se lee “${n} factorial”).`,
+    check:oneCheck(ans,[T_SUM(n*(n+1)/2),[fact(n)/n,{where:`Calculaste ${n-1}!.`,review:`El factorial empieza en ${n}.`,hint:`Multiplica también por ${n}.`}],[fact(n+1),{where:`Calculaste ${n+1}!.`,review:`El factorial empieza en ${n}, no en ${n+1}.`,hint:`${n} × ${n-1} × … × 1.`}]],{where:'La multiplicación tiene un error.',review:'Revisa cada paso de la multiplicación.',hint:'Toca 💡 Ayuda para verla paso a paso.'}),
+    help:hFact(n), explain:`${n}! = ${fall(n,n).join(' × ')} = <b>${N(ans)}</b>.`};
+}
+function b2Div(){
+  const n = R(6,12), k = R(2,3), ans = perm(n,k);
+  return {tag:'✂️ Simplifica', kind:'input', fields:[{label:'Resultado'}],
+    visual:`<div class="notation">${frac(n+'!',(n-k)+'!')}</div>`,
+    prompt:`Calcula ${n}! ÷ ${n-k}! sin hacer las multiplicaciones completas.<br><small>Pista: ${n}! = ${fall(n,k).join(' × ')} × ${n-k}!</small>`,
+    check:oneCheck(ans,[[perm(n,k+1),{where:'Multiplicaste un factor de más.',review:`Al cancelar ${n-k}!, solo quedan ${k} factores.`,hint:`Los factores que quedan son ${fall(n,k).join(', ')}.`}],[n/(n-k),{where:`Dividiste ${n} ÷ ${n-k}, pero son factoriales.`,review:'Escribe el factorial de arriba hasta llegar al de abajo.',hint:'Luego cancela lo que se repite.'}]]),
+    help:hMul(`${n}! = ${fall(n,k).join(' × ')} × ${n-k}!. El ${n-k}! se cancela con el de abajo y solo queda multiplicar.`, fall(n,k), `${n}! ÷ ${n-k}! = `),
+    explain:`${frac(`${fall(n,k).join(' × ')} × ${n-k}!`, `${n-k}!`)} = ${fall(n,k).join(' × ')} = <b>${N(ans)}</b>.`};
+}
+
+function b3Perm(){
+  const n = R(5,10), r = R(2,4), ans = perm(n,r);
+  return {tag:'✏️ Calcula P(n, r)', kind:'input', fields:[{label:'Resultado', prefix:`P(${n}, ${r}) =`}],
+    visual:`<div class="notation">P(${n}, ${r})</div><div class="formula-s">P(n, r) = ${frac('n!','(n − r)!')}</div>`,
+    prompt:`Calcula las permutaciones de <b>${n}</b> elementos tomados de <b>${r}</b> en <b>${r}</b>.`,
+    check:oneCheck(ans,[T_FACT(fact(n),n),T_COMB(comb(n,r)),T_POW(n**r),[n*r,{where:`Multiplicaste ${n} × ${r}.`,review:`r = ${r} indica cuántos factores multiplicar, no es un factor.`,hint:fall(n,r).join(' × ')}]]),
+    help:hPerm(n,r), explain:`P(${n}, ${r}) = ${fall(n,r).join(' × ')} = <b>${N(ans)}</b>.`};
+}
+function b3Anagram(){
+  const w = pick(['SOL','LUNA','GATO','LIBRO','NUBE','CIELO','PLATO','MUNDO','PASTO','CLAVE','RUTA','LÁPIZ','NARIÑO','FÚTBOL']), L = [...w], n = L.length, ans = fact(n);
+  return {tag:'🔤 Anagramas', kind:'input', fields:[{label:'Ordenaciones'}],
+    visual: tiles(L) + cap('Todas las letras son distintas'),
+    prompt:`¿Cuántas palabras distintas (tengan sentido o no) se pueden formar ordenando <b>todas</b> las letras de <b>${w}</b>?`,
+    check:oneCheck(ans,[T_POW(n**n),T_SUM(n*(n+1)/2)]),
+    help:hFact(n, `La palabra tiene ${n} letras distintas: se ordenan todas, así que es ${n}!.`),
+    explain:`${n}! = ${fall(n,n).join(' × ')} = <b>${N(ans)}</b>.`};
+}
+function b3Rep(){
+  const w = pick(['OSO','ANA','CASA','PAPA','LORO','COCO','PERRO','CARRO','ARROZ','BANANA','TOMATE','MAMÁ']), L = [...w.normalize('NFD').replace(/[̀-ͯ]/g,'')], n = L.length;
+  const cnt = {}; L.forEach(x=>cnt[x]=(cnt[x]||0)+1);
+  const reps = Object.entries(cnt).filter(([,c])=>c>1), den = prod(reps.map(([,c])=>fact(c))), ans = fact(n)/den;
+  const F = mulSteps(fall(n,n));
+  return {tag:'🔁 Letras repetidas', kind:'input', fields:[{label:'Ordenaciones'}],
+    visual: tiles([...w]) + cap(reps.map(([l,c])=>`La ${l} se repite ${c} veces`).join(' · ')),
+    prompt:`¿Cuántas ordenaciones distintas se pueden formar con todas las letras de <b>${w}</b>?`,
+    check:oneCheck(ans,[[fact(n),{where:'No tuviste en cuenta las letras repetidas.',review:'Al intercambiar letras iguales, la palabra no cambia.',hint:`Divide ${n}! entre ${reps.map(([,c])=>c+'!').join(' × ')}.`}]]),
+    help:{plan:`Calcula ${n}! y divide entre el factorial de las veces que se repite cada letra.`,
+      op:`${n}! ÷ (${reps.map(([,c])=>c+'!').join(' × ')})`,
+      steps:[...F.steps.map(s=>'Arriba: '+s), ...reps.map(([l,c])=>`${c}! = ${fall(c,c).join(' × ')} = <b>${fact(c)}</b> (letra ${l})`), `${N(fact(n))} ÷ ${den} = <b>${N(ans)}</b>`], res:N(ans)},
+    explain:`${n}! ÷ (${reps.map(([,c])=>c+'!').join(' × ')}) = ${N(fact(n))} ÷ ${den} = <b>${N(ans)}</b>.`};
+}
+
+function b4Elect(){
+  const n = R(6,12), r = Math.random()<.5 ? 2 : 3, ans = perm(n,r), cargos = r===2 ? 'un presidente y un vicepresidente' : 'un presidente, un vicepresidente y un tesorero';
+  return {tag:'🗳️ Elecciones', kind:'input', fields:[{label:'Formas de elegir'}],
+    visual: `<div class="grp-items">${chips('🧑‍🎓',n)}</div>` + slots(Array(r).fill('?'), ['Presidente','Vicepres.','Tesorero'].slice(0,r)),
+    prompt:`En el consejo estudiantil hay <b>${n}</b> estudiantes. Se va a elegir ${cargos}, y nadie puede tener dos cargos. ¿De cuántas formas se puede hacer?`,
+    check:oneCheck(ans,[T_COMB(comb(n,r)),T_FACT(fact(n),n),T_POW(n**r)]),
+    help:hPerm(n,r,`Para presidente hay ${n} opciones; para vicepresidente quedan ${n-1}${r===3?`; para tesorero quedan ${n-2}`:''}.`),
+    explain:`${fall(n,r).join(' × ')} = <b>${N(ans)}</b>. Los cargos son distintos, así que el orden importa.`};
+}
+function b4Photo(){
+  const n = R(3,7), ans = fact(n), who = shuffle(NAMES).slice(0,n);
+  return {tag:'📸 La foto', kind:'input', fields:[{label:'Formas de ubicarse'}],
+    visual:`<div class="grp-items">${chips('😃',n,true)}</div>` + slots(Array(n).fill('?'), ORDN.slice(0,n)),
+    prompt:`${listY(who)} se van a tomar una foto en fila. ¿De cuántas formas distintas se pueden ubicar?`,
+    check:oneCheck(ans,[T_POW(n**n),T_SUM(n*(n+1)/2)]),
+    help:hFact(n, `Son ${n} personas para ${n} lugares: se calcula ${n}!.`),
+    explain:`${n}! = ${fall(n,n).join(' × ')} = <b>${N(ans)}</b>.`};
+}
+function b4Flag(){
+  const n = R(4,7), k = 3, ans = perm(n,k);
+  return {tag:'🏳️ Banderas', kind:'input', fields:[{label:'Banderas distintas'}],
+    visual: colorDots(n) + cap(`${n} colores disponibles`) + flagSVG(k),
+    prompt:`Se quiere diseñar una bandera de <b>3 franjas verticales</b> usando <b>${n}</b> colores, sin repetir colores. ¿Cuántas banderas distintas se pueden hacer?`,
+    check:oneCheck(ans,[T_COMB(comb(n,k)),T_POW(n**k),T_FACT(fact(n),n)]),
+    help:hPerm(n,k,`La 1.ª franja tiene ${n} colores posibles, la 2.ª ${n-1} y la 3.ª ${n-2}.`),
+    explain:`${fall(n,k).join(' × ')} = <b>${ans}</b>. Cambiar el orden de los colores cambia la bandera.`};
+}
+function b4Pin(){
+  const k = R(3,4), ans = perm(10,k);
+  return {tag:'📱 Contraseña', kind:'input', fields:[{label:'Contraseñas'}],
+    visual:`<div class="bigemoji">📱</div>` + slots(Array(k).fill('?'), Array.from({length:k},(_,i)=>`Dígito ${i+1}`)),
+    prompt:`El celular pide un PIN de <b>${k} dígitos</b> (del 0 al 9) <b>sin repetir</b> ninguno. ¿Cuántos PIN distintos existen?`,
+    check:oneCheck(ans,[T_REP(10**k,false),T_COMB(comb(10,k))]),
+    help:hPerm(10,k,`El 1.er dígito tiene 10 opciones, el 2.º 9, y así sucesivamente.`),
+    explain:`${fall(10,k).join(' × ')} = <b>${N(ans)}</b> PIN.`};
+}
+function b4Park(){
+  const n = R(5,8), k = R(2,3), ans = perm(n,k);
+  return {tag:'🚗 Parqueadero', kind:'input', fields:[{label:'Formas de parquear'}],
+    visual:`<div class="grp-items">${chips('🚗',k,true)}</div>` + slots(Array(n).fill('🅿️'), Array.from({length:n},(_,i)=>`${i+1}`)),
+    prompt:`Al parqueadero del colegio llegan <b>${k}</b> carros y hay <b>${n}</b> espacios libres. ¿De cuántas formas se pueden parquear (un carro por espacio)?`,
+    check:oneCheck(ans,[T_COMB(comb(n,k)),T_POW(n**k),T_FACT(fact(n),n)]),
+    help:hPerm(n,k,`El 1.er carro escoge entre ${n} espacios, el 2.º entre ${n-1}${k===3?`, el 3.º entre ${n-2}`:''}.`),
+    explain:`${fall(n,k).join(' × ')} = <b>${ans}</b>.`};
+}
+
+/* =========================================================
+   SECCIÓN C · Combinaciones
+   ========================================================= */
+const ORDSIT = [
+  ['Elegir presidente y vicepresidente del curso','perm','Ser presidente no es lo mismo que ser vicepresidente.'],
+  ['Escoger 3 frutas para una ensalada','comb','La ensalada es la misma sin importar el orden en que eliges las frutas.'],
+  ['Formar un número de 3 cifras con dígitos distintos','perm','123 y 321 son números diferentes.'],
+  ['Elegir 2 compañeros para decorar el salón','comb','El grupo es el mismo sin importar a quién eliges primero.'],
+  ['Repartir el 1.º, 2.º y 3.º puesto de una carrera','perm','Cada puesto del podio es distinto.'],
+  ['Elegir 5 jugadores titulares de microfútbol','comb','Solo importa quiénes juegan, no el orden en que se eligen.'],
+  ['Crear una contraseña de 4 letras sin repetir','perm','ABCD y DCBA son contraseñas distintas.'],
+  ['Escoger 3 ingredientes para una pizza','comb','Queso, jamón y piña es la misma pizza que piña, jamón y queso.'],
+  ['Contar los saludos de mano en un grupo','comb','Que Ana salude a Luis es el mismo saludo que Luis salude a Ana.'],
+  ['Ordenar 4 libros en un estante','perm','Cambiar el orden cambia cómo queda el estante.'],
+  ['Elegir 6 números para un juego de lotería','comb','Lo que importa es qué números escoges, no en qué orden.'],
+  ['Repartir 3 premios distintos (bicicleta, tablet, balón)','perm','No es lo mismo ganar la bicicleta que el balón.']
+];
+const ORD_OPTS = [{id:'perm',label:'Sí importa el orden → Permutación',e:'🔢'},{id:'comb',label:'No importa el orden → Combinación',e:'🧺'}];
+function c1Order(){
+  const [t,ans,why] = pick(ORDSIT);
+  return {tag:'🤔 ¿Importa el orden?', kind:'choice', options:ORD_OPTS, answer:ans,
+    visual:'<div class="bigemoji">❓</div>',
+    prompt:`Situación: <b>${t}</b>.<br>¿Importa el orden?`,
+    help:{plan:'Imagina que cambias el orden de lo elegido. Si el resultado cambia, importa el orden (permutación). Si queda igual, no importa (combinación).', op:'¿AB es distinto de BA?', steps:[], res:''},
+    explain:`${why} Por eso es una <b>${ans==='perm'?'permutación':'combinación'}</b>.`,
+    onWrong:()=>({where:'Esa no es la clasificación correcta.', review:'Piensa qué pasa si intercambias dos de los elementos elegidos.', hint:'Si al cambiar el orden obtienes algo distinto, el orden importa.'})};
+}
+const FRUITS = ['🍎','🍌','🍓','🍍','🥭','🍇','🍉'];
+function c1Pairs(){
+  const n = R(3,6), r = n>=4 && Math.random()<.3 ? 3 : 2, f = FRUITS.slice(0,n), ans = comb(n,r);
+  return {tag:'🧃 Jugos de frutas', kind:'input', fields:[{label:'Jugos distintos'}],
+    visual:`<div class="grp-items">${chips(f,n,true)}</div>` + cap(`${f.slice(0,r).join('')} es el mismo jugo que ${f.slice(0,r).reverse().join('')}`),
+    prompt:`Tienes <b>${n}</b> frutas distintas y cada jugo se hace mezclando <b>${r}</b> de ellas. ¿Cuántos jugos diferentes puedes preparar?`,
+    check:oneCheck(ans,[[perm(n,r),{where:`Contaste ${f[0]}${f[1]} y ${f[1]}${f[0]} como jugos distintos.`,review:'En un jugo no importa el orden de las frutas.',hint:`Divide entre ${r}! para quitar los repetidos.`}],T_SUM(n+r)]),
+    help:hComb(n,r), explain:`C(${n}, ${r}) = <b>${ans}</b>: <div class="ex-list">${combos(f,r).map(c=>`<span>${c.join('')}</span>`).join('')}</div>`};
+}
+function c1Hands(){
+  const n = R(4,8), ans = comb(n,2);
+  return {tag:'🤝 Saludos de mano', kind:'input', fields:[{label:'Saludos'}],
+    visual: polySVG(n) + cap('Cada línea es un saludo'),
+    prompt:`<b>${n}</b> amigos se encuentran y cada uno saluda de mano a todos los demás una sola vez. ¿Cuántos saludos hay en total?`,
+    check:oneCheck(ans,[[n*(n-1),{where:'Contaste cada saludo dos veces.',review:'El saludo de A con B es el mismo que el de B con A.',hint:'Divide tu resultado entre 2.'}],[n*n,{where:`Calculaste ${n} × ${n}.`,review:'Nadie se saluda a sí mismo y cada saludo se cuenta una vez.',hint:`Usa C(${n}, 2).`}]]),
+    help:hComb(n,2,`Cada persona saluda a ${n-1}; eso da ${n} × ${n-1}, pero cada saludo queda contado dos veces, así que se divide entre 2.`),
+    explain:`C(${n}, 2) = (${n} × ${n-1}) ÷ 2 = <b>${ans}</b>. Son las líneas del dibujo.`};
+}
+
+const C2CTX = [
+  (n,r)=>`Para la feria de ciencias se escogen <b>${r}</b> estudiantes de un grupo de <b>${n}</b> para formar un equipo.`,
+  (n,r)=>`Una pizzería ofrece <b>${n}</b> ingredientes y en tu pizza puedes escoger <b>${r}</b> distintos.`,
+  (n,r)=>`De <b>${n}</b> libros de la biblioteca debes elegir <b>${r}</b> para leer en vacaciones.`,
+  (n,r)=>`En una caja hay <b>${n}</b> balotas de colores diferentes y sacas <b>${r}</b> al mismo tiempo.`
+];
+function c2NR(){
+  const n = R(5,10), r = R(2,4), C = comb(n,r);
+  return {tag:'📍 Ubica n y r', kind:'input',
+    fields:[{label:'n (total)', sm:true},{label:'r (se eligen)', sm:true},{label:'C(n, r)'}],
+    visual:`<div class="formula-s">C(n, r) = ${frac('P(n, r)','r!')}</div>`,
+    prompt:`${pick(C2CTX)(n,r)} ¿De cuántas formas se puede hacer? Identifica <b>n</b>, <b>r</b> y calcula C(n, r).`,
+    check:multiCheck([n,r,C],[{name:'n',review:'n es el total de elementos disponibles.',hint:'Es el número más grande del enunciado.'},{name:'r',review:'r es cuántos se escogen.',hint:'¿Cuántos elementos tiene cada grupo?'},{name:'C(n, r)',review:'Calcula P(n, r) y divide entre r!.',hint:`(${fall(n,r).join(' × ')}) ÷ ${r}!`}]),
+    help:hComb(n,r,`n = ${n} y r = ${r}. Calcula P(${n}, ${r}) y divide entre ${r}!.`),
+    explain:`n = ${n}, r = ${r}. C(${n}, ${r}) = ${N(perm(n,r))} ÷ ${fact(r)} = <b>${N(C)}</b>.`};
+}
+function c2Steps(){
+  const n = R(5,10), r = R(2,4), P = perm(n,r), F = fact(r), C = P/F;
+  return {tag:'🪜 Paso a paso', kind:'input',
+    fields:[{label:`P(${n}, ${r})`, suffix:'÷'},{label:`${r}!`, sm:true, suffix:'='},{label:`C(${n}, ${r})`}],
+    visual:`<div class="notation">C(${n}, ${r})</div><div class="formula-s">C(n, r) = P(n, r) ÷ r!</div>`,
+    prompt:`Completa los tres pasos para calcular <b>C(${n}, ${r})</b>.`,
+    check:multiCheck([P,F,C],[{name:`P(${n}, ${r})`,review:`Multiplica ${r} factores empezando en ${n}.`,hint:fall(n,r).join(' × ')},{name:`${r}!`,review:`${r}! = ${fall(r,r).join(' × ')}.`,hint:'Es el factorial de r.'},{name:`C(${n}, ${r})`,review:'Divide el primer resultado entre el segundo.',hint:`${N(P)} ÷ ${F}`}]),
+    help:hComb(n,r), explain:`${N(P)} ÷ ${F} = <b>${N(C)}</b>.`};
+}
+
+function c3Calc(){
+  const n = R(5,12), r0 = R(2,4), r = Math.random()<.2 ? n-r0 : r0, ans = comb(n,r), rr = Math.min(r,n-r);
+  return {tag:'✏️ Calcula C(n, r)', kind:'input', fields:[{label:'Resultado', prefix:`C(${n}, ${r}) =`}],
+    visual:`<div class="notation">C(${n}, ${r})</div><div class="formula-s">C(n, r) = ${frac('n!','r! · (n − r)!')}</div>`,
+    prompt:`Calcula las combinaciones de <b>${n}</b> elementos tomados de <b>${r}</b> en <b>${r}</b>.${rr!==r?`<br><small>Truco: C(${n}, ${r}) = C(${n}, ${rr}).</small>`:''}`,
+    check:oneCheck(ans,[T_PERM(perm(n,r)),[fact(n),{where:`Calculaste ${n}!.`,review:'Solo se eligen algunos elementos y no importa el orden.',hint:`Usa P(${n}, ${r}) ÷ ${r}!.`}]]),
+    help:hComb(n,rr, rr!==r ? `Elegir ${r} de ${n} es lo mismo que dejar por fuera ${rr}: C(${n}, ${r}) = C(${n}, ${rr}).` : undefined),
+    explain:`C(${n}, ${r}) = <b>${N(ans)}</b>.`};
+}
+function c3Sym(){
+  const n = R(7,12), r = R(2,4), ok = `C(${n}, ${n-r})`;
+  const opts = shuffle([ok, `C(${n-1}, ${r})`, `P(${n}, ${r})`, `C(${n-r}, ${r})`]).map(x=>({id:x,label:x,e:'🟰'}));
+  return {tag:'🪞 Combinaciones espejo', kind:'choice', options:opts, two:true, answer:ok,
+    visual:`<div class="notation">C(${n}, ${r})</div>`,
+    prompt:`¿Cuál de estas expresiones tiene <b>el mismo valor</b> que C(${n}, ${r})?`,
+    help:{plan:`Elegir ${r} de ${n} para llevarlos es lo mismo que elegir ${n-r} para dejarlos.`, op:`C(${n}, ${r}) = C(${n}, ${n} − ${r})`, steps:[`C(${n}, ${r}) = <b>${comb(n,r)}</b>`], res:String(comb(n,r))},
+    explain:`Escoger ${r} es lo mismo que dejar por fuera ${n-r}: C(${n}, ${r}) = ${ok} = <b>${comb(n,r)}</b>.`,
+    onWrong:()=>({where:'Esa expresión no da el mismo valor.', review:'Piensa en los elementos que NO se eligen.', hint:`Si eliges ${r} de ${n}, ¿cuántos quedan por fuera?`})};
+}
+function c3FromP(){
+  const n = R(5,10), r = R(2,4), P = perm(n,r), F = fact(r), C = P/F;
+  return {tag:'➗ De P a C', kind:'input', fields:[{label:'Resultado', prefix:`C(${n}, ${r}) =`}],
+    visual:`<div class="formula-s">P(${n}, ${r}) = ${N(P)}</div><div class="notation">C(${n}, ${r}) = ?</div>`,
+    prompt:`Sabiendo que <b>P(${n}, ${r}) = ${N(P)}</b>, ¿cuánto vale <b>C(${n}, ${r})</b>?`,
+    check:oneCheck(C,[[P*F,{where:'Multiplicaste por r!, pero hay que dividir.',review:'La combinación siempre es menor o igual que la permutación.',hint:`Calcula ${N(P)} ÷ ${F}.`}],[P,{where:'Ese es el valor de P, no de C.',review:'Falta dividir entre r!.',hint:`${r}! = ${F}.`}]]),
+    help:{plan:`Cada grupo de ${r} se puede ordenar de ${r}! = ${F} formas; por eso se divide.`, op:`${N(P)} ÷ ${r}!`, steps:[`${r}! = ${fall(r,r).join(' × ')} = <b>${F}</b>`, `${N(P)} ÷ ${F} = <b>${N(C)}</b>`], res:N(C)},
+    explain:`${N(P)} ÷ ${F} = <b>${N(C)}</b>.`};
+}
+
+function c4Committee(){
+  const n = R(6,12), r = R(2,4), ans = comb(n,r);
+  return {tag:'👥 El comité', kind:'input', fields:[{label:'Comités posibles'}],
+    visual:`<div class="grp-items">${chips('🧑‍🎓',n)}</div>` + cap(`Se eligen ${r}; todos tienen el mismo cargo`),
+    prompt:`Del curso se postularon <b>${n}</b> estudiantes para un comité ambiental de <b>${r}</b> integrantes (todos con la misma función). ¿Cuántos comités distintos se pueden formar?`,
+    check:oneCheck(ans,[T_PERM(perm(n,r)),[fact(n),{where:`Calculaste ${n}!.`,review:'Solo se eligen algunos estudiantes.',hint:`Usa C(${n}, ${r}).`}]]),
+    help:hComb(n,r), explain:`No importa el orden: C(${n}, ${r}) = <b>${N(ans)}</b>.`};
+}
+function c4Pizza(){
+  const ing = ['🧀','🍄','🌽','🫑','🍍','🥓','🧅','🍅'], n = R(5,8), r = R(2,3), ans = comb(n,r);
+  return {tag:'🍕 Arma tu pizza', kind:'input', fields:[{label:'Pizzas distintas'}],
+    visual:`<div class="grp-items">${chips(ing,n,true)}</div>`,
+    prompt:`Una pizzería ofrece <b>${n}</b> ingredientes y la promoción permite escoger <b>${r}</b> distintos. ¿Cuántas pizzas diferentes se pueden pedir?`,
+    check:oneCheck(ans,[T_PERM(perm(n,r))]), help:hComb(n,r),
+    explain:`El orden de los ingredientes no cambia la pizza: C(${n}, ${r}) = <b>${ans}</b>.`};
+}
+function c4Team(){
+  const n = R(6,10), ans = comb(n,5);
+  return {tag:'⚽ Titulares', kind:'input', fields:[{label:'Equipos posibles'}],
+    visual:`<div class="grp-items">${chips('⚽',n)}</div>` + cap('Se eligen 5 titulares'),
+    prompt:`Un equipo de microfútbol tiene <b>${n}</b> jugadores y salen <b>5</b> a la cancha (sin importar posiciones). ¿Cuántos grupos de titulares distintos puede formar el entrenador?`,
+    check:oneCheck(ans,[T_PERM(perm(n,5))]),
+    help:hComb(n, Math.min(5,n-5), n-5<5 ? `Elegir 5 titulares es lo mismo que elegir los ${n-5} suplentes: C(${n}, 5) = C(${n}, ${n-5}).` : undefined),
+    explain:`C(${n}, 5) = <b>${ans}</b>.`};
+}
+function c4Mixed(){
+  const m = R(4,7), h = R(3,6), a = 2, b = R(1,2), A = comb(m,a), B = comb(h,b), ans = A*B;
+  const HA = hComb(m,a), HB = hComb(h,b);
+  return {tag:'👧👦 Grupo mixto', kind:'input', fields:[{label:'Grupos posibles'}],
+    visual: groups([{e:'👧',n:m,label:`Niñas (se eligen ${a})`},{e:'👦',n:h,label:`Niños (se elige${b>1?'n':''} ${b})`}]),
+    prompt:`Para una exposición se necesitan <b>${a} niñas</b> de un grupo de ${m} y <b>${b} niño${b>1?'s':''}</b> de un grupo de ${h}. ¿Cuántos grupos distintos se pueden formar?`,
+    check:oneCheck(ans,[[A+B,{where:'Sumaste las dos combinaciones.',review:'Se eligen niñas Y niños al mismo tiempo: se multiplica.',hint:`C(${m}, ${a}) × C(${h}, ${b}).`}],[comb(m+h,a+b),{where:'Mezclaste los dos grupos.',review:'Hay que elegir por separado niñas y niños.',hint:`C(${m}, ${a}) × C(${h}, ${b}).`}]]),
+    help:{plan:`Calcula por separado las formas de elegir niñas y niños, y luego multiplícalas (principio multiplicativo).`,
+      op:`C(${m}, ${a}) × C(${h}, ${b})`,
+      steps:[`Niñas: C(${m}, ${a}) = <b>${A}</b>`, `Niños: C(${h}, ${b}) = <b>${B}</b>`, `${A} × ${B} = <b>${N(ans)}</b>`], res:N(ans)},
+    explain:`C(${m}, ${a}) × C(${h}, ${b}) = ${A} × ${B} = <b>${N(ans)}</b>.`};
+}
+function c4Decide(){
+  const n = R(6,10), r = R(2,3), isP = Math.random()<.5;
+  const T = isP
+    ? pick([`De <b>${n}</b> estudiantes se escogerán ${r===2?'un capitán y un subcapitán':'un capitán, un subcapitán y un delegado'}.`, `De <b>${n}</b> canciones, la emisora pondrá <b>${r}</b> en un orden determinado.`])
+    : pick([`De <b>${n}</b> estudiantes se escogerán <b>${r}</b> para limpiar el salón.`, `De <b>${n}</b> juegos de mesa, se llevarán <b>${r}</b> a la salida pedagógica.`]);
+  const ans = isP ? perm(n,r) : comb(n,r);
+  return {tag:'🧠 ¿Permutación o combinación?', kind:'input', fields:[{label:'Formas posibles'}],
+    visual:`<div class="bigemoji">🤔</div><div class="formula-s">Primero decide si importa el orden</div>`,
+    prompt:`${T} ¿De cuántas formas se puede hacer?`,
+    check:oneCheck(ans,[isP ? T_COMB(comb(n,r)) : T_PERM(perm(n,r))]),
+    help: isP ? hPerm(n,r,'Aquí el orden importa (cargos o posiciones distintas): es una permutación.') : hComb(n,r,'Aquí el orden no importa (todos cumplen la misma función): es una combinación.'),
+    explain:`${isP?'El orden importa → permutación':'El orden no importa → combinación'}: <b>${N(ans)}</b>.`};
+}
+
+/* =========================================================
+   Secciones y subsecciones
+   ========================================================= */
+const GOAL = 12;
+const MODES = {
+  vis:{icon:'🧩', name:'Visual', bg:'#EFEDFF', fg:'#5244D6'},
+  val:{icon:'📍', name:'Ubica los valores', bg:'#E3F7F9', fg:'#0B7F8A'},
+  ej: {icon:'✏️', name:'Ejercicios', bg:'#FFF5D6', fg:'#8A6200'},
+  ctx:{icon:'🌎', name:'En contexto', bg:'#E4FAF1', fg:'#10885C'}
+};
+const SECTIONS = [
+  {icon:'✖️', color:'#E3F7F9', bar:'#0FA3B1', title:'Principio multiplicativo', desc:'Si una cosa se hace de a formas y otra de b formas, juntas se hacen de a × b formas.'},
+  {icon:'🔢', color:'#EFEDFF', bar:'#6D5DF6', title:'Permutaciones', desc:'Contar ordenamientos: aquí el orden sí importa.'},
+  {icon:'🧺', color:'#FFE9DA', bar:'#FF8C42', title:'Combinaciones', desc:'Contar grupos: aquí el orden no importa.'}
+];
+const LESSONS = [
+  {sec:0, mode:'vis', title:'Combina y cuenta', desc:'Ropa, helados y diagramas de árbol.', gens:[a1Outfit,a1Tree,a1TreeOp,a1Outfit],
+   intro:`<p>Cuando hay que tomar <b>varias decisiones seguidas</b>, el total de resultados se obtiene <b>multiplicando</b> las opciones de cada decisión.</p>
+   <div class="idea">${groups([{e:'👕',n:3,label:'Camisetas'},{e:'👖',n:2,label:'Pantalones'}])}<div class="formula">3 × 2 = 6 combinaciones</div></div>
+   <p>Un <b>diagrama de árbol</b> muestra todas las combinaciones: cada final de rama es un resultado.</p>`},
+  {sec:0, mode:'val', title:'Identifica las etapas', desc:'Encuentra en el texto las opciones de cada etapa.', gens:[a2Locate,a2Locate,a2Missing],
+   intro:`<p>Antes de calcular, <b>ubica los valores</b>: ¿qué decisiones hay que tomar? ¿Cuántas opciones tiene cada una?</p>
+   <div class="idea">${slots([3,4,2],['Sopas','Platos','Bebidas'])}<div class="formula">3 × 4 × 2 = 24 almuerzos</div></div>
+   <p>Si conoces el total y te falta una etapa, <b>divide</b>: 24 ÷ 3 = 8.</p>`},
+  {sec:0, mode:'ej', title:'Con y sin repetición', desc:'Números, candados y experimentos.', gens:[a3Digits,a3Lock,a3Exp,a3Digits],
+   intro:`<p><b>Con repetición:</b> cada posición tiene todas las opciones.<br><b>Sin repetición:</b> cada posición tiene una opción menos que la anterior.</p>
+   <div class="idea">${slots([5,5,5],['1.ª','2.ª','3.ª'])}<div class="formula-s">Con repetición: 5 × 5 × 5 = 125</div>${slots([5,4,3],['1.ª','2.ª','3.ª'])}<div class="formula-s">Sin repetición: 5 × 4 × 3 = 60</div></div>`},
+  {sec:0, mode:'ctx', title:'Problemas de la vida diaria', desc:'Placas, rutas, exámenes y uniformes.', gens:[a4Plate,a4Exam,a4Routes,a4Uniform,a4Div],
+   intro:`<p>En cada problema pregúntate: <b>¿qué decisiones hay?</b> y <b>¿cuántas opciones tiene cada una?</b> Luego multiplica.</p>
+   <div class="idea"><div class="bigemoji" style="font-size:60px">🚲</div>${slots(['5','10','10'],['Vocal','Dígito','Dígito'])}<div class="formula">5 × 10 × 10 = 500 placas</div></div>`},
+
+  {sec:1, mode:'vis', title:'Ordena y cuenta', desc:'Filas, letras y podios.', gens:[b1Order,b1Missing,b1Podium],
+   intro:`<p>Una <b>permutación</b> es una forma de <b>ordenar</b> elementos. Si cambias el orden, obtienes una permutación diferente.</p>
+   <div class="idea">${tiles(['SOL','SLO','OSL','OLS','LSO','LOS'])}${slots([3,2,1],['1.º','2.º','3.º'])}<div class="formula">3! = 3 × 2 × 1 = 6</div></div>
+   <p>El símbolo <b>!</b> se llama <b>factorial</b>: multiplica desde el número hasta 1.</p>`},
+  {sec:1, mode:'val', title:'Factorial, n y r', desc:'Identifica los valores y simplifica factoriales.', gens:[b2NR,b2Fact,b2Div,b2NR],
+   intro:`<p><b>n</b> = total de elementos disponibles.<br><b>r</b> = lugares que se ocupan en orden.</p>
+   <div class="idea"><div class="formula">P(n, r) = ${frac('n!','(n − r)!')}</div><div class="formula-s">P(6, 2) = 6 × 5 = 30</div></div>
+   <p>Truco: ${frac('6!','4!')} = ${frac('6 × 5 × 4!','4!')} = 6 × 5 = 30. ¡El 4! se cancela!</p>`},
+  {sec:1, mode:'ej', title:'Calcula permutaciones', desc:'P(n, r), anagramas y letras repetidas.', gens:[b3Perm,b3Anagram,b3Rep,b3Perm],
+   intro:`<p>Para calcular <b>P(n, r)</b> multiplica <b>r</b> factores empezando en <b>n</b>: P(7, 3) = 7 × 6 × 5 = 210.</p>
+   <div class="idea">${tiles(['C','A','S','A'])}<div class="formula">${frac('4!','2!')} = ${frac(24,2)} = 12</div></div>
+   <p>Si hay <b>letras repetidas</b>, divide entre el factorial de cuántas veces se repite cada una.</p>`},
+  {sec:1, mode:'ctx', title:'Permutaciones en contexto', desc:'Elecciones, fotos, banderas y contraseñas.', gens:[b4Elect,b4Photo,b4Flag,b4Pin,b4Park],
+   intro:`<p>Si <b>cambiar el orden cambia el resultado</b>, es una permutación: cargos distintos, puestos de una carrera, colores de una bandera…</p>
+   <div class="idea">${podiumSVG(3)}<div class="formula-s">8 atletas: 8 × 7 × 6 = 336 podios</div></div>`},
+
+  {sec:2, mode:'vis', title:'¿Importa el orden?', desc:'Jugos, saludos y situaciones.', gens:[c1Order,c1Pairs,c1Hands,c1Order],
+   intro:`<p>Una <b>combinación</b> es una forma de <b>elegir</b> elementos <b>sin que importe el orden</b>.</p>
+   <div class="idea"><div class="grp-items">${chips(['🍎','🍌'],2,true)}<span class="times">=</span>${chips(['🍌','🍎'],2,true)}</div><div class="formula-s">Es el mismo jugo</div></div>
+   <p>Pregunta clave: <b>si cambio el orden, ¿obtengo algo distinto?</b> Sí → permutación. No → combinación.</p>`},
+  {sec:2, mode:'val', title:'Identifica n y r', desc:'Ubica los valores y sigue los pasos.', gens:[c2NR,c2Steps,c2NR],
+   intro:`<p>Las combinaciones se calculan quitando los órdenes repetidos:</p>
+   <div class="idea"><div class="formula">C(n, r) = ${frac('P(n, r)','r!')}</div><div class="formula-s">C(5, 2) = (5 × 4) ÷ (2 × 1) = 20 ÷ 2 = 10</div></div>`},
+  {sec:2, mode:'ej', title:'Calcula combinaciones', desc:'C(n, r), simetría y de P a C.', gens:[c3Calc,c3Sym,c3FromP,c3Calc],
+   intro:`<p>Fórmula: C(n, r) = ${frac('n!','r! · (n − r)!')}</p>
+   <div class="idea"><div class="formula">C(10, 8) = C(10, 2) = 45</div><div class="formula-s">Elegir 8 para llevar = elegir 2 para dejar</div></div>
+   <p>La combinación siempre es <b>menor o igual</b> que la permutación con los mismos n y r.</p>`},
+  {sec:2, mode:'ctx', title:'Combinaciones en contexto', desc:'Comités, pizzas, equipos y grupos mixtos.', gens:[c4Committee,c4Pizza,c4Team,c4Mixed,c4Decide],
+   intro:`<p>Si todos los elegidos cumplen <b>la misma función</b>, el orden no importa: es una combinación.</p>
+   <div class="idea"><div class="formula-s">2 niñas de 5 y 1 niño de 4</div><div class="formula">C(5, 2) × C(4, 1) = 10 × 4 = 40</div></div>
+   <p>Cuando se eligen de grupos distintos, calcula cada parte y <b>multiplica</b>.</p>`}
+];
+
+/* =========================================================
+   Estado
+   ========================================================= */
+const S = {name:'', grade:'', start:0, correct:0, wrong:0, helps:0, lesson:null, enter:0, busy:false,
+  L: LESSONS.map(() => ({correct:0, wrong:0, helps:0, acc:0, done:false, ex:null, lastGen:-1, sel:null, lastPrompt:'', streak:0}))};
+const app = $('#app');
+const lessonTime = i => S.L[i].acc + (S.lesson===i ? Date.now()-S.enter : 0);
+const lIcon = L => MODES[L.mode].icon;
+
+function updateBar(bump){
+  $('#tbName').textContent = S.name;
+  $('#tbGrade').textContent = 'Grado ' + S.grade;
+  $('#tbAv').textContent = S.name.trim().charAt(0).toUpperCase() || '?';
+  $('#tbOk').textContent = S.correct; $('#tbBad').textContent = S.wrong;
+  if (bump){ const el = $(bump==='ok' ? '#tbOkC' : '#tbBadC'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+}
+setInterval(() => { if (S.start) $('#tbTime').textContent = mmss(Date.now()-S.start); }, 1000);
+
+/* =========================================================
+   Bienvenida
+   ========================================================= */
+function mascot(){
+  return `<svg class="mascot" viewBox="0 0 150 150" aria-hidden="true">
+    <ellipse cx="75" cy="140" rx="44" ry="7" fill="#1B2559" opacity=".12"/>
+    <g transform="rotate(-6 75 72)"><rect x="18" y="22" width="114" height="104" rx="28" fill="#fff" stroke="#1B2559" stroke-width="5"/>
+    <rect x="34" y="36" width="24" height="24" rx="7" fill="#0FA3B1"/><rect x="63" y="36" width="24" height="24" rx="7" fill="#6D5DF6"/><rect x="92" y="36" width="24" height="24" rx="7" fill="#FF8C42"/>
+    <circle cx="58" cy="82" r="5" fill="#1B2559"/><circle cx="92" cy="82" r="5" fill="#1B2559"/>
+    <path d="M62 98 Q 75 110 88 98" stroke="#1B2559" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="46" cy="96" r="6" fill="#F0525F" opacity=".35"/><circle cx="104" cy="96" r="6" fill="#F0525F" opacity=".35"/></g></svg>`;
+}
+function renderWelcome(){
+  document.body.classList.remove('has-bar'); $('#topbar').classList.add('hidden');
+  const grades = ['6°','7°','8°','9°','10°','11°'];
+  app.innerHTML = `<section class="screen welcome">
+    ${mascot()}
+    <h1>¿De cuántas formas?</h1>
+    <p class="lead">Aprende a contar sin contar uno por uno: principio multiplicativo, permutaciones y combinaciones.</p>
+    <div class="panel">
+      <label class="lbl" for="inName">¿Cómo te llamas?</label>
+      <input id="inName" class="txt" type="text" autocomplete="name" maxlength="40" placeholder="Escribe tu nombre y apellido">
+      <div class="err-msg" id="errName"></div>
+      <span class="lbl">¿En qué grado estás?</span>
+      <div class="grades" role="radiogroup" aria-label="Grado">${grades.map(g=>`<button class="gbtn" role="radio" aria-checked="false" data-g="${g}">${g}</button>`).join('')}</div>
+      <div class="err-msg" id="errGrade" style="margin-top:-12px"></div>
+      <button class="btn vio block" id="startBtn" style="font-size:22px;min-height:66px">🚀 Comenzar</button>
+    </div></section>`;
+  let grade = '';
+  app.querySelectorAll('.gbtn').forEach(b => b.onclick = () => {
+    app.querySelectorAll('.gbtn').forEach(x => {x.classList.remove('sel'); x.setAttribute('aria-checked','false');});
+    b.classList.add('sel'); b.setAttribute('aria-checked','true'); grade = b.dataset.g; $('#errGrade').textContent = '';
+  });
+  $('#inName').addEventListener('keydown', e => { if (e.key==='Enter') $('#startBtn').click(); });
+  $('#startBtn').onclick = () => {
+    const name = $('#inName').value.trim().replace(/\s+/g,' ');
+    let ok = true;
+    if (name.length < 2){ $('#errName').textContent = 'Escribe tu nombre para comenzar.'; ok = false; } else $('#errName').textContent = '';
+    if (!grade){ $('#errGrade').textContent = 'Elige tu grado.'; ok = false; }
+    if (!ok) return;
+    S.name = name; S.grade = grade; S.start = Date.now();
+    document.body.classList.add('has-bar'); $('#topbar').classList.remove('hidden');
+    updateBar(); renderMenu();
+  };
+}
+
+/* =========================================================
+   Menú
+   ========================================================= */
+function renderMenu(){
+  leaveLesson();
+  const tot = S.correct + S.wrong, pct = tot ? Math.round(S.correct/tot*100) : 0, done = S.L.filter(l=>l.done).length;
+  app.innerHTML = `<section class="screen">
+    <div class="hello"><div class="avatar" style="width:60px;height:60px;font-size:30px">${S.name.charAt(0).toUpperCase()}</div>
+      <div><h2>¡Hola, ${S.name.split(' ')[0]}!</h2><p>Elige una sección y una forma de practicar. Cada práctica se completa con ${GOAL} aciertos.</p></div></div>
+    <div class="stats-card" aria-label="Tus estadísticas">
+      <div class="stat"><b>${S.correct}</b><span>✔ Aciertos</span></div>
+      <div class="stat"><b>${S.wrong}</b><span>✖ Errores</span></div>
+      <div class="stat"><b>${pct}%</b><span>Precisión</span></div>
+      <div class="stat"><b>${done}/${LESSONS.length}</b><span>Prácticas</span></div>
+    </div>
+    ${SECTIONS.map((sec,si) => `
+      <div class="sec-head"><div class="licon" style="background:${sec.color}">${sec.icon}</div>
+        <div><h2>${si+1}. ${sec.title}</h2><p>${sec.desc}</p></div></div>
+      <div class="lessons">${LESSONS.map((L,i)=>({L,i})).filter(o=>o.L.sec===si).map(({L,i}) => {
+        const st = S.L[i], prog = st.done ? GOAL : st.correct, M = MODES[L.mode];
+        return `<button class="lcard" data-i="${i}">
+          ${st.done?'<span class="done-badge">✔ Completada</span>':''}
+          <div class="licon" style="background:${M.bg}">${M.icon}</div>
+          <div style="flex:1;min-width:0"><span class="mode" style="background:${M.bg};color:${M.fg}">${M.name}</span><h3>${L.title}</h3><p>${L.desc}</p>
+            <div class="mini"><i style="width:${prog/GOAL*100}%;background:${sec.bar}"></i></div>
+            <div class="lmeta"><span>${prog}/${GOAL} aciertos</span><span>${st.done?'Practicar otra vez':st.correct?'Continuar':'Empezar'}</span></div></div>
+        </button>`;}).join('')}</div>`).join('')}
+  </section>`;
+  app.querySelectorAll('.lcard').forEach(b => b.onclick = () => openLesson(+b.dataset.i));
+  window.scrollTo({top:0});
+}
+
+/* =========================================================
+   Lección
+   ========================================================= */
+function leaveLesson(){ if (S.lesson!=null){ S.L[S.lesson].acc += Date.now()-S.enter; S.lesson = null; } }
+function openLesson(i){
+  leaveLesson();
+  const st = S.L[i];
+  if (st.done && st.correct >= GOAL) Object.assign(st, {correct:0, wrong:0, helps:0, acc:0, ex:null, sel:null, streak:0});
+  S.lesson = i; S.enter = Date.now();
+  if (!st.ex && st.correct===0) renderIntro(); else { if (!st.ex) newExercise(); renderExercise(); }
+}
+function lessonHead(i){
+  const L = LESSONS[i], sec = SECTIONS[L.sec];
+  return `<div class="licon" style="background:${sec.color}">${lIcon(L)}</div><div><small>${sec.title} · ${MODES[L.mode].name}</small><h2>${L.title}</h2></div>`;
+}
+function renderIntro(){
+  const i = S.lesson, L = LESSONS[i];
+  app.innerHTML = `<section class="screen"><div class="intro">
+    <div class="lhead">${lessonHead(i)}</div>
+    <span class="goal">🎯 Meta: ${GOAL} respuestas correctas</span>
+    ${L.intro}
+    <p style="color:var(--ink2);font-weight:700">Si una operación es muy larga, toca <b>💡 Ayuda</b> y verás la multiplicación o división paso a paso.</p>
+    <button class="btn vio block" id="goBtn" style="margin-top:8px">¡Vamos a practicar! 🚀</button></div></section>`;
+  $('#goBtn').onclick = () => { newExercise(); renderExercise(); };
+  window.scrollTo({top:0});
+}
+function newExercise(){
+  const st = S.L[S.lesson], G = LESSONS[S.lesson].gens;
+  let idx, ex, tries = 0;
+  do {
+    idx = R(0, G.length-1);
+    if (G.length>1 && G[idx]===G[st.lastGen] && tries<20){ tries++; continue; }
+    ex = G[idx](); tries++;
+  } while ((!ex || ex.prompt===st.lastPrompt) && tries<40);
+  st.lastGen = idx; st.lastPrompt = ex.prompt; st.ex = ex; st.sel = null;
+}
+function pathHTML(c, popAt){
+  let h = '<div class="path">';
+  for (let i=1;i<=GOAL;i++){
+    if (i>1) h += `<div class="seg ${i<=c?'on':''}"><i></i></div>`;
+    const mile = i%4===0, icon = {4:'🚩',8:'⭐',12:'🏆'}[i];
+    h += `<div class="node ${mile?'mile':''} ${i<=c?'on':''} ${i===popAt?'pop':''}" aria-hidden="true">${mile?icon:''}</div>`;
+  }
+  return h + '</div>';
+}
+function trackText(c){
+  if (c>=GOAL) return '¡Meta alcanzada!';
+  const next = Math.ceil((c+1)/4)*4;
+  return `Faltan ${next-c} para ${next===GOAL?'la meta 🏆':'el siguiente logro'}`;
+}
+function renderExercise(popAt){
+  const i = S.lesson, st = S.L[i], ex = st.ex;
+  let ans;
+  if (ex.kind==='choice'){
+    ans = `<div class="opts ${ex.two?'two':''}" role="group" aria-label="Opciones">${ex.options.map(o=>`<button class="opt" data-id="${o.id}">${o.e?`<span class="e">${o.e}</span>`:''}<span>${o.label}</span></button>`).join('')}</div>`;
+  } else {
+    ans = `<div class="answers">${ex.fields.map(f=>`<label class="field">${f.label||''}<span class="boxwrap">${f.prefix?`<span>${f.prefix}</span>`:''}<input class="box ${f.sm?'sm':''}" inputmode="numeric" autocomplete="off" aria-label="${f.label||'Respuesta'}">${f.suffix?`<span>${f.suffix}</span>`:''}</span></label>`).join('')}</div>`;
+  }
+  app.innerHTML = `<section class="screen">
+    <div class="lhead">${lessonHead(i)}
+      <button class="btn ghost" id="reviewBtn" aria-label="Repasar la idea clave">📘 Repasar</button></div>
+    <div class="track"><div class="track-top"><div>✔ ${st.correct} / ${GOAL}</div><span>${trackText(st.correct)}</span></div>${pathHTML(st.correct, popAt)}</div>
+    <div class="ex">
+      <div class="ex-grid ${ex.visual?'has-vis':''}">
+        ${ex.visual?`<div class="ex-visual">${ex.visual}</div>`:''}
+        <div><span class="tag">${ex.tag}</span><div class="prompt">${ex.prompt}</div>${ans}</div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="clearBtn">🗑 Borrar</button>
+        <button class="btn sunb" id="helpBtn">💡 Ayuda</button>
+        <button class="btn okb" id="checkBtn">✅ Comprobar respuesta</button>
+      </div>
+    </div></section>`;
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    app.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel','err'));
+    b.classList.add('sel'); st.sel = b.dataset.id;
+  });
+  app.querySelectorAll('.box').forEach((inp,k,all) => {
+    const sel = () => setTimeout(()=>inp.select(), 0);
+    inp.addEventListener('focus', sel); inp.addEventListener('click', sel);
+    inp.addEventListener('input', () => { inp.classList.remove('err'); inp.value = inp.value.replace(/[^0-9.,]/g,''); });
+    inp.addEventListener('keydown', e => { if (e.key==='Enter'){ e.preventDefault(); if (k<all.length-1 && !all[k+1].value) all[k+1].focus(); else check(); } });
+  });
+  $('#clearBtn').onclick = clearAnswers;
+  $('#checkBtn').onclick = check;
+  $('#helpBtn').onclick = showHelp;
+  $('#reviewBtn').onclick = () => {
+    const o = modal(`<h3 style="margin-bottom:8px">${lIcon(LESSONS[i])} Idea clave</h3><div style="text-align:left">${LESSONS[i].intro}</div><button class="btn vio block" data-close>Volver al ejercicio</button>`);
+    o.querySelector('[data-close]').onclick = () => closeModal(o);
+  };
+  if (!popAt) window.scrollTo({top:0});
+}
+function clearAnswers(){
+  app.querySelectorAll('.box').forEach(b => { b.value=''; b.classList.remove('err'); });
+  app.querySelectorAll('.opt').forEach(b => b.classList.remove('sel','err'));
+  S.L[S.lesson].sel = null;
+  const f = app.querySelector('.box'); if (f) f.focus();
+}
+function check(){
+  if (S.busy) return;
+  const st = S.L[S.lesson], ex = st.ex;
+  let res;
+  if (ex.kind==='choice'){
+    if (st.sel==null) return toast('Elige una opción antes de comprobar 👆');
+    res = st.sel===ex.answer ? {ok:true} : {ok:false, ...ex.onWrong(st.sel)};
+  } else {
+    const boxes = [...app.querySelectorAll('.box')], raw = boxes.map(b=>b.value);
+    if (raw.some(v=>v.trim()==='')) { boxes.find(b=>!b.value.trim()).focus(); return toast('Completa todas las casillas ✏️'); }
+    const vals = raw.map(num);
+    if (vals.some(v=>isNaN(v))) return toast('Escribe solo números 🔢');
+    res = ex.check(vals);
+  }
+  res.ok ? onCorrect() : onWrong(res);
+}
+
+/* =========================================================
+   Ayuda y retroalimentación
+   ========================================================= */
+function calcBlock(h, open){
+  if (!h) return '';
+  const hasCalc = h.steps.length || h.res;
+  const body = `${h.steps.length?`<ol class="steps">${h.steps.map((s,k)=>`<li style="animation-delay:${k*80}ms">${s}</li>`).join('')}</ol>`:''}${h.res?`<div class="res-big">Resultado: ${h.res}</div>`:''}`;
+  return `<div class="op">${h.op}</div>${hasCalc?(open?body:`<div class="calc-body hidden">${body}</div><button class="btn vio reveal-btn" data-reveal>🧮 Mostrar el cálculo</button>`):''}`;
+}
+function wireReveal(o){
+  const b = o.querySelector('[data-reveal]');
+  if (b) b.onclick = () => { o.querySelector('.calc-body').classList.remove('hidden'); b.remove(); };
+}
+function showHelp(){
+  if (S.busy) return;
+  const st = S.L[S.lesson], h = st.ex.help;
+  S.helps++; st.helps++;
+  const o = modal(`<div class="fb-icon" style="background:var(--sun);color:var(--ink)">💡</div><h3 style="color:var(--ink)">Ayuda</h3>
+    <p class="sub">Usar la ayuda no te quita puntos. ¡Úsala para aprender!</p>
+    <div class="fb-row hint"><b>📝 Qué hacer</b><p>${h.plan}</p></div>
+    <div class="fb-row calc"><b>🧮 La operación</b>${calcBlock(h)}</div>
+    <button class="btn ghost block" data-close>Volver al ejercicio</button>`);
+  wireReveal(o);
+  o.querySelector('[data-close]').onclick = () => closeModal(o, () => { const f = app.querySelector('.box'); if (f) f.focus(); });
+}
+const MOTIV = ['¡Sigue así!','Cada vez eres mejor.','Buen trabajo.','¡No te rindas nunca!','¡Vas por muy buen camino!','¡Ya cuentas como un experto! 🧠','¡Qué buena lógica!'];
+function onCorrect(){
+  const st = S.L[S.lesson], ex = st.ex;
+  S.correct++; st.correct++; st.streak++;
+  updateBar('ok');
+  const c = st.correct;
+  let extra = '';
+  if (c===4) extra = `<div class="milestone"><span class="m">🚩</span><div>¡Primer logro! Llevas 4 aciertos. ¡Vas muy bien, ${S.name.split(' ')[0]}!</div></div>`;
+  if (c===8) extra = `<div class="milestone"><span class="m">⭐</span><div>¡Segundo logro! 8 aciertos. ¡Solo te faltan 4 para la meta!</div></div>`;
+  if (c===GOAL) extra = `<div class="milestone"><span class="m">🏆</span><div>¡Llegaste a la meta de ${GOAL} aciertos!</div></div>`;
+  const sub = c>=10 && c<GOAL ? 'Ya casi completas esta práctica.' : (st.streak>=3 && st.streak%3===0 ? `¡${st.streak} seguidas! ${pick(MOTIV)}` : `Has resuelto correctamente el ejercicio. ${pick(MOTIV)}`);
+  const o = modal(`<div class="fb-icon">✔</div><h3>${pick(['¡Excelente!','¡Muy bien!','¡Correcto!','¡Genial!'])}</h3>
+    <p class="sub">${sub}</p>${extra}<div class="explain"><b>📖 ¿Por qué es correcto?</b><br>${ex.explain}</div>
+    <button class="btn okb block" data-close>${c>=GOAL?'Ver mi logro 🎉':'Siguiente ejercicio'}</button>`, 'ok');
+  if (c===4 || c===8) confetti(30);
+  o.querySelector('[data-close]').onclick = () => closeModal(o, () => {
+    if (c>=GOAL){ st.done = true; st.ex = null; renderExercise(c); setTimeout(showComplete, 500); }
+    else { newExercise(); renderExercise(c); }
+  });
+}
+function onWrong(res){
+  const st = S.L[S.lesson], h = st.ex.help;
+  S.wrong++; st.wrong++; st.streak = 0;
+  updateBar('bad');
+  const showCalc = h && (h.steps.length || h.res);
+  const o = modal(`<div class="fb-icon">✖</div><h3>Inténtalo nuevamente</h3>
+    <p class="sub">Equivocarse también es aprender. ¡Tú puedes!</p>
+    <div class="fb-row"><b>🔎 ¿Dónde estuvo el error?</b><p>${res.where}</p></div>
+    <div class="fb-row"><b>📌 Qué revisar</b><p>${res.review}</p></div>
+    <div class="fb-row hint"><b>💡 Pista</b><p>${res.hint}</p></div>
+    ${showCalc?`<div class="fb-row calc"><b>🧮 Operación que debes hacer</b>${calcBlock(h)}</div>`:''}
+    <button class="btn badb block" data-close>Volver a intentarlo</button>`, 'bad');
+  wireReveal(o);
+  o.querySelector('[data-close]').onclick = () => closeModal(o, () => {
+    const boxes = [...app.querySelectorAll('.box')];
+    if (boxes.length){
+      (res.bad || boxes.map((_,k)=>k)).forEach(k => boxes[k] && boxes[k].classList.add('err'));
+      const f = boxes[(res.bad||[0])[0]]; if (f) f.focus();
+    } else {
+      const s = app.querySelector('.opt.sel'); if (s){ s.classList.remove('sel'); s.classList.add('err'); }
+      st.sel = null;
+    }
+  });
+}
+function showComplete(){
+  const i = S.lesson, st = S.L[i], tot = st.correct + st.wrong, pct = tot ? Math.round(st.correct/tot*100) : 100, first = S.name.split(' ')[0];
+  const msg = pct>=85 ? `Excelente trabajo, ${first}. Cada día mejoras más en matemáticas.` : pct>=60 ? `¡Muy bien, ${first}! Aprendiste de tus errores y lo lograste.` : `¡Lo lograste, ${first}! Cada error fue una oportunidad para aprender. Sigue practicando.`;
+  const next = i < LESSONS.length-1 ? LESSONS[i+1] : null;
+  confetti(110);
+  const o = modal(`<div class="trophy">🏆</div><h3 style="color:var(--ink)">🎉 ¡Lección completada!</h3>
+    <p class="sub">${SECTIONS[LESSONS[i].sec].title} · ${LESSONS[i].title}</p>
+    <div class="done-grid">
+      <div><b style="font-size:19px">${S.name}</b><span>Estudiante</span></div>
+      <div><b>${S.grade}</b><span>Grado</span></div>
+      <div><b>${mmss(lessonTime(i))}</b><span>⏱ Tiempo</span></div>
+      <div><b style="color:var(--ok-d)">${st.correct}</b><span>✔ Aciertos</span></div>
+      <div><b style="color:var(--bad-d)">${st.wrong}</b><span>✖ Errores</span></div>
+      <div><b>${pct}%</b><span>Porcentaje</span></div>
+    </div>
+    <p class="sub" style="margin-top:0">💡 Ayudas usadas: ${st.helps}</p>
+    <div class="explain" style="text-align:center;background:#FFF5D6;font-weight:800">${msg}</div>
+    <div class="btn-col">
+      ${next?`<button class="btn vio block" data-next>Siguiente: ${next.title}</button>`:`<div class="explain" style="text-align:center">🌟 ¡Completaste la última práctica! Puedes repetir cualquiera.</div>`}
+      <button class="btn ghost block" data-menu>🏠 Menú principal</button>
+    </div>`, 'ok');
+  const nb = o.querySelector('[data-next]');
+  if (nb) nb.onclick = () => closeModal(o, () => openLesson(i+1));
+  o.querySelector('[data-menu]').onclick = () => closeModal(o, renderMenu);
+}
+
+/* =========================================================
+   Modales y confeti
+   ========================================================= */
+function modal(html, cls){
+  S.busy = true;
+  const o = document.createElement('div');
+  o.className = 'overlay';
+  o.innerHTML = `<div class="sheet ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(o);
+  requestAnimationFrame(() => o.classList.add('show'));
+  setTimeout(() => { const b = o.querySelector('.btn'); if (b) b.focus(); }, 60);
+  o._key = e => { if (e.key==='Escape'){ const b = o.querySelector('[data-close],[data-menu]'); if (b) b.click(); } };
+  document.addEventListener('keydown', o._key);
+  return o;
+}
+function closeModal(o, cb){
+  document.removeEventListener('keydown', o._key);
+  o.classList.remove('show');
+  setTimeout(() => { o.remove(); if (!document.querySelector('.overlay')) S.busy = false; cb && cb(); }, 220);
+}
+function confetti(n){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#6D5DF6','#0FA3B1','#FFC83D','#F0525F','#17B179','#FF8C42'];
+  for (let i=0;i<n;i++){
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random()*100 + 'vw';
+    d.style.background = pick(cols);
+    d.style.animationDuration = (1.8 + Math.random()*1.8) + 's';
+    d.style.animationDelay = Math.random()*.5 + 's';
+    if (Math.random()<.4) d.style.borderRadius = '50%';
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 4500);
+  }
+}
+
+$('#homeBtn').onclick = () => {
+  document.querySelectorAll('.overlay').forEach(o => { document.removeEventListener('keydown', o._key); o.remove(); });
+  S.busy = false;
+  renderMenu();
+};
+renderWelcome();
+</script>
+</body>
+</html>
