@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5B4BDB">
+<title>Límites · Aprende jugando</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1FA; --card:#FFFFFF; --ink:#1B1F3B; --muted:#5A6185; --line:#E2E6F2;
+  --pri:#5B4BDB; --pri-d:#4232BE; --pri-l:#ECE9FF;
+  --ok:#15A34A; --ok-d:#0E7A36; --ok-l:#DDFBE7;
+  --bad:#DC2626; --bad-d:#A51C1C; --bad-l:#FEE4E4;
+  --warn:#F59E0B; --warn-l:#FFF4D6;
+  --c1:#6D5DF5; --c2:#0EA5E9; --c3:#F97316; --c4:#10B981;
+  --tc:var(--pri);
+  --r:22px; --sh:0 8px 24px rgba(35,40,90,.08);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);font-family:'Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink);font-size:18px;line-height:1.5;-webkit-tap-highlight-color:transparent;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 10% 0%,#E2DDFF 0,transparent 40%),radial-gradient(circle at 100% 30%,#D8F1FF 0,transparent 35%),var(--bg)}
+button{font-family:inherit;cursor:pointer;color:inherit}
+h1,h2,h3{margin:0;line-height:1.2}
+p{margin:.4em 0}
+b,strong{font-weight:900}
+.muted{color:var(--muted)}
+
+/* ---------- Barra superior ---------- */
+#topbar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);box-shadow:0 2px 16px rgba(30,34,64,.08);padding:10px 16px;display:none}
+#topbar.show{display:block;animation:drop .4s ease}
+@keyframes drop{from{transform:translateY(-100%)}to{transform:none}}
+.tb-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.home{width:50px;height:50px;border-radius:16px;border:none;background:var(--pri-l);font-size:24px;flex:none;transition:transform .15s}
+.home:active{transform:scale(.92)}
+.who{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;font-weight:900;display:grid;place-items:center;font-size:19px;flex:none}
+.who-txt{min-width:0}
+.who-txt b{display:block;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who-txt span{font-size:14px;color:var(--muted);font-weight:800}
+.chips{display:flex;gap:8px}
+.chip{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:999px;font-weight:900;font-size:17px;background:#F1F3FA;white-space:nowrap}
+.chip.ok{background:var(--ok-l);color:var(--ok)}
+.chip.bad{background:var(--bad-l);color:var(--bad)}
+.chip.bump{animation:bump .55s}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.3)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+@media(max-width:560px){.tb-in{flex-wrap:wrap;gap:8px}.chips{width:100%}.chip{flex:1;font-size:16px;padding:7px 8px}.home{width:46px;height:46px}}
+
+main{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
+.screen{animation:enter .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ---------- Componentes ---------- */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
+.btn{border:none;border-radius:18px;padding:14px 22px;font-size:19px;font-weight:900;color:#fff;background:var(--pri);box-shadow:0 5px 0 var(--pri-d);transition:transform .1s,box-shadow .1s,filter .2s;min-height:58px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;line-height:1.2}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--pri-d)}
+.btn.ok{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
+.btn.ok:active{box-shadow:0 1px 0 var(--ok-d)}
+.btn.bad{background:var(--bad);box-shadow:0 5px 0 var(--bad-d)}
+.btn.bad:active{box-shadow:0 1px 0 var(--bad-d)}
+.btn.tc{background:var(--tc);box-shadow:0 5px 0 rgba(0,0,0,.22)}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:0 5px 0 #D3D9EA;border:2px solid var(--line)}
+.btn.ghost:active{box-shadow:0 1px 0 #D3D9EA}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;pointer-events:none}
+:focus-visible{outline:4px solid #FFB020;outline-offset:3px}
+.sec{font-size:24px;margin:30px 4px 6px;display:flex;align-items:center;gap:8px}
+.grid3{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:760px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* ---------- Bienvenida ---------- */
+.welcome{display:grid;gap:22px;align-items:center;min-height:calc(100vh - 80px);grid-template-columns:1fr}
+@media(min-width:900px){.welcome{grid-template-columns:1.1fr 1fr}}
+.hero{text-align:center}
+.hero .logo{display:inline-flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:8px 18px;font-weight:900;color:var(--pri);box-shadow:var(--sh);font-size:16px}
+.hero h1{font-size:clamp(38px,8vw,60px);margin:14px 0 6px;letter-spacing:-1px}
+.hero h1 span{background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:19px;color:var(--muted);max-width:460px;margin:0 auto}
+.hero-art{max-width:420px;margin:18px auto 0}
+.form .field-w{margin-bottom:18px}
+.form label{display:block;font-weight:900;margin-bottom:8px;font-size:18px}
+.txt{width:100%;font:inherit;font-size:20px;font-weight:800;padding:16px 18px;border-radius:16px;border:3px solid var(--line);background:#F8F9FD;color:var(--ink);transition:border-color .2s,background .2s}
+.txt:focus{border-color:var(--pri);background:#fff;outline:none}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grade{border:3px solid var(--line);background:#F8F9FD;border-radius:16px;padding:14px 4px;font-size:20px;font-weight:900;transition:all .15s}
+.grade.sel{border-color:var(--pri);background:var(--pri-l);color:var(--pri);transform:scale(1.04)}
+.err-msg{color:var(--bad);font-weight:800;font-size:16px;min-height:22px}
+
+/* ---------- Menú ---------- */
+.hello{display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,#6D5DF5,#4F8BF5);color:#fff;overflow:hidden;position:relative}
+.hello h1{font-size:clamp(26px,5vw,36px)}
+.hello p{opacity:.92;font-weight:700}
+.hello .big{font-size:62px;line-height:1;opacity:.95;flex:none;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-8px) rotate(-4deg)}}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+@media(min-width:760px){.stats{grid-template-columns:repeat(5,1fr)}}
+.stat{background:#fff;border-radius:18px;padding:14px;box-shadow:var(--sh);text-align:center}
+.stat .v{font-size:26px;font-weight:900}
+.stat .k{font-size:14px;color:var(--muted);font-weight:800}
+.lcard{position:relative;border:none;text-align:left;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:transform .2s,box-shadow .2s;border-top:7px solid var(--tc)}
+.lcard:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(35,40,90,.13)}
+.lcard:active{transform:scale(.98)}
+.lcard .ico{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;font-size:32px;background:color-mix(in srgb,var(--tc) 14%,#fff)}
+.lcard .num{font-size:14px;font-weight:900;color:var(--tc);text-transform:uppercase;letter-spacing:.06em}
+.lcard h3{font-size:22px}
+.lcard p{color:var(--muted);font-weight:700;font-size:16px;margin:0}
+.lsteps{display:flex;flex-wrap:wrap;gap:6px}
+.lsteps span{font-size:13px;font-weight:800;background:#F2F4FA;border-radius:999px;padding:4px 10px}
+.lgo{margin-top:auto;font-weight:900;color:var(--tc);font-size:17px}
+.badge-done{position:absolute;top:14px;right:14px;background:var(--ok-l);color:var(--ok);font-weight:900;font-size:13px;padding:5px 10px;border-radius:999px}
+.ecard{border-top:none;background:linear-gradient(150deg,var(--tc),color-mix(in srgb,var(--tc) 70%,#1B1F3B));color:#fff}
+.ecard p,.ecard .num,.ecard .lgo{color:#fff;opacity:.95}
+.ecard .ico{background:rgba(255,255,255,.2)}
+
+/* ---------- Lección ---------- */
+.lhead{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.back{width:50px;height:50px;border-radius:16px;border:none;background:#fff;box-shadow:var(--sh);font-size:22px;font-weight:900;flex:none}
+.lhead small{font-weight:900;color:var(--tc);text-transform:uppercase;letter-spacing:.06em;font-size:13px}
+.lhead h1{font-size:clamp(22px,4.5vw,30px)}
+.stepper{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#fff;padding:6px;border-radius:20px;box-shadow:var(--sh);margin-bottom:18px}
+.stp{border:none;background:transparent;border-radius:15px;padding:12px 6px;font-weight:900;font-size:16px;color:var(--muted);transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px}
+.stp .n{width:26px;height:26px;border-radius:50%;background:#EEF0F7;display:grid;place-items:center;font-size:14px}
+.stp.on{background:var(--tc);color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--tc) 40%,transparent)}
+.stp.on .n{background:rgba(255,255,255,.25)}
+@media(max-width:420px){.stp{flex-direction:column;gap:2px;font-size:14px}}
+
+.split{display:grid;gap:20px;grid-template-columns:1fr;align-items:start}
+@media(min-width:860px){.split{grid-template-columns:1fr 1fr}}
+.slide h2{font-size:clamp(23px,4.5vw,30px);margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.slide h2 .pill{font-size:14px;background:color-mix(in srgb,var(--tc) 15%,#fff);color:var(--tc);padding:4px 10px;border-radius:999px}
+.pager{display:flex;gap:6px;justify-content:center;margin:16px 0 4px}
+.pager i{width:10px;height:10px;border-radius:99px;background:#D7DCEB;transition:all .3s}
+.pager i.on{width:28px;background:var(--tc)}
+.navrow{display:flex;gap:12px;margin-top:16px}
+.navrow .btn{flex:1}
+.big-q{background:color-mix(in srgb,var(--tc) 9%,#fff);border-left:6px solid var(--tc);padding:14px 16px;border-radius:14px;font-size:20px;margin:12px 0}
+.notation{font-size:28px;font-weight:900;text-align:center;padding:16px;background:#F7F8FD;border-radius:18px;margin:12px 0;border:2px dashed #D6DBEB}
+.tip{background:var(--warn-l);border-radius:14px;padding:12px 14px;font-weight:700;margin:12px 0}
+.keybox{background:var(--ok-l);border-radius:14px;padding:12px 14px;font-weight:700;margin:12px 0}
+.alert{background:var(--bad-l);border-radius:14px;padding:12px 14px;font-weight:700;margin:12px 0}
+ul.clean{padding-left:0;list-style:none;margin:10px 0}
+ul.clean li{padding:8px 0 8px 36px;position:relative;font-weight:700}
+ul.clean li::before{content:attr(data-i);position:absolute;left:0;top:6px;font-size:22px}
+
+/* Notación matemática */
+.lim{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;margin-right:4px}
+.lim>span{font-weight:900}
+.lim small{font-size:.55em;font-weight:900;margin-top:3px;white-space:nowrap}
+.lim sup{font-size:.85em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 3px;line-height:1.15}
+.frac>span:first-child{border-bottom:2.5px solid currentColor;padding:0 6px 2px}
+.frac>span:last-child{padding:2px 6px 0}
+.sqrt{white-space:nowrap}
+.sqrt>span{border-top:2.5px solid currentColor;padding:0 4px;margin-left:1px}
+.math{font-size:clamp(24px,5vw,32px);font-weight:900;text-align:center;padding:18px 10px;background:#F7F8FD;border-radius:18px;margin:10px 0;overflow-x:auto}
+.pw{display:inline-flex;align-items:center;gap:6px;font-size:.9em}
+.pw-brace{font-size:2.6em;font-weight:400;line-height:1}
+.pw-rows{display:flex;flex-direction:column;gap:6px;text-align:left}
+.pw-row{display:flex;gap:14px;align-items:baseline;white-space:nowrap}
+.pw-row span{font-size:.75em;color:var(--muted)}
+
+/* Gráficas */
+.graph{width:100%;max-width:440px;display:block;margin:0 auto;height:auto}
+.g-bg{fill:#FBFCFF;stroke:#E2E6F2}
+.g-grid{stroke:#ECEFF7;stroke-width:1}
+.g-axis{stroke:#8A91B2;stroke-width:1.6}
+.g-num{font-size:11px;fill:#7A80A0;font-weight:800;font-family:Nunito,sans-serif}
+.g-mark{stroke:var(--tc);stroke-width:2;stroke-dasharray:5 5;opacity:.75}
+.g-curve{fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.g-guide{stroke:#1B1F3B;stroke-width:1.6;stroke-dasharray:4 4;opacity:.55}
+.g-pulse{fill:none;stroke:#F59E0B;stroke-width:3;animation:gpulse 1s infinite}
+@keyframes gpulse{50%{stroke-width:7;opacity:.5}}
+.g-lbl{font-size:13px;font-weight:900;font-family:Nunito,sans-serif}
+.gwrap{background:#fff;border-radius:18px;padding:8px}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:14px;font-weight:800;color:var(--muted);margin-top:6px}
+
+/* Slider */
+.slider-box{background:#F7F8FD;border-radius:18px;padding:14px;margin-top:12px}
+input[type=range]{width:100%;height:36px;accent-color:var(--tc);cursor:pointer}
+.readout{font-size:19px;font-weight:800;text-align:center;min-height:56px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.readout .l{color:#2563EB}.readout .r{color:#EA580C}
+
+/* Animación de acercamiento */
+.approach{position:relative;height:150px;background:#F7F8FD;border-radius:18px;overflow:hidden}
+.ap-line{position:absolute;left:5%;right:5%;top:70px;height:4px;background:#C9CFE3;border-radius:4px}
+.ap-a{position:absolute;left:50%;top:52px;transform:translateX(-50%);width:4px;height:40px;background:var(--tc);border-radius:4px}
+.ap-a span{position:absolute;top:44px;left:50%;transform:translateX(-50%);font-weight:900;font-size:20px;color:var(--tc)}
+.ap-dot{position:absolute;top:60px;width:24px;height:24px;border-radius:50%;border:4px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.ap-dot.l{background:#2563EB;animation:apl 3.2s ease-in-out infinite}
+.ap-dot.r{background:#EA580C;animation:apr 3.2s ease-in-out infinite}
+@keyframes apl{0%{left:6%}75%,100%{left:calc(50% - 30px)}}
+@keyframes apr{0%{right:6%}75%,100%{right:calc(50% - 30px)}}
+.ap-lbl{position:absolute;top:12px;font-size:14px;font-weight:900;line-height:1.2}
+.ap-lbl.l{left:6%;color:#2563EB}.ap-lbl.r{right:6%;color:#EA580C;text-align:right}
+.ap-vals{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:space-between;padding:0 6%;font-size:14px;font-weight:900}
+
+/* Tablas de valores */
+.vtable{width:100%;border-collapse:separate;border-spacing:4px;font-weight:800;text-align:center;font-size:16px}
+.vtable th{background:var(--tc);color:#fff;border-radius:10px;padding:8px 6px}
+.vtable td{background:#F4F6FC;border-radius:10px;padding:9px 4px}
+.vtable td.c{background:var(--warn-l);color:#B45309;font-weight:900}
+.vtable td.lft{color:#2563EB}.vtable td.rgt{color:#EA580C}
+.tscroll{overflow-x:auto}
+
+/* Ejemplos guiados */
+.steps{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.step{display:flex;gap:12px;background:#F7F8FD;border-radius:16px;padding:14px;animation:enter .45s ease;align-items:flex-start}
+.step .sn{width:34px;height:34px;border-radius:50%;background:var(--tc);color:#fff;font-weight:900;display:grid;place-items:center;flex:none}
+.final{background:var(--ok-l);border:3px solid var(--ok);border-radius:18px;padding:16px;text-align:center;font-size:22px;font-weight:900;animation:popin .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes popin{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.ex-count{font-weight:900;color:var(--tc);font-size:15px;text-transform:uppercase;letter-spacing:.05em}
+
+/* Camino de progreso */
+.pathbox{background:#fff;border-radius:22px;box-shadow:var(--sh);padding:16px 22px 12px;margin-bottom:16px}
+.path{position:relative;height:54px;margin:0 18px}
+.ptrack{position:absolute;left:0;right:0;top:23px;height:10px;border-radius:10px;background:#E8EBF5}
+.pfill{position:absolute;left:0;top:23px;height:10px;border-radius:10px;background:linear-gradient(90deg,var(--tc),color-mix(in srgb,var(--tc) 60%,#FBBF24));transition:width .7s cubic-bezier(.3,1.4,.5,1)}
+.pdot{position:absolute;top:23px;width:10px;height:10px;border-radius:50%;background:#C8CEE0;transform:translateX(-50%);transition:background .3s}
+.pdot.on{background:#fff}
+.pnode{position:absolute;top:4px;width:48px;height:48px;margin-left:-24px;border-radius:50%;background:#fff;border:4px solid #E1E5F1;display:grid;place-items:center;font-size:22px;transition:all .4s;filter:grayscale(1);opacity:.75}
+.pnode.on{border-color:var(--tc);filter:none;opacity:1;box-shadow:0 0 0 6px color-mix(in srgb,var(--tc) 18%,transparent)}
+.pnode.pop{animation:nodepop .9s cubic-bezier(.2,1.6,.4,1)}
+@keyframes nodepop{0%{transform:scale(1)}40%{transform:scale(1.55) rotate(-12deg)}100%{transform:scale(1)}}
+.plabel{display:flex;justify-content:space-between;font-weight:800;color:var(--muted);font-size:15px;margin-top:6px;gap:8px;flex-wrap:wrap}
+.plabel b{color:var(--ink)}
+
+/* Ejercicio */
+.exgrid{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:900px){.exgrid{grid-template-columns:1.1fr 1fr;align-items:start}}
+.exhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.tag{font-size:13px;font-weight:900;background:color-mix(in srgb,var(--tc) 14%,#fff);color:var(--tc);padding:5px 12px;border-radius:999px}
+.prompt{font-size:20px;font-weight:800}
+.field{margin-bottom:14px;border-radius:18px;padding:10px;transition:background .3s}
+.field>label{display:block;font-weight:900;font-size:20px;margin-bottom:8px}
+.field.wrong{background:var(--bad-l);animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.numrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:22px;font-weight:900}
+.ans{width:132px;height:68px;font:inherit;font-size:32px;font-weight:900;text-align:center;border-radius:18px;border:3px solid #D3D9EA;background:#F8F9FD;color:var(--ink);caret-color:var(--tc);transition:all .2s}
+.ans:focus,.ans.active{border-color:var(--tc);background:#fff;outline:none;box-shadow:0 0 0 5px color-mix(in srgb,var(--tc) 18%,transparent)}
+.field.wrong .ans{border-color:var(--bad)}
+.opts{display:grid;gap:10px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt{border:3px solid #D3D9EA;background:#fff;border-radius:18px;padding:14px 16px;font-size:19px;font-weight:800;text-align:left;box-shadow:0 4px 0 #D3D9EA;transition:all .12s;min-height:60px}
+.opts.two .opt{text-align:center}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 #D3D9EA}
+.opt.sel{border-color:var(--tc);background:color-mix(in srgb,var(--tc) 10%,#fff);box-shadow:0 4px 0 var(--tc)}
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 16px}
+.key{height:56px;border:none;border-radius:14px;background:#F1F3FA;font-size:24px;font-weight:900;box-shadow:0 3px 0 #D8DDEC;transition:transform .08s}
+.key:active{transform:translateY(3px);box-shadow:none;background:#E4E8F4}
+.key.w2{grid-column:span 2}
+.key.fn{background:color-mix(in srgb,var(--tc) 14%,#fff);color:var(--tc);font-size:19px}
+.actions{display:grid;grid-template-columns:1fr 1.5fr;gap:12px}
+.hint-note{font-size:14px;color:var(--muted);font-weight:700;margin:-6px 0 12px}
+
+/* Panel práctica sin fin */
+.estats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:560px){.estats{grid-template-columns:repeat(2,1fr)}}
+.estats .stat .v{font-size:22px}
+.mastery{height:10px;background:#E8EBF5;border-radius:10px;overflow:hidden;margin-top:6px}
+.mastery i{display:block;height:100%;background:linear-gradient(90deg,#F59E0B,#10B981);transition:width .6s}
+.tswitch{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.tsw{flex:none;border:3px solid transparent;background:#fff;border-radius:999px;padding:10px 16px;font-weight:900;font-size:16px;box-shadow:var(--sh)}
+.tsw.on{border-color:var(--tc);color:var(--tc)}
+
+/* Hoja de retroalimentación */
+.sheet-wrap{position:fixed;inset:0;z-index:100;background:rgba(20,22,45,.38);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet-wrap.show{opacity:1;pointer-events:auto}
+.sheet{width:100%;max-width:640px;background:#fff;border-radius:28px 28px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .38s cubic-bezier(.2,1.1,.3,1);max-height:88vh;overflow-y:auto}
+@media(min-width:700px){.sheet-wrap{align-items:center}.sheet{border-radius:28px;transform:translateY(40px) scale(.95)}}
+.sheet-wrap.show .sheet{transform:none}
+.sheet.ok{border-top:8px solid var(--ok)}
+.sheet.bad{border-top:8px solid var(--bad)}
+.sh-head{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.sh-ico{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:34px;font-weight:900;color:#fff;flex:none;animation:popin .5s cubic-bezier(.2,1.6,.4,1)}
+.ok .sh-ico{background:var(--ok)}
+.bad .sh-ico{background:var(--bad);animation:popin .5s cubic-bezier(.2,1.6,.4,1),shake .5s .4s}
+.sh-head h3{font-size:26px}
+.ok .sh-head h3{color:var(--ok)}
+.bad .sh-head h3{color:var(--bad)}
+.sh-head p{font-weight:700;color:var(--muted);margin:2px 0 0}
+.sh-body{background:#F7F8FD;border-radius:16px;padding:14px;margin-bottom:16px;font-weight:700}
+.drow{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.drow:last-child{border:none}
+.drow .e{font-size:26px;flex:none}
+.drow>div>b:first-child{display:block}
+.drow.hint{background:var(--warn-l);border-radius:14px;padding:12px;margin-top:6px;border:none}
+
+/* Modal de logro */
+.modal-wrap{position:fixed;inset:0;z-index:110;background:rgba(20,22,45,.5);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-wrap.show{opacity:1;pointer-events:auto}
+.modal{width:100%;max-width:520px;background:#fff;border-radius:30px;padding:26px 22px;text-align:center;transform:scale(.7);transition:transform .5s cubic-bezier(.2,1.5,.4,1);max-height:92vh;overflow-y:auto}
+.modal-wrap.show .modal{transform:none}
+.trophy{font-size:84px;line-height:1;animation:trophy 1.6s ease-in-out infinite}
+@keyframes trophy{0%,100%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.1)}}
+.modal h2{font-size:30px;margin:8px 0 4px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.rbox{background:#F7F8FD;border-radius:16px;padding:12px;text-align:left}
+.rbox .k{font-size:13px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.rbox .v{font-size:22px;font-weight:900;overflow-wrap:anywhere}
+.rbox.ok .v{color:var(--ok)}.rbox.bad .v{color:var(--bad)}
+.rbox.full{grid-column:span 2}
+.mot{background:linear-gradient(135deg,#EEF0FF,#E6F7FF);border-radius:16px;padding:14px;font-weight:800;font-size:18px;margin-bottom:16px}
+.mbtns{display:grid;gap:12px}
+
+/* Toast */
+#toasts{position:fixed;top:92px;left:0;right:0;z-index:120;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toast{background:#1B1F3B;color:#fff;font-weight:900;font-size:18px;padding:14px 22px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:toastin .5s cubic-bezier(.2,1.5,.4,1),toastout .4s 2.6s forwards;text-align:center;max-width:520px}
+.toast.gold{background:linear-gradient(135deg,#F59E0B,#F97316)}
+.toast.green{background:var(--ok)}
+.toast.info{background:var(--pri)}
+@keyframes toastin{from{transform:translateY(-30px) scale(.8);opacity:0}}
+@keyframes toastout{to{transform:translateY(-20px);opacity:0}}
+@media(max-width:560px){#toasts{top:120px}}
+
+/* Confeti */
+.confetti{position:fixed;top:-20px;width:11px;height:16px;z-index:130;pointer-events:none;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--rot));}}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<header id="topbar" aria-label="Información del estudiante">
+  <div class="tb-in">
+    <button class="home" id="homeBtn" aria-label="Volver al menú principal" title="Inicio">🏠</button>
+    <div class="who">
+      <div class="avatar" id="tbAvatar">A</div>
+      <div class="who-txt"><b id="tbName"></b><span id="tbGrade"></span></div>
+    </div>
+    <div class="chips">
+      <div class="chip" title="Tiempo transcurrido">⏱ <span data-time>00:00</span></div>
+      <div class="chip ok" id="chOk" title="Aciertos">✔ <span id="tbOk">0</span></div>
+      <div class="chip bad" id="chBad" title="Errores">✖ <span id="tbBad">0</span></div>
+    </div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div class="sheet-wrap" id="sheetWrap" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true"><div class="modal" id="modal"></div></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+const $=s=>document.querySelector(s);
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
+const eq=(a,b)=>Math.abs(a-b)<1e-6;
+/* Formatea números con signo − y coma decimal */
+function N(n){
+  if(typeof n!=='number')return n;
+  if(Object.is(n,-0))n=0;
+  const s=Number.isInteger(n)?String(Math.abs(n)):String(+Math.abs(n).toFixed(4)).replace('.',',');
+  return (n<0?'−':'')+s;
+}
+function parseNum(s){
+  s=String(s).trim().replace(/−/g,'-').replace(/,/g,'.').replace(/\s/g,'');
+  if(!s)return NaN;
+  if(s.includes('/')){
+    const p=s.split('/');if(p.length!==2||p[0]===''||p[1]==='')return NaN;
+    const x=+p[0],y=+p[1];if(!isFinite(x)||!isFinite(y)||y===0)return NaN;return x/y;
+  }
+  if(!/^-?(\d+\.?\d*|\.\d+)$/.test(s))return NaN;
+  return +s;
+}
+function numOk(val,raw,ans){
+  if(eq(val,ans))return true;
+  if(!Number.isInteger(ans)&&/[.,]/.test(raw)&&Math.abs(val-ans)<0.006)return true;
+  return false;
+}
+/* Fracción reducida */
+function frac(n,d){if(d<0){n=-n;d=-d}const g=gcd(n,d);return{n:n/g,d:d/g}}
+function fracTxt(n,d){const f=frac(n,d);return f.d===1?N(f.n):`${f.n<0?'−':''}${Math.abs(f.n)}/${f.d}`}
+function fracH(n,d){const f=frac(n,d);return f.d===1?N(f.n):`${f.n<0?'−':''}${fr(Math.abs(f.n),f.d)}`}
+const fr=(n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const lim=(a,side='')=>`<span class="lim"><span>lim</span><small>x→${N(a)}${side?`<sup>${side}</sup>`:''}</small></span>`;
+const sqrtH=e=>`<span class="sqrt">√<span>${e}</span></span>`;
+const fmtTime=ms=>{const s=Math.max(0,Math.floor(ms/1000)),m=Math.floor(s/60);return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+
+/* Polinomios: terms = [[coef, potencia], ...] */
+const SUP={2:'²',3:'³'};
+function termsStr(terms){
+  let out='';
+  terms.forEach(([c,p])=>{
+    if(c===0)return;const neg=c<0,a=Math.abs(c);
+    const body=p===0?String(a):((a===1?'':a)+'x'+(SUP[p]||''));
+    out+=out===''?(neg?'−':'')+body:(neg?' − ':' + ')+body;
+  });
+  return out||'0';
+}
+function subStr(terms,a){
+  const A=a<0?`(−${-a})`:`(${a})`;let out='';
+  terms.forEach(([c,p])=>{
+    if(c===0)return;const neg=c<0,ab=Math.abs(c);
+    const body=p===0?String(ab):((ab===1?'':ab+'·')+A+(SUP[p]||''));
+    out+=out===''?(neg?'−':'')+body:(neg?' − ':' + ')+body;
+  });
+  return out||'0';
+}
+const evalT=(terms,x)=>terms.reduce((s,[c,p])=>s+c*Math.pow(x,p),0);
+function polySteps(terms,a){
+  const parts=terms.filter(t=>t[0]!==0).map(([c,p])=>c*Math.pow(a,p));
+  let s2='';parts.forEach((v,i)=>{s2+=i===0?N(v):(v<0?' − ':' + ')+N(Math.abs(v))});
+  const res=N(evalT(terms,a));
+  return parts.length>1?`${subStr(terms,a)} = ${s2} = <b>${res}</b>`:`${subStr(terms,a)} = <b>${res}</b>`;
+}
+
+/* =========================================================
+   GRÁFICAS SVG
+   ========================================================= */
+let gid=0;
+function mapr(o){
+  const W=340,H=280,xmin=o.xmin??-5,xmax=o.xmax??5,ymin=o.ymin??-4,ymax=o.ymax??7;
+  return{W,H,xmin,xmax,ymin,ymax,sx:x=>+((x-xmin)/(xmax-xmin)*W).toFixed(2),sy:y=>+(H-(y-ymin)/(ymax-ymin)*H).toFixed(2)};
+}
+function graph(o){
+  const m=mapr(o),{W,H,xmin,xmax,ymin,ymax,sx,sy}=m,id='cl'+(++gid),col=o.color||'#5B4BDB';
+  let s=`<svg class="graph" viewBox="-2 -2 ${W+4} ${H+4}" role="img" aria-label="${o.label||'Gráfica de la función f'}"><defs><clipPath id="${id}"><rect width="${W}" height="${H}" rx="14"/></clipPath></defs>`;
+  s+=`<rect width="${W}" height="${H}" class="g-bg" rx="14"/>`;
+  for(let x=Math.ceil(xmin);x<=xmax;x++)s+=`<line x1="${sx(x)}" y1="0" x2="${sx(x)}" y2="${H}" class="g-grid"/>`;
+  for(let y=Math.ceil(ymin);y<=ymax;y++)s+=`<line x1="0" y1="${sy(y)}" x2="${W}" y2="${sy(y)}" class="g-grid"/>`;
+  s+=`<line x1="0" y1="${sy(0)}" x2="${W}" y2="${sy(0)}" class="g-axis"/><line x1="${sx(0)}" y1="0" x2="${sx(0)}" y2="${H}" class="g-axis"/>`;
+  for(let x=Math.ceil(xmin)+1;x<xmax;x++)if(x)s+=`<text x="${sx(x)}" y="${sy(0)+15}" class="g-num" text-anchor="middle">${N(x)}</text>`;
+  for(let y=Math.ceil(ymin)+1;y<ymax;y++)if(y)s+=`<text x="${sx(0)-5}" y="${sy(y)+4}" class="g-num" text-anchor="end">${N(y)}</text>`;
+  s+=`<text x="${W-8}" y="${sy(0)-6}" class="g-num" text-anchor="end">x</text><text x="${sx(0)+6}" y="13" class="g-num">y</text>`;
+  if(o.markX!=null)s+=`<line x1="${sx(o.markX)}" y1="0" x2="${sx(o.markX)}" y2="${H}" class="g-mark"/>`;
+  s+=`<g clip-path="url(#${id})">`;
+  (o.guides||[]).forEach(g=>{s+=`<line x1="${sx(g.x)}" y1="${sy(0)}" x2="${sx(g.x)}" y2="${sy(g.y)}" class="g-guide"/><line x1="${sx(0)}" y1="${sy(g.y)}" x2="${sx(g.x)}" y2="${sy(g.y)}" class="g-guide"/>`});
+  (o.pieces||[]).forEach(p=>{
+    const from=Math.max(p.from,xmin-.5),to=Math.min(p.to,xmax+.5),n=160;let d='',pen=false;
+    for(let i=0;i<=n;i++){const x=from+(to-from)*i/n,y=p.f(x);if(!isFinite(y)||y>ymax+20||y<ymin-20){pen=false;continue}d+=(pen?'L':'M')+sx(x)+' '+sy(y)+' ';pen=true}
+    s+=`<path d="${d}" class="g-curve" style="stroke:${p.color||col}"/>`;
+  });
+  s+=`</g>`;
+  (o.points||[]).forEach(p=>{const c=p.color||col;s+=p.open?`<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="6.5" fill="#fff" stroke="${c}" stroke-width="3.5"/>`:`<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="7" fill="${c}" stroke="#fff" stroke-width="2"/>`});
+  (o.labels||[]).forEach(l=>{s+=`<text x="${sx(l.x)}" y="${sy(l.y)}" class="g-lbl" fill="${l.c||col}" text-anchor="${l.anchor||'middle'}">${l.t}</text>`});
+  if(o.overlay)s+=`<g id="${o.overlay}"></g>`;
+  return s+`</svg>`;
+}
+function dotG(m,x,y,col){
+  return `<line x1="${m.sx(x)}" y1="${m.sy(0)}" x2="${m.sx(x)}" y2="${m.sy(y)}" class="g-guide"/><line x1="${m.sx(0)}" y1="${m.sy(y)}" x2="${m.sx(x)}" y2="${m.sy(y)}" class="g-guide"/><circle cx="${m.sx(x)}" cy="${m.sy(y)}" r="9" fill="${col}" stroke="#fff" stroke-width="3"/>`;
+}
+const legendOC=`<div class="legend"><span>○ = punto que NO está (hueco)</span><span>● = punto que SÍ está</span></div>`;
+
+/* =========================================================
+   DATOS DE LOS TEMAS
+   ========================================================= */
+const TOPICS={
+  concepto:{name:'Concepto de límite',icon:'🎯',hex:'#6D5DF5',desc:'Descubre a qué valor se acerca una función cuando x se acerca a un número.'},
+  laterales:{name:'Límites laterales',icon:'↔️',hex:'#0EA5E9',desc:'Acércate por la izquierda y por la derecha. ¿Llegan al mismo lugar?'},
+  sustitucion:{name:'Sustitución directa',icon:'🔁',hex:'#F97316',desc:'Reemplaza x por el número y calcula el límite paso a paso.'}
+};
+const ORDER=['concepto','laterales','sustitucion'];
+const BLUE='#2563EB',ORANGE='#EA580C';
+let animTimer=null;
+function stopAnim(){if(animTimer){clearInterval(animTimer);animTimer=null}}
+
+/* ---------- TEORÍA ---------- */
+const GC2={pieces:[{f:x=>x+2,from:-5,to:5}],points:[{x:2,y:4,open:true}],markX:2,overlay:'ovl',color:TOPICS.concepto.hex};
+const GL2={pieces:[{f:x=>x+1,from:-5,to:2,color:BLUE},{f:x=>-x+7,from:2,to:5,color:ORANGE}],points:[{x:2,y:3,open:true,color:BLUE},{x:2,y:5,color:ORANGE}],markX:2,overlay:'ovl2',color:TOPICS.laterales.hex};
+
+const THEORY={
+concepto:[
+ {t:'¿Qué es un límite?',text:`<p>El <b>límite</b> responde una pregunta muy sencilla:</p>
+  <div class="big-q">Cuando <b>x</b> se acerca a un número <b>a</b>, ¿a qué valor se acerca <b>f(x)</b>?</div>
+  <div class="notation">${lim('a')} f(x) = L</div>
+  <p>Se lee: <i>“el límite de f(x) cuando x tiende a a es L”</i>.</p>
+  <div class="tip">💡 <b>“Tiende a”</b> significa <b>acercarse cada vez más</b>, sin necesidad de llegar.</div>`,
+  vis:`<div class="approach"><div class="ap-lbl l">x se acerca<br>por la izquierda</div><div class="ap-lbl r">x se acerca<br>por la derecha</div><div class="ap-line"></div><div class="ap-a"><span>a</span></div><div class="ap-dot l"></div><div class="ap-dot r"></div></div>
+  <p class="muted" style="text-align:center;font-weight:700;margin-top:10px">Los puntos se acercan a <b>a</b> desde ambos lados… ¡cada vez más cerca!</p>`},
+ {t:'Míralo en una gráfica',text:`<p>Observa la función <b>f(x) = ${fr('x² − 4','x − 2')}</b>.</p>
+  <p>En <b>x = 2</b> se divide entre cero, así que <b>f(2) no existe</b>: por eso hay un hueco ○.</p>
+  <div class="big-q">🎚️ Mueve el deslizador y mira qué pasa con f(x) cuando x se acerca a 2.</div>
+  <div class="keybox">✅ Aunque f(2) no existe, f(x) se acerca a <b>4</b>.<br>Por eso: ${lim(2)} f(x) = 4</div>`,
+  vis:`<div class="gwrap">${graph(GC2)}</div>
+  <div class="slider-box"><input type="range" id="sl" min="0" max="4" step="0.01" value="1" aria-label="Valor de x"><div class="readout" id="ro"></div>
+  <button class="btn ghost block" id="animBtn">▶ Animar el acercamiento</button></div>`,
+  init(){
+    const m=mapr(GC2),sl=$('#sl'),ov=$('#ovl'),ro=$('#ro'),col=GC2.color;
+    const upd=()=>{const x=+sl.value;
+      if(Math.abs(x-2)<1e-9){ov.innerHTML=`<circle cx="${m.sx(2)}" cy="${m.sy(4)}" r="12" class="g-pulse"/>`;ro.innerHTML=`<span>x = 2 → <b>f(2) no existe</b> (hueco ○)</span><span class="muted">¡Pero alrededor, f(x) se acerca a 4!</span>`;return}
+      const y=x+2;ov.innerHTML=dotG(m,x,y,col);
+      ro.innerHTML=`<span>x = <b>${N(x)}</b> &nbsp;→&nbsp; f(x) = <b style="color:${col}">${N(+y.toFixed(2))}</b></span><span class="muted">Distancia de x a 2: ${N(+Math.abs(x-2).toFixed(2))}</span>`};
+    sl.oninput=()=>{stopAnim();upd()};upd();
+    $('#animBtn').onclick=()=>{stopAnim();const seq=[0.5,1,1.5,1.8,1.9,1.95,1.99,3.5,3,2.5,2.2,2.1,2.05,2.01];let i=0;
+      animTimer=setInterval(()=>{if(i>=seq.length){stopAnim();return}sl.value=seq[i++];upd()},600)};
+  }},
+ {t:'Con una tabla de valores',text:`<p>También podemos descubrir el límite con una <b>tabla</b>: tomamos valores de x cada vez más cercanos a 2.</p>
+  <p>🔵 Por la izquierda: 1,9 → 1,99 → 1,999<br>🟠 Por la derecha: 2,1 → 2,01 → 2,001</p>
+  <div class="keybox">Los valores de f(x) se acercan a <b>4</b> por ambos lados. ✅</div>
+  <div class="tip">💡 Para encontrar el límite, mira los valores de f(x) <b>más cercanos al centro</b>.</div>`,
+  vis:`<div class="card" style="box-shadow:none;background:#F7F8FD"><div class="tscroll"><table class="vtable">
+  <tr><th>x</th><td class="lft">1,9</td><td class="lft">1,99</td><td class="lft">1,999</td><td class="c">2</td><td class="rgt">2,001</td><td class="rgt">2,01</td><td class="rgt">2,1</td></tr>
+  <tr><th>f(x)</th><td class="lft">3,9</td><td class="lft">3,99</td><td class="lft">3,999</td><td class="c">→4←</td><td class="rgt">4,001</td><td class="rgt">4,01</td><td class="rgt">4,1</td></tr></table></div>
+  <p style="text-align:center;font-weight:900;font-size:22px;margin-top:14px">${lim(2)} f(x) = 4</p></div>`},
+ {t:'El límite NO es lo mismo que f(a)',text:`<p>En esta gráfica pasa algo curioso en <b>x = 1</b>:</p>
+  <ul class="clean"><li data-i="●">El punto relleno está en <b>y = 6</b>, así que <b>f(1) = 6</b>.</li>
+  <li data-i="○">Pero la curva, cerca de x = 1, se acerca a <b>y = 3</b>.</li></ul>
+  <div class="keybox">${lim(1)} f(x) = 3 &nbsp; pero &nbsp; f(1) = 6</div>
+  <div class="tip">🧠 <b>Idea clave:</b> el límite mira lo que pasa <b>cerca</b> de a, no lo que pasa <b>exactamente en</b> a.</div>`,
+  vis:`<div class="gwrap">${graph({pieces:[{f:x=>2*x+1,from:-5,to:5}],points:[{x:1,y:3,open:true},{x:1,y:6}],markX:1,color:'#6D5DF5',labels:[{x:1.35,y:6.2,t:'f(1) = 6',anchor:'start',c:'#1B1F3B'},{x:1.4,y:2.6,t:'límite = 3',anchor:'start',c:'#6D5DF5'}]})}</div>${legendOC}`}
+],
+laterales:[
+ {t:'Dos formas de acercarse',text:`<p>Podemos acercarnos a un número <b>a</b> por dos caminos:</p>
+  <div class="big-q" style="border-color:${BLUE}">🔵 <b>Por la izquierda</b> (valores menores que a):<br><span style="font-size:24px">${lim('a','−')} f(x)</span></div>
+  <div class="big-q" style="border-color:${ORANGE}">🟠 <b>Por la derecha</b> (valores mayores que a):<br><span style="font-size:24px">${lim('a','+')} f(x)</span></div>
+  <div class="tip">💡 El signo <b>⁻</b> significa “desde abajo/izquierda” y el signo <b>⁺</b> “desde arriba/derecha”.</div>`,
+  vis:`<div class="approach" style="height:170px"><div class="ap-lbl l">x → 3⁻</div><div class="ap-lbl r">x → 3⁺</div><div class="ap-line"></div><div class="ap-a"><span>3</span></div><div class="ap-dot l"></div><div class="ap-dot r"></div>
+  <div class="ap-vals"><span style="color:${BLUE}">2,9 · 2,99 · 2,999</span><span style="color:${ORANGE}">3,001 · 3,01 · 3,1</span></div></div>`},
+ {t:'¡Cada lado puede llegar a un lugar distinto!',text:`<p>Esta función tiene un <b>salto</b> en x = 2:</p>
+  <div class="pw" style="font-size:20px;font-weight:900;margin:8px 0">${pw([{e:'x + 1',c:BLUE,cond:'x < 2'},{e:'−x + 7',c:ORANGE,cond:'x ≥ 2'}])}</div>
+  <div class="big-q">🎚️ Mueve el deslizador para acercar los dos puntos a x = 2.</div>
+  <div class="keybox">🔵 ${lim(2,'−')} f(x) = 3 &nbsp;&nbsp; 🟠 ${lim(2,'+')} f(x) = 5</div>`,
+  vis:`<div class="gwrap">${graph(GL2)}</div><div class="slider-box"><label style="font-weight:900">Acércate a x = 2 ➜</label><input type="range" id="sl2" min="0" max="100" value="20" aria-label="Acercarse a 2"><div class="readout" id="ro2"></div></div>`,
+  init(){
+    const m=mapr(GL2),sl=$('#sl2'),ov=$('#ovl2'),ro=$('#ro2');
+    const upd=()=>{const h=Math.max(0.01,+(2*(1-sl.value/100)).toFixed(2)),xl=+(2-h).toFixed(2),xr=+(2+h).toFixed(2);
+      ov.innerHTML=dotG(m,xl,xl+1,BLUE)+dotG(m,xr,-xr+7,ORANGE);
+      ro.innerHTML=`<span class="l">🔵 x = ${N(xl)} → f(x) = ${N(+(xl+1).toFixed(2))}</span><span class="r">🟠 x = ${N(xr)} → f(x) = ${N(+(-xr+7).toFixed(2))}</span>`};
+    sl.oninput=upd;upd();
+  }},
+ {t:'¿Cuándo existe el límite?',text:`<div class="notation" style="font-size:21px">El límite existe <b>solo si</b><br>🔵 izquierda = derecha 🟠</div>
+  <ul class="clean"><li data-i="❌">Si los límites laterales son <b>diferentes</b>, el límite <b>no existe</b>.</li>
+  <li data-i="✅">Si son <b>iguales</b>, el límite existe y vale ese número.</li>
+  <li data-i="💡">Lo que pase exactamente en x = a (○ o ●) <b>no importa</b> para el límite.</li></ul>`,
+  vis:`<div class="split" style="gap:12px;grid-template-columns:1fr 1fr">
+   <div class="gwrap" style="text-align:center">${graph({pieces:[{f:x=>x+1,from:-5,to:1,color:BLUE},{f:x=>x+3,from:1,to:5,color:ORANGE}],points:[{x:1,y:2,open:true,color:BLUE},{x:1,y:4,color:ORANGE}],markX:1})}<b>2 ≠ 4</b><br><span style="color:var(--bad);font-weight:900">❌ No existe</span></div>
+   <div class="gwrap" style="text-align:center">${graph({pieces:[{f:x=>0.5*x+2.5,from:-5,to:1,color:BLUE},{f:x=>0.5*x+2.5,from:1,to:5,color:ORANGE}],points:[{x:1,y:3,open:true,color:'#10B981'}],markX:1})}<b>3 = 3</b><br><span style="color:var(--ok);font-weight:900">✅ Existe y vale 3</span></div></div>`},
+ {t:'Funciones a trozos',text:`<p>Una función <b>a trozos</b> usa una fórmula distinta según el valor de x.</p>
+  <div class="math" style="font-size:24px">${pw([{e:'x²',c:BLUE,cond:'x < 1'},{e:'3x',c:ORANGE,cond:'x ≥ 1'}])}</div>
+  <ul class="clean"><li data-i="🔵">Izquierda (x &lt; 1): usa <b style="color:${BLUE}">x²</b> → (1)² = <b>1</b></li>
+  <li data-i="🟠">Derecha (x ≥ 1): usa <b style="color:${ORANGE}">3x</b> → 3·(1) = <b>3</b></li></ul>
+  <div class="alert">1 ≠ 3, entonces ${lim(1)} f(x) <b>no existe</b>.</div>`,
+  vis:`<div class="gwrap">${graph({pieces:[{f:x=>x*x,from:-5,to:1,color:BLUE},{f:x=>3*x,from:1,to:5,color:ORANGE}],points:[{x:1,y:1,open:true,color:BLUE},{x:1,y:3,color:ORANGE}],markX:1,ymin:-2,ymax:9})}</div>
+  <div class="tip">💡 Truco: <b>x &lt; a</b> → lado izquierdo. &nbsp;<b>x &gt; a</b> o <b>x ≥ a</b> → lado derecho.</div>`}
+],
+sustitucion:[
+ {t:'La forma más rápida',text:`<p>Si la gráfica de la función <b>no tiene huecos ni saltos</b> en x = a, el límite es simplemente el valor de la función:</p>
+  <div class="notation">${lim('a')} f(x) = f(a)</div>
+  <p>A esto se le llama <b>sustitución directa</b>: reemplazamos x por a y calculamos.</p>
+  <div class="keybox">Ejemplo: ${lim(2)} (x² − 2) = (2)² − 2 = <b>2</b></div>`,
+  vis:`<div class="gwrap">${graph({pieces:[{f:x=>x*x-2,from:-5,to:5}],points:[{x:2,y:2}],guides:[{x:2,y:2}],markX:2,color:'#F97316'})}</div>
+  <p class="muted" style="text-align:center;font-weight:700">La curva es continua: llegar a x = 2 da exactamente y = 2.</p>`},
+ {t:'Paso a paso',text:`<ul class="clean">
+  <li data-i="1️⃣"><b>Reemplaza</b> cada x por el número a.</li>
+  <li data-i="2️⃣">Usa <b>paréntesis</b> siempre, sobre todo con negativos.</li>
+  <li data-i="3️⃣">Resuelve en orden: <b>potencias → multiplicaciones → sumas y restas</b>.</li>
+  <li data-i="4️⃣">Escribe el resultado.</li></ul>
+  <div class="big-q">👉 Pulsa el botón para ver la sustitución en acción.</div>`,
+  vis:`<div class="card" style="box-shadow:none;background:#F7F8FD"><div class="math" style="background:#fff">${lim(3)} (2x² − x + 1)</div>
+  <div class="steps" id="subSteps"></div><button class="btn tc block" id="subBtn" style="margin-top:12px">▶ Siguiente paso</button></div>`,
+  init(){
+    const st=[`Reemplazamos x por 3:<br><b style="font-size:22px">2(<span style="color:#F97316">3</span>)² − (<span style="color:#F97316">3</span>) + 1</b>`,`Potencia: (3)² = 9<br><b style="font-size:22px">2·9 − 3 + 1</b>`,`Multiplicación: 2·9 = 18<br><b style="font-size:22px">18 − 3 + 1</b>`,`Sumas y restas:<br><b style="font-size:22px">= 16</b> 🎉`];let i=0;
+    const box=$('#subSteps'),b=$('#subBtn');
+    b.onclick=()=>{if(i>=st.length){box.innerHTML='';i=0;b.textContent='▶ Siguiente paso';return}
+      box.insertAdjacentHTML('beforeend',`<div class="step"><div class="sn">${i+1}</div><div>${st[i]}</div></div>`);i++;
+      if(i>=st.length)b.textContent='↺ Ver otra vez'};
+  }},
+ {t:'¡Cuidado con los signos!',text:`<p>Los errores más comunes al sustituir números negativos:</p>
+  <div class="keybox">✔ (−3)² = (−3)·(−3) = <b>9</b></div>
+  <div class="alert">✖ −3² = −9 &nbsp;(¡olvidaste el paréntesis!)</div>
+  <div class="keybox">✔ −(−4) = <b>+4</b> &nbsp;(menos por menos da más)</div>
+  <div class="keybox">✔ (−2)³ = (−2)(−2)(−2) = <b>−8</b></div>
+  <div class="tip">💡 Si x = −3, escribe <b>(−3)</b> con paréntesis en cada lugar donde aparece x.</div>`,
+  vis:`<div class="card" style="box-shadow:none;background:#F7F8FD;text-align:center">
+  <p style="font-weight:900;font-size:20px">Ejemplo: ${lim(-3)} (x² + 2x)</p>
+  <div class="step" style="justify-content:center"><b style="font-size:22px">(−3)² + 2·(−3)</b></div>
+  <div class="step" style="justify-content:center"><b style="font-size:22px">9 − 6</b></div>
+  <div class="final">= 3 ✔</div></div>`},
+ {t:'¿Cuándo funciona?',text:`<ul class="clean">
+  <li data-i="✅"><b>Polinomios</b> (como 3x² − x + 5): ¡siempre funciona!</li>
+  <li data-i="✅"><b>Fracciones</b> (racionales): funciona si el <b>denominador ≠ 0</b>.</li>
+  <li data-i="✅"><b>Raíces</b> √: funciona si lo de adentro es <b>≥ 0</b>.</li>
+  <li data-i="⚠️">Si al sustituir obtienes <b>${fr(0,0)}</b> o divides entre 0, la sustitución directa <b>no sirve</b>: necesitarás otras técnicas (como factorizar).</li></ul>`,
+  vis:`<div class="card" style="box-shadow:none;background:#F7F8FD">
+  <p style="font-weight:900">✅ ${lim(2)} ${fr('x + 4','x + 1')} = ${fr(6,3)} = <b>2</b></p>
+  <p style="font-weight:900">✅ ${lim(5)} ${sqrtH('x + 4')} = √9 = <b>3</b></p>
+  <p style="font-weight:900;color:var(--bad)">⚠️ ${lim(1)} ${fr('x² − 1','x − 1')} → ${fr(0,0)} ¡No se puede directamente!</p></div>`}
+]};
+
+function pw(rows){return `<span class="pw"><span>f(x) =</span><span class="pw-brace">{</span><span class="pw-rows">${rows.map(r=>`<span class="pw-row"><b style="color:${r.c}">${r.e}</b><span>si ${r.cond}</span></span>`).join('')}</span></span>`}
+
+/* ---------- EJEMPLOS GUIADOS ---------- */
+const EXAMPLES={
+concepto:[
+ {q:`Observa la gráfica y encuentra ${lim(2)} f(x).`,vis:graph({pieces:[{f:x=>0.5*x+2,from:-5,to:5}],points:[{x:2,y:3,open:true}],markX:2,color:'#6D5DF5'})+legendOC,
+  steps:[`Ubica <b>x = 2</b> en el eje horizontal (la línea punteada).`,`Recorre la curva <b>desde la izquierda</b>: en x = 0 vale 2; en x = 1 vale 2,5… se acerca a <b>3</b>.`,`Recorre la curva <b>desde la derecha</b>: en x = 4 vale 4; en x = 3 vale 3,5… también se acerca a <b>3</b>.`,`Hay un hueco ○ en (2, 3), pero eso no importa: la curva se acerca a la altura 3.`],
+  final:`${lim(2)} f(x) = 3`},
+ {q:`Usa la tabla para encontrar ${lim(3)} f(x).`,vis:`<div class="tscroll"><table class="vtable"><tr><th>x</th><td class="lft">2,9</td><td class="lft">2,99</td><td class="lft">2,999</td><td class="c">3</td><td class="rgt">3,001</td><td class="rgt">3,01</td><td class="rgt">3,1</td></tr><tr><th>f(x)</th><td class="lft">6,8</td><td class="lft">6,98</td><td class="lft">6,998</td><td class="c">?</td><td class="rgt">7,002</td><td class="rgt">7,02</td><td class="rgt">7,2</td></tr></table></div>`,
+  steps:[`Mira la parte <b style="color:${BLUE}">izquierda</b>: 6,8 → 6,98 → 6,998. Los valores suben y se acercan a <b>7</b>.`,`Mira la parte <b style="color:${ORANGE}">derecha</b>: 7,2 → 7,02 → 7,002. Los valores bajan y se acercan a <b>7</b>.`,`Ambos lados se acercan al mismo número: <b>7</b>.`],
+  final:`${lim(3)} f(x) = 7`},
+ {q:`En la gráfica, encuentra f(−1) y ${lim(-1)} f(x).`,vis:graph({pieces:[{f:x=>-x+1,from:-5,to:5}],points:[{x:-1,y:2,open:true},{x:-1,y:-2}],markX:-1,color:'#6D5DF5'})+legendOC,
+  steps:[`<b>f(−1)</b> es el punto <b>relleno ●</b> sobre x = −1. Está en y = −2, entonces <b>f(−1) = −2</b>.`,`Para el <b>límite</b>, seguimos la curva hacia x = −1 por ambos lados.`,`La curva se acerca al hueco ○, que está a la altura <b>2</b>.`,`¡Son diferentes! El límite mira <b>cerca</b> de −1; f(−1) mira <b>en</b> −1.`],
+  final:`f(−1) = −2 &nbsp; y &nbsp; ${lim(-1)} f(x) = 2`}
+],
+laterales:[
+ {q:`Encuentra los límites laterales en x = 1 y decide si el límite existe.`,vis:graph({pieces:[{f:x=>x+1,from:-5,to:1,color:BLUE},{f:x=>-0.5*x+4.5,from:1,to:5,color:ORANGE}],points:[{x:1,y:2,color:BLUE},{x:1,y:4,open:true,color:ORANGE}],markX:1}),
+  steps:[`🔵 <b>Izquierda:</b> sigue el trazo azul hacia x = 1. Llega a la altura <b>2</b>. → ${lim(1,'−')} f(x) = 2`,`🟠 <b>Derecha:</b> sigue el trazo naranja hacia x = 1. Llega a la altura <b>4</b>. → ${lim(1,'+')} f(x) = 4`,`Comparamos: <b>2 ≠ 4</b>. Los lados no coinciden.`],
+  final:`${lim(1)} f(x) <span style="color:var(--bad)">no existe</span>`},
+ {q:`Sea ${pw([{e:'x + 3',c:BLUE,cond:'x < 2'},{e:'x² + 1',c:ORANGE,cond:'x ≥ 2'}])}. ¿Existe ${lim(2)} f(x)?`,vis:'',
+  steps:[`🔵 <b>Izquierda (x &lt; 2):</b> usamos x + 3 → (2) + 3 = <b>5</b>`,`🟠 <b>Derecha (x ≥ 2):</b> usamos x² + 1 → (2)² + 1 = 4 + 1 = <b>5</b>`,`Comparamos: <b>5 = 5</b>. ¡Los lados coinciden!`],
+  final:`${lim(2)} f(x) = 5 <span style="color:var(--ok)">✔ existe</span>`},
+ {q:`Usa las tablas para analizar el límite cuando x → 0.`,vis:`<div class="tscroll"><table class="vtable"><tr><th>x</th><td class="lft">−0,1</td><td class="lft">−0,01</td><td class="lft">−0,001</td><td class="c">0</td><td class="rgt">0,001</td><td class="rgt">0,01</td><td class="rgt">0,1</td></tr><tr><th>f(x)</th><td class="lft">−1,1</td><td class="lft">−1,01</td><td class="lft">−1,001</td><td class="c">?</td><td class="rgt">2,001</td><td class="rgt">2,01</td><td class="rgt">2,1</td></tr></table></div>`,
+  steps:[`🔵 Por la izquierda los valores se acercan a <b>−1</b>.`,`🟠 Por la derecha los valores se acercan a <b>2</b>.`,`−1 ≠ 2: los límites laterales son diferentes.`],
+  final:`${lim(0,'−')} f(x) = −1, &nbsp;${lim(0,'+')} f(x) = 2 → <span style="color:var(--bad)">no existe</span>`}
+],
+sustitucion:[
+ {q:`Calcula ${lim(3)} (x² − 2x + 5)`,vis:'',
+  steps:[`Es un polinomio → podemos usar <b>sustitución directa</b>.`,`Reemplazamos x por 3: <b>(3)² − 2·(3) + 5</b>`,`Potencias y multiplicaciones: <b>9 − 6 + 5</b>`,`Sumas y restas: <b>8</b>`],final:`${lim(3)} (x² − 2x + 5) = 8`},
+ {q:`Calcula ${lim(-2)} (3x² + x − 4)`,vis:'',
+  steps:[`Reemplazamos x por −2 <b>con paréntesis</b>: <b>3·(−2)² + (−2) − 4</b>`,`Cuidado: (−2)² = <b>+4</b> (menos por menos da más).`,`Entonces: 3·4 − 2 − 4 = <b>12 − 2 − 4</b>`,`Resultado: <b>6</b>`],final:`${lim(-2)} (3x² + x − 4) = 6`},
+ {q:`Calcula ${lim(1)} ${fr('x + 5','x + 2')}`,vis:'',
+  steps:[`Revisamos el denominador en x = 1: 1 + 2 = 3 ≠ 0 ✔ Podemos sustituir.`,`Numerador: (1) + 5 = <b>6</b>`,`Denominador: (1) + 2 = <b>3</b>`,`Dividimos: ${fr(6,3)} = <b>2</b>`],final:`${lim(1)} ${fr('x + 5','x + 2')} = 2`},
+ {q:`Calcula ${lim(4)} ${sqrtH('2x + 1')}`,vis:'',
+  steps:[`Lo de adentro en x = 4: 2·(4) + 1 = <b>9</b> ≥ 0 ✔`,`Sacamos la raíz: √9 = <b>3</b>`],final:`${lim(4)} ${sqrtH('2x + 1')} = 3`}
+]};
+
+/* =========================================================
+   GENERADORES DE EJERCICIOS
+   ========================================================= */
+const YESNO=[{v:'si',h:'✔ Sí existe'},{v:'no',h:'✖ No existe'}];
+function genericDiag(u,ans,extra){
+  if(!eq(ans,0)&&eq(u,-ans))return{err:`Tu resultado tiene el <b>signo contrario</b> al correcto.`,check:'Observa el signo en cada paso: recuerda que menos por menos da más.',hint:extra||'Revisa los signos uno por uno.'};
+  return null;
+}
+
+/* ---- CONCEPTO ---- */
+function genC_graph(){
+  const a=ri(-3,3),col=TOPICS.concepto.hex;let f;
+  if(Math.random()<.5){const m=pick([-2,-1,-.5,.5,1,2]),L0=ri(-2,5);f=x=>m*(x-a)+L0}
+  else{const d=pick([-2,-1,1,2]),h=a-d,k=ri(-3,5-d*d);f=x=>(x-h)*(x-h)+k}
+  const L=f(a),withPt=Math.random()<.5;let P=null;
+  if(withPt){do{P=ri(-3,6)}while(P===L)}
+  const pts=[{x:a,y:L,open:true}];if(withPt)pts.push({x:a,y:P});
+  return{type:'Lectura de gráfica',prompt:`Observa la gráfica. ¿A qué valor se acerca f(x) cuando x se acerca a ${N(a)}?`,
+    visual:graph({pieces:[{f,from:-5,to:5}],points:pts,markX:a,color:col})+legendOC,
+    fields:[{id:'l',type:'num',label:`${lim(a)} f(x) =`,ans:L}],
+    diagnose(v){const u=v.l;
+      if(withPt&&eq(u,P))return{err:`Escribiste ${N(P)}, que es el valor de <b>f(${N(a)})</b> (el punto relleno ●).`,check:`El límite no depende de lo que pasa exactamente en x = ${N(a)}, sino de hacia dónde se acerca la curva.`,hint:`Sigue la curva con el dedo hacia la línea punteada. ¿A qué altura está el hueco ○?`};
+      if(eq(u,a)&&!eq(a,L))return{err:`Escribiste ${N(a)}, que es el valor de <b>x</b>.`,check:'El límite es un valor de <b>y</b>: la altura a la que se acerca la curva.',hint:'Mira el eje vertical a la altura del hueco ○.'};
+      return{err:`La curva no se acerca a la altura ${N(u)}.`,check:`Revisa la altura de la curva justo sobre la línea punteada x = ${N(a)}.`,hint:'Cuenta los cuadritos desde el eje x hasta el hueco ○ (hacia arriba son positivos, hacia abajo negativos).'};},
+    explain:`Al acercarnos a x = ${N(a)} por ambos lados, la curva se acerca a la altura <b>${N(L)}</b>. Por eso ${lim(a)} f(x) = ${N(L)}.${withPt?` El punto ● en y = ${N(P)} es f(${N(a)}), y no cambia el límite.`:''}`};
+}
+function genC_table(){
+  const a=ri(-4,5),m=pick([-3,-2,-1,1,2,3]),L=ri(-6,9),f=x=>m*(x-a)+L;
+  const xl=[a-.1,a-.01,a-.001],xr=[a+.001,a+.01,a+.1],fv=x=>N(+f(x).toFixed(3));
+  const t=`<div class="tscroll"><table class="vtable"><tr><th>x</th>${xl.map(x=>`<td class="lft">${N(+x.toFixed(3))}</td>`).join('')}<td class="c">${N(a)}</td>${xr.map(x=>`<td class="rgt">${N(+x.toFixed(3))}</td>`).join('')}</tr><tr><th>f(x)</th>${xl.map(x=>`<td class="lft">${fv(x)}</td>`).join('')}<td class="c">?</td>${xr.map(x=>`<td class="rgt">${fv(x)}</td>`).join('')}</tr></table></div>`;
+  return{type:'Tabla de valores',prompt:`La tabla muestra valores de f(x) cuando x se acerca a ${N(a)}. ¿Cuál es el límite?`,visual:t,
+    fields:[{id:'l',type:'num',label:`${lim(a)} f(x) =`,ans:L}],
+    diagnose(v){const u=v.l;
+      if(eq(u,a))return{err:`${N(a)} es el número al que se acerca <b>x</b>, no f(x).`,check:'Lee la fila de <b>f(x)</b> (la de abajo).',hint:`Observa: ${fv(a-.001)} y ${fv(a+.001)}. ¿Qué número entero está entre ellos?`};
+      if(Math.abs(u-L)<.2)return{err:'Tu respuesta está muy cerca, pero no es exacta.',check:'El límite es el número exacto al que se acercan los valores, no uno de los valores de la tabla.',hint:`Los valores ${fv(a-.001)} y ${fv(a+.001)} están a ambos lados de un número entero.`};
+      return{err:`Los valores de f(x) no se acercan a ${N(u)}.`,check:'Mira las columnas más cercanas al centro de la tabla.',hint:`Fíjate en ${fv(a-.001)} (izquierda) y ${fv(a+.001)} (derecha).`};},
+    explain:`Por la izquierda los valores van ${fv(a-.1)} → ${fv(a-.01)} → ${fv(a-.001)} y por la derecha ${fv(a+.1)} → ${fv(a+.01)} → ${fv(a+.001)}. Ambos se acercan a <b>${N(L)}</b>.`};
+}
+function genC_two(){
+  const a=ri(-3,3),m=pick([-1,-.5,.5,1,2]),L=ri(-2,5);let P;do{P=ri(-3,6)}while(P===L);
+  return{type:'f(a) vs. límite',prompt:`Observa la gráfica. Escribe el valor de la función en x = ${N(a)} y el valor del límite.`,
+    visual:graph({pieces:[{f:x=>m*(x-a)+L,from:-5,to:5}],points:[{x:a,y:L,open:true},{x:a,y:P}],markX:a,color:TOPICS.concepto.hex})+legendOC,
+    fields:[{id:'fa',type:'num',label:`f(${N(a)}) =`,ans:P},{id:'l',type:'num',label:`${lim(a)} f(x) =`,ans:L}],
+    diagnose(v,w){
+      if(eq(v.fa,L)&&eq(v.l,P))return{err:'¡Intercambiaste los valores!',check:'<b>f(a)</b> es el punto relleno ●. El <b>límite</b> es la altura a la que se acerca la curva (el hueco ○).',hint:'Relleno ● = “aquí está la función”. Hueco ○ = “aquí se acerca la curva”.'};
+      if(w.includes('fa')&&w.includes('l'))return{err:'Ambos valores tienen errores.',check:'Busca el punto relleno ● y el hueco ○ sobre la línea punteada.',hint:'Cuenta cuadritos desde el eje x hacia arriba o hacia abajo.'};
+      if(w.includes('fa'))return{err:`El valor de f(${N(a)}) no es ${N(v.fa)}.`,check:`f(${N(a)}) es la altura del punto <b>relleno ●</b>.`,hint:'El hueco ○ no cuenta como valor de la función.'};
+      return{err:`El límite no es ${N(v.l)}.`,check:`El límite es la altura a la que se acerca la curva: el hueco ○.`,hint:'El punto relleno ● no cambia el límite.'};},
+    explain:`El punto relleno ● indica que <b>f(${N(a)}) = ${N(P)}</b>. La curva se acerca al hueco ○, así que <b>${lim(a)} f(x) = ${N(L)}</b>. ¡Pueden ser diferentes!`};
+}
+const MC_C=[
+ {q:`Si los valores de f(x) se acercan a 7 cuando x se acerca a 2, ¿qué podemos escribir?`,o:[[`${lim(2)} f(x) = 7`,''],['f(2) = 7 obligatoriamente','El límite no obliga a que f(2) sea 7: f(2) podría ser otro número o no existir.'],[`${lim(7)} f(x) = 2`,'Intercambiaste los papeles: x se acerca a 2 y f(x) se acerca a 7.']],ex:'El límite dice a qué valor se acerca f(x): como se acerca a 7 cuando x → 2, escribimos lim = 7.',hint:'Debajo de “lim” va el número al que se acerca x.'},
+ {q:'¿Puede existir el límite en x = a aunque f(a) no exista (haya un hueco)?',o:[['Sí',''],['No','Un hueco ○ significa que f(a) no existe, pero la curva sí puede acercarse a un valor.']],ex:'Sí. El límite estudia lo que pasa CERCA de a, no en a. Un hueco no impide que el límite exista.',hint:'Recuerda el ejemplo de la teoría con el hueco en x = 2.'},
+ {q:'¿Qué significa la expresión x → 3?',o:[['x toma valores cada vez más cercanos a 3',''],['x es exactamente igual a 3','La flecha → no significa “igual”: significa “se acerca a”.'],['x es mayor que 3','“Mayor que” se escribe x > 3. La flecha indica acercamiento.']],ex:'La flecha se lee “tiende a”: x se acerca a 3 tanto como queramos.',hint:'Piensa en 2,9 → 2,99 → 2,999…'},
+ {q:'En una gráfica, un círculo vacío ○ significa que…',o:[['la función no toma ese valor en ese punto',''],['el límite no existe','Un hueco no dice que el límite no exista; solo indica que ese punto no pertenece a la gráfica.'],['la función vale 0','El círculo vacío no tiene relación con el valor 0.']],ex:'○ = punto excluido (la función no toma ese valor). ● = punto incluido.',hint:'Vacío = “no está”. Relleno = “sí está”.'},
+ {q:'El límite de una función cuando x → a describe…',o:[['el comportamiento de f(x) cerca de a',''],['siempre el valor exacto f(a)','A veces coinciden, pero no siempre: el límite mira alrededor de a.'],['el punto más alto de la gráfica','Eso sería un máximo, no un límite.']],ex:'El límite mira lo que pasa con f(x) en los alrededores de a.',hint:'La palabra clave es “cerca”.'},
+ {q:`Si f(x) se acerca a 5 por la izquierda y también a 5 por la derecha de x = 1, entonces ${lim(1)} f(x) es…`,o:[['5',''],['No existe','Si por ambos lados se acerca al mismo número, el límite sí existe.'],['10','No se suman los dos lados: ambos coinciden en 5.']],ex:'Ambos lados se acercan a 5, así que el límite existe y vale 5.',hint:'¿Coinciden los dos lados?'},
+ {q:'Una tabla muestra: x = 0,9 → 2,9; x = 0,99 → 2,99; x = 1,01 → 3,01; x = 1,1 → 3,1. ¿A qué valor se acerca f(x) cuando x → 1?',o:[['3',''],['1','1 es el valor al que se acerca x, no f(x).'],['2,99','2,99 es solo uno de los valores; f(x) sigue acercándose a un número exacto.']],ex:'Por la izquierda 2,9 → 2,99… y por la derecha 3,1 → 3,01… Ambos se acercan a 3.',hint:'Fíjate en los valores de f(x), no en los de x.'}
+];
+function genC_mc(){
+  const q=pick(MC_C),opts=shuffle(q.o.map((o,i)=>({v:String(i),h:o[0],fb:o[1]})));
+  return{type:'Comprensión',prompt:q.q,visual:'',
+    fields:[{id:'c',type:'choice',options:opts,ans:'0'}],
+    diagnose(v){const o=q.o[+v.c];return{err:o[1],check:'Recuerda la idea clave: el límite describe hacia dónde se acerca f(x) cerca de un punto.',hint:q.hint}},
+    explain:q.ex};
+}
+
+/* ---- LATERALES ---- */
+function latDiag(v,w,Lf,Rf,a,ctx){
+  const exists=Lf===Rf;
+  if(w.includes('i')&&w.includes('d')&&eq(v.i,Rf)&&eq(v.d,Lf))return{err:'Parece que <b>intercambiaste los lados</b>.',check:`x → ${N(a)}⁻ significa acercarse desde la <b>IZQUIERDA</b> (valores menores que ${N(a)}). x → ${N(a)}⁺ es desde la <b>DERECHA</b>.`,hint:'El signo ⁻ es izquierda 🔵 y el signo ⁺ es derecha 🟠.'};
+  if(w.includes('i'))return ctx.left(v.i);
+  if(w.includes('d'))return ctx.right(v.d);
+  return{err:'Tus límites laterales están bien 👍, pero la conclusión no.',check:'Compara los dos valores que escribiste.',hint:'El límite existe <b>solo si</b> el límite por la izquierda es IGUAL al de la derecha.'};
+}
+function latExplain(Lf,Rf,a){return Lf===Rf?`Como ambos son iguales (${N(Lf)} = ${N(Rf)}), el límite <b>existe</b> y ${lim(a)} f(x) = ${N(Lf)}.`:`Como son diferentes (${N(Lf)} ≠ ${N(Rf)}), el límite <b>no existe</b>.`}
+function latFields(a,Lf,Rf){return[{id:'i',type:'num',label:`🔵 ${lim(a,'−')} f(x) =`,ans:Lf},{id:'d',type:'num',label:`🟠 ${lim(a,'+')} f(x) =`,ans:Rf},{id:'e',type:'choice',label:`¿Existe ${lim(a)} f(x)?`,options:YESNO,two:true,ans:Lf===Rf?'si':'no'}]}
+function genL_graph(){
+  const a=ri(-2,2),Lf=ri(-2,5),exists=Math.random()<.4;let Rf=Lf;if(!exists){do{Rf=ri(-2,5)}while(Rf===Lf)}
+  const m1=pick([-1,-.5,0,.5,1]),m2=pick([-1,-.5,.5,1,0]);
+  const pieces=[{f:x=>m1*(x-a)+Lf,from:-5,to:a,color:BLUE},{f:x=>m2*(x-a)+Rf,from:a,to:5,color:ORANGE}];let pts;
+  if(exists){pts=[{x:a,y:Lf,open:true,color:'#10B981'}];if(Math.random()<.5){let P;do{P=ri(-3,6)}while(P===Lf);pts.push({x:a,y:P,color:'#10B981'})}}
+  else{const cl=Math.random()<.5;pts=[{x:a,y:Lf,open:!cl,color:BLUE},{x:a,y:Rf,open:cl,color:ORANGE}]}
+  return{type:'Gráfica con salto',prompt:`Observa la gráfica cerca de x = ${N(a)}. Encuentra los límites laterales y decide si el límite existe.`,
+    visual:graph({pieces,points:pts,markX:a,color:TOPICS.laterales.hex})+`<div class="legend"><span style="color:${BLUE}">🔵 lado izquierdo</span><span style="color:${ORANGE}">🟠 lado derecho</span></div>`,
+    fields:latFields(a,Lf,Rf),
+    diagnose:(v,w)=>latDiag(v,w,Lf,Rf,a,{
+      left:u=>({err:`El límite por la izquierda no es ${N(u)}.`,check:`Revisa el trazo <b style="color:${BLUE}">azul</b> (izquierda) justo antes de x = ${N(a)}.`,hint:'No importa si el punto final es ○ o ●: mira la altura a la que llega el trazo.'}),
+      right:u=>({err:`El límite por la derecha no es ${N(u)}.`,check:`Revisa el trazo <b style="color:${ORANGE}">naranja</b> (derecha) justo después de x = ${N(a)}.`,hint:'No importa si el punto final es ○ o ●: mira la altura a la que llega el trazo.'})}),
+    explain:`Por la izquierda la gráfica llega a <b>${N(Lf)}</b> y por la derecha llega a <b>${N(Rf)}</b>. ${latExplain(Lf,Rf,a)}`};
+}
+function genL_piece(){
+  const a=ri(-2,3),m1=pick([-3,-2,-1,1,2,3]);let b1=ri(-5,5),left=[[m1,1],[b1,0]],right;
+  if(Math.random()<.5)right=[[1,2],[ri(-4,4),0]];else right=[[pick([-2,-1,1,2,3]),1],[ri(-5,5),0]];
+  const Rf=evalT(right,a);let Lf=evalT(left,a);const exists=Math.random()<.45;
+  if(exists){b1=Rf-m1*a;left=[[m1,1],[b1,0]];Lf=Rf}
+  else if(Lf===Rf){b1+=pick([-2,-1,1,2]);left=[[m1,1],[b1,0]];Lf=evalT(left,a)}
+  const strict=Math.random()<.5;
+  return{type:'Función a trozos',prompt:`Analiza la función a trozos cuando x se acerca a ${N(a)}.`,
+    visual:`<div class="math">${pw([{e:termsStr(left),c:BLUE,cond:`x < ${N(a)}`},{e:termsStr(right),c:ORANGE,cond:`x ${strict?'>':'≥'} ${N(a)}`}])}</div><div class="tip">💡 🔵 x &lt; ${N(a)} → izquierda &nbsp;·&nbsp; 🟠 x ${strict?'&gt;':'≥'} ${N(a)} → derecha</div>`,
+    fields:latFields(a,Lf,Rf),
+    diagnose:(v,w)=>latDiag(v,w,Lf,Rf,a,{
+      left:u=>eq(u,Rf)?{err:'Para la izquierda usaste el trozo equivocado.',check:`Para x → ${N(a)}⁻ se usa el trozo que dice <b>“si x &lt; ${N(a)}”</b>: <b style="color:${BLUE}">${termsStr(left)}</b>.`,hint:`Sustituye: ${subStr(left,a)} = ?`}
+        :(genericDiag(u,Lf,`Sustituye con cuidado: ${subStr(left,a)}`)||{err:`El límite por la izquierda no es ${N(u)}.`,check:`Sustituye x = ${N(a)} en el trozo izquierdo <b style="color:${BLUE}">${termsStr(left)}</b>. Revisa la multiplicación y la suma.`,hint:`Empieza así: ${subStr(left,a)} = ?`}),
+      right:u=>eq(u,Lf)?{err:'Para la derecha usaste el trozo equivocado.',check:`Para x → ${N(a)}⁺ se usa el trozo de abajo: <b style="color:${ORANGE}">${termsStr(right)}</b>.`,hint:`Sustituye: ${subStr(right,a)} = ?`}
+        :(genericDiag(u,Rf,`Sustituye con cuidado: ${subStr(right,a)}`)||{err:`El límite por la derecha no es ${N(u)}.`,check:`Sustituye x = ${N(a)} en el trozo derecho <b style="color:${ORANGE}">${termsStr(right)}</b>. Revisa potencias y signos.`,hint:`Empieza así: ${subStr(right,a)} = ?`})}),
+    explain:`🔵 Izquierda: ${polySteps(left,a)}<br>🟠 Derecha: ${polySteps(right,a)}<br>${latExplain(Lf,Rf,a)}`};
+}
+function genL_table(){
+  const a=ri(-3,4),Lf=ri(-4,8),exists=Math.random()<.4;let Rf=Lf;if(!exists){do{Rf=ri(-4,8)}while(Rf===Lf)}
+  const m1=pick([-2,-1,1,2]),m2=pick([-2,-1,1,2]),fl=x=>N(+(Lf+m1*(x-a)).toFixed(3)),frr=x=>N(+(Rf+m2*(x-a)).toFixed(3));
+  const xl=[a-.1,a-.01,a-.001],xr=[a+.001,a+.01,a+.1];
+  const t=`<div class="tscroll"><table class="vtable"><tr><th>x</th>${xl.map(x=>`<td class="lft">${N(+x.toFixed(3))}</td>`).join('')}<td class="c">${N(a)}</td>${xr.map(x=>`<td class="rgt">${N(+x.toFixed(3))}</td>`).join('')}</tr><tr><th>f(x)</th>${xl.map(x=>`<td class="lft">${fl(x)}</td>`).join('')}<td class="c">?</td>${xr.map(x=>`<td class="rgt">${frr(x)}</td>`).join('')}</tr></table></div>`;
+  return{type:'Tabla lateral',prompt:`Usa la tabla para encontrar los límites laterales en x = ${N(a)}.`,visual:t,fields:latFields(a,Lf,Rf),
+    diagnose:(v,w)=>latDiag(v,w,Lf,Rf,a,{
+      left:u=>({err:`Los valores de la izquierda no se acercan a ${N(u)}.`,check:`Mira las columnas <b style="color:${BLUE}">azules</b> (x menores que ${N(a)}).`,hint:`El valor más cercano es ${fl(a-.001)}. ¿A qué número entero se acerca?`}),
+      right:u=>({err:`Los valores de la derecha no se acercan a ${N(u)}.`,check:`Mira las columnas <b style="color:${ORANGE}">naranjas</b> (x mayores que ${N(a)}).`,hint:`El valor más cercano es ${frr(a+.001)}. ¿A qué número entero se acerca?`})}),
+    explain:`🔵 Izquierda: ${fl(a-.1)} → ${fl(a-.01)} → ${fl(a-.001)} se acerca a <b>${N(Lf)}</b>.<br>🟠 Derecha: ${frr(a+.1)} → ${frr(a+.01)} → ${frr(a+.001)} se acerca a <b>${N(Rf)}</b>.<br>${latExplain(Lf,Rf,a)}`};
+}
+
+/* ---- SUSTITUCIÓN DIRECTA ---- */
+function polyEx(terms,a,type,extraDiag){
+  const ans=evalT(terms,a);
+  return{type,prompt:'Calcula el límite usando sustitución directa.',visual:`<div class="math">${lim(a)} (${termsStr(terms)})</div>`,
+    fields:[{id:'r',type:'num',label:'Resultado =',ans}],
+    diagnose(v){const u=v.r;return (extraDiag&&extraDiag(u))||genericDiag(u,ans,`Empieza así: ${subStr(terms,a)}`)||{err:`El resultado no es ${N(u)}.`,check:'Sustituye x con paréntesis y resuelve en orden: <b>potencias → multiplicaciones → sumas y restas</b>.',hint:`Empieza así: ${subStr(terms,a)} = ?`}},
+    explain:`Es un polinomio, así que sustituimos x = ${N(a)}:<br>${polySteps(terms,a)}`};
+}
+function genS_poly(){
+  const p=pick([1,1,2,3,-1,-2]),q=ri(-6,6),r=ri(-9,9);let a;do{a=ri(-4,4)}while(a===0);
+  const T=[[p,2],[q,1],[r,0]];
+  return polyEx(T,a,'Polinomio',u=>{
+    if(a<0&&eq(u,-p*a*a+q*a+r))return{err:'Error con el signo de la potencia.',check:`Observa el signo: (${N(a)})² = ${a*a}, es <b>positivo</b> (menos por menos da más).`,hint:`Usa paréntesis: ${p===1?'':p+'·'}(${N(a)})² = ${N(p*a*a)}`};
+    if(eq(u,p*2*a+q*a+r))return{err:'Error en la potencia.',check:'x² significa <b>x·x</b>, no 2·x.',hint:`(${N(a)})² = (${N(a)})·(${N(a)}) = ${a*a}`};
+    if(p!==1&&eq(u,a*a+q*a+r))return{err:'Olvidaste un coeficiente.',check:`Te faltó multiplicar por <b>${N(p)}</b> el término con x².`,hint:`${N(p)}·(${N(a)})² = ${N(p*a*a)}`};
+    if(q!==0&&eq(u,p*a*a-q*a+r))return{err:'Revisa la multiplicación del término con x.',check:`Observa el signo de ${termsStr([[q,1]])} cuando x = ${N(a)}. Recuerda la ley de signos.`,hint:`${N(q)}·(${N(a)}) = ${N(q*a)}`};
+    if(eq(u,p*a*a+q*a))return{err:'La suma parece tener un error.',check:`Olvidaste sumar el término independiente <b>${N(r)}</b>.`,hint:'Revisa que hayas incluido todos los términos.'};
+    return null});
+}
+function genS_cubic(){
+  let a;do{a=ri(-3,3)}while(a===0);
+  const c3=pick([1,1,2,-1]),q=pick([0,ri(-4,4)]),r=ri(-6,6),T=[[c3,3],[q,1],[r,0]];
+  return polyEx(T,a,'Polinomio cúbico',u=>{
+    if(a<0&&eq(u,-c3*a*a*a+q*a+r))return{err:'Error con el signo del cubo.',check:`Un número negativo elevado al cubo es <b>negativo</b>: (${N(a)})³ = ${N(a*a*a)}.`,hint:`(${N(a)})·(${N(a)})·(${N(a)}) = ${N(a*a*a)}`};
+    if(eq(u,c3*3*a+q*a+r))return{err:'Error en la potencia.',check:'x³ significa <b>x·x·x</b>, no 3·x.',hint:`(${N(a)})³ = ${N(a*a*a)}`};
+    if(eq(u,c3*a*a+q*a+r))return{err:'Error en la potencia.',check:'Elevaste al cuadrado en lugar de al cubo.',hint:`(${N(a)})³ = (${N(a)})·(${N(a)})·(${N(a)})`};
+    return null});
+}
+function genS_prod(){
+  const b=ri(-5,5),c=ri(-5,5),a=ri(-4,4),ans=(a+b)*(a+c);
+  const f1=termsStr([[1,1],[b,0]]),f2=termsStr([[1,1],[c,0]]);
+  const s1=subStr([[1,1],[b,0]],a),s2=subStr([[1,1],[c,0]],a);
+  return{type:'Producto',prompt:'Calcula el límite usando sustitución directa.',visual:`<div class="math">${lim(a)} (${f1})(${f2})</div>`,
+    fields:[{id:'r',type:'num',label:'Resultado =',ans}],
+    diagnose(v){const u=v.r;
+      if(eq(u,(a+b)+(a+c))&&!eq(ans,(a+b)+(a+c)))return{err:'Sumaste los paréntesis.',check:'Dos paréntesis juntos ( )( ) significan <b>multiplicación</b>.',hint:`Calcula cada paréntesis: (${s1}) = ${N(a+b)} y (${s2}) = ${N(a+c)}. Luego multiplícalos.`};
+      return genericDiag(u,ans,`(${N(a+b)})·(${N(a+c)}) = ?`)||{err:`El resultado no es ${N(u)}.`,check:'Calcula primero cada paréntesis por separado y luego multiplica.',hint:`Primer paréntesis: ${s1} = ?`}},
+    explain:`Sustituimos x = ${N(a)}: (${s1})(${s2}) = (${N(a+b)})·(${N(a+c)}) = <b>${N(ans)}</b>`};
+}
+function genS_rat(){
+  let a,r,s,den;do{a=ri(-4,4);r=pick([1,1,2,-1]);s=ri(-6,6);den=r*a+s}while(den===0||Math.abs(den)>8);
+  const p=pick([1,2,3,-1,-2]);let q;
+  if(Math.random()<.6){const k=ri(-5,5);q=k*den-p*a}else q=ri(-8,8);
+  const num=p*a+q,F=frac(num,den),ans=num/den;
+  const N1=[[p,1],[q,0]],D1=[[r,1],[s,0]];
+  return{type:'Fracción',prompt:'Calcula el límite usando sustitución directa.',visual:`<div class="math">${lim(a)} ${fr(termsStr(N1),termsStr(D1))}</div>`,
+    fields:[{id:'r',type:'num',label:'Resultado =',ans}],note:F.d!==1?'💡 Puedes escribir fracciones con / (ejemplo: 3/4).':'💡 Si el resultado es fracción, escríbela con / (ejemplo: 3/4).',
+    diagnose(v){const u=v.r;
+      if(eq(u,num)&&den!==1)return{err:`${N(num)} es solo el valor del <b>numerador</b>.`,check:'Falta dividir entre el denominador.',hint:`Denominador: ${subStr(D1,a)} = ?`};
+      if(num!==0&&eq(u,den/num)&&!eq(ans,den/num))return{err:'Invertiste la fracción.',check:'El numerador (arriba) va arriba y el denominador (abajo) va abajo.',hint:`Arriba: ${N(num)}, abajo: ${N(den)}.`};
+      return genericDiag(u,ans,`Numerador: ${N(num)}, denominador: ${N(den)}.`)||{err:`El resultado no es ${N(u)}.`,check:'Calcula por separado el numerador y el denominador, y luego divide.',hint:`Numerador: ${subStr(N1,a)} = ?`}},
+    explain:`Denominador en x = ${N(a)}: ${polySteps(D1,a)} ≠ 0 ✔<br>Numerador: ${polySteps(N1,a)}<br>Resultado: ${fr(N(num),N(den))} = <b>${fracH(num,den)}</b>`};
+}
+function genS_root(){
+  const p=pick([1,1,2,3]),a=ri(-3,6),k=ri(0,7),q=k*k-p*a,d=pick([0,0,ri(-5,5)]),R=[[p,1],[q,0]],ans=k+d;
+  const dTxt=d===0?'':(d<0?` − ${-d}`:` + ${d}`);
+  return{type:'Raíz',prompt:'Calcula el límite usando sustitución directa.',visual:`<div class="math">${lim(a)} (${sqrtH(termsStr(R))}${dTxt})</div>`,
+    fields:[{id:'r',type:'num',label:'Resultado =',ans}],
+    diagnose(v){const u=v.r;
+      if(eq(u,k*k+d)&&k>1)return{err:'Te faltó sacar la <b>raíz cuadrada</b>.',check:`Lo de adentro da ${k*k}, pero luego hay que calcular √${k*k}.`,hint:`¿Qué número multiplicado por sí mismo da ${k*k}?`};
+      if(eq(u,-k+d)&&k>0)return{err:'Observa el signo de la raíz.',check:'La raíz cuadrada √ siempre da un resultado <b>positivo</b>.',hint:`√${k*k} = ${k}`};
+      if(d!==0&&eq(u,k))return{err:'Olvidaste un término.',check:`Después de la raíz falta ${d<0?'restar':'sumar'} ${Math.abs(d)}.`,hint:`${k}${dTxt} = ?`};
+      return{err:`El resultado no es ${N(u)}.`,check:'Primero calcula lo que está dentro de la raíz, luego saca la raíz.',hint:`Adentro: ${subStr(R,a)} = ?`}},
+    explain:`Adentro de la raíz: ${polySteps(R,a)} ≥ 0 ✔<br>√${k*k} = ${k}${d?`<br>${k}${dTxt} = <b>${N(ans)}</b>`:` → resultado <b>${N(ans)}</b>`}`};
+}
+function genS_can(){
+  const a=ri(-4,4),yes=Math.random()<.5,dd=yes?pick([-3,-2,-1,1,2,3]):0,q=ri(-5,5);
+  const Nm=[[1,1],[q,0]],D=[[1,1],[dd-a,0]],nv=a+q,dv=a+(dd-a);
+  return{type:'¿Se puede sustituir?',prompt:`¿Se puede calcular este límite con sustitución directa?`,visual:`<div class="math">${lim(a)} ${fr(termsStr(Nm),termsStr(D))}</div>`,
+    fields:[{id:'c',type:'choice',options:[{v:'si',h:'✅ Sí, se puede'},{v:'no',h:'⚠️ No, el denominador da 0'}],two:false,ans:yes?'si':'no'}],
+    diagnose(){return yes?{err:'Sí se puede: el denominador <b>no</b> se hace cero.',check:`Sustituye x = ${N(a)} en el denominador ${termsStr(D)}.`,hint:`${subStr(D,a)} = ?`}
+      :{err:'No se puede: el denominador se hace <b>cero</b>.',check:`Sustituye x = ${N(a)} en el denominador ${termsStr(D)}.`,hint:`${subStr(D,a)} = ? ¡No se puede dividir entre 0!`}},
+    explain:yes?`El denominador en x = ${N(a)} vale ${polySteps(D,a)} ≠ 0, así que sí se puede. El límite es ${fr(N(nv),N(dv))} = <b>${fracH(nv,dv)}</b>.`
+      :`El denominador en x = ${N(a)} vale ${subStr(D,a)} = <b>0</b>. No se puede dividir entre cero, así que la sustitución directa no funciona aquí${nv===0?' (da 0/0, una indeterminación)':''}.`};
+}
+
+const GENS={
+  concepto:[{w:3,f:genC_graph},{w:2,f:genC_table},{w:2,f:genC_two},{w:2,f:genC_mc}],
+  laterales:[{w:3,f:genL_graph},{w:3,f:genL_piece},{w:2,f:genL_table}],
+  sustitucion:[{w:3,f:genS_poly},{w:2,f:genS_cubic},{w:2,f:genS_rat},{w:2,f:genS_root},{w:2,f:genS_prod},{w:1,f:genS_can}]
+};
+function genExercise(topic,lastF){
+  const list=GENS[topic];let g;
+  for(let i=0;i<6;i++){const t=list.reduce((s,x)=>s+x.w,0);let r=Math.random()*t;g=list.find(x=>(r-=x.w)<0)||list[0];if(g.f!==lastF)break}
+  const ex=g.f();ex.gen=g.f;return ex;
+}
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const LS_KEY='limitesApp_v1';
+const store=(()=>{try{return JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){return{}}})();
+const S={name:'',grade:'',t0:0,hits:0,errs:0,done:store.done||{},lessons:{},endless:{}};
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify({name:S.name,grade:S.grade,done:S.done}))}catch(e){}}
+function lessonSt(t){return S.lessons[t]||(S.lessons[t]={hits:0,errs:0,t0:Date.now(),stage:'teoria',slide:0,exi:0,step:0,streak:0,count:0})}
+function endlessSt(t){return S.endless[t]||(S.endless[t]={hits:0,errs:0,level:1,streak:0,best:0,recent:[],count:0,t0:Date.now()})}
+let CUR=null; // {mode, topic, st, ex}
+
+const MOTIV=['¡Excelente!','¡Sigue así!','Cada vez eres mejor.','¡Buen trabajo!','¡Vas muy bien!','¡No te rindas!','¡Eres imparable! 🚀','¡Qué buena racha! 🔥'];
+const OKMSG=['Muy bien. Has resuelto correctamente el ejercicio.','¡Perfecto! Lo hiciste muy bien.','¡Correcto! Tu razonamiento es muy bueno.','¡Así se hace! Respuesta correcta.'];
+const BADSUB=['Equivocarse también es aprender. ¡Tú puedes!','Revisa con calma, estás muy cerca.','Cada error es una pista para mejorar.'];
+
+/* =========================================================
+   INTERFAZ GENERAL
+   ========================================================= */
+function setMain(html){stopAnim();const m=$('#main');m.innerHTML=`<section class="screen">${html}</section>`;window.scrollTo({top:0,behavior:'smooth'})}
+function toast(msg,cls=''){const t=document.createElement('div');t.className='toast '+cls;t.innerHTML=msg;$('#toasts').appendChild(t);setTimeout(()=>t.remove(),3100)}
+function bump(id){const e=$(id);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}
+function updTop(){$('#tbOk').textContent=S.hits;$('#tbBad').textContent=S.errs}
+function confetti(n=90){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const cols=['#6D5DF5','#0EA5E9','#F97316','#10B981','#F59E0B','#EC4899'];
+  for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';
+    c.style.left=Math.random()*100+'vw';c.style.background=pick(cols);c.style.setProperty('--dx',(Math.random()*200-100)+'px');c.style.setProperty('--rot',(Math.random()*900)+'deg');
+    c.style.animationDuration=(2+Math.random()*2)+'s';c.style.animationDelay=(Math.random()*.4)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),4600)}
+}
+setInterval(()=>{if(!S.t0)return;const t=fmtTime(Date.now()-S.t0);document.querySelectorAll('[data-time]').forEach(e=>e.textContent=t)},1000);
+$('#homeBtn').onclick=()=>{closeSheet();closeModal();renderMenu()};
+
+/* ---------- BIENVENIDA ---------- */
+function renderWelcome(){
+  const grades=['6°','7°','8°','9°','10°','11°'];
+  setMain(`<div class="welcome">
+   <div class="hero"><span class="logo">📈 Matemáticas · Cálculo</span>
+    <h1>Aprende <span>Límites</span></h1>
+    <p>Descubre hacia dónde se acercan las funciones con gráficas, ejemplos y retos.</p>
+    <div class="hero-art">${heroSVG()}</div></div>
+   <div class="card form">
+    <h2 style="font-size:26px;margin-bottom:6px">¡Bienvenido! 👋</h2><p class="muted" style="font-weight:700;margin-bottom:18px">Antes de comenzar, cuéntanos quién eres.</p>
+    <div class="field-w"><label for="inName">Nombre del estudiante</label><input id="inName" class="txt" maxlength="40" autocomplete="name" placeholder="Ej: Juan Pérez" value="${(store.name||'').replace(/"/g,'&quot;')}"></div>
+    <div class="field-w"><label>Grado</label><div class="grades">${grades.map(g=>`<button class="grade ${store.grade===g?'sel':''}" data-g="${g}">${g}</button>`).join('')}</div></div>
+    <div class="err-msg" id="wErr"></div>
+    <button class="btn block" id="startBtn" style="font-size:22px;min-height:66px">🚀 Comenzar</button>
+   </div></div>`);
+  let grade=store.grade||'';
+  document.querySelectorAll('.grade').forEach(b=>b.onclick=()=>{document.querySelectorAll('.grade').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');grade=b.dataset.g;$('#wErr').textContent=''});
+  const go=()=>{const n=$('#inName').value.trim().replace(/\s+/g,' ');
+    if(!n){$('#wErr').textContent='✍️ Escribe tu nombre para comenzar.';$('#inName').focus();return}
+    if(!grade){$('#wErr').textContent='🎓 Elige tu grado.';return}
+    S.name=n;S.grade=grade;S.t0=Date.now();save();
+    $('#tbName').textContent=n;$('#tbGrade').textContent='Grado '+grade;$('#tbAvatar').textContent=n[0].toUpperCase();
+    $('#topbar').classList.add('show');renderMenu()};
+  $('#startBtn').onclick=go;$('#inName').onkeydown=e=>{if(e.key==='Enter')go()};
+}
+function heroSVG(){
+  return `<svg viewBox="0 0 400 240" style="width:100%"><rect width="400" height="240" rx="24" fill="#fff"/>
+  <g stroke="#EEF0F7">${[...Array(9)].map((_,i)=>`<line x1="${40+i*40}" y1="20" x2="${40+i*40}" y2="220"/>`).join('')}${[...Array(5)].map((_,i)=>`<line x1="20" y1="${40+i*40}" x2="380" y2="${40+i*40}"/>`).join('')}</g>
+  <line x1="20" y1="200" x2="380" y2="200" stroke="#9AA1BF" stroke-width="2"/><line x1="60" y1="20" x2="60" y2="220" stroke="#9AA1BF" stroke-width="2"/>
+  <path id="hp" d="M40 190 Q 140 170 220 100 T 380 40" fill="none" stroke="#6D5DF5" stroke-width="5" stroke-linecap="round"/>
+  <line x1="220" y1="20" x2="220" y2="220" stroke="#F97316" stroke-width="2" stroke-dasharray="6 6"/>
+  <circle cx="220" cy="100" r="9" fill="#fff" stroke="#6D5DF5" stroke-width="4"/>
+  <circle r="10" fill="#2563EB" stroke="#fff" stroke-width="3"><animateMotion dur="3s" repeatCount="indefinite" keyPoints="0;0.47;0.47" keyTimes="0;0.75;1" calcMode="spline" keySplines="0.3 0 0.2 1;0 0 1 1" path="M40 190 Q 140 170 220 100 T 380 40"/></circle>
+  <circle r="10" fill="#EA580C" stroke="#fff" stroke-width="3"><animateMotion dur="3s" repeatCount="indefinite" keyPoints="1;0.53;0.53" keyTimes="0;0.75;1" calcMode="spline" keySplines="0.3 0 0.2 1;0 0 1 1" path="M40 190 Q 140 170 220 100 T 380 40"/></circle>
+  <text x="232" y="232" font-family="Nunito" font-weight="900" fill="#F97316" font-size="16">x → a</text></svg>`;
+}
+
+/* ---------- MENÚ ---------- */
+function renderMenu(){
+  CUR=null;
+  const first=S.name.split(' ')[0],tot=S.hits+S.errs,pct=tot?Math.round(S.hits/tot*100):0,nd=ORDER.filter(t=>S.done[t]).length;
+  setMain(`<div class="card hello"><div><h1>¡Hola, ${esc(first)}! 👋</h1><p>¿Qué quieres aprender hoy? Sigue el camino: teoría → ejemplos → ejercicios.</p></div><div class="big">∞</div></div>
+  <div class="stats">
+   <div class="stat"><div class="v" data-time>${fmtTime(Date.now()-S.t0)}</div><div class="k">⏱ Tiempo</div></div>
+   <div class="stat"><div class="v" style="color:var(--ok)">${S.hits}</div><div class="k">✔ Aciertos</div></div>
+   <div class="stat"><div class="v" style="color:var(--bad)">${S.errs}</div><div class="k">✖ Errores</div></div>
+   <div class="stat"><div class="v">${pct}%</div><div class="k">📊 Efectividad</div></div>
+   <div class="stat"><div class="v">${nd}/3</div><div class="k">🏆 Lecciones</div></div></div>
+  <h2 class="sec">📚 Lecciones</h2>
+  <div class="grid3">${ORDER.map((t,i)=>{const T=TOPICS[t],st=S.lessons[t];return `<button class="card lcard" style="--tc:${T.hex}" data-lesson="${t}">
+    ${S.done[t]?'<span class="badge-done">✅ Completada</span>':''}<div class="ico">${T.icon}</div><div class="num">Lección ${i+1}</div><h3>${T.name}</h3><p>${T.desc}</p>
+    <div class="lsteps"><span>📖 Teoría</span><span>🧭 Ejemplos</span><span>✏️ Ejercicios</span></div>
+    <div class="lgo">${st&&st.hits?`Continuar · ${st.hits}/12 ✔`:S.done[t]?'Repasar →':'Comenzar →'}</div></button>`}).join('')}</div>
+  <h2 class="sec" id="endlessSec">♾️ Práctica sin fin</h2><p class="muted" style="font-weight:700;margin:0 4px 14px">Ejercicios infinitos de un solo tema. ¡Practica hasta dominarlo!</p>
+  <div class="grid3">${ORDER.map(t=>{const T=TOPICS[t],e=S.endless[t];return `<button class="card lcard ecard" style="--tc:${T.hex}" data-endless="${t}">
+    <div class="ico">${T.icon}</div><div class="num">Práctica infinita</div><h3>${T.name}</h3><p>${e?`Nivel ${e.level} · Mejor racha 🔥 ${e.best}`:'Ejercicios nuevos cada vez.'}</p><div class="lgo">Practicar ∞ →</div></button>`}).join('')}</div>`);
+  document.querySelectorAll('[data-lesson]').forEach(b=>b.onclick=()=>openLesson(b.dataset.lesson));
+  document.querySelectorAll('[data-endless]').forEach(b=>b.onclick=()=>openEndless(b.dataset.endless));
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- LECCIÓN ---------- */
+function openLesson(t,stage){
+  const T=TOPICS[t],st=lessonSt(t);if(stage)st.stage=stage;
+  CUR={mode:'lesson',topic:t,st,ex:null};
+  setMain(`<div style="--tc:${T.hex}">
+   <div class="lhead"><button class="back" id="backBtn" aria-label="Volver">←</button><div><small>Lección ${ORDER.indexOf(t)+1}</small><h1>${T.icon} ${T.name}</h1></div></div>
+   <div class="stepper">${[['teoria','📖','Teoría'],['ejemplos','🧭','Ejemplos'],['ejercicios','✏️','Ejercicios']].map(([k,ic,l],i)=>`<button class="stp ${st.stage===k?'on':''}" data-stage="${k}"><span class="n">${i+1}</span>${l}</button>`).join('')}</div>
+   <div id="stage"></div></div>`);
+  $('#backBtn').onclick=renderMenu;
+  document.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>{st.stage=b.dataset.stage;openLesson(t)});
+  if(st.stage==='teoria')renderTheory();else if(st.stage==='ejemplos')renderExamples();else renderLessonExercises();
+}
+function renderTheory(){
+  stopAnim();const {topic,st}=CUR,sl=THEORY[topic],i=Math.min(st.slide,sl.length-1),s=sl[i];
+  $('#stage').innerHTML=`<div class="card slide screen"><h2><span class="pill">${i+1}/${sl.length}</span>${s.t}</h2>
+   <div class="split"><div>${s.text}</div><div>${s.vis}</div></div>
+   <div class="pager">${sl.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
+   <div class="navrow"><button class="btn ghost" id="prevS" ${i===0?'disabled':''}>← Anterior</button>
+   <button class="btn tc" id="nextS">${i===sl.length-1?'Ver ejemplos 🧭':'Siguiente →'}</button></div></div>`;
+  if(s.init)s.init();
+  $('#prevS').onclick=()=>{st.slide--;renderTheory();scrollTop()};
+  $('#nextS').onclick=()=>{if(i===sl.length-1){st.stage='ejemplos';st.exi=0;st.step=0;openLesson(topic)}else{st.slide++;renderTheory();scrollTop()}};
+}
+const scrollTop=()=>window.scrollTo({top:0,behavior:'smooth'});
+function renderExamples(){
+  const {topic,st}=CUR,list=EXAMPLES[topic],i=Math.min(st.exi,list.length-1),e=list[i],done=st.step>=e.steps.length;
+  $('#stage').innerHTML=`<div class="card screen"><div class="ex-count">Ejemplo guiado ${i+1} de ${list.length}</div>
+   <div class="split" style="margin-top:8px"><div><div class="prompt" style="font-size:22px">${e.q}</div>${e.vis?`<div style="margin-top:12px">${e.vis}</div>`:''}</div>
+   <div><div class="steps">${e.steps.slice(0,st.step).map((s,k)=>`<div class="step"><div class="sn">${k+1}</div><div>${s}</div></div>`).join('')}</div>
+   ${done?`<div class="final" style="margin-top:14px">✅ ${e.final}</div>`:`<p class="muted" style="font-weight:700;margin-top:12px">${st.step===0?'Resolvamos juntos, paso a paso. 👇':''}</p>`}
+   <div style="margin-top:16px;display:grid;gap:12px">${!done?`<button class="btn tc block" id="nextStep">👉 ${st.step===0?'Ver el primer paso':'Siguiente paso'}</button>`
+     :i<list.length-1?`<button class="btn tc block" id="nextEx">Siguiente ejemplo →</button>`:`<button class="btn ok block" id="goPractice">✏️ ¡A practicar!</button>`}
+   ${st.step>0?`<button class="btn ghost block" id="restartEx">↺ Repetir este ejemplo</button>`:''}</div></div></div>
+   <div class="pager">${list.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div></div>`;
+  const ns=$('#nextStep');if(ns)ns.onclick=()=>{st.step++;renderExamples()};
+  const ne=$('#nextEx');if(ne)ne.onclick=()=>{st.exi++;st.step=0;renderExamples();scrollTop()};
+  const gp=$('#goPractice');if(gp)gp.onclick=()=>{st.stage='ejercicios';openLesson(CUR.topic)};
+  const re=$('#restartEx');if(re)re.onclick=()=>{st.step=0;renderExamples()};
+}
+function renderLessonExercises(){
+  $('#stage').innerHTML=`<div class="pathbox" id="pathBox"></div><div id="exBox"></div>`;
+  drawPath();newExercise();
+}
+
+/* ---------- PRÁCTICA SIN FIN ---------- */
+function openEndless(t){
+  const T=TOPICS[t],st=endlessSt(t);CUR={mode:'endless',topic:t,st,ex:null};
+  setMain(`<div style="--tc:${T.hex}">
+   <div class="lhead"><button class="back" id="backBtn" aria-label="Volver">←</button><div><small>♾️ Práctica sin fin</small><h1>${T.icon} ${T.name}</h1></div></div>
+   <div class="tswitch">${ORDER.map(k=>`<button class="tsw ${k===t?'on':''}" style="--tc:${TOPICS[k].hex}" data-sw="${k}">${TOPICS[k].icon} ${TOPICS[k].name}</button>`).join('')}</div>
+   <div class="estats" id="eStats"></div><div class="pathbox" id="pathBox"></div><div id="exBox"></div></div>`);
+  $('#backBtn').onclick=renderMenu;
+  document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>openEndless(b.dataset.sw));
+  drawEStats();drawPath();newExercise();
+}
+function drawEStats(){
+  const st=CUR.st,r=st.recent,acc=r.length?Math.round(r.filter(Boolean).length/r.length*100):0;
+  const lvl=r.length<8?'Calentando 🔄':acc>=85?'¡Dominado! ⭐':acc>=60?'Avanzando 📈':'En práctica 💪';
+  $('#eStats').innerHTML=`<div class="stat"><div class="v">🏅 ${st.level}</div><div class="k">Nivel</div></div>
+   <div class="stat"><div class="v">🔥 ${st.streak}</div><div class="k">Racha</div></div>
+   <div class="stat"><div class="v">⭐ ${st.best}</div><div class="k">Mejor racha</div></div>
+   <div class="stat"><div class="v" style="font-size:17px">${lvl}</div><div class="k">Dominio ${acc}%</div><div class="mastery"><i style="width:${acc}%"></i></div></div>`;
+}
+
+/* ---------- CAMINO DE PROGRESO ---------- */
+function progN(){const st=CUR.st;return CUR.mode==='lesson'?Math.min(st.hits,12):st.hits-(st.level-1)*12}
+function drawPath(popAt){
+  const n=progN(),icons={0:'🚩',4:'⭐',8:'🚀',12:'🏆'};
+  let h=`<div class="path"><div class="ptrack"></div><div class="pfill" style="width:${n/12*100}%"></div>`;
+  for(let k=1;k<12;k++)if(k%4)h+=`<span class="pdot ${n>=k?'on':''}" style="left:${k/12*100}%"></span>`;
+  [0,4,8,12].forEach(k=>h+=`<div class="pnode ${n>=k?'on':''} ${popAt===k?'pop':''}" style="left:${k/12*100}%">${icons[k]}</div>`);
+  h+=`</div><div class="plabel"><span><b>${n}</b> / 12 respuestas correctas</span><span>${CUR.mode==='endless'?`Nivel ${CUR.st.level} · `:''}${n<4?'Próximo logro: 4 ⭐':n<8?'Próximo logro: 8 🚀':n<12?'Meta: 12 🏆':'¡Meta alcanzada! 🏆'}</span></div>`;
+  const pb=$('#pathBox');
+  if(pb.querySelector('.pfill')&&popAt!==undefined){ // animar en su lugar
+    const old=pb.querySelector('.pfill');pb.innerHTML=h;const nf=pb.querySelector('.pfill');const w=nf.style.width;nf.style.width=old.style.width;requestAnimationFrame(()=>requestAnimationFrame(()=>nf.style.width=w));
+  }else pb.innerHTML=h;
+}
+
+/* ---------- EJERCICIO ---------- */
+let activeInp=null,sheetOpen=false;
+function newExercise(){
+  const ex=genExercise(CUR.topic,CUR.ex&&CUR.ex.gen);CUR.ex=ex;CUR.st.count++;renderExercise();
+}
+function renderExercise(){
+  const ex=CUR.ex,hasNum=ex.fields.some(f=>f.type==='num'),numCount=ex.fields.filter(f=>f.type==='num').length;
+  const fields=ex.fields.map(f=>f.type==='num'
+    ?`<div class="field" data-f="${f.id}"><div class="numrow"><label for="f_${f.id}" style="margin:0">${f.label}</label><input class="ans" id="f_${f.id}" inputmode="none" autocomplete="off" spellcheck="false" aria-label="Respuesta"></div></div>`
+    :`<div class="field" data-f="${f.id}">${f.label?`<label>${f.label}</label>`:''}<div class="opts ${f.two!==false&&f.options.length===2?'two':''}">${f.options.map(o=>`<button class="opt" data-v="${o.v}">${o.h}</button>`).join('')}</div></div>`).join('');
+  const keys=['7','8','9','del','4','5','6','−','1','2','3','/','0',',',numCount>1?'next':'clr'];
+  const kp=hasNum?`<div class="keypad" aria-label="Teclado numérico">${keys.map(k=>`<button class="key ${k==='0'?'w2':''} ${['del','next','clr','−','/',','].includes(k)?'fn':''}" data-k="${k}">${{del:'⌫',next:'Sig. ▸',clr:'C'}[k]||k}</button>`).join('')}</div>`:'';
+  $('#exBox').innerHTML=`<div class="card screen"><div class="exhead"><span class="ex-count">Ejercicio ${CUR.st.count}</span><span class="tag">${ex.type}</span></div>
+   <div class="exgrid"><div><p class="prompt">${ex.prompt}</p>${ex.visual||''}</div>
+   <div>${fields}${ex.note?`<p class="hint-note">${ex.note}</p>`:''}${kp}
+    <div class="actions"><button class="btn ghost" id="clrBtn">🗑 Borrar</button><button class="btn ok" id="chkBtn">✅ Comprobar respuesta</button></div></div></div></div>`;
+  const box=$('#exBox');
+  box.querySelectorAll('input.ans').forEach(inp=>{
+    inp.addEventListener('focus',()=>{activeInp=inp;inp.dataset.fresh='1';setTimeout(()=>{try{inp.select()}catch(e){}},0);markActive()});
+    inp.addEventListener('input',()=>{inp.value=inp.value.replace(/[^0-9,.\-−\/]/g,'').slice(0,10);inp.dataset.fresh='0';unwrong(inp)});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkAnswer()}});
+  });
+  box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const f=b.closest('.field');f.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');unwrong(b)});
+  box.querySelectorAll('.key').forEach(k=>k.onclick=()=>keyPress(k.dataset.k));
+  $('#clrBtn').onclick=clearAnswers;$('#chkBtn').onclick=checkAnswer;
+  activeInp=box.querySelector('input.ans');if(activeInp)activeInp.dataset.fresh='1';markActive();
+}
+function unwrong(el){el.closest('.field').classList.remove('wrong')}
+function markActive(){document.querySelectorAll('#exBox input.ans').forEach(i=>i.classList.toggle('active',i===activeInp))}
+function keyPress(k){
+  const inps=[...document.querySelectorAll('#exBox input.ans')];if(!inps.length)return;
+  if(!activeInp||!inps.includes(activeInp))activeInp=inps[0];const inp=activeInp;
+  if(k==='next'){activeInp=inps[(inps.indexOf(inp)+1)%inps.length];activeInp.dataset.fresh='1';markActive();return}
+  if(k==='clr'){inp.value='';inp.dataset.fresh='0'}
+  else if(k==='del'){inp.value=inp.value.slice(0,-1);inp.dataset.fresh='0'}
+  else{if(inp.dataset.fresh==='1')inp.value='';if(inp.value.length<10)inp.value+=k;inp.dataset.fresh='0'}
+  unwrong(inp);markActive();
+}
+function clearAnswers(){
+  const box=$('#exBox');box.querySelectorAll('input.ans').forEach(i=>{i.value='';i.dataset.fresh='1'});
+  box.querySelectorAll('.opt.sel').forEach(o=>o.classList.remove('sel'));box.querySelectorAll('.field').forEach(f=>f.classList.remove('wrong'));
+  activeInp=box.querySelector('input.ans');markActive();
+}
+function checkAnswer(){
+  const ex=CUR&&CUR.ex;if(!ex||sheetOpen)return;
+  const box=$('#exBox'),v={},raw={};let empty=null,bad=null;
+  for(const f of ex.fields){
+    const fe=box.querySelector(`.field[data-f="${f.id}"]`);
+    if(f.type==='num'){const r=box.querySelector('#f_'+f.id).value.trim();raw[f.id]=r;if(!r){empty=empty||fe;continue}const n=parseNum(r);if(isNaN(n)){bad=bad||fe;continue}v[f.id]=n}
+    else{const s=fe.querySelector('.opt.sel');if(!s){empty=empty||fe;continue}v[f.id]=s.dataset.v}
+  }
+  if(empty){toast('✍️ Completa todas las respuestas antes de comprobar.','info');shake(empty);return}
+  if(bad){toast('🔢 Escribe un número válido. Ej: 5, −3, 2/3 o 1,5','info');shake(bad);return}
+  const wrong=ex.fields.filter(f=>f.type==='num'?!numOk(v[f.id],raw[f.id],f.ans):v[f.id]!==String(f.ans)).map(f=>f.id);
+  wrong.length?onWrong(v,wrong):onCorrect();
+}
+function shake(el){el.classList.remove('wrong');void el.offsetWidth;el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),700)}
+
+function onCorrect(){
+  const st=CUR.st;S.hits++;st.hits++;st.streak++;updTop();bump('#chOk');
+  if(CUR.mode==='endless'){st.best=Math.max(st.best,st.streak);st.recent.push(true);if(st.recent.length>12)st.recent.shift();drawEStats()}
+  const n=progN(),milestone=n%4===0;
+  drawPath(milestone?n:undefined);
+  if(n===4)toast('⭐ ¡Primer logro desbloqueado! Vas por muy buen camino.','gold');
+  else if(n===8)toast('🚀 ¡Segundo logro! Ya casi completas esta meta.','gold');
+  else if(n===12)confetti(60);
+  else if(st.streak>=3&&st.streak%3===0)toast(`🔥 ${pick(MOTIV)} Racha de ${st.streak}`,'green');
+  showSheet('ok',`<div class="sh-head"><div class="sh-ico">✔</div><div><h3>¡Excelente!</h3><p>${pick(OKMSG)}</p></div></div>
+    <div class="sh-body"><b>¿Por qué es correcto?</b><p>${CUR.ex.explain}</p></div>
+    <button class="btn ok block" id="shBtn">Continuar →</button>`,()=>{
+      if(n===12){CUR.mode==='lesson'?finishLesson():levelUp()}else newExercise();
+    });
+}
+function onWrong(v,wrong){
+  const st=CUR.st;S.errs++;st.errs++;st.streak=0;updTop();bump('#chBad');
+  if(CUR.mode==='endless'){st.recent.push(false);if(st.recent.length>12)st.recent.shift();drawEStats()}
+  const d=CUR.ex.diagnose(v,wrong)||{err:'La respuesta no es correcta.',check:'Revisa cada paso con calma.',hint:'Vuelve a leer el enunciado.'};
+  showSheet('bad',`<div class="sh-head"><div class="sh-ico">✖</div><div><h3>Inténtalo nuevamente</h3><p>${pick(BADSUB)}</p></div></div>
+    <div class="sh-body"><div class="drow"><span class="e">🔍</span><div><b>Dónde estuvo el error</b>${d.err}</div></div>
+    <div class="drow"><span class="e">👀</span><div><b>Qué revisar</b>${d.check}</div></div>
+    <div class="drow hint"><span class="e">💡</span><div><b>Pista</b>${d.hint}</div></div></div>
+    <button class="btn bad block" id="shBtn">↺ Volver a intentarlo</button>`,()=>{
+      const box=$('#exBox');wrong.forEach(id=>{const f=box.querySelector(`.field[data-f="${id}"]`);if(f)shake(f),f.classList.add('wrong')});
+      const fi=box.querySelector(`.field[data-f="${wrong[0]}"] input.ans`);if(fi){activeInp=fi;fi.dataset.fresh='1';markActive()}
+      const ex=box.querySelector('.field.wrong');if(ex)ex.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+}
+function showSheet(type,html,onClose){
+  sheetOpen=true;const sh=$('#sheet');sh.className='sheet '+type;sh.innerHTML=html;$('#sheetWrap').classList.add('show');
+  const b=$('#shBtn');setTimeout(()=>b.focus(),300);
+  b.onclick=()=>{closeSheet();onClose&&onClose()};
+}
+function closeSheet(){sheetOpen=false;$('#sheetWrap').classList.remove('show')}
+document.addEventListener('keydown',e=>{if(sheetOpen&&(e.key==='Escape')){$('#shBtn').click()}});
+
+/* ---------- LOGROS ---------- */
+function resultHTML(hits,errs,ms){
+  const tot=hits+errs,pct=tot?Math.round(hits/tot*100):100;
+  return {pct,html:`<div class="rgrid">
+   <div class="rbox full"><div class="k">👤 Estudiante</div><div class="v">${esc(S.name)}</div></div>
+   <div class="rbox"><div class="k">🎓 Grado</div><div class="v">${S.grade}</div></div>
+   <div class="rbox"><div class="k">⏱ Tiempo</div><div class="v">${fmtTime(ms)}</div></div>
+   <div class="rbox ok"><div class="k">✔ Aciertos</div><div class="v">${hits}</div></div>
+   <div class="rbox bad"><div class="k">✖ Errores</div><div class="v">${errs}</div></div>
+   <div class="rbox full"><div class="k">📊 Porcentaje de acierto</div><div class="v">${pct}%</div><div class="mastery"><i style="width:${pct}%"></i></div></div></div>`};
+}
+function motivFor(p){return p>=90?'Excelente trabajo. Cada día mejoras más en matemáticas. 🌟':p>=70?'¡Muy bien! Tu esfuerzo está dando frutos. Sigue practicando. 💪':'¡Lo lograste! Cada error fue una oportunidad para aprender. 🧠'}
+function finishLesson(){
+  const t=CUR.topic,st=CUR.st,r=resultHTML(st.hits,st.errs,Date.now()-st.t0),idx=ORDER.indexOf(t),next=ORDER[idx+1];
+  S.done[t]=true;save();confetti(140);
+  showModal(`<div class="trophy">🏆</div><h2>🎉 ¡Lección completada!</h2><p class="muted" style="font-weight:800">${TOPICS[t].icon} ${TOPICS[t].name}</p>${r.html}
+   <div class="mot">${motivFor(r.pct)}</div>
+   <div class="mbtns">${next?`<button class="btn ok block" id="mNext">Siguiente lección: ${TOPICS[next].name} →</button>`:`<button class="btn ok block" id="mNext">♾️ Ir a la Práctica sin fin →</button>`}
+   <button class="btn ghost block" id="mMenu">🏠 Volver al menú</button></div>`);
+  delete S.lessons[t]; // la próxima vez la lección empieza de nuevo
+  $('#mNext').onclick=()=>{closeModal();if(next)openLesson(next,'teoria');else{renderMenu();setTimeout(()=>$('#endlessSec').scrollIntoView({behavior:'smooth'}),300)}};
+  $('#mMenu').onclick=()=>{closeModal();renderMenu()};
+}
+function levelUp(){
+  const st=CUR.st,lv=st.level,r=resultHTML(st.hits,st.errs,Date.now()-st.t0);st.level++;confetti(120);
+  showModal(`<div class="trophy">🏅</div><h2>¡Nivel ${lv} superado!</h2><p class="muted" style="font-weight:800">♾️ ${TOPICS[CUR.topic].name} · resultados acumulados</p>${r.html}
+   <div class="mot">${motivFor(r.pct)}</div>
+   <div class="mbtns"><button class="btn ok block" id="mNext">Seguir practicando: Nivel ${st.level} →</button><button class="btn ghost block" id="mMenu">🏠 Volver al menú</button></div>`);
+  $('#mNext').onclick=()=>{closeModal();drawEStats();drawPath();newExercise()};
+  $('#mMenu').onclick=()=>{closeModal();renderMenu()};
+}
+function showModal(html){$('#modal').innerHTML=html;$('#modalWrap').classList.add('show');setTimeout(()=>{const b=$('#mNext');b&&b.focus()},400)}
+function closeModal(){$('#modalWrap').classList.remove('show')}
+
+renderWelcome();
+</script>
+</body>
+</html>
